@@ -35,13 +35,10 @@ function LevelMap() {
     ))
   }
 
-  const currentLevel = levelsWithStatus.find(l => l.status === 'current') || levelsWithStatus.find(l => l.unlocked) || levelsWithStatus[0]
+  const currentLevel = levelsWithStatus.find(l => l.status === 'current') || levelsWithStatus.find(l => l.status !== 'locked') || levelsWithStatus[0]
   const currentLevelId = currentLevel.id
   
   const levelChallenges = challenges[currentLevelId] || []
-  const completedChallengesCount = levelChallenges.filter(c => 
-    isChallengeCompleted(currentLevelId, c.id)
-  ).length
 
   const completedLessons = currentLevelLessons.filter(l => l.completed).length
 
@@ -210,7 +207,7 @@ function LevelMap() {
             <div className="challenges-section">
               <h3 className="list-title">⚡ 编程挑战</h3>
               <div className="challenges-grid">
-                {levelChallenges.length > 0 ? levelChallenges.map((challenge, index) => {
+                {levelChallenges.length > 0 ? levelChallenges.map((challenge) => {
                   const completed = isChallengeCompleted(currentLevelId, challenge.id)
                   return (
                     <div key={challenge.id} className={`challenge-card ${completed ? 'completed' : ''}`}>

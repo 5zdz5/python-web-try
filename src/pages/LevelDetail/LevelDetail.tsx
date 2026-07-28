@@ -19,7 +19,6 @@ function LevelDetail() {
   
   const { 
     progress, 
-    isLessonCompleted, 
     isChallengeCompleted,
     isLevelUnlocked,
     completeLesson,
@@ -35,22 +34,9 @@ function LevelDetail() {
   const currentLessonSteps = lessonSteps[levelId] || []
   const currentChallenges = challenges[levelId] || []
 
-  const completedLessonSteps = currentLessonSteps.filter(s => 
-    s.type === 'practice' ? false : true
-  ).length
-
   const completedChallenges = currentChallenges.filter(c => 
     isChallengeCompleted(levelId, c.id)
   ).length
-
-  const totalProgress = (() => {
-    const total = currentLessonSteps.length + currentChallenges.length
-    if (total === 0) return 0
-    const completed = (progress.levels[levelId]?.lessons 
-      ? Object.values(progress.levels[levelId].lessons).filter(l => l.completed).length 
-      : 0) + completedChallenges
-    return Math.round((completed / total) * 100)
-  })()
 
   const renderStars = (difficulty: number) => {
     return Array(5).fill(0).map((_, i) => (

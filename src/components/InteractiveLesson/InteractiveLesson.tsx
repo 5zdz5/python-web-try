@@ -20,7 +20,7 @@ interface InteractiveLessonProps {
   onComplete?: () => void
 }
 
-function InteractiveLesson({ title, steps, onComplete }: InteractiveLessonProps) {
+function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLessonProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
