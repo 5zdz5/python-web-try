@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react'
+import { useAuth } from './AuthContext'
+import { isFirebaseEnabled, saveUserProgress, loadUserProgress } from '../config/firebase'
 import { achievements as allAchievements, AchievementStats } from '../data/achievements'
 
 interface LessonProgress {
@@ -46,6 +48,7 @@ export interface ActivityEntry {
 interface ProgressContextType {
   progress: UserProgress
   stats: AchievementStats
+  syncStatus: 'idle' | 'loading' | 'synced' | 'error'
   isLessonCompleted: (levelId: number, lessonId: number) => boolean
   isChallengeCompleted: (levelId: number, challengeId: number) => boolean
   isLevelUnlocked: (levelId: number) => boolean
@@ -66,7 +69,7 @@ interface ProgressContextType {
 }
 
 const STORAGE_KEY = 'python-quest-progress'
-const STORAGE_VERSION = 'v3'
+const STORAGE_VERSION = 'v3-cloud'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -102,6 +105,26 @@ const defaultProgress: UserProgress = {
   ]
 }
 
+function migrateProgress(saved: any): UserProgress {
+  if (!saved || typeof saved !== 'object') return { ...defaultProgress }
+  const merged: UserProgress = {
+    ...defaultProgress,
+    ...saved,
+    levels: saved.levels ? { ...defaultProgress.levels, ...saved.levels } : { ...defaultProgress.levels },
+    unlockedAchievements: Array.isArray(saved.unlockedAchievements)
+      ? saved.unlockedAchievements
+      : defaultProgress.unlockedAchievements,
+    claimedAchievements: Array.isArray(saved.claimedAchievements)
+      ? saved.claimedAchievements
+      : defaultProgress.claimedAchievements,
+    activityLog: Array.isArray(saved.activityLog) && saved.activityLog.length > 0
+      ? saved.activityLog
+      : defaultProgress.activityLog,
+    studyDays: Array.isArray(saved.studyDays) ? saved.studyDays : defaultProgress.studyDays
+  }
+  return merged
+}
+
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined)
 
 function makeId() {
@@ -109,6 +132,8 @@ function makeId() {
 }
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
+  const { user, isLoading: authLoading } = useAuth()
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'synced' | 'error'>('idle')
   const [progress, setProgress] = useState<UserProgress>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -119,24 +144,67 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(STORAGE_KEY + '-version', STORAGE_VERSION)
       }
     } catch {}
-    return defaultProgress
+    return { ...defaultProgress }
   })
 
+  const hasSyncedRef = useRef(false)
+
+  // 云端加载：用户登录后从 Firestore 拉取进度
+  useEffect(() => {
+    if (authLoading) return
+    if (!user || !isFirebaseEnabled()) {
+      setSyncStatus('idle')
+      return
+    }
+    if (hasSyncedRef.current) return
+
+    setSyncStatus('loading')
+    loadUserProgress(user.uid)
+      .then(cloud => {
+        if (cloud) {
+          setProgress(prev => {
+            const merged = migrateProgress(cloud)
+            // 若本地已有更多进度，保留较高者（简单合并）
+            const localXP = prev.totalXP
+            const cloudXP = merged.totalXP
+            if (localXP > cloudXP) {
+              return migrateProgress({ ...merged, ...prev })
+            }
+            return merged
+          })
+        }
+        setSyncStatus('synced')
+        hasSyncedRef.current = true
+      })
+      .catch(err => {
+        console.error('加载云端进度失败', err)
+        setSyncStatus('error')
+      })
+  }, [user, authLoading])
+
+  // 登出后重置同步标记
+  useEffect(() => {
+    if (!user) {
+      hasSyncedRef.current = false
+      setSyncStatus('idle')
+    }
+  }, [user])
+
+  // 保存到本地 + 云端
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
     } catch {}
-  }, [progress])
 
-  const recordActivity = (entry: Omit<ActivityEntry, 'id' | 'timestamp'>) => {
-    setProgress(prev => ({
-      ...prev,
-      activityLog: [
-        { ...entry, id: makeId(), timestamp: new Date().toISOString() },
-        ...prev.activityLog
-      ].slice(0, 100)
-    }))
-  }
+    if (user && isFirebaseEnabled() && syncStatus === 'synced') {
+      const timeout = setTimeout(() => {
+        saveUserProgress(user.uid, progress).catch(err => {
+          console.error('保存云端进度失败', err)
+        })
+      }, 800)
+      return () => clearTimeout(timeout)
+    }
+  }, [progress, user, syncStatus])
 
   const checkAchievements = useCallback((current: UserProgress) => {
     const completedLessons = Object.values(current.levels).reduce(
@@ -210,7 +278,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      let next = {
+      let next: UserProgress = {
         ...prev,
         levels: {
           ...prev.levels,
@@ -245,7 +313,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const levelCompleted = allChallengesCompleted && allLessonsCompleted
 
       const nextLevelId = levelId + 1
-      const newLevels = {
+      const newLevels: Record<number, LevelProgress> = {
         ...prev.levels,
         [levelId]: {
           ...level,
@@ -397,7 +465,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, [progress])
 
   const resetProgress = useCallback(() => {
-    setProgress(defaultProgress)
+    setProgress({ ...defaultProgress })
     try {
       localStorage.removeItem(STORAGE_KEY)
       localStorage.setItem(STORAGE_KEY + '-version', STORAGE_VERSION)
@@ -428,6 +496,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     <ProgressContext.Provider value={{
       progress,
       stats,
+      syncStatus,
       isLessonCompleted,
       isChallengeCompleted,
       isLevelUnlocked,
