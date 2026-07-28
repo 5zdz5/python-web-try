@@ -26,6 +26,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Download Pyodide files
+        run: |
+          cd dist
+          curl -L -o pyodide.zip https://github.com/pyodide/pyodide/releases/download/0.26.2/pyodide-0.26.2-full.zip
+          unzip -q -o pyodide.zip -d pyodide-temp
+          mv pyodide-temp/*/* pyodide/ 2>/dev/null || mv pyodide-temp/* pyodide/
+          rm -rf pyodide-temp pyodide.zip
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
