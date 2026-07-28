@@ -33,8 +33,15 @@ function Navbar({ showUserInfo }: NavbarProps) {
           <Link to="/map" className={`nav-link ${location.pathname === '/map' ? 'active' : ''}`}>
             冒险地图
           </Link>
-          <a href="#" className="nav-link">学习路径</a>
-          <a href="#" className="nav-link">排行榜</a>
+          <Link to="/path" className={`nav-link ${location.pathname === '/path' ? 'active' : ''}`}>
+            学习路径
+          </Link>
+          <Link to="/achievements" className={`nav-link ${location.pathname === '/achievements' ? 'active' : ''}`}>
+            成就
+          </Link>
+          <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>
+            排行榜
+          </Link>
         </div>
 
         <div className="navbar-actions">

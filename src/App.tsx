@@ -4,6 +4,9 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import LevelMap from './pages/LevelMap'
 import LevelDetail from './pages/LevelDetail'
+import LearningPath from './pages/LearningPath'
+import Achievements from './pages/Achievements'
+import Leaderboard from './pages/Leaderboard'
 import './App.css'
 
 function App() {
@@ -15,6 +18,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/map" element={<LevelMap />} />
           <Route path="/level/:id" element={<LevelDetail />} />
+          <Route path="/path" element={<LearningPath />} />
+          <Route path="/achievements" element={<Achievements />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </main>
       <Footer />
