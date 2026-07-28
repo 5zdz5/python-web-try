@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './LevelMap.css'
 import { levels, currentLevelLessons, currentLevelChallenges } from '../../data/mockData'
 import { challenges } from '../../data/lessonContent'
@@ -7,6 +7,7 @@ import { useProgress } from '../../context/ProgressContext'
 import { Level } from '../../types'
 
 function LevelMap() {
+  const navigate = useNavigate()
   const [selectedLevel, setSelectedLevel] = useState<Level>(levels[3])
   const { progress, isLevelUnlocked, isLevelCompleted, isChallengeCompleted } = useProgress()
 
@@ -45,6 +46,7 @@ function LevelMap() {
   const handleLevelClick = (level: Level & { status: string }) => {
     if (level.status !== 'locked') {
       setSelectedLevel(level)
+      navigate(`/level/${level.id}`)
     }
   }
 
