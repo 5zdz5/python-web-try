@@ -184,7 +184,7 @@ function LevelMap() {
             <div className="lessons-list">
               <h3 className="list-title">📖 课程列表</h3>
               {currentLevelLessons.map((lesson, index) => (
-                <div key={lesson.id} className={`lesson-item ${lesson.completed ? 'completed' : ''}`}>
+                <div key={lesson.id} className={`lesson-item ${lesson.completed ? 'completed' : ''}`} onClick={() => navigate(`/level/${currentLevel.id}`)}>
                   <div className="lesson-index">{String(index + 1).padStart(2, '0')}</div>
                   <div className="lesson-icon">
                     {lesson.type === 'video' && '🎬'}
@@ -212,7 +212,7 @@ function LevelMap() {
                 {levelChallenges.length > 0 ? levelChallenges.map((challenge) => {
                   const completed = isChallengeCompleted(currentLevelId, challenge.id)
                   return (
-                    <div key={challenge.id} className={`challenge-card ${completed ? 'completed' : ''}`}>
+                    <div key={challenge.id} className={`challenge-card ${completed ? 'completed' : ''}`} onClick={() => navigate(`/level/${currentLevel.id}`)}>
                       <div className="challenge-header">
                         <span className={`challenge-difficulty difficulty-${challenge.difficulty}`}>
                           {challenge.difficulty === 'easy' && '简单'}
@@ -225,7 +225,7 @@ function LevelMap() {
                     </div>
                   )
                 }) : currentLevelChallenges.map(challenge => (
-                  <div key={challenge.id} className={`challenge-card ${challenge.completed ? 'completed' : ''}`}>
+                  <div key={challenge.id} className={`challenge-card ${challenge.completed ? 'completed' : ''}`} onClick={() => navigate(`/level/${currentLevel.id}`)}>
                     <div className="challenge-header">
                       <span className={`challenge-difficulty difficulty-${challenge.difficulty}`}>
                         {challenge.difficulty === 'easy' && '简单'}
