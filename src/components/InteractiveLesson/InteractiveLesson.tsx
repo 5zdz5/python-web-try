@@ -26,22 +26,23 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [practicePassed, setPracticePassed] = useState(false)
+  const [skipped, setSkipped] = useState(false)
 
   const step = steps[currentStep]
   const progress = ((currentStep + (completedSteps.has(currentStep) ? 1 : 0)) / steps.length) * 100
   const isLastStep = currentStep === steps.length - 1
 
   const handleNext = () => {
-    if (isLastStep && completedSteps.size === steps.length) {
+    if (isLastStep) {
+      markComplete()
       onComplete?.()
       return
     }
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
-      setSelectedAnswer(null)
-      setShowResult(false)
-      setPracticePassed(false)
-    }
+    setCurrentStep(currentStep + 1)
+    setSelectedAnswer(null)
+    setShowResult(false)
+    setPracticePassed(false)
+    setSkipped(false)
   }
 
   const handlePrev = () => {
@@ -50,6 +51,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
       setSelectedAnswer(null)
       setShowResult(false)
       setPracticePassed(false)
+      setSkipped(false)
     }
   }
 
@@ -77,6 +79,11 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
     }
   }
 
+  const skipStep = () => {
+    setSkipped(true)
+    markComplete()
+  }
+
   return (
     <div className="interactive-lesson">
       <div className="lesson-progress-bar">
@@ -88,7 +95,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
           <div
             key={s.id}
             className={`step-dot ${index < currentStep || completedSteps.has(index) ? 'completed' : ''} ${index === currentStep ? 'current' : ''}`}
-            onClick={() => index <= currentStep && setCurrentStep(index)}
+            onClick={() => setCurrentStep(index)}
           >
             <span className="dot-number">{index + 1}</span>
             <span className="dot-title">{s.title}</span>
@@ -164,12 +171,16 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                 <button className="btn btn-secondary" onClick={handlePrev} disabled={currentStep === 0}>
                   ← 上一步
                 </button>
+                {!skipped && !practicePassed && (
+                  <button className="btn btn-secondary" onClick={skipStep}>
+                    跳过此步
+                  </button>
+                )}
                 <button 
                   className="btn btn-primary" 
-                  onClick={handleNext}
-                  disabled={!practicePassed}
+                  onClick={() => { markComplete(); handleNext(); }}
                 >
-                  {isLastStep ? '完成学习 🎉' : '继续下一步 →'}
+                  {practicePassed || skipped ? (isLastStep ? '完成学习 🎉' : '继续下一步 →') : '跳过练习继续 →'}
                 </button>
               </div>
               {practicePassed && (
@@ -223,8 +234,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                     </button>
                     <button 
                       className="btn btn-primary" 
-                      onClick={handleNext}
-                      disabled={selectedAnswer !== step.correctAnswer}
+                      onClick={() => { markComplete(); handleNext(); }}
                     >
                       {isLastStep ? '完成学习 🎉' : '继续下一步 →'}
                     </button>
