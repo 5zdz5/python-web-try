@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-ssr
+public/pyodide
 *.local
 .vscode/*
 !.vscode/extensions.json
