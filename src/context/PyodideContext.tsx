@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react'
 import { loadPyodide, PyodideInterface } from 'pyodide'
 
 interface PyodideContextType {
@@ -23,18 +23,33 @@ interface TestResult {
 
 const PyodideContext = createContext<PyodideContextType | undefined>(undefined)
 
+const defaultContext: PyodideContextType = {
+  pyodide: null,
+  isLoading: false,
+  error: null,
+  runCode: async () => ({ output: '', error: 'Python 环境未初始化' }),
+  runCodeWithTests: async () => ({ output: '', error: 'Python 环境未初始化', passed: false, testResults: [] }),
+  retryLoad: () => {}
+}
+
 export function PyodideProvider({ children }: { children: ReactNode }) {
   const [pyodide, setPyodide] = useState<PyodideInterface | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [retryKey, setRetryKey] = useState(0)
+  const initStarted = useRef(false)
 
   const initPyodide = useCallback(async () => {
+    if (initStarted.current) return
+    initStarted.current = true
+    
     setIsLoading(true)
     setError(null)
     try {
+      // 延迟到下一帧，确保不影响初始渲染
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       const pyodideInstance = await loadPyodide({
-        indexURL: import.meta.env.BASE_URL + 'pyodide/'
+        indexURL: (import.meta.env.BASE_URL || '/') + 'pyodide/'
       })
       
       await pyodideInstance.runPythonAsync(`
@@ -45,20 +60,28 @@ import traceback
       
       setPyodide(pyodideInstance)
     } catch (err) {
+      console.warn('Pyodide load failed (non-fatal):', err)
       setError(err instanceof Error ? err.message : '加载Python运行环境失败')
+      initStarted.current = false
     } finally {
       setIsLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    initPyodide()
-  }, [initPyodide, retryKey])
+    // 延迟初始化，确保路由和UI先渲染完成
+    const timer = setTimeout(() => {
+      initPyodide().catch(() => {})
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [initPyodide])
 
   const retryLoad = useCallback(() => {
+    initStarted.current = false
     setPyodide(null)
-    setRetryKey(k => k + 1)
-  }, [])
+    setError(null)
+    initPyodide().catch(() => {})
+  }, [initPyodide])
 
   const runCode = useCallback(async (code: string) => {
     if (!pyodide) {
@@ -215,7 +238,8 @@ sys.stderr = sys.__stderr__
 export function usePyodide() {
   const context = useContext(PyodideContext)
   if (context === undefined) {
-    throw new Error('usePyodide must be used within a PyodideProvider')
+    console.warn('usePyodide called outside PyodideProvider, using default')
+    return defaultContext
   }
   return context
 }
