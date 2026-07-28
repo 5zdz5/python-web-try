@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run copy-pyodide",
+    "copy-pyodide": "node -e \"const fs=require('fs');const p=require('path');const src=p.join('node_modules','pyodide','full');const dst=p.join('dist','pyodide');if(fs.existsSync(src)){fs.cpSync(src,dst,{recursive:true});console.log('Pyodide copied to dist/pyodide')}else{console.log('No pyodide full dir found, skipping')}\"",
     "lint": "eslint .",
     "preview": "vite preview"
   },
