@@ -45,21 +45,22 @@ interface ProgressContextType {
 }
 
 const STORAGE_KEY = 'python-quest-progress'
+const STORAGE_VERSION = 'v2'
 
 const defaultProgress: UserProgress = {
   xp: 50,
-  totalXP: 180,
+  totalXP: 500,
   streak: 7,
   levels: {
-    1: { unlocked: true, completed: true, lessons: {}, challenges: {} },
-    2: { unlocked: true, completed: true, lessons: {}, challenges: {} },
-    3: { unlocked: true, completed: true, lessons: {}, challenges: {} },
+    1: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    2: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    3: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     4: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    5: { unlocked: false, completed: false, lessons: {}, challenges: {} },
-    6: { unlocked: false, completed: false, lessons: {}, challenges: {} },
-    7: { unlocked: false, completed: false, lessons: {}, challenges: {} },
-    8: { unlocked: false, completed: false, lessons: {}, challenges: {} },
-    9: { unlocked: false, completed: false, lessons: {}, challenges: {} }
+    5: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    6: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    7: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    8: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    9: { unlocked: true, completed: false, lessons: {}, challenges: {} }
   }
 }
 
@@ -69,8 +70,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<UserProgress>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
+      const version = localStorage.getItem(STORAGE_KEY + '-version')
+      if (saved && version === STORAGE_VERSION) {
         return JSON.parse(saved)
+      } else {
+        localStorage.setItem(STORAGE_KEY + '-version', STORAGE_VERSION)
       }
     } catch {}
     return defaultProgress
