@@ -15,7 +15,7 @@ function LevelDetail() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabType>('learn')
   const [activeChallenge, setActiveChallenge] = useState<number | null>(null)
-  const { isLoading: pyodideLoading } = usePyodide()
+  const { isLoading: pyodideLoading, error: pyodideError, retryLoad } = usePyodide()
   
   const { 
     progress, 
@@ -75,11 +75,18 @@ function LevelDetail() {
 
   return (
     <div className="level-detail-page">
-      {pyodideLoading && (
-        <div className="pyodide-loading">
-          <div className="loading-spinner"></div>
-          <p>正在加载 Python 运行环境...</p>
-          <p className="loading-hint">首次加载可能需要一点时间，请耐心等待</p>
+      {pyodideError && (
+        <div className="pyodide-error">
+          <span className="error-icon">⚠️</span>
+          <span>Python运行环境加载失败，代码执行功能暂不可用</span>
+          <button className="retry-btn" onClick={retryLoad}>重试</button>
+        </div>
+      )}
+
+      {pyodideLoading && !pyodideError && (
+        <div className="pyodide-loading-banner">
+          <div className="loading-spinner-small"></div>
+          <span>正在加载Python运行环境...</span>
         </div>
       )}
 

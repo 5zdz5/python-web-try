@@ -12,6 +12,7 @@ interface PyodideContextType {
     passed: boolean
     testResults: TestResult[]
   }>
+  retryLoad: () => void
 }
 
 interface TestResult {
@@ -26,34 +27,42 @@ export function PyodideProvider({ children }: { children: ReactNode }) {
   const [pyodide, setPyodide] = useState<PyodideInterface | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retryKey, setRetryKey] = useState(0)
 
-  useEffect(() => {
-    const initPyodide = async () => {
-      try {
-        const pyodideInstance = await loadPyodide({
-          indexURL: import.meta.env.BASE_URL + 'pyodide/'
-        })
-        
-        await pyodideInstance.runPythonAsync(`
+  const initPyodide = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const pyodideInstance = await loadPyodide({
+        indexURL: import.meta.env.BASE_URL + 'pyodide/'
+      })
+      
+      await pyodideInstance.runPythonAsync(`
 import sys
 import io
 import traceback
 `)
-        
-        setPyodide(pyodideInstance)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : '加载Pyodide失败')
-      } finally {
-        setIsLoading(false)
-      }
+      
+      setPyodide(pyodideInstance)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '加载Python运行环境失败')
+    } finally {
+      setIsLoading(false)
     }
+  }, [])
 
+  useEffect(() => {
     initPyodide()
+  }, [initPyodide, retryKey])
+
+  const retryLoad = useCallback(() => {
+    setPyodide(null)
+    setRetryKey(k => k + 1)
   }, [])
 
   const runCode = useCallback(async (code: string) => {
     if (!pyodide) {
-      return { output: '', error: 'Python 环境尚未就绪' }
+      return { output: '', error: 'Python 环境尚未就绪，请稍后再试' }
     }
 
     try {
@@ -197,7 +206,7 @@ sys.stderr = sys.__stderr__
   }, [pyodide])
 
   return (
-    <PyodideContext.Provider value={{ pyodide, isLoading, error, runCode, runCodeWithTests }}>
+    <PyodideContext.Provider value={{ pyodide, isLoading, error, runCode, runCodeWithTests, retryLoad }}>
       {children}
     </PyodideContext.Provider>
   )
