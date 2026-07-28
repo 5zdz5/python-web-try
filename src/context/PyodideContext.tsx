@@ -30,13 +30,8 @@ export function PyodideProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initPyodide = async () => {
       try {
-        const localURL = import.meta.env.BASE_URL + 'pyodide/'
         const pyodideInstance = await loadPyodide({
-          indexURL: localURL
-        }).catch(async () => {
-          return loadPyodide({
-            indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/'
-          })
+          indexURL: 'https://pyodide.org/wasm/pyodide/v0.26.2/full/'
         })
         
         await pyodideInstance.runPythonAsync(`
