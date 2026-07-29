@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './LevelMap.css'
-import { levels, currentLevelLessons, currentLevelChallenges } from '../../data/mockData'
+import { levels, currentLevelLessons } from '../../data/mockData'
 import { challenges } from '../../data/lessonContent'
 import { useProgress } from '../../context/ProgressContext'
 import { Level, LevelCategory } from '../../types'
@@ -275,19 +275,14 @@ function LevelMap() {
                       <h4 className="challenge-title">{challenge.title}</h4>
                     </div>
                   )
-                }) : currentLevelChallenges.map(challenge => (
-                  <div key={challenge.id} className={`challenge-card ${challenge.completed ? 'completed' : ''}`} onClick={() => navigate(`/level/${currentLevel.id}`)}>
+                }) : (
+                  <div className="challenge-card" style={{ opacity: 0.6, cursor: 'default' }} onClick={(e) => e.preventDefault()}>
                     <div className="challenge-header">
-                      <span className={`challenge-difficulty difficulty-${challenge.difficulty}`}>
-                        {challenge.difficulty === 'easy' && '简单'}
-                        {challenge.difficulty === 'medium' && '中等'}
-                        {challenge.difficulty === 'hard' && '困难'}
-                      </span>
-                      {challenge.completed && <span className="challenge-check">✓</span>}
+                      <span className="challenge-difficulty difficulty-easy">即将上线</span>
                     </div>
-                    <h4 className="challenge-title">{challenge.title}</h4>
+                    <h4 className="challenge-title">🚧 本关挑战正在准备中</h4>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 

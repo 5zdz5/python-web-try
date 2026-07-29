@@ -28,7 +28,29 @@ function LevelDetail() {
   } = useProgress()
 
   const levelId = parseInt(id || '4')
-  const level = levels.find(l => l.id === levelId) || levels[3]
+  const level = levels.find(l => l.id === levelId)
+
+  // 无效关卡ID：显示"关卡不存在"页面
+  if (!level || isNaN(levelId)) {
+    return (
+      <div className="level-detail-page">
+        <div className="container detail-container">
+          <button className="back-btn" onClick={() => navigate('/map')}>
+            <span>←</span> 返回地图
+          </button>
+          <div className="locked-page">
+            <div className="lock-icon-big">🔍</div>
+            <h2>关卡不存在</h2>
+            <p>找不到对应的关卡，请从地图选择关卡进入</p>
+            <button className="btn btn-primary" onClick={() => navigate('/map')}>
+              返回地图
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const unlocked = isLevelUnlocked(levelId)
   const levelProgress = getLevelProgress(levelId)
   
@@ -240,7 +262,7 @@ function LevelDetail() {
             onClick={() => { setActiveTab('challenges'); setActiveChallenge(null); }}
           >
             ⚡ 编程挑战
-            <span className="tab-count">{completedChallenges}/{currentChallenges.length}</span>
+            <span className="tab-count">{currentChallenges.length > 0 ? `${completedChallenges}/${currentChallenges.length}` : '即将上线'}</span>
           </button>
           <button 
             className={`tab-btn ${activeTab === 'notes' ? 'active' : ''}`}
@@ -300,6 +322,7 @@ function LevelDetail() {
                     <h3>编程挑战</h3>
                     <p>完成以下挑战来巩固所学知识，获得经验值奖励</p>
                   </div>
+                  {currentChallenges.length > 0 ? (
                   <div className="challenges-grid">
                     {currentChallenges.map((challenge, index) => {
                       const completed = isChallengeCompleted(levelId, challenge.id)
@@ -327,6 +350,12 @@ function LevelDetail() {
                       )
                     })}
                   </div>
+                  ) : (
+                    <div className="empty-state">
+                      <p>🚧 本关挑战即将上线，敬请期待！</p>
+                      <p className="empty-hint">你可以先完成上方的互动学习内容</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

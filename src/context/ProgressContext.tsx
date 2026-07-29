@@ -242,11 +242,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        // 如果旧版本有数据，迁移过来作为初始状态
-        const legacyData = safeGetItem('python-quest-progress')
-        if (legacyData && !saved) {
-          return migrateProgress(JSON.parse(legacyData))
-        }
         return sanitizeProgress(parsed)
       } catch {}
     }
@@ -262,8 +257,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   })
 
   const hasSyncedRef = useRef(false)
-  const pendingSyncRef = useRef<NodeJS.Timeout | null>(null)
-  const localSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingSyncRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const localSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const syncErrorRef = useRef<string>('')
 
   // 登录后从 Gist 加载进度
@@ -357,7 +352,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           })
       }, 1500)
     }
-  }, [progress, auth, syncStatus])
+  // 注意：syncStatus 不放入依赖数组，避免 syncing→synced 状态变化触发无限循环
+  }, [progress, auth])
 
   // 立即保存到本地（用于关键操作后强制保存）
   const forceLocalSave = useCallback(() => {
