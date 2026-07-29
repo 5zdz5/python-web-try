@@ -50,6 +50,8 @@ interface ProgressContextType {
   stats: AchievementStats
   syncStatus: 'idle' | 'loading' | 'synced' | 'syncing' | 'error'
   syncError: string
+  localSaveStatus: 'saved' | 'saving' | 'error'
+  lastLocalSave: string | null
   isLessonCompleted: (levelId: number, lessonId: number) => boolean
   isChallengeCompleted: (levelId: number, challengeId: number) => boolean
   isLevelUnlocked: (levelId: number) => boolean
@@ -68,12 +70,48 @@ interface ProgressContextType {
   getRecentActivities: (limit?: number) => ActivityEntry[]
   resetProgress: () => void
   manualSync: () => Promise<void>
+  forceLocalSave: () => void
 }
 
 const STORAGE_KEY = 'python-quest-progress'
-const STORAGE_VERSION = 'v6-unlock-all-34'
+const STORAGE_VERSION = 'v7-save-optimized'
+const LOCAL_SAVE_DEBOUNCE = 300 // 本地保存防抖时间(ms)
 
 const today = () => new Date().toISOString().slice(0, 10)
+
+// 安全的 localStorage 写入，处理 QuotaExceededError 等异常
+function safeSetItem(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value)
+    return true
+  } catch (e) {
+    if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      console.warn('localStorage 存储空间不足，尝试清理旧数据...')
+      try {
+        // 清理活动日志中的旧数据，保留最近的
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const data = JSON.parse(saved)
+          if (data.activityLog && data.activityLog.length > 30) {
+            data.activityLog = data.activityLog.slice(0, 30)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+            return true
+          }
+        }
+      } catch {}
+    }
+    console.error('localStorage 写入失败:', e)
+    return false
+  }
+}
+
+function safeGetItem(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
 
 const defaultProgress: UserProgress = {
   xp: 50,
@@ -161,21 +199,23 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const { auth, isLoading: authLoading } = useAuth()
   const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'syncing' | 'synced' | 'error'>('idle')
   const [syncError, setSyncError] = useState('')
+  const [localSaveStatus, setLocalSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
+  const [lastLocalSave, setLastLocalSave] = useState<string | null>(null)
   const [progress, setProgress] = useState<UserProgress>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      const version = localStorage.getItem(STORAGE_KEY + '-version')
-      if (saved && version === STORAGE_VERSION) {
+    const saved = safeGetItem(STORAGE_KEY)
+    const version = safeGetItem(STORAGE_KEY + '-version')
+    if (saved && version === STORAGE_VERSION) {
+      try {
         return JSON.parse(saved)
-      } else {
-        localStorage.setItem(STORAGE_KEY + '-version', STORAGE_VERSION)
-      }
-    } catch {}
+      } catch {}
+    }
+    safeSetItem(STORAGE_KEY + '-version', STORAGE_VERSION)
     return { ...defaultProgress }
   })
 
   const hasSyncedRef = useRef(false)
   const pendingSyncRef = useRef<NodeJS.Timeout | null>(null)
+  const localSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const syncErrorRef = useRef<string>('')
 
   // 登录后从 Gist 加载进度
@@ -227,11 +267,25 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     }
   }, [auth])
 
-  // 本地持久化
+  // 本地持久化 - 防抖保存
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
-    } catch {}
+    setLocalSaveStatus('saving')
+
+    // 清除之前的定时器
+    if (localSaveTimerRef.current) {
+      clearTimeout(localSaveTimerRef.current)
+    }
+
+    // 防抖：延迟保存，避免频繁写入
+    localSaveTimerRef.current = setTimeout(() => {
+      const success = safeSetItem(STORAGE_KEY, JSON.stringify(progress))
+      if (success) {
+        setLocalSaveStatus('saved')
+        setLastLocalSave(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+      } else {
+        setLocalSaveStatus('error')
+      }
+    }, LOCAL_SAVE_DEBOUNCE)
 
     // 登录态 + 已同步过 -> 节流上传 Gist
     if (auth && auth.gistId && hasSyncedRef.current && syncStatus !== 'loading') {
@@ -256,6 +310,21 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       }, 1500)
     }
   }, [progress, auth, syncStatus])
+
+  // 立即保存到本地（用于关键操作后强制保存）
+  const forceLocalSave = useCallback(() => {
+    setLocalSaveStatus('saving')
+    if (localSaveTimerRef.current) {
+      clearTimeout(localSaveTimerRef.current)
+    }
+    const success = safeSetItem(STORAGE_KEY, JSON.stringify(progress))
+    if (success) {
+      setLocalSaveStatus('saved')
+      setLastLocalSave(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+    } else {
+      setLocalSaveStatus('error')
+    }
+  }, [progress])
 
   const checkAchievements = useCallback((current: UserProgress) => {
     const completedLessons = Object.values(current.levels).reduce(
@@ -550,7 +619,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setProgress({ ...defaultProgress })
     try {
       localStorage.removeItem(STORAGE_KEY)
-      localStorage.setItem(STORAGE_KEY + '-version', STORAGE_VERSION)
+      safeSetItem(STORAGE_KEY + '-version', STORAGE_VERSION)
+      setLocalSaveStatus('saved')
+      setLastLocalSave(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
     } catch {}
   }, [])
 
@@ -599,6 +670,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       stats,
       syncStatus,
       syncError,
+      localSaveStatus,
+      lastLocalSave,
       isLessonCompleted,
       isChallengeCompleted,
       isLevelUnlocked,
@@ -616,7 +689,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       getOverallProgress,
       getRecentActivities,
       resetProgress,
-      manualSync
+      manualSync,
+      forceLocalSave
     }}>
       {children}
     </ProgressContext.Provider>
