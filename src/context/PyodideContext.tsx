@@ -49,7 +49,8 @@ export function PyodideProvider({ children }: { children: ReactNode }) {
       await new Promise(resolve => setTimeout(resolve, 100))
       
       const pyodideInstance = await loadPyodide({
-        indexURL: (import.meta.env.BASE_URL || '/') + 'pyodide/'
+        indexURL: (import.meta.env.BASE_URL || '/') + 'pyodide/',
+        checkAPIVersion: false
       })
       
       await pyodideInstance.runPythonAsync(`

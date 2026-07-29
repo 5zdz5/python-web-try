@@ -33,8 +33,23 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
   const [copied, setCopied] = useState(false)
 
   const step = steps[currentStep]
-  const progress = ((currentStep + (completedSteps.has(currentStep) ? 1 : 0)) / steps.length) * 100
+  const progress = steps.length > 0 ? ((currentStep + (completedSteps.has(currentStep) ? 1 : 0)) / steps.length) * 100 : 0
   const isLastStep = currentStep === steps.length - 1
+
+  if (!steps || steps.length === 0 || !step || !step.title || !step.type) {
+    return (
+      <div className="interactive-lesson">
+        <div className="lesson-content">
+          <div className="step-header">
+            <h2 className="step-title">加载中...</h2>
+          </div>
+          <div className="step-body">
+            <p>课程内容加载中，请稍候...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const handleNext = () => {
     if (isLastStep) {
@@ -116,12 +131,12 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
       <div className="lesson-steps-indicator">
         {steps.map((s, index) => (
           <div
-            key={s.id}
+            key={s?.id || index}
             className={`step-dot ${index < currentStep || completedSteps.has(index) ? 'completed' : ''} ${index === currentStep ? 'current' : ''}`}
             onClick={() => setCurrentStep(index)}
           >
             <span className="dot-number">{index + 1}</span>
-            <span className="dot-title">{s.title}</span>
+            <span className="dot-title">{s?.title || '步骤'}</span>
           </div>
         ))}
       </div>
@@ -131,15 +146,15 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
           <span className="step-badge">
             第 {currentStep + 1} 步 / 共 {steps.length} 步
           </span>
-          <h2 className="step-title">{step.title}</h2>
+          <h2 className="step-title">{step?.title || '加载中...'}</h2>
         </div>
 
         <div className="step-body">
-          {step.type === 'explanation' && (
+          {step?.type === 'explanation' && (
             <div className="explanation-content">
               <div 
                 className="markdown-content"
-                dangerouslySetInnerHTML={{ __html: formatContent(step.content) }}
+                dangerouslySetInnerHTML={{ __html: formatContent(step?.content || '') }}
               />
               <button className="btn btn-primary" onClick={() => { markComplete(); handleNext(); }}>
                 {isLastStep ? '完成学习 🎉' : '我明白了，继续 →'}
@@ -147,17 +162,17 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
             </div>
           )}
 
-          {step.type === 'example' && (
+          {step?.type === 'example' && (
             <div className="example-content">
               <div 
                 className="markdown-content"
-                dangerouslySetInnerHTML={{ __html: formatContent(step.content) }}
+                dangerouslySetInnerHTML={{ __html: formatContent(step?.content || '') }}
               />
-              {step.code && (
+              {step?.code && (
                 <div className="code-example-wrapper">
                   <div className="example-label">💡 点击运行试试：</div>
                   <CodeEditor 
-                    initialCode={step.code}
+                    initialCode={step?.code || ''}
                     height="250px"
                   />
                 </div>
@@ -168,30 +183,30 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
             </div>
           )}
 
-          {step.type === 'practice' && (
+          {step?.type === 'practice' && (
             <div className="practice-content">
               <div
                 className="markdown-content"
-                dangerouslySetInnerHTML={{ __html: formatContent(step.content) }}
+                dangerouslySetInnerHTML={{ __html: formatContent(step?.content || '') }}
               />
-              {step.hint && (
+              {step?.hint && (
                 <div className="hint-box">
                   <span className="hint-icon">💡 提示：</span>
-                  {step.hint}
+                  {step?.hint}
                 </div>
               )}
-              {step.code && (
+              {step?.code && (
                 <div className="practice-editor">
                   <CodeEditor
-                    initialCode={step.code}
+                    initialCode={step?.code || ''}
                     height="300px"
-                    testCode={step.testCode}
+                    testCode={step?.testCode}
                     onTestResult={handleRunResult}
                   />
                 </div>
               )}
 
-              {step.answer && (
+              {step?.answer && (
                 <div className="answer-section">
                   <div className="answer-toolbar">
                     <button
@@ -218,12 +233,12 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                         <span className="answer-box-title">📝 参考答案</span>
                       </div>
                       <pre className="answer-code">
-                        <code>{step.answer}</code>
+                        <code>{step?.answer}</code>
                       </pre>
-                      {step.explanation && (
+                      {step?.explanation && (
                         <div className="answer-explanation">
                           <span className="explanation-icon">🔎</span>
-                          <div dangerouslySetInnerHTML={{ __html: formatContent(step.explanation) }} />
+                          <div dangerouslySetInnerHTML={{ __html: formatContent(step?.explanation || '') }} />
                         </div>
                       )}
                     </div>
@@ -255,17 +270,17 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
             </div>
           )}
 
-          {step.type === 'quiz' && (
+          {step?.type === 'quiz' && (
             <div className="quiz-content">
               <div
                 className="markdown-content"
-                dangerouslySetInnerHTML={{ __html: formatContent(step.content) }}
+                dangerouslySetInnerHTML={{ __html: formatContent(step?.content || '') }}
               />
               <div className="quiz-options">
-                {step.options?.map((option, index) => (
+                {step?.options?.map((option, index) => (
                   <div
                     key={index}
-                    className={`quiz-option ${selectedAnswer === index ? 'selected' : ''} ${showResult && index === step.correctAnswer ? 'correct' : ''} ${showResult && selectedAnswer === index && index !== step.correctAnswer ? 'wrong' : ''}`}
+                    className={`quiz-option ${selectedAnswer === index ? 'selected' : ''} ${showResult && index === step?.correctAnswer ? 'correct' : ''} ${showResult && selectedAnswer === index && index !== step?.correctAnswer ? 'wrong' : ''}`}
                     onClick={() => handleAnswerSelect(index)}
                   >
                     <span className="option-letter">{String.fromCharCode(65 + index)}</span>
@@ -282,7 +297,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                   >
                     提交答案
                   </button>
-                  {step.answer && (
+                  {step?.answer && (
                     <button
                       type="button"
                       className="btn-answer-toggle"
@@ -294,29 +309,29 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                 </div>
               ) : (
                 <div className="quiz-result">
-                  {selectedAnswer === step.correctAnswer ? (
+                  {selectedAnswer === step?.correctAnswer ? (
                     <div className="result-success">
                       ✅ 回答正确！
                     </div>
                   ) : (
                     <div className="result-failure">
-                      ❌ 回答错误，正确答案是 {String.fromCharCode(65 + (step.correctAnswer || 0))}
+                      ❌ 回答错误，正确答案是 {String.fromCharCode(65 + (step?.correctAnswer || 0))}
                     </div>
                   )}
-                  {(showAnswer || step.explanation) && (
+                  {(showAnswer || step?.explanation) && (
                     <div className="answer-box quiz-explain-box">
                       <div className="answer-box-header">
                         <span className="answer-box-title">🔎 答案解析</span>
                       </div>
-                      {step.answer && (
+                      {step?.answer && (
                         <pre className="answer-code">
-                          <code>{step.answer}</code>
+                          <code>{step?.answer}</code>
                         </pre>
                       )}
-                      {step.explanation && (
+                      {step?.explanation && (
                         <div className="answer-explanation">
                           <span className="explanation-icon">📖</span>
-                          <div dangerouslySetInnerHTML={{ __html: formatContent(step.explanation) }} />
+                          <div dangerouslySetInnerHTML={{ __html: formatContent(step?.explanation || '') }} />
                         </div>
                       )}
                     </div>

@@ -9,11 +9,13 @@ const files = [
   'pyodide-lock.json'
 ];
 
+const PYODIDE_VERSION = '0.26.4'
+
 const mirrors = [
-  'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/',
-  'https://fastly.jsdelivr.net/pyodide/v0.26.2/full/',
-  'https://gcore.jsdelivr.net/pyodide/v0.26.2/full/',
-  'https://raw.githubusercontent.com/pyodide/pyodide/refs/heads/main/src/core/pyodide/full/'
+  `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  `https://fastly.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  `https://gcore.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  `https://raw.githubusercontent.com/pyodide/pyodide/refs/heads/main/src/core/pyodide/full/`
 ];
 
 const targetDir = path.join(__dirname, '..', 'public', 'pyodide');
