@@ -646,6 +646,56 @@ export const runoobTopics: RunoobTopic[] = [
     difficulty: 4,
     unlocked: true,
     href: '#/level/55'
+  },
+  {
+    id: 'python-builtin',
+    name: '内置函数与数学模块',
+    description: '内置函数全集、math/random/statistics/hashlib/operator、类型注解、虚拟环境。',
+    icon: '🧩',
+    category: 'advanced',
+    difficulty: 3,
+    unlocked: true,
+    href: '#/level/56'
+  },
+  {
+    id: 'python-crawler',
+    name: '爬虫与自动化',
+    description: 'BeautifulSoup HTML 解析、Selenium 浏览器自动化、pyecharts、OpenAI API、AI 绘画。',
+    icon: '🕷️',
+    category: 'web',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/57'
+  },
+  {
+    id: 'fastapi-project',
+    name: 'FastAPI 实战项目',
+    description: '表单/文件上传/CORS/SQLAlchemy/Alembic/JWT 认证/Jinja2/测试/部署 Railway。',
+    icon: '🚀',
+    category: 'web',
+    difficulty: 5,
+    unlocked: true,
+    href: '#/level/58'
+  },
+  {
+    id: 'django-project',
+    name: 'Django 实战项目',
+    description: 'Form 组件/ORM 多表/聚合查询/Auth/Cookie-Session/CBV/Nginx+uWSGI 部署。',
+    icon: '🏛️',
+    category: 'web',
+    difficulty: 5,
+    unlocked: true,
+    href: '#/level/59'
+  },
+  {
+    id: 'r-io-plot',
+    name: 'R 数据 IO 与绘图',
+    description: '字符串/列表/数组/因子/数据重塑/包管理/CSV-Excel-XML-JSON/MySQL/绘图系统。',
+    icon: '📈',
+    category: 'finance',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/60'
   }
 ]
 

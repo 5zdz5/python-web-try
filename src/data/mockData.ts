@@ -770,6 +770,76 @@ export const levels: Level[] = [
     topics: ['向量', '数据框', 'dplyr', 'ggplot2', '统计检验', '回归'],
     side: 'left',
     category: 'finance'
+  },
+  {
+    id: 56,
+    title: '第56关：内置函数与数学模块',
+    subtitle: 'Python 标准库补全',
+    description: '学习 Python 内置函数全集、math/random/statistics/hashlib/operator 模块、类型注解与虚拟环境，补全菜鸟教程标准库章节。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约3小时',
+    lessons: 7,
+    challenges: 4,
+    topics: ['内置函数', 'math', 'random', 'statistics', 'hashlib', 'operator', '类型注解'],
+    side: 'right',
+    category: 'system'
+  },
+  {
+    id: 57,
+    title: '第57关：爬虫与自动化',
+    subtitle: 'BeautifulSoup / Selenium / AI',
+    description: '学习 BeautifulSoup HTML 解析、Selenium 浏览器自动化、pyecharts 可视化、OpenAI API 调用、AI 绘画，补全菜鸟教程爬虫与 AI 章节。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约3小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['BeautifulSoup', 'Selenium', 'pyecharts', 'OpenAI', 'AI绘画'],
+    side: 'left',
+    category: 'network'
+  },
+  {
+    id: 58,
+    title: '第58关：FastAPI 实战项目',
+    subtitle: '从表单到部署上线',
+    description: '学习 FastAPI 表单数据、文件上传、CORS 跨域、静态文件、测试、数据库集成、Jinja2 模板、SQLAlchemy 模型、Alembic 迁移、JWT 认证、部署到 Railway。',
+    status: 'locked',
+    difficulty: 5,
+    duration: '约4小时',
+    lessons: 8,
+    challenges: 4,
+    topics: ['表单', '文件上传', 'CORS', 'SQLAlchemy', 'Alembic', 'JWT', '部署'],
+    side: 'right',
+    category: 'web'
+  },
+  {
+    id: 59,
+    title: '第59关：Django 实战项目',
+    subtitle: '从表单到 Nginx 部署',
+    description: '学习 Django 表单 Form 组件、ORM 多表关联、聚合查询、Auth 认证组件、Cookie/Session、CBV 类视图、中间件、Nginx+uWSGI 部署。',
+    status: 'locked',
+    difficulty: 5,
+    duration: '约4小时',
+    lessons: 8,
+    challenges: 4,
+    topics: ['Form', 'ORM多表', '聚合查询', 'Auth', 'Cookie/Session', 'CBV', 'Nginx'],
+    side: 'left',
+    category: 'web'
+  },
+  {
+    id: 60,
+    title: '第60关：R 语言数据 IO 与绘图',
+    subtitle: '文件读写与可视化',
+    description: '学习 R 字符串/列表/数组/因子/数据重塑/包管理/CSV-Excel-XML-JSON 读写/MySQL 连接/绘图系统（饼图/条形图/散点图/函数曲线/中文支持）。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约3小时',
+    lessons: 7,
+    challenges: 3,
+    topics: ['字符串', '列表', '数组', '因子', 'CSV/Excel', '绘图', 'MySQL'],
+    side: 'right',
+    category: 'finance'
   }
 ]
 
@@ -793,7 +863,7 @@ export const currentLevelChallenges: Challenge[] = [
 ]
 
 export const userProgress: UserProgress = {
-  totalLevels: 55,
+  totalLevels: 60,
   completedLevels: 3,
   totalXP: 180,
   currentXP: 50,

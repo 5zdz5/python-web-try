@@ -13961,6 +13961,2194 @@ print('\\n✅ 数据挖掘流程完成！')
 
 **答案**：1.B  2.C  3.B`
     }
+  ],
+  // 第56关
+  56: [
+    {
+      id: 1, title: 'Python 内置函数全集', type: 'explanation',
+      content: `Python 内置函数无需 import 即可使用，共约 70 个。
+
+**常用分类**：
+
+| 类别 | 函数 |
+|------|------|
+| 数学 | abs, round, pow, sum, min, max, divmod |
+| 序列 | len, range, enumerate, zip, sorted, reversed, slice |
+| 类型 | int, float, str, bool, list, tuple, dict, set, bytes |
+| 迭代 | iter, next, map, filter, all, any |
+| 属性 | dir, type, isinstance, hasattr, getattr, setattr, delattr |
+| IO | print, input, open, format, repr |
+| 其他 | id, hash, help, callable, eval, exec, compile, globals, locals |
+
+\`\`\`python
+# enumerate：带索引遍历
+for i, v in enumerate(['a','b','c']):
+    print(i, v)
+
+# zip：并行遍历
+for a, b in zip([1,2,3], ['x','y','z']):
+    print(a, b)
+
+# sorted：高级排序
+sorted(students, key=lambda s: s['score'], reverse=True)
+
+# divmod：商和余数
+q, r = divmod(17, 5)  # q=3, r=2
+
+# all / any：条件判断
+all([x > 0 for x in nums])  # 全部为 True
+any(x is None for x in items)  # 任一为 True
+\`\`\``
+    },
+    {
+      id: 2, title: 'math 与 statistics 模块', type: 'example',
+      content: `\`\`\`python
+import math
+import statistics
+
+# math 模块
+math.pi          # 3.141592653589793
+math.e           # 2.718281828459045
+math.sqrt(16)    # 4.0
+math.ceil(3.2)   # 4
+math.floor(3.8)  # 3
+math.factorial(5) # 120
+math.gcd(12, 8)  # 4
+math.log2(1024)  # 10.0
+math.log10(1000) # 3.0
+math.sin(math.pi/2)  # 1.0
+math.degrees(math.pi) # 180.0
+
+# statistics 模块 (Python 3.4+)
+data = [1, 2, 3, 4, 5, 5, 5, 6, 7]
+statistics.mean(data)        # 4.22
+statistics.median(data)      # 5
+statistics.mode(data)        # 5
+statistics.stdev(data)       # 标准差
+statistics.variance(data)    # 方差
+statistics.quantiles(data, n=4)  # 四分位数
+statistics.correlation(x, y)    # 相关系数
+\`\`\``,
+      code: `import math, statistics, random
+
+# 圆面积计算器
+def circle_area(r):
+    return math.pi * r ** 2
+
+# 三角函数应用：计算两点距离
+def distance(x1, y1, x2, y2):
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+# 角度弧度转换
+print(f'180度 = {math.radians(180):.4f} 弧度')
+print(f'π弧度 = {math.degrees(math.pi):.1f} 度')
+
+# 统计分析
+scores = [85, 92, 78, 95, 88, 72, 90, 85, 88, 93]
+print(f'\\n成绩统计:')
+print(f'  均值: {statistics.mean(scores):.2f}')
+print(f'  中位数: {statistics.median(scores)}')
+print(f'  众数: {statistics.mode(scores)}')
+print(f'  标准差: {statistics.stdev(scores):.2f}')
+print(f'  方差: {statistics.variance(scores):.2f}')
+q = statistics.quantiles(scores, n=4)
+print(f'  四分位: Q1={q[0]:.1f}, Q2={q[1]:.1f}, Q3={q[2]:.1f}')
+print(f'  极差: {max(scores)-min(scores)}')
+`
+    },
+    {
+      id: 3, title: 'random 与 hashlib', type: 'explanation',
+      content: `\`\`\`python
+import random
+import hashlib
+
+# random 模块
+random.random()              # 0.0~1.0
+random.randint(1, 100)       # 整数
+random.uniform(1.0, 10.0)    # 浮点数
+random.choice(['A','B','C']) # 随机选择
+random.sample(range(100), 10)# 无重复抽样
+random.shuffle(my_list)      # 原地打乱
+random.seed(42)              # 固定种子
+random.gauss(0, 1)           # 高斯分布
+
+# hashlib 模块
+m = hashlib.md5(b'hello')
+m.hexdigest()  # '5d41402abc4b2a76b9719d911017c592'
+
+sha = hashlib.sha256(b'hello world')
+sha.hexdigest()
+
+# 文件哈希校验
+def file_hash(filepath, algo='sha256'):
+    h = hashlib.new(algo)
+    with open(filepath, 'rb') as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
+
+# 密码加盐
+def hash_password(password, salt=None):
+    if salt is None:
+        salt = os.urandom(16).hex()
+    hashed = hashlib.pbkdf2_hmac('sha256', 
+        password.encode(), salt.encode(), 100000)
+    return salt + hashed.hex()
+\`\`\``
+    },
+    {
+      id: 4, title: 'operator 模块', type: 'explanation',
+      content: `\`\`\`python
+import operator
+
+# 算术运算符函数
+operator.add(3, 5)        # 8
+operator.sub(10, 3)      # 7
+operator.mul(4, 6)       # 24
+operator.truediv(10, 3)  # 3.333...
+operator.floordiv(10, 3) # 3
+operator.mod(10, 3)      # 1
+operator.pow(2, 10)      # 1024
+operator.neg(5)           # -5
+operator.abs(-7)          # 7
+
+# 比较运算符函数
+operator.lt(3, 5)   # True (less than)
+operator.le(3, 3)   # True (less or equal)
+operator.gt(5, 3)   # True (greater than)
+operator.eq(3, 3)   # True (equal)
+operator.ne(3, 5)   # True (not equal)
+
+# 序列操作
+operator.concat([1,2], [3,4])      # [1,2,3,4]
+operator.contains([1,2,3], 2)      # True
+operator.countOf([1,2,2,3], 2)    # 2
+operator.indexOf([1,2,3], 2)       # 1
+
+# itemgetter / attrgetter
+inventory = [{'name':'apple','price':5}, {'name':'banana','price':3}]
+sorted(inventory, key=operator.itemgetter('price'))
+
+from collections import namedtuple
+Person = namedtuple('Person', 'name age')
+p = Person('Alice', 30)
+operator.attrgetter('name')(p)  # 'Alice'
+\`\`\``,
+      code: `import operator
+from functools import reduce
+
+# 用 operator 替代 lambda
+nums = [1, 2, 3, 4, 5]
+
+# 求和：reduce(operator.add, nums) 等价于 reduce(lambda x,y: x+y, nums)
+total = reduce(operator.add, nums)
+print(f'求和: {total}')
+
+# 求积
+product = reduce(operator.mul, nums)
+print(f'求积: {product}')
+
+# 排序：用 itemgetter 替代 lambda
+students = [
+    {'name': 'Alice', 'score': 92, 'age': 20},
+    {'name': 'Bob', 'score': 85, 'age': 22},
+    {'name': 'Charlie', 'score': 95, 'age': 19},
+]
+
+by_score = sorted(students, key=operator.itemgetter('score'), reverse=True)
+print('\\n按分数排序:')
+for s in by_score:
+    print(f'  {s["name"]:8s} 分数:{s["score"]} 年龄:{s["age"]}')
+
+# 多级排序
+by_age_score = sorted(students, key=operator.itemgetter('age', 'score'))
+print('\\n按年龄→分数排序:')
+for s in by_age_score:
+    print(f'  {s["name"]:8s} 年龄:{s["age"]} 分数:{s["score"]}')
+
+# attrgetter 示例
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    def __repr__(self):
+        return f'{self.name}({self.price}元)'
+
+products = [Product('键盘', 299), Product('鼠标', 99), Product('显示器', 1599)]
+sorted_products = sorted(products, key=operator.attrgetter('price'))
+print(f'\\n按价格排序: {sorted_products}')
+`
+    },
+    {
+      id: 5, title: '类型注解与虚拟环境', type: 'explanation',
+      content: `**类型注解** (Python 3.5+)：
+
+\`\`\`python
+from typing import List, Dict, Optional, Union, Tuple, Any
+
+def greet(name: str) -> str:
+    return f'Hello, {name}'
+
+def process(data: List[int]) -> Dict[str, int]:
+    return {'sum': sum(data), 'len': len(data)}
+
+def find(items: List[str], target: str) -> Optional[int]:
+    return items.index(target) if target in items else None
+
+# 复杂类型
+Config = Dict[str, Union[str, int, bool]]
+Point = Tuple[float, float]
+Result = Union[str, None]
+
+# Python 3.9+ 内置泛型
+def filter_active(users: list[dict]) -> list[dict]:
+    return [u for u in users if u.get('active')]
+
+# Python 3.10+ 联合类型语法
+def parse(value: int | str | None = None) -> str:
+    return str(value) if value is not None else 'empty'
+\`\`\`
+
+**虚拟环境**：
+
+\`\`\`bash
+# venv (Python 内置)
+python -m venv myenv
+# Windows
+myenv\\Scripts\\activate
+# Linux/Mac
+source myenv/bin/activate
+deactivate
+
+# conda
+conda create -n myenv python=3.12
+conda activate myenv
+conda deactivate
+
+# pip 包管理
+pip install package_name
+pip install -r requirements.txt
+pip freeze > requirements.txt
+pip list  # 查看已安装
+\`\`\``
+    },
+    {
+      id: 6, title: '练习：密码管理器', type: 'exercise',
+      content: '使用 hashlib + random 实现一个安全的密码管理器',
+      code: `import hashlib, os, json, secrets
+
+class PasswordManager:
+    def __init__(self, db_file='passwords.json'):
+        self.db_file = db_file
+        self.data = {}
+        self._load()
+    
+    def _hash(self, password, salt):
+        """PBKDF2 加盐哈希"""
+        return hashlib.pbkdf2_hmac('sha256', 
+            password.encode(), salt.encode(), 100000).hex()
+    
+    def add(self, site, username, password):
+        salt = secrets.token_hex(16)
+        hashed = self._hash(password, salt)
+        self.data[site] = {
+            'username': username,
+            'salt': salt,
+            'hash': hashed
+        }
+        self._save()
+        print(f'✓ {site} 密码已保存')
+    
+    def verify(self, site, password):
+        if site not in self.data:
+            return False
+        entry = self.data[site]
+        hashed = self._hash(password, entry['salt'])
+        return secrets.compare_digest(hashed, entry['hash'])
+    
+    def _save(self):
+        with open(self.db_file, 'w') as f:
+            json.dump(self.data, f, indent=2)
+    
+    def _load(self):
+        if os.path.exists(self.db_file):
+            with open(self.db_file, 'r') as f:
+                self.data = json.load(f)
+    
+    def list_sites(self):
+        return list(self.data.keys())
+
+# 使用示例
+pm = PasswordManager()
+pm.add('github', 'user123', 'MySecurePass!')
+pm.add('gmail', 'user123', 'AnotherPass456')
+
+print(f'已保存的站点: {pm.list_sites()}')
+
+# 验证密码
+print(f'\\ngithub 正确密码: {pm.verify("github", "MySecurePass!")}')
+print(f'github 错误密码: {pm.verify("github", "WrongPass")}')
+
+# 文件哈希校验
+import tempfile
+test_file = tempfile.NamedTemporaryFile(delete=False, suffix='.txt')
+test_file.write(b'Hello World')
+test_file.close()
+
+def file_checksum(filepath):
+    h = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
+
+checksum = file_checksum(test_file.name)
+print(f'\\n文件 SHA256: {checksum[:32]}...')
+os.unlink(test_file.name)
+`
+    },
+    {
+      id: 7, title: '第56关测验', type: 'quiz',
+      content: `**问题1**：statistics.stdev() 计算什么？
+- A. 总体标准差
+- B. 样本标准差
+- C. 方差
+- D. 均值
+
+**问题2**：hashlib.pbkdf2_hmac 相比直接 md5 的优势？
+- A. 速度更快
+- B. 加盐+迭代次数，更安全
+- C. 输出更短
+- D. 不需要编码
+
+**问题3**：operator.itemgetter('price') 等价于？
+- A. lambda x: x['price']
+- B. lambda x: x.price
+- C. lambda x: x.get('price')
+- D. lambda x, y: x['price']
+
+**答案**：1.B  2.B  3.A`
+    }
+  ],
+  // 第57关
+  57: [
+    {
+      id: 1, title: 'BeautifulSoup HTML 解析', type: 'explanation',
+      content: `**BeautifulSoup** 是 Python 最流行的 HTML/XML 解析库。
+
+\`\`\`python
+# pip install beautifulsoup4 lxml
+from bs4 import BeautifulSoup
+
+html = '''
+<html>
+  <body>
+    <div class="article">
+      <h1 id="title">Python 爬虫</h1>
+      <p class="content">BeautifulSoup 是一个 HTML 解析库</p>
+      <a href="https://example.com" class="link">链接1</a>
+      <a href="https://test.com" class="link">链接2</a>
+      <ul>
+        <li>项目1</li><li>项目2</li><li>项目3</li>
+      </ul>
+    </div>
+  </body>
+</html>
+'''
+
+soup = BeautifulSoup(html, 'lxml')
+
+# 基本查找
+soup.find('h1')                    # 第一个 h1
+soup.find('h1', id='title')        # 带属性
+soup.find_all('a', class_='link')   # 所有匹配
+soup.find_all('a', limit=2)         # 限制数量
+
+# CSS 选择器
+soup.select('div.article > h1')     # 子选择器
+soup.select_one('a.link')           # 第一个匹配
+soup.select('ul > li:nth-child(2)') # 第2个 li
+
+# 获取数据
+tag = soup.find('a', class_='link')
+tag.text              # 文本内容
+tag['href']           # 属性值
+tag.get('href', '')   # 安全获取
+tag.attrs             # 所有属性
+
+# 遍历
+for li in soup.find_all('li'):
+    print(li.string)
+
+# 父子兄弟
+tag.parent            # 父节点
+tag.children          # 直接子节点
+tag.next_sibling      # 下一个兄弟
+\`\`\``
+    },
+    {
+      id: 2, title: 'Selenium 浏览器自动化', type: 'example',
+      content: `\`\`\`python
+# pip install selenium
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# 启动浏览器
+driver = webdriver.Chrome()  # 需要 chromedriver
+driver.get('https://www.baidu.com')
+
+# 查找元素
+search_box = driver.find_element(By.ID, 'kw')
+search_box.send_keys('Python 爬虫')
+search_box.send_keys(Keys.RETURN)
+
+# 等待元素加载
+wait = WebDriverWait(driver, 10)
+results = wait.until(
+    EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.result'))
+)
+
+# 提取数据
+for result in results[:5]:
+    title = result.find_element(By.CSS_SELECTOR, 'h3').text
+    link = result.find_element(By.TAG_NAME, 'a').get_attribute('href')
+    print(f'{title}: {link}')
+
+# 页面交互
+driver.find_element(By.XPATH, '//a[contains(text(),"下一页")]').click()
+driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+driver.save_screenshot('page.png')
+
+# 无头模式
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+driver = webdriver.Chrome(options=options)
+
+driver.quit()
+\`\`\``,
+      code: `# Selenium 自动化示例（模拟，不需浏览器运行）
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+
+# 无头浏览器配置
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+# 实际使用时取消下面注释
+# driver = webdriver.Chrome(options=options)
+
+print('=== Selenium 自动化脚本 ===')
+print('1. 启动 Chrome 无头浏览器')
+print('2. 访问目标网页')
+print('3. 查找元素并交互')
+print('4. 提取数据')
+print('5. 截图保存')
+print('6. 关闭浏览器')
+
+# 模拟数据提取流程
+class MockSeleniumScraper:
+    def __init__(self):
+        self.pages_visited = 0
+        self.data_extracted = []
+    
+    def scrape_demo(self, urls):
+        """模拟爬取多个页面"""
+        for url in urls:
+            self.pages_visited += 1
+            # 模拟 driver.get(url)
+            print(f'\\n[{self.pages_visited}] 访问: {url}')
+            
+            # 模拟提取数据
+            mock_results = [
+                {'title': f'文章 {i}', 'url': f'{url}/post/{i}'}
+                for i in range(1, 4)
+            ]
+            
+            for item in mock_results:
+                print(f'  提取: {item["title"]} -> {item["url"]}')
+                self.data_extracted.append(item)
+            
+            # 模拟翻页
+            print(f'  等待 2 秒...')
+            time.sleep(0.5)  # 实际应为 2 秒
+        
+        return self.data_extracted
+
+scraper = MockSeleniumScraper()
+data = scraper.scrape_demo([
+    'https://blog.example.com/page/1',
+    'https://blog.example.com/page/2',
+    'https://blog.example.com/page/3',
+])
+
+print(f'\\n=== 爬取完成 ===')
+print(f'访问页面数: {scraper.pages_visited}')
+print(f'提取数据量: {len(data)}')
+`
+    },
+    {
+      id: 3, title: 'pyecharts 可视化', type: 'explanation',
+      content: `\`\`\`python
+# pip install pyecharts
+from pyecharts.charts import Bar, Line, Pie, Scatter, HeatMap
+from pyecharts import options as opts
+from pyecharts.globals import ThemeType
+
+# 柱状图
+bar = (
+    Bar(init_opts=opts.InitOpts(theme=ThemeType.LIGHT))
+    .add_xaxis(['周一','周二','周三','周四','周五','周六','周日'])
+    .add_yaxis('商家A', [120, 200, 150, 80, 70, 110, 130])
+    .add_yaxis('商家B', [90, 180, 160, 100, 90, 120, 140])
+    .set_global_opts(
+        title_opts=opts.TitleOpts(title='一周销售额'),
+        toolbox_opts=opts.ToolboxOpts(),
+        datazoom_opts=opts.DataZoomOpts()
+    )
+)
+bar.render('bar_chart.html')
+
+# 折线图
+line = (
+    Line()
+    .add_xaxis(months)
+    .add_yaxis('收入', revenue, is_smooth=True)
+    .add_yaxis('支出', cost, is_smooth=True)
+    .set_series_opts(
+        areastyle_opts=opts.AreaStyleOpts(opacity=0.3),
+        label_opts=opts.LabelOpts(is_show=False)
+    )
+)
+line.render('line_chart.html')
+
+# 饼图
+pie = (
+    Pie()
+    .add('销售额', [list(z) for z in zip(categories, values)])
+    .set_global_opts(title_opts=opts.TitleOpts(title='品类占比'))
+    .set_series_opts(label_opts=opts.LabelOpts(formatter='{b}: {d}%'))
+)
+pie.render('pie_chart.html')
+
+# 组合图（多图叠加）
+from pyecharts.charts import Grid
+grid = Grid()
+grid.add(bar, grid_opts=opts.GridOpts(pos_bottom='60%'))
+grid.add(line, grid_opts=opts.GridOpts(pos_top='60%'))
+grid.render('dashboard.html')
+\`\`\``
+    },
+    {
+      id: 4, title: 'OpenAI API 与 AI 绘画', type: 'explanation',
+      content: `\`\`\`python
+# pip install openai
+from openai import OpenAI
+
+client = OpenAI(api_key='your-api-key')
+
+# 对话补全
+response = client.chat.completions.create(
+    model='gpt-4',
+    messages=[
+        {'role': 'system', 'content': '你是一个 Python 编程助手'},
+        {'role': 'user', 'content': '解释什么是装饰器'}
+    ],
+    temperature=0.7,
+    max_tokens=500
+)
+print(response.choices[0].message.content)
+
+# 流式输出
+stream = client.chat.completions.create(
+    model='gpt-4',
+    messages=[{'role': 'user', 'content': '写一个快速排序'}],
+    stream=True
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end='')
+
+# 图像生成 (AI 绘画)
+response = client.images.generate(
+    model='dall-e-3',
+    prompt='一只在月光下编程的猫，赛博朋克风格',
+    size='1024x1024',
+    quality='hd',
+    n=1
+)
+image_url = response.data[0].url
+
+# 图像编辑
+response = client.images.edit(
+    model='dall-e-2',
+    image=open('original.png', 'rb'),
+    mask=open('mask.png', 'rb'),
+    prompt='把背景改成海滩'
+)
+
+# 嵌入向量
+response = client.embeddings.create(
+    model='text-embedding-3-small',
+    input='Python 是一门优雅的编程语言'
+)
+embedding = response.data[0].embedding  # 1536 维向量
+\`\`\``
+    },
+    {
+      id: 5, title: '练习：综合爬虫系统', type: 'exercise',
+      content: '使用 BeautifulSoup + requests 构建一个新闻聚合爬虫',
+      code: `import requests
+from bs4 import BeautifulSoup
+import json
+from datetime import datetime
+
+class NewsScraper:
+    def __init__(self):
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+        self.articles = []
+    
+    def parse_page(self, html):
+        """解析 HTML 提取新闻"""
+        soup = BeautifulSoup(html, 'html.parser')
+        results = []
+        
+        # 模拟解析新闻列表页
+        # 实际网站结构会不同
+        for item in soup.find_all('article', class_='news-item'):
+            title_tag = item.find('h2') or item.find('h3')
+            link_tag = item.find('a')
+            time_tag = item.find('time')
+            
+            if title_tag and link_tag:
+                results.append({
+                    'title': title_tag.get_text(strip=True),
+                    'url': link_tag.get('href', ''),
+                    'time': time_tag.get('datetime', '') if time_tag else '',
+                    'summary': title_tag.get_text(strip=True)[:100]
+                })
+        
+        return results
+    
+    def fetch(self, url):
+        """获取页面"""
+        try:
+            resp = requests.get(url, headers=self.headers, timeout=10)
+            resp.raise_for_status()
+            return resp.text
+        except Exception as e:
+            print(f'获取失败: {url} -> {e}')
+            return None
+    
+    def scrape(self, urls):
+        """批量爬取"""
+        for url in urls:
+            html = self.fetch(url)
+            if html:
+                articles = self.parse_page(html)
+                self.articles.extend(articles)
+                print(f'✓ {url}: 提取 {len(articles)} 条')
+        
+        return self.articles
+    
+    def save_json(self, filepath):
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(self.articles, f, ensure_ascii=False, indent=2)
+        print(f'\\n已保存 {len(self.articles)} 条到 {filepath}')
+
+# 模拟 HTML 内容进行测试
+mock_html = '''
+<html><body>
+<article class="news-item">
+  <h2><a href="/news/1">Python 3.12 发布</a></h2>
+  <time datetime="2024-01-01">2024-01-01</time>
+</article>
+<article class="news-item">
+  <h2><a href="/news/2">AI 编程助手对比</a></h2>
+  <time datetime="2024-01-02">2024-01-02</time>
+</article>
+<article class="news-item">
+  <h2><a href="/news/3">数据分析工具盘点</a></h2>
+  <time datetime="2024-01-03">2024-01-03</time>
+</article>
+</body></html>
+'''
+
+scraper = NewsScraper()
+# 直接解析模拟 HTML
+articles = scraper.parse_page(mock_html)
+scraper.articles = articles
+
+print(f'提取到 {len(articles)} 条新闻:')
+for a in articles:
+    print(f'  [{a["time"]}] {a["title"]} -> {a["url"]}')
+
+scraper.save_json('news.json')
+`
+    },
+    {
+      id: 6, title: '第57关测验', type: 'quiz',
+      content: `**问题1**：BeautifulSoup 中查找所有 a 标签的方法？
+- A. soup.find('a')
+- B. soup.find_all('a')
+- C. soup.select_all('a')
+- D. soup.get_all('a')
+
+**问题2**：Selenium 无头模式需要什么参数？
+- A. --no-browser
+- B. --headless
+- C. --invisible
+- D. --background
+
+**问题3**：OpenAI AI 绘画使用的模型是？
+- A. gpt-4
+- B. dall-e-3
+- C. whisper
+- D. clip
+
+**答案**：1.B  2.B  3.B`
+    }
+  ],
+  // 第58关
+  58: [
+    {
+      id: 1, title: '表单数据与文件上传', type: 'explanation',
+      content: `\`\`\`python
+from fastapi import FastAPI, Form, UploadFile, File
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+# 表单数据
+@app.post('/login')
+async def login(
+    username: str = Form(...),
+    password: str = Form(...),
+    remember: bool = Form(False)
+):
+    return {'username': username, 'remember': remember}
+
+# 文件上传
+@app.post('/upload')
+async def upload_file(file: UploadFile = File(...)):
+    content = await file.read()
+    return {
+        'filename': file.filename,
+        'size': len(content),
+        'content_type': file.content_type
+    }
+
+# 多文件上传
+@app.post('/uploads')
+async def upload_files(files: list[UploadFile] = File(...)):
+    results = []
+    for f in files:
+        content = await f.read()
+        results.append({
+            'name': f.filename,
+            'size': len(content)
+        })
+    return {'uploaded': results}
+
+# 表单 + 文件混合
+@app.post('/profile')
+async def update_profile(
+    name: str = Form(...),
+    bio: str = Form(''),
+    avatar: UploadFile = File(None)
+):
+    return {'name': name, 'bio': bio, 'has_avatar': avatar is not None}
+\`\`\``
+    },
+    {
+      id: 2, title: 'CORS 跨域与静态文件', type: 'example',
+      content: `\`\`\`python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+
+# CORS 跨域配置
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        'http://localhost:3000',
+        'https://myapp.com'
+    ],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+# 静态文件服务
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
+# HTML 页面返回
+@app.get('/', response_class=HTMLResponse)
+async def home():
+    return '''<!DOCTYPE html>
+<html><body>
+  <h1>FastAPI Web 应用</h1>
+  <img src="/static/logo.png">
+  <script src="/static/app.js"></script>
+</body></html>'''
+
+# 自定义中间件
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class TimingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        import time
+        start = time.time()
+        response = await call_next(request)
+        duration = (time.time() - start) * 1000
+        response.headers['X-Response-Time'] = f'{duration:.2f}ms'
+        return response
+
+app.add_middleware(TimingMiddleware)
+\`\`\``,
+      code: `from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
+import time
+
+app = FastAPI(title='博客 API', version='2.0')
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+# 模拟数据库
+posts = []
+next_id = 1
+
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    author: str = '匿名'
+
+class Post(BaseModel):
+    id: int
+    title: str
+    content: str
+    author: str
+    created_at: float
+
+@app.middleware('http')
+async def add_process_time(request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    response.headers['X-Process-Time'] = f'{(time.time()-start)*1000:.2f}ms'
+    return response
+
+@app.get('/api/posts', response_model=list[Post])
+def list_posts(limit: int = 10, offset: int = 0):
+    return posts[offset:offset+limit]
+
+@app.post('/api/posts', response_model=Post, status_code=201)
+def create_post(post: PostCreate):
+    global next_id
+    new_post = Post(id=next_id, created_at=time.time(), **post.dict())
+    posts.append(new_post)
+    next_id += 1
+    return new_post
+
+@app.get('/api/posts/{post_id}', response_model=Post)
+def get_post(post_id: int):
+    for p in posts:
+        if p.id == post_id:
+            return p
+    raise HTTPException(404, '文章不存在')
+
+@app.put('/api/posts/{post_id}', response_model=Post)
+def update_post(post_id: int, post: PostCreate):
+    for i, p in enumerate(posts):
+        if p.id == post_id:
+            posts[i] = Post(id=post_id, created_at=p.created_at, **post.dict())
+            return posts[i]
+    raise HTTPException(404)
+
+@app.delete('/api/posts/{post_id}')
+def delete_post(post_id: int):
+    for i, p in enumerate(posts):
+        if p.id == post_id:
+            posts.pop(i)
+            return {'message': '已删除'}
+    raise HTTPException(404)
+`
+    },
+    {
+      id: 3, title: 'SQLAlchemy 数据库集成', type: 'explanation',
+      content: `\`\`\`python
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
+from sqlalchemy.orm import sessionmaker, declarative_base
+from datetime import datetime
+
+# 数据库连接
+SQLALCHEMY_DB_URL = 'sqlite:///./app.db'
+engine = create_engine(SQLALCHEMY_DB_URL, connect_args={'check_same_thread': False})
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
+
+# 模型定义
+class Article(Base):
+    __tablename__ = 'articles'
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    content = Column(Text)
+    author = Column(String(100))
+    created = Column(DateTime, default=datetime.utcnow)
+    updated = Column(DateTime, onupdate=datetime.utcnow)
+
+Base.metadata.create_all(bind=engine)
+
+# FastAPI 依赖注入
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# CRUD 路由
+@app.get('/articles')
+def list_articles(skip: int = 0, limit: int = 20, db=Depends(get_db)):
+    return db.query(Article).offset(skip).limit(limit).all()
+
+@app.post('/articles')
+def create_article(article: ArticleSchema, db=Depends(get_db)):
+    db_article = Article(**article.dict())
+    db.add(db_article)
+    db.commit()
+    db.refresh(db_article)
+    return db_article
+
+@app.get('/articles/{article_id}')
+def get_article(article_id: int, db=Depends(get_db)):
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(404)
+    return article
+\`\`\`
+
+**Alembic 数据库迁移**：
+\`\`\`bash
+pip install alembic
+alembic init alembic
+# 修改 alembic.ini 和 alembic/env.py
+alembic revision --autogenerate -m 'create articles table'
+alembic upgrade head
+alembic downgrade -1
+\`\`\``
+    },
+    {
+      id: 4, title: 'Jinja2 模板与前端集成', type: 'explanation',
+      content: `\`\`\`python
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+app.mount('/static', StaticFiles(directory='static'), name='static')
+templates = Jinja2Templates(directory='templates')
+
+# 渲染模板
+@app.get('/')
+async def home(request: Request):
+    return templates.TemplateResponse('index.html', {
+        'request': request,
+        'title': '我的博客',
+        'posts': get_all_posts()
+    })
+
+# templates/index.html
+'''
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ title }}</title>
+  <link rel='stylesheet' href='/static/style.css'>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  {% for post in posts %}
+  <article>
+    <h2><a href='/posts/{{ post.id }}'>{{ post.title }}</a></h2>
+    <p>{{ post.content[:100] }}...</p>
+    <small>{{ post.created_at }}</small>
+  </article>
+  {% endfor %}
+</body>
+</html>
+'''
+
+# 搜索 + 分页
+@app.get('/search')
+async def search(request: Request, q: str = '', page: int = 1):
+    posts = search_posts(q, page=page, per_page=10)
+    return templates.TemplateResponse('search.html', {
+        'request': request,
+        'query': q,
+        'posts': posts,
+        'page': page,
+        'has_next': len(posts) == 10
+    })
+\`\`\``
+    },
+    {
+      id: 5, title: 'JWT 认证与用户系统', type: 'explanation',
+      content: `\`\`\`python
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt, JWTError
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
+
+SECRET = 'your-secret-key'
+ALGORITHM = 'HS256'
+ACCESS_TOKEN_EXPIRE = timedelta(hours=24)
+
+pwd_ctx = CryptContext(schemes=['bcrypt'], deprecated='auto')
+oauth2 = OAuth2PasswordBearer(tokenUrl='/auth/login')
+
+def hash_password(password): return pwd_ctx.hash(password)
+def verify_password(plain, hashed): return pwd_ctx.verify(plain, hashed)
+
+def create_token(data: dict):
+    to_encode = data.copy()
+    to_encode['exp'] = datetime.utcnow() + ACCESS_TOKEN_EXPIRE
+    return jwt.encode(to_encode, SECRET, ALGORITHM)
+
+async def get_current_user(token=Depends(oauth2), db=Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET, [ALGORITHM])
+        user_id = payload.get('sub')
+        user = db.query(User).get(int(user_id))
+        if not user:
+            raise HTTPException(401)
+        return user
+    except JWTError:
+        raise HTTPException(401, '无效令牌')
+
+@app.post('/auth/register')
+def register(user: UserCreate, db=Depends(get_db)):
+    if db.query(User).filter(User.username == user.username).first():
+        raise HTTPException(400, '用户名已存在')
+    db_user = User(username=user.username, password=hash_password(user.password))
+    db.add(db_user)
+    db.commit()
+    return {'id': db_user.id, 'username': db_user.username}
+
+@app.post('/auth/login')
+def login(form: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
+    user = db.query(User).filter(User.username == form.username).first()
+    if not user or not verify_password(form.password, user.password):
+        raise HTTPException(401, '用户名或密码错误')
+    token = create_token({'sub': str(user.id)})
+    return {'access_token': token, 'token_type': 'bearer'}
+
+@app.get('/auth/me')
+def me(user=Depends(get_current_user)):
+    return {'id': user.id, 'username': user.username}
+
+@app.post('/articles/{id}/favorite')
+def favorite(id: int, user=Depends(get_current_user), db=Depends(get_db)):
+    # 需登录才能收藏
+    ...
+\`\`\``
+    },
+    {
+      id: 6, title: 'FastAPI 测试', type: 'explanation',
+      content: `\`\`\`python
+from fastapi.testclient import TestClient
+import pytest
+
+client = TestClient(app)
+
+def test_list_posts():
+    response = client.get('/api/posts')
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+def test_create_post():
+    response = client.post('/api/posts', json={
+        'title': '测试文章',
+        'content': '这是内容',
+        'author': 'tester'
+    })
+    assert response.status_code == 201
+    assert response.json()['title'] == '测试文章'
+
+def test_get_post_not_found():
+    response = client.get('/api/posts/9999')
+    assert response.status_code == 404
+
+def test_auth_flow():
+    # 注册
+    r = client.post('/auth/register', json={
+        'username': 'testuser', 'password': 'test123'
+    })
+    assert r.status_code == 201
+    
+    # 登录
+    r = client.post('/auth/login', data={
+        'username': 'testuser', 'password': 'test123'
+    })
+    assert r.status_code == 200
+    token = r.json()['access_token']
+    
+    # 访问受保护路由
+    r = client.get('/auth/me', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert r.status_code == 200
+    assert r.json()['username'] == 'testuser'
+
+# 运行：pytest test_app.py -v --cov=app
+\`\`\``
+    },
+    {
+      id: 7, title: '部署到 Railway', type: 'explanation',
+      content: `**部署 FastAPI 到 Railway/Render/Fly.io**：
+
+\`\`\`python
+# main.py - 入口文件
+import uvicorn
+from app import app
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8000)))
+
+# requirements.txt
+'''
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+alembic==1.13.0
+pydantic==2.5.2
+python-jose==3.3.0
+passlib[bcrypt]==1.7.4
+jinja2==3.1.2
+python-multipart==0.0.6
+'''
+
+# Dockerfile
+'''
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+'''
+
+# railway.json 或 Procfile
+# web: uvicorn main:app --host 0.0.0.0 --port $PORT
+\`\`\`
+
+**部署步骤**：
+1. GitHub 仓库连接 Railway
+2. 设置环境变量（DATABASE_URL, SECRET_KEY）
+3. 自动构建部署
+4. 域名绑定 HTTPS`
+    },
+    {
+      id: 8, title: '第58关测验', type: 'quiz',
+      content: `**问题1**：FastAPI 处理表单数据需要哪个装饰器参数？
+- A. Form(...)
+- B. Body(...)
+- C. Field(...)
+- D. Param(...)
+
+**问题2**：Alembic 的作用是？
+- A. API 测试
+- B. 数据库迁移
+- C. 模板渲染
+- D. 用户认证
+
+**问题3**：FastAPI 测试使用的客户端是？
+- A. requests
+- B. httpx
+- C. TestClient
+- D. aiohttp
+
+**答案**：1.A  2.B  3.C`
+    }
+  ],
+  // 第59关
+  59: [
+    {
+      id: 1, title: 'Django Form 组件', type: 'explanation',
+      content: `**Django Form** 提供表单验证和渲染：
+
+\`\`\`python
+# forms.py
+from django import forms
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField()
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}))
+    rating = forms.IntegerField(min_value=1, max_value=5, required=False)
+    
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email.endswith('@example.com'):
+            raise forms.ValidationError('请使用公司邮箱')
+        return email
+
+# ModelForm：直接从模型生成表单
+class ArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = ['title', 'content', 'author']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 5}),
+        }
+
+# views.py
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            # 处理逻辑
+            return redirect('success')
+    else:
+        form = ContactForm()
+    return render(request, 'contact.html', {'form': form})
+
+# template
+'''{{ form.as_p }}
+{{ form.name.label_tag }} {{ form.name }}
+{% if form.name.errors %}{{ form.name.errors }}{% endif %}'''
+\`\`\``
+    },
+    {
+      id: 2, title: 'ORM 多表关联', type: 'example',
+      content: `\`\`\`python
+# models.py
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='articles')
+    categories = models.ManyToManyField(Category)
+    tags = models.CharField(max_length=200, blank=True)
+    published = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-published']
+
+# 查询：跨表关联
+# 1. 正向查询
+article = Article.objects.get(pk=1)
+print(article.author.name)  # 文章作者名
+print(article.categories.all())  # 文章所有分类
+
+# 2. 反向查询
+author = Author.objects.get(pk=1)
+print(author.articles.all())  # 作者的所有文章
+print(author.articles.filter(title__icontains='Python'))
+
+# 3. select_related (ForeignKey 一对一，JOIN查询)
+articles = Article.objects.select_related('author').all()
+# 避免 N+1 查询问题
+
+# 4. prefetch_related (ManyToMany，分两次查询)
+articles = Article.objects.prefetch_related('categories').all()
+
+# 5. 聚合与注解
+from django.db.models import Count, Avg, Sum, Q
+
+# 每个作者的文章数
+authors = Author.objects.annotate(article_count=Count('articles'))
+for a in authors:
+    print(f'{a.name}: {a.article_count} 篇')
+
+# 分类下平均阅读量
+Category.objects.annotate(avg_articles=Count('article'))
+
+# 复杂条件
+Article.objects.filter(
+    Q(author__name='张三') | Q(categories__name='Python'),
+    published__year=2024
+).distinct()
+\`\`\``,
+      code: `# Django ORM 多表查询示例 (Python 模拟)
+# 等价的 Django 代码可在 Django 项目中直接运行
+import sqlite3
+
+# 创建内存数据库模拟
+conn = sqlite3.connect(':memory:')
+c = conn.cursor()
+
+c.executescript('''
+CREATE TABLE author (id INTEGER PRIMARY KEY, name TEXT, email TEXT);
+CREATE TABLE category (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE article (id INTEGER PRIMARY KEY, title TEXT, content TEXT,
+    author_id INTEGER, published TEXT,
+    FOREIGN KEY (author_id) REFERENCES author(id));
+CREATE TABLE article_categories (article_id INTEGER, category_id INTEGER,
+    FOREIGN KEY (article_id) REFERENCES article(id),
+    FOREIGN KEY (category_id) REFERENCES category(id));
+''')
+
+# 插入数据
+authors = [(1,'张三','zs@qq.com'), (2,'李四','ls@qq.com'), (3,'王五','ww@qq.com')]
+c.executemany('INSERT INTO author VALUES (?,?,?)', authors)
+
+categories = [(1,'Python'), (2,'Web'), (3,'数据科学')]
+c.executemany('INSERT INTO category VALUES (?,?,?)', categories)
+
+articles = [
+    (1,'Django入门','内容...','2024-01-15',1),
+    (2,'FastAPI指南','内容...','2024-02-20',1),
+    (3,'Pandas教程','内容...','2024-03-10',2),
+    (4,'NumPy进阶','内容...','2024-03-15',2),
+    (5,'R语言基础','内容...','2024-04-01',3),
+]
+c.executemany('INSERT INTO article VALUES (?,?,?,?,?)', articles)
+
+m2m = [(1,1),(1,2),(2,2),(3,1),(3,3),(4,1),(5,3)]
+c.executemany('INSERT INTO article_categories VALUES (?,?)', m2m)
+conn.commit()
+
+print('=== Django ORM 多表查询等价 SQL ===')
+
+# select_related 等价：JOIN 查询
+print('\\n1. 文章 + 作者 (JOIN):')
+c.execute('''SELECT a.title, au.name, a.published
+             FROM article a JOIN author au ON a.author_id = au.id
+             ORDER BY a.published''')
+for row in c.fetchall():
+    print(f'  {row[2][:10]} | {row[1]:4s} | {row[0]}')
+
+# 聚合：每作者文章数
+print('\\n2. 每个作者文章数 (annotate + Count):')
+c.execute('''SELECT au.name, COUNT(a.id) as cnt
+             FROM author au LEFT JOIN article a ON a.author_id = au.id
+             GROUP BY au.name ORDER BY cnt DESC''')
+for row in c.fetchall():
+    print(f'  {row[0]}: {row[1]} 篇')
+
+# 多对多查询
+print('\\n3. 各分类的文章 (M2M):')
+c.execute('''SELECT cat.name, GROUP_CONCAT(a.title, ' | ')
+             FROM category cat
+             JOIN article_categories ac ON ac.category_id = cat.id
+             JOIN article a ON a.id = ac.article_id
+             GROUP BY cat.name''')
+for row in c.fetchall():
+    print(f'  [{row[0]}] {row[1]}')
+
+# Q 对象等价：复杂条件
+print('\\n4. 张三或Python分类的文章 (Q | Q):')
+c.execute('''SELECT DISTINCT a.title, au.name
+             FROM article a
+             JOIN author au ON a.author_id = au.id
+             LEFT JOIN article_categories ac ON ac.article_id = a.id
+             LEFT JOIN category cat ON cat.id = ac.category_id
+             WHERE au.name = '张三' OR cat.name = 'Python' ''')
+for row in c.fetchall():
+    print(f'  {row[1]} - {row[0]}')
+
+conn.close()
+`
+    },
+    {
+      id: 3, title: '聚合查询与 Auth 组件', type: 'explanation',
+      content: `\`\`\`python
+from django.db.models import Count, Sum, Avg, Max, Min, Q, F
+
+# 聚合查询
+stats = Article.objects.aggregate(
+    total=Count('id'),
+    avg_content=Avg('length'),
+    max_date=Max('published')
+)
+
+# 分组聚合
+by_author = Article.objects.values('author__name').annotate(
+    count=Count('id'),
+    latest=Max('published')
+).order_by('-count')
+
+# 条件聚合
+popular = Article.objects.filter(
+    published__year=2024
+).annotate(
+    view_count=Count('views')
+).filter(view_count__gte=100)
+
+# F 表达式：字段间运算
+Product.objects.filter(stock__lt=F('min_stock'))
+Employee.objects.update(salary=F('salary') * 1.1)
+
+# Django Auth 用户认证
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+# 注册
+user = User.objects.create_user('alice', 'alice@example.com', 'pass123')
+
+# 登录
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('home')
+    return render(request, 'login.html')
+
+# 登出
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+# 需要登录才能访问
+@login_required
+def profile(request):
+    return render(request, 'profile.html', {'user': request.user})
+
+# 权限检查
+@user_passes_test(lambda u: u.is_staff)
+def admin_panel(request):
+    ...
+\`\`\``
+    },
+    {
+      id: 4, title: 'Cookie/Session 与中间件', type: 'explanation',
+      content: `\`\`\`python
+# Cookie 操作
+def set_cookie(request):
+    resp = HttpResponse('Cookie 已设置')
+    resp.set_cookie('username', 'alice', max_age=3600)
+    resp.set_cookie('theme', 'dark', httponly=True, secure=True)
+    return resp
+
+def get_cookie(request):
+    username = request.COOKIES.get('username', '游客')
+    theme = request.COOKIES.get('theme', 'light')
+    return HttpResponse(f'用户: {username}, 主题: {theme}')
+
+# Session 操作
+def set_session(request):
+    request.session['user_id'] = 42
+    request.session['cart'] = {'apple': 3, 'banana': 5}
+    request.session.set_expiry(1800)  # 30分钟过期
+    return HttpResponse('Session 已设置')
+
+def get_session(request):
+    cart = request.session.get('cart', {})
+    total = sum(cart.values())
+    return HttpResponse(f'购物车: {total} 件商品')
+
+# 自定义中间件
+class SimpleMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+    
+    def __call__(self, request):
+        # 请求前处理
+        request.start_time = time.time()
+        
+        response = self.get_response(request)
+        
+        # 响应后处理
+        duration = time.time() - request.start_time
+        response['X-Process-Time'] = f'{duration:.4f}s'
+        return response
+
+# settings.py
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myapp.middleware.SimpleMiddleware',  # 自定义
+]
+\`\`\``
+    },
+    {
+      id: 5, title: 'CBV 类视图', type: 'explanation',
+      content: `\`\`\`python
+from django.views import View
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+)
+
+# 基础 CBV
+class HelloView(View):
+    def get(self, request):
+        return HttpResponse('Hello!')
+    
+    def post(self, request):
+        return HttpResponse('POST received')
+
+# ListView：列表页
+class ArticleListView(ListView):
+    model = Article
+    template_name = 'article/list.html'
+    context_object_name = 'articles'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        cat = self.kwargs.get('category')
+        if cat:
+            qs = qs.filter(categories__name=cat)
+        return qs
+
+# DetailView：详情页
+class ArticleDetailView(DetailView):
+    model = Article
+    template_name = 'article/detail.html'
+
+# CreateView：创建
+class ArticleCreateView(LoginRequiredMixin, CreateView):
+    model = Article
+    fields = ['title', 'content', 'categories']
+    template_name = 'article/form.html'
+    
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+# UpdateView / DeleteView
+class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+    model = Article
+    fields = ['title', 'content']
+    template_name = 'article/form.html'
+
+class ArticleDeleteView(LoginRequiredMixin, DeleteView):
+    model = Article
+    success_url = reverse_lazy('article-list')
+
+# Mixin：功能复用
+class AjaxResponseMixin:
+    def render_to_json(self, context):
+        return JsonResponse(context)
+
+class AjaxListView(AjaxResponseMixin, ListView):
+    def render_to_response(self, context):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return self.render_to_json(context)
+        return super().render_to_response(context)
+\`\`\``
+    },
+    {
+      id: 6, title: 'Nginx + uWSGI 部署', type: 'explanation',
+      content: `\`\`\`bash
+# uWSGI 配置 (mysite.ini)
+'''
+[uwsgi]
+chdir = /path/to/project
+module = myproject.wsgi:application
+master = true
+processes = 4
+socket = /tmp/uwsgi.sock
+chmod-socket = 666
+vacuum = true
+die-on-term = true
+'''
+
+# Nginx 配置 (/etc/nginx/sites-available/mysite)
+'''
+server {
+    listen 80;
+    server_name mysite.com;
+    
+    location /static/ {
+        alias /path/to/project/static/;
+        expires 30d;
+    }
+    
+    location /media/ {
+        alias /path/to/project/media/;
+    }
+    
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/tmp/uwsgi.sock;
+    }
+}
+'''
+
+# 启动
+# uwsgi --ini mysite.ini --daemonize /var/log/uwsgi.log
+# nginx -t && systemctl restart nginx
+
+# Gunicorn 替代方案
+# gunicorn myproject.wsgi:application --bind 0.0.0.0:8000 --workers 4
+\`\`\`
+
+**部署检查清单**：
+- [ ] DEBUG = False
+- [ ] ALLOWED_HOSTS 配置
+- [ ] STATIC_ROOT 设置并 collectstatic
+- [ ] 数据库迁移完成
+- [ ] HTTPS 证书配置
+- [ ] 日志和监控`
+    },
+    {
+      id: 7, title: '练习：博客项目实战', type: 'exercise',
+      content: '构建完整的 Django 博客系统：模型/视图/模板/表单/认证',
+      code: `# === Django 博客项目核心代码 ===
+
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+    
+    def __str__(self):
+        return self.name
+
+class Post(models.Model):
+    STATUS_CHOICES = [('draft','草稿'), ('published','已发布')]
+    
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    content = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created']
+    
+    def __str__(self):
+        return self.title
+    
+    def get_absolute_url(self):
+        return reverse('post-detail', args=[self.slug])
+
+# forms.py
+from django import forms
+from .models import Post
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'category', 'status']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 8, 'class': 'editor'}),
+        }
+
+# views.py (CBV)
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from .models import Post
+from .forms import PostForm
+
+class PostListView(ListView):
+    model = Post
+    paginate_by = 10
+    context_object_name = 'posts'
+    
+    def get_queryset(self):
+        qs = Post.objects.filter(status='published')
+        cat = self.request.GET.get('cat')
+        if cat:
+            qs = qs.filter(category__slug=cat)
+        q = self.request.GET.get('q')
+        if q:
+            qs = qs.filter(title__icontains=q)
+        return qs
+
+class PostDetailView(DetailView):
+    model = Post
+    context_object_name = 'post'
+    
+    def get_queryset(self):
+        return Post.objects.filter(status='published')
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    success_url = '/'
+    
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    success_url = '/'
+
+# urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.PostListView.as_view(), name='post-list'),
+    path('post/<slug:slug>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('post/new/', views.PostCreateView.as_view(), name='post-create'),
+    path('post/<slug:slug>/edit/', views.PostUpdateView.as_view(), name='post-edit'),
+]
+
+print('博客项目核心代码已定义完毕')
+print('包含: 模型(Post/Category) + 表单(PostForm) + 视图(ListView/DetailView/CreateView/UpdateView)')
+print('需在 Django 项目中创建模板文件和运行迁移命令')
+`
+    },
+    {
+      id: 8, title: '第59关测验', type: 'quiz',
+      content: `**问题1**：Django ORM 避免 N+1 查询的方法？
+- A. select_related() 和 prefetch_related()
+- B. only() 和 defer()
+- C. values() 和 values_list()
+- D. distinct() 和 order_by()
+
+**问题2**：CBV 中处理 GET 请求的方法名？
+- A. handle_get
+- B. get
+- C. on_get
+- D. do_get
+
+**问题3**：Django 部署时收集静态文件的命令？
+- A. python manage.py collectstatic
+- B. python manage.py static
+- C. python manage.py gather_static
+- D. python manage.py compilestatic
+
+**答案**：1.A  2.B  3.A`
+    }
+  ],
+  // 第60关
+  60: [
+    {
+      id: 1, title: 'R 字符串与列表', type: 'explanation',
+      content: `\`\`\`r
+# 字符串
+s <- 'Hello, R!'
+nchar(s)                  # 长度
+toupper(s); tolower(s)    # 大小写
+substr(s, 1, 5)           # 子串
+paste('A', 'B', sep='-')  # 'A-B'
+paste0('x', 1:3)          # 'x1' 'x2' 'x3'
+gsub('l', 'L', s)         # 替换
+strsplit('a,b,c', ',')[[1]]  # 分割
+sprintf('值: %.2f', 3.14159)  # 格式化
+
+# 列表 (list)
+lst <- list(name='Alice', age=25, scores=c(90,85,88))
+lst$name      # 'Alice'
+lst[['age']]  # 25
+lst[1]        # 子列表
+lst[[1]]      # 元素值
+
+# 添加/修改
+lst$city <- 'Beijing'
+lst$age <- 26
+
+# lapply/sapply：列表遍历
+lapply(lst, class)
+sapply(lst, length)
+\`\`\``
+    },
+    {
+      id: 2, title: 'R 数组与因子', type: 'example',
+      content: `\`\`\`r
+# 数组 (array) - 多维
+arr <- array(1:24, dim=c(4, 3, 2))
+arr[1, 1, 1]  # 第1个元素
+arr[, , 1]     # 第1个矩阵
+arr[, , 2]     # 第2个矩阵
+dim(arr)       # 4 3 2
+apply(arr, c(1,2), mean)  # 按行列求均值
+
+# 因子 (factor) - 分类变量
+gender <- factor(c('M','F','F','M','M'))
+levels(gender)  # 'F' 'M'
+table(gender)   # F:2 M:3
+
+# 有序因子
+grade <- factor(c('B','A','C','B','A'),
+    levels=c('C','B','A'), ordered=TRUE)
+grade[1] > grade[2]  # FALSE (B < A)
+
+# 因子与数值
+scores <- cut(c(45, 67, 89, 23, 78, 56),
+    breaks=c(0, 60, 80, 100),
+    labels=c('不及格','及格','优秀'))
+table(scores)  # 统计各等级人数
+\`\`\``,
+      code: `# R 数组与因子 (Python 等价实现)
+import numpy as np
+import pandas as pd
+
+print('=== R 数组与因子 ===')
+
+# R: arr <- array(1:24, dim=c(4,3,2))
+arr = np.arange(1, 25).reshape(2, 4, 3)  # 注意 R 是列优先
+print(f'数组形状: {arr.shape} (等价 R dim=c(4,3,2))')
+print(f'第1层:\\n{arr[0]}')
+print(f'第2层:\\n{arr[1]}')
+
+# apply(arr, c(1,2), mean)
+print(f'\\napply 行均值: {arr.mean(axis=0).round(1)}')
+
+# R: factor
+print('\\n=== R 因子 (等价 pandas.Categorical) ===')
+gender = pd.Categorical(['M','F','F','M','M'], categories=['F','M'])
+print(f'因子: {list(gender)}')
+print(f'levels: {gender.categories.tolist()}')
+print(f'table: {dict(zip(*np.unique(gender, return_counts=True)))}')
+
+# 有序因子
+grade = pd.Categorical(
+    ['B','A','C','B','A'],
+    categories=['C','B','A'],
+    ordered=True
+)
+print(f'\\n有序因子: {list(grade)}')
+print(f'B > A: {grade[0] > grade[1]}')  # B > A = True
+
+# cut 分箱
+scores = [45, 67, 89, 23, 78, 56]
+bins = pd.cut(scores, bins=[0, 60, 80, 100], labels=['不及格','及格','优秀'])
+print(f'\\ncut 分箱: {list(bins)}')
+print(f'table: {dict(zip(*np.unique(bins, return_counts=True)))}')
+`
+    },
+    {
+      id: 3, title: 'R 数据重塑与包管理', type: 'explanation',
+      content: `\`\`\`r
+# 数据重塑
+library(tidyr)
+library(dplyr)
+
+df <- data.frame(
+    id = 1:4,
+    Q1 = c(10, 20, 30, 40),
+    Q2 = c(15, 25, 35, 45),
+    Q3 = c(20, 30, 40, 50)
+)
+
+# 宽表转长表 (pivot_longer)
+long <- pivot_longer(df, cols=Q1:Q3, names_to='quarter', values_to='score')
+
+# 长表转宽表 (pivot_wider)
+wide <- pivot_wider(long, names_from=quarter, values_from=score)
+
+# dplyr 数据处理管道
+result <- df %>%
+    mutate(total = Q1 + Q2 + Q3) %>%
+    filter(total > 60) %>%
+    arrange(desc(total)) %>%
+    select(id, total)
+
+# R 包管理
+install.packages('dplyr')     # CRAN 安装
+library(dplyr)               # 加载
+installed.packages()         # 查看已安装
+remove.packages('dplyr')     # 卸载
+
+# 开发者工具
+install.packages('devtools')
+devtools::install_github('rstudio/shiny')
+
+# 包的命名空间
+dplyr::filter(df, Q1 > 15)  # 显式调用
+\`\`\``
+    },
+    {
+      id: 4, title: 'R 文件读写', type: 'explanation',
+      content: `\`\`\`r
+# CSV 读写
+df <- read.csv('data.csv', header=TRUE, sep=',', stringsAsFactors=FALSE)
+write.csv(df, 'output.csv', row.names=FALSE, fileEncoding='UTF-8')
+
+# Excel (需 readxl/writexl 包)
+library(readxl)
+df <- read_excel('data.xlsx', sheet=1, skip=0)
+library(writexl)
+write_xlsx(df, 'output.xlsx')
+
+# JSON (需 jsonlite 包)
+library(jsonlite)
+data <- fromJSON('data.json')
+toJSON(df, pretty=TRUE, dataframe='rows')
+
+# XML (需 xml2 包)
+library(xml2)
+doc <- read_xml('data.xml')
+xml_name(doc)
+xml_text(xml_find_all(doc, '//item'))
+
+# MySQL 连接 (需 RMySQL/DBI 包)
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+    dbname='mydb', host='localhost',
+    user='root', password='pass')
+df <- dbGetQuery(con, 'SELECT * FROM users')
+dbDisconnect(con)
+
+# RDS (R 原生格式)
+saveRDS(df, 'data.rds')
+df <- readRDS('data.rds')
+\`\`\``,
+      code: `# R 文件读写 (Python 等价实现)
+import pandas as pd
+import json
+import sqlite3
+import os
+
+print('=== R 文件读写 (Python 等价) ===')
+
+# 创建测试数据
+df = pd.DataFrame({
+    'name': ['Alice','Bob','Charlie','David'],
+    'age': [25, 30, 35, 28],
+    'score': [85, 92, 78, 95]
+})
+
+# R: read.csv / write.csv
+df.to_csv('test_data.csv', index=False)
+df_read = pd.read_csv('test_data.csv')
+print(f'CSV 读写: {len(df_read)} 行')
+
+# R: write_xlsx / read_excel
+try:
+    df.to_excel('test_data.xlsx', index=False)
+    df_xlsx = pd.read_excel('test_data.xlsx')
+    print(f'Excel 读写: {len(df_xlsx)} 行')
+except:
+    print('Excel 读写: 需 openpyxl 库')
+
+# R: toJSON / fromJSON
+json_str = df.to_json(orient='records', force_ascii=False, indent=2)
+df_json = pd.read_json(json_str)
+print(f'JSON 读写: {len(df_json)} 行')
+
+# R: saveRDS / readRDS (等价 pickle)
+import pickle
+with open('data.pkl', 'wb') as f:
+    pickle.dump(df, f)
+with open('data.pkl', 'rb') as f:
+    df_pkl = pickle.load(f)
+print(f'Pickle 读写: {len(df_pkl)} 行')
+
+# R: dbConnect (MySQL 等价 SQLite)
+conn = sqlite3.connect(':memory:')
+df.to_sql('users', conn, index=False, if_exists='replace')
+result = pd.read_sql('SELECT * FROM users WHERE score > 80', conn)
+print(f'\\nSQL 查询 (score > 80):')
+print(result.to_string(index=False))
+
+# JSON 文件输出
+with open('output.json', 'w', encoding='utf-8') as f:
+    json.dump(df.to_dict('records'), f, ensure_ascii=False, indent=2)
+print(f'\\n已输出: output.json')
+
+# 清理
+for f in ['test_data.csv', 'data.pkl', 'output.json']:
+    if os.path.exists(f):
+        os.remove(f)
+conn.close()
+print('清理完成')
+`
+    },
+    {
+      id: 5, title: 'R 绘图系统', type: 'explanation',
+      content: `\`\`\`r
+# 基础绘图系统
+# 饼图
+slices <- c(40, 25, 20, 15)
+labels <- c('电子','服装','食品','其他')
+pie(slices, labels=labels, main='销售占比',
+    col=rainbow(length(slices)))
+legend('topright', labels, fill=rainbow(length(slices)))
+
+# 条形图
+counts <- c(150, 200, 120, 80)
+barplot(counts, names.arg=c('Q1','Q2','Q3','Q4'),
+    col='steelblue', main='季度销量',
+    xlab='季度', ylab='销量')
+
+# 散点图
+plot(x, y, main='散点图', xlab='X轴', ylab='Y轴',
+    pch=19, col='blue')
+abline(lm(y ~ x), col='red', lwd=2)
+
+# 函数曲线图
+curve(x^2, from=-5, to=5, main='y = x²',
+    xlab='x', ylab='y', col='purple', lwd=2)
+curve(sin(x), add=TRUE, col='blue')
+
+# 中文支持
+# Windows: par(family='STKaiti')
+# Mac: par(family='STHeiti')
+# Linux: 需安装中文字体
+
+# ggplot2 绘图
+library(ggplot2)
+ggplot(df, aes(x=quarter, y=sales, fill=region)) +
+    geom_bar(stat='identity') +
+    facet_wrap(~region, ncol=2) +
+    labs(title='季度销售') +
+    theme_minimal() +
+    theme(text=element_text(family='STKaiti'))
+\`\`\``
+    },
+    {
+      id: 6, title: '练习：R 完整数据分析', type: 'exercise',
+      content: 'R 风格的完整数据分析流程：数据导入 → 清洗 → 分析 → 可视化',
+      code: `# R 数据分析完整流程 (Python 等价实现)
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from scipy import stats
+
+matplotlib.rcParams['font.family'] = ['Microsoft YaHei', 'SimHei']
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+print('=' * 50)
+print('  R 数据分析流程 - 电商用户分析')
+print('=' * 50)
+
+# 1. 数据导入 (R: read.csv)
+np.random.seed(42)
+N = 500
+df = pd.DataFrame({
+    'user_id': range(1, N+1),
+    'age': np.random.normal(32, 10, N).clip(18, 65).astype(int),
+    'gender': np.random.choice(['M','F'], N),
+    'city': np.random.choice(['北京','上海','广州','深圳','成都'], N),
+    'reg_days': np.random.randint(1, 1000, N),
+    'total_spent': np.random.exponential(500, N).clip(0, 5000).round(2),
+    'orders': np.random.poisson(5, N),
+    'last_active': pd.date_range('2024-01-01', periods=N, freq='1H')
+})
+print(f'\\n1. 数据导入: {len(df)} 条记录, {len(df.columns)} 个字段')
+
+# 2. 数据清洗 (R: dplyr::mutate/filter)
+df['avg_order'] = (df['total_spent'] / df['orders']).round(2)
+df['segment'] = pd.cut(df['total_spent'],
+    bins=[0, 100, 500, 2000, float('inf')],
+    labels=['低消费','中消费','高消费','VIP'])
+print(f'\\n2. 数据清洗: 新增 avg_order, segment 字段')
+
+# 3. 描述统计 (R: summary)
+print(f'\\n3. 描述统计:')
+print(f'   年龄: {df.age.mean():.1f} ± {df.age.std():.1f}')
+print(f'   总消费: {df.total_spent.sum():,.0f} 元')
+print(f'   平均订单: {df.orders.mean():.1f}')
+
+# 4. 分组分析 (R: group_by + summarize)
+print(f'\\n4. 分组分析:')
+city_stats = df.groupby('city').agg(
+    用户数=('user_id','count'),
+    总消费=('total_spent','sum'),
+    平均消费=('total_spent','mean'),
+    订单数=('orders','sum')
+).round(2).sort_values('总消费', ascending=False)
+print(city_stats.to_string())
+
+# 5. 假设检验 (R: t.test)
+male_spent = df[df.gender=='M']['total_spent']
+female_spent = df[df.gender=='F']['total_spent']
+t_stat, p_val = stats.ttest_ind(male_spent, female_spent)
+print(f'\\n5. 假设检验 (男女消费差异):')
+print(f'   t = {t_stat:.3f}, p = {p_val:.4f}')
+print(f'   结论: {"显著差异" if p_val < 0.05 else "无显著差异"} (α=0.05)')
+
+# 6. 相关性分析 (R: cor.test)
+r_age, p_age = stats.pearsonr(df['age'], df['total_spent'])
+r_days, p_days = stats.pearsonr(df['reg_days'], df['orders'])
+print(f'\\n6. 相关性:')
+print(f'   年龄 vs 消费: r={r_age:.3f} (p={p_age:.4f})')
+print(f'   注册天数 vs 订单: r={r_days:.3f} (p={p_days:.4f})')
+
+# 7. 可视化 (R: ggplot2 / base plot)
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# 条形图: 城市分布
+city_counts = df['city'].value_counts()
+axes[0,0].bar(city_counts.index, city_counts.values, color='#3498db')
+axes[0,0].set_title('用户城市分布')
+
+# 饼图: 消费分层
+seg_counts = df['segment'].value_counts()
+axes[0,1].pie(seg_counts.values, labels=seg_counts.index, autopct='%1.1f%%')
+axes[0,1].set_title('消费分层占比')
+
+# 散点图: 年龄 vs 消费
+axes[1,0].scatter(df['age'], df['total_spent'], alpha=0.3, c='#e74c3c')
+z = np.polyfit(df['age'], df['total_spent'], 1)
+axes[1,0].plot(df['age'], np.polyval(z, df['age']), 'b-', linewidth=2)
+axes[1,0].set_xlabel('年龄'); axes[1,0].set_ylabel('总消费')
+axes[1,0].set_title('年龄 vs 消费')
+
+# 直方图: 订单数分布
+axes[1,1].hist(df['orders'], bins=20, color='#2ecc71', edgecolor='white')
+axes[1,1].set_title('订单数分布')
+
+plt.tight_layout()
+plt.savefig('r_analysis.png', dpi=120)
+print(f'\\n7. 可视化完成: r_analysis.png')
+print(f'\\n✅ R 数据分析流程完成！')
+`
+    },
+    {
+      id: 7, title: '第60关测验', type: 'quiz',
+      content: `**问题1**：R 中宽表转长表的函数是？
+- A. pivot_longer
+- B. melt
+- C. gather
+- D. reshape_long
+
+**问题2**：R 的因子(factor)对应 Python 的什么类型？
+- A. list
+- B. Categorical
+- C. tuple
+- D. Series
+
+**问题3**：R 中读取 Excel 文件的包是？
+- A. xlsx
+- B. readxl
+- C. openxlsx
+- D. 以上均可
+
+**答案**：1.A  2.B  3.D`
+    }
   ]
 }
 
