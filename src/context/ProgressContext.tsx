@@ -329,11 +329,42 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      // 检查是否所有 lessons 和 challenges 都已完成
+      const allLessonsCompleted = Object.values(newLessons).every(l => l.completed)
+      const allChallengesCompleted = Object.values(level.challenges).every(c => c.completed)
+      const hasChallenges = Object.keys(level.challenges).length > 0
+      const levelCompleted = allLessonsCompleted && (hasChallenges ? allChallengesCompleted : true)
+
+      const nextLevelId = levelId + 1
+      const newLevels: Record<number, LevelProgress> = {
+        ...prev.levels,
+        [levelId]: { ...level, lessons: newLessons, completed: levelCompleted || level.completed }
+      }
+
+      if (levelCompleted && !level.completed && prev.levels[nextLevelId]) {
+        newLevels[nextLevelId] = {
+          ...prev.levels[nextLevelId],
+          unlocked: true
+        }
+      }
+
       let next: UserProgress = {
         ...prev,
-        levels: {
-          ...prev.levels,
-          [levelId]: { ...level, lessons: newLessons }
+        levels: newLevels
+      }
+
+      if (levelCompleted && !level.completed) {
+        const activity: ActivityEntry = {
+          id: makeId(),
+          type: 'level',
+          title: `完成第 ${levelId} 关`,
+          description: `解锁下一关卡`,
+          timestamp: new Date().toISOString(),
+          icon: '🎊'
+        }
+        next = {
+          ...next,
+          activityLog: [activity, ...next.activityLog].slice(0, 100)
         }
       }
 

@@ -46,7 +46,7 @@ function LevelDetail() {
   }
 
   const handleLessonComplete = () => {
-    completeLesson(levelId, 1)
+    completeLesson(levelId, currentLessonSteps.length)
   }
 
   const handleChallengeComplete = (challengeId: number, xpReward: number) => {

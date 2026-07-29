@@ -9,23 +9,24 @@ import { Level } from '../../types'
 function LevelMap() {
   const navigate = useNavigate()
   const [selectedLevel, setSelectedLevel] = useState<Level>(levels[3])
-  const { progress, isLevelUnlocked, isLevelCompleted, isChallengeCompleted } = useProgress()
+  const { progress, isLevelUnlocked, isLevelCompleted, isChallengeCompleted, getLevelProgress } = useProgress()
 
   const levelsWithStatus = useMemo(() => {
     return levels.map(level => {
       const unlocked = isLevelUnlocked(level.id)
       const completed = isLevelCompleted(level.id)
-      
+      const lp = getLevelProgress(level.id)
+
       let status: 'completed' | 'current' | 'locked' = 'locked'
       if (completed) {
         status = 'completed'
       } else if (unlocked) {
         status = 'current'
       }
-      
-      return { ...level, status }
+
+      return { ...level, status, levelProgress: lp }
     })
-  }, [isLevelUnlocked, isLevelCompleted])
+  }, [isLevelUnlocked, isLevelCompleted, getLevelProgress])
 
   const completedCount = levelsWithStatus.filter(l => l.status === 'completed').length
   const progressPercent = Math.round((completedCount / levels.length) * 100)
@@ -140,10 +141,25 @@ function LevelMap() {
                         ))}
                       </div>
                       {level.status === 'current' && (
-                        <div className="current-badge">
-                          <span className="pulse-dot"></span>
-                          进行中
-                        </div>
+                        <>
+                          <div className="current-badge">
+                            <span className="pulse-dot"></span>
+                            进行中
+                          </div>
+                          {level.levelProgress.total > 0 && (
+                            <div className="level-progress-mini">
+                              <div className="level-progress-bar">
+                                <div
+                                  className="level-progress-fill"
+                                  style={{ width: `${level.levelProgress.percent}%` }}
+                                ></div>
+                              </div>
+                              <span className="level-progress-text">
+                                {level.levelProgress.completed}/{level.levelProgress.total}
+                              </span>
+                            </div>
+                          )}
+                        </>
                       )}
                       {level.status === 'completed' && (
                         <div className="completed-badge-card">
