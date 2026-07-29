@@ -21,7 +21,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🐍',
     category: 'language',
     difficulty: 1,
-    unlocked: true
+    unlocked: true,
+    href: '#/level/1'
   },
   {
     id: 'python2',
@@ -30,7 +31,7 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🐍',
     category: 'language',
     difficulty: 2,
-    unlocked: false
+    unlocked: true
   },
   // Web 框架
   {
@@ -40,7 +41,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '⚡',
     category: 'web',
     difficulty: 3,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/28'
   },
   {
     id: 'flask',
@@ -49,7 +51,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🌶️',
     category: 'web',
     difficulty: 3,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/27'
   },
   {
     id: 'django',
@@ -58,7 +61,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🎸',
     category: 'web',
     difficulty: 4,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/29'
   },
   // 数据科学
   {
@@ -68,7 +72,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🔢',
     category: 'data',
     difficulty: 2,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/23'
   },
   {
     id: 'pandas',
@@ -77,7 +82,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🐼',
     category: 'data',
     difficulty: 3,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/24'
   },
   {
     id: 'scipy',
@@ -86,7 +92,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🧪',
     category: 'data',
     difficulty: 3,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/26'
   },
   {
     id: 'matplotlib',
@@ -95,7 +102,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '📊',
     category: 'data',
     difficulty: 2,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/25'
   },
   {
     id: 'dash',
@@ -104,7 +112,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '📈',
     category: 'data',
     difficulty: 3,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/31'
   },
   {
     id: 'jupyter',
@@ -113,7 +122,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '📓',
     category: 'tool',
     difficulty: 2,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/32'
   },
   {
     id: 'pillow',
@@ -122,7 +132,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🖼️',
     category: 'tool',
     difficulty: 2,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/33'
   },
   // 量化交易
   {
@@ -132,7 +143,8 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '💹',
     category: 'finance',
     difficulty: 4,
-    unlocked: false
+    unlocked: true,
+    href: '#/level/34'
   },
   // 其他语言
   {
@@ -142,7 +154,7 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '📐',
     category: 'language',
     difficulty: 3,
-    unlocked: false
+    unlocked: true
   },
   {
     id: 'julia',
@@ -151,7 +163,7 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '🔬',
     category: 'language',
     difficulty: 4,
-    unlocked: false
+    unlocked: true
   }
 ]
 

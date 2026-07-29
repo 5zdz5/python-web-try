@@ -177,6 +177,13 @@ function LevelDetail() {
                 key={topic.id}
                 className={`runoob-card ${topic.unlocked ? 'unlocked' : 'locked'}`}
                 style={{ '--topic-color': categoryColors[topic.category] } as React.CSSProperties}
+                onClick={() => {
+                  if (topic.unlocked && topic.href) {
+                    const match = topic.href.match(/#\/level\/(\d+)/)
+                    if (match) navigate(`/level/${match[1]}`)
+                  }
+                }}
+                role={topic.unlocked && topic.href ? 'button' : undefined}
               >
                 <div className="runoob-card-icon">
                   <span className="runoob-icon-emoji">{topic.icon}</span>

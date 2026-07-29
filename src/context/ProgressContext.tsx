@@ -70,7 +70,7 @@ interface ProgressContextType {
 }
 
 const STORAGE_KEY = 'python-quest-progress'
-const STORAGE_VERSION = 'v5-unlock-all-18'
+const STORAGE_VERSION = 'v6-unlock-all-34'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -98,7 +98,23 @@ const defaultProgress: UserProgress = {
     15: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     16: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     17: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    18: { unlocked: true, completed: false, lessons: {}, challenges: {} }
+    18: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    19: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    20: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    21: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    22: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    23: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    24: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    25: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    26: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    27: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    28: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    29: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    30: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    31: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    32: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    33: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    34: { unlocked: true, completed: false, lessons: {}, challenges: {} }
   },
   unlockedAchievements: ['first-day'],
   claimedAchievements: [],

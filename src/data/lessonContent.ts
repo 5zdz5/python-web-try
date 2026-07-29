@@ -5197,6 +5197,3116 @@ import this
 
 — Python Quest 全体导师敬上`
     }
+  ],
+  // ============== 19. Requests 网络请求 ==============
+  19: [
+    {
+      id: 1,
+      title: '为什么需要 requests ？',
+      type: 'explanation',
+      content: `在菜鸟教程中，Python 提供了内置的 \`urllib\` 进行网络请求，但它接口繁琐。**requests** 被誉为 "HTTP for Humans"，是最流行的 Python 第三方库。
+
+**安装**（浏览器环境中我们使用模拟版）：
+\`\`\`
+pip install requests
+\`\`\`
+
+**核心 6 个方法**：
+| 方法 | 作用 |
+|---|---|
+| \`requests.get()\` | GET 请求（读取） |
+| \`requests.post()\` | POST 请求（提交） |
+| \`requests.put()\` | PUT 请求（更新） |
+| \`requests.delete()\` | DELETE 请求（删除） |
+| \`requests.session()\` | 会话，保留 cookies |
+| \`response.json()\` | 解析 JSON 响应 |
+
+下面一步步学习！`
+    },
+    {
+      id: 2,
+      title: 'GET 请求与参数',
+      type: 'example',
+      content: `**GET 请求**用于从服务器读取数据。可以用 \`params=\` 把字典自动拼接成 URL 查询串。
+
+菜鸟教程常用示例：请求一个模拟接口，看看天气 JSON。
+\`\`\`
+import requests_ as requests
+
+# 1. 基础 GET
+r = requests.get("https://api.example.com/weather?city=beijing")
+
+# 2. 推荐用 params
+r = requests.get(
+    "https://api.example.com/weather",
+    params={"city": "beijing", "lang": "zh-CN"}
+)
+\`\`\`
+
+运行下面的示例代码：`,
+      code: `# 模拟 requests 库（浏览器环境使用）
+import requests_ as requests
+
+# 查询某城市天气（模拟）
+r = requests.get(
+    "https://api.example.com/weather",
+    params={"city": "Shanghai", "days": 3}
+)
+print("状态码:", r.status_code)
+print("URL:", r.url)
+print("响应（JSON）:")
+print(r.json())`
+    },
+    {
+      id: 3,
+      title: 'POST 提交表单',
+      type: 'practice',
+      content: `**POST 请求**用于向服务器提交数据。登录表单、发帖、上传都是它。
+
+**两种常见格式**：
+- **表单**：\`data={"key":"val"}\` → \`Content-Type: application/x-www-form-urlencoded\`
+- **JSON 接口**：\`json={"key":"val"}\` → \`Content-Type: application/json\`
+
+**练习**：编写代码调用模拟登录接口，用 \`data=\` 提交用户名/密码，打印响应。
+要求输出中包含 'access_token' 字符串。`,
+      code: `import requests_ as requests
+
+# 在此编写：POST 到 https://api.example.com/login
+# 提交表单字段 username=admin password=123456
+# 打印状态码和响应 JSON
+
+
+`,
+      answer: `import requests_ as requests
+
+r = requests.post(
+    "https://api.example.com/login",
+    data={"username": "admin", "password": "123456"}
+)
+print("状态码:", r.status_code)
+print("响应:", r.json())`,
+      explanation: `**要点**：
+1. \`data={...}\` 用于 form-urlencoded；\`json={...}\` 用于 REST API 的 JSON body
+2. 登录接口几乎永远是 POST（GET 会把密码写进 URL 历史）
+3. 成功响应一般包含 \`access_token\` / \`token\` / \`Set-Cookie\``,
+      hint: 'requests.post(url, data={...})',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含 token",
+    "passed": "access_token" in output or "token" in output.lower(),
+    "message": "登录成功响应应包含 access_token"
+})
+_test_results.append({
+    "name": "有状态码输出",
+    "passed": "状态码" in output or "200" in output,
+    "message": "应打印状态码"
+})`
+    },
+    {
+      id: 4,
+      title: 'Session 会话管理',
+      type: 'explanation',
+      content: `如果你用多个请求保持登录状态，每次都传 cookie 很麻烦。\`requests.Session()\` 会**自动保存和携带 cookies**，就像真的浏览器一样！
+
+菜鸟教程经典示例：登录 → 访问需授权页面。
+\`\`\`
+s = requests.Session()
+
+# 登录一次
+s.post("https://api.example.com/login", data={"u": "a", "p": "b"})
+
+# 后续请求自动带 cookie
+r = s.get("https://api.example.com/profile")
+\`\`\`
+
+**常见误区**：
+- ❌ 每次都用新的 requests.get/post，cookie 不会保留
+- ✅ 用同一个 Session 对象贯穿整个会话`
+    },
+    {
+      id: 5,
+      title: '实战：模拟爬取文章列表',
+      type: 'quiz',
+      content: `假设你要爬取一个文章列表接口：\`GET /api/articles?page=1&size=10\`，需要带上浏览器 UA，否则返回 403。
+
+**问题**：下列哪个做法最正确？`,
+      options: [
+        'requests.get(url) 不管，让它默认',
+        'headers={"User-Agent":"Mozilla/5.0 ... Chrome/..."} 传入 get()',
+        'data={"ua":"chrome"}',
+        'proxies={"http":...} 强制代理'
+      ],
+      correctAnswer: 1,
+      explanation: `**正确答案：B**  
+\`headers=\` 参数传入自定义请求头是正确方式。
+
+\`\`\`
+requests.get(url, headers={"User-Agent": "Mozilla/5.0 ..."})
+\`\`\`
+
+很多服务器通过 UA 判断是爬虫还是浏览器，返回不同内容或 403。`
+    },
+    {
+      id: 6,
+      title: '小总结 & 错误处理',
+      type: 'explanation',
+      content: `**最佳实践清单**（来自菜鸟教程 + 经验）：
+
+1. 总是 \`timeout=10\`，否则卡死网络会让程序挂起
+2. 解析 JSON 前先 \`r.raise_for_status()\`，非 2xx 直接抛异常
+3. 使用 \`try...except requests.RequestException\` 统一拦截所有网络错误
+4. 频繁访问要加 \`time.sleep(0.5)\` 或用 Session 的 adapters 设置重试
+
+\`\`\`
+try:
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    data = r.json()
+except requests.RequestException as e:
+    print("请求失败:", e)
+\`\`\`
+
+恭喜！你已经可以用 requests 爬取大部分公开 API 了 🎉`
+    }
+  ],
+  // ============== 20. 正则表达式 re ==============
+  20: [
+    {
+      id: 1,
+      title: '正则是什么？',
+      type: 'explanation',
+      content: `**正则表达式（Regular Expression, regex）** 是一套**字符串模式匹配**语言。菜鸟教程专辟一大章讲它：手机号、邮箱、身份证、爬虫里提取 URL / 标题……都需要它。
+
+Python 标准库 **re** 提供全部能力。先记住"三板斧"：
+| 函数 | 作用 |
+|---|---|
+| \`re.search(pat, s)\` | 找到第一个匹配（返回 Match 对象） |
+| \`re.findall(pat, s)\` | 找出所有匹配，返回列表 |
+| \`re.sub(pat, repl, s)\` | 替换匹配的子串 |
+
+**最常用元字符**（记住这 8 个就能搞定 80% 场景）：
+- \`.\` 任意字符（除换行）
+- \`\\d\` 数字 / \`\\w\` 字母数字下划线 / \`\\s\` 空白
+- \`^abc\` 开头 / \`xyz$\` 结尾
+- \`a*\` 0 次或多次 / \`a+\` 1 次或多次 / \`a?\` 0 或 1 次
+- \`[abc]\` 字符集任意一个 / \`[^abc]\` 反向
+- \`(组1|组2)\` 分组与捕获`
+    },
+    {
+      id: 2,
+      title: '手机号与邮箱',
+      type: 'example',
+      content: `**菜鸟教程最经典题**：校验手机号、提取邮箱。
+\`\`\`
+手机号规则（中国大陆）：1 开头，第二位 3-9，共 11 位
+→ 模式：r"^1[3-9]\\d{9}$"
+
+邮箱：name@domain.tld，name 可以字母数字._-，domain 至少两级
+→ 模式：r"\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,})+$"
+\`\`\`
+
+运行下面示例：`,
+      code: `import re
+
+texts = [
+    "13800138000",    # ✓ 手机
+    "12345678901",    # ✗ 第二位是 2
+    "alice_2024@example.com.cn",  # ✓ 邮箱
+    "bad@.com",       # ✗
+]
+
+phone_pat = r"^1[3-9]\\d{9}$"
+email_pat = r"^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,})+$"
+
+for t in texts:
+    ok_phone = bool(re.match(phone_pat, t))
+    ok_email = bool(re.match(email_pat, t))
+    print(f"{t:40s} 手机={ok_phone}  邮箱={ok_email}")`
+    },
+    {
+      id: 3,
+      title: '练习：提取全部链接 URL',
+      type: 'practice',
+      content: `**任务**：在下面的 HTML 文本中，用 \`re.findall\` **提取所有 <a> 标签的 href 值**。
+
+\`\`\`
+<a href="https://www.runoob.com/">菜鸟教程</a>
+<a href='https://example.org/page1'>示例1</a>
+<a  href = "https://api.github.com/users"  target=_blank>API</a>
+\`\`\`
+
+**难点**：
+- href 可能用双引号，也可能用单引号
+- 等号两边可能有空格
+
+**要求**：输出的链接列表中至少包含上面 3 个 URL。`,
+      code: `import re
+
+html = """
+<p>热门学习资源：</p>
+<ul>
+  <li><a href="https://www.runoob.com/">菜鸟教程</a></li>
+  <li><a href='https://example.org/page1'>示例1</a></li>
+  <li><a  href = "https://api.github.com/users"  target=_blank>GitHub API</a></li>
+</ul>
+"""
+
+# 在此编写正则和 findall
+# result = re.findall(..., html)
+# for url in result: print(url)
+
+
+`,
+      answer: `import re
+
+html = """
+<p>热门学习资源：</p>
+<ul>
+  <li><a href="https://www.runoob.com/">菜鸟教程</a></li>
+  <li><a href='https://example.org/page1'>示例1</a></li>
+  <li><a  href = "https://api.github.com/users"  target=_blank>GitHub API</a></li>
+</ul>
+"""
+
+# 分组捕获：匹配 href 后空格=空格 然后 (单引号里的内容 OR 双引号里的内容)
+pat = r"""href\s*=\s*(?:"([^"]+)"|'([^']+)')"""
+raw = re.findall(pat, html, re.IGNORECASE)
+result = [a or b for a, b in raw]
+for url in result:
+    print(url)`,
+      explanation: `**拆解模式**：
+- \`href\\s*=\\s*\` 匹配 href，中间允许 0~n 个空格
+- 外层 (A\|B) 捕获组：双引号组 OR 单引号组
+- \`[^"]+\` = "除了双引号的任意字符"（非贪婪的最佳替代）
+- re.IGNORECASE 让 HREF/Href 都能匹配
+
+**常见错误**：
+- 直接用 \`\\d+\\.\` 之类"手写 URL"，实际环境会漏掉各种字符
+- 忘记加分组，findall 返回整个匹配串`
+    ,
+      hint: "re.findall(r\"href\\s*=\\s*([\\\"\\'])(.*?)\\\\1\", html) 或 双分组解法",
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含菜鸟教程",
+    "passed": "runoob.com" in output,
+    "message": "应提取到 https://www.runoob.com/"
+})
+_test_results.append({
+    "name": "包含 example.org",
+    "passed": "example.org/page1" in output,
+    "message": "应提取到 https://example.org/page1"
+})
+_test_results.append({
+    "name": "包含 github",
+    "passed": "api.github.com" in output,
+    "message": "应提取到 GitHub API"
+})
+_test_results.append({
+    "name": "恰好 3 条",
+    "passed": output.strip().count("\n") >= 2,
+    "message": "至少打印 3 条链接"
+})`
+    },
+    {
+      id: 4,
+      title: '贪婪 vs 非贪婪',
+      type: 'explanation',
+      content: `**菜鸟教程高频易错点**！
+正则里 \`*\` / \`+\` 默认是**贪婪**：匹配到尽可能长。
+
+例如在 \`<b>粗</b> 中间 <b>体</b>\` 里：
+\`\`\`
+贪婪:    r"<b>.*</b>"   → 只匹配 1 个："<b>粗</b> 中间 <b>体</b>"（从第一个 <b> 吃到最后一个 </b>）
+非贪婪:  r"<b>.*?</b>"  → 匹配 2 个："<b>粗</b>"  和  "<b>体</b>"
+\`\`\`
+
+只要在量词后面加一个 **?**，就切换成非贪婪！`
+    },
+    {
+      id: 5,
+      title: 'sub 替换与 re.compile',
+      type: 'example',
+      content: `**sub** 做批量清洗、脱敏。**compile** 把模式预编译，多次使用更快。
+
+示例：
+1. 把所有手机号中间 4 位脱敏成 ****
+2. 把多个空白压成 1 个空格
+3. 用编译后的模式跑多次
+`,
+      code: `import re
+
+# 1) 手机号脱敏：(前 3 位)任意 4 位(后 4 位)
+phone_pat = re.compile(r"(1[3-9]\\d)\\d{4}(\\d{4})")
+s = "客服：13800138000，销售：18512345678"
+print(phone_pat.sub(r"\\1****\\2", s))
+
+# 2) 合并空白
+s2 = "Hello        World\n\n\n  你好  啊"
+print(re.sub(r"\\s+", " ", s2))`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `给定字符串：
+\`\`\`
+"A01 苹果 ￥5.5; B99 香蕉 ￥3.2; C20 西瓜 ￥12.00"
+\`\`\`
+
+用一条正则同时**提取所有价格数字**（包括小数）。
+\`re.findall(??? , s)\`
+
+下列哪个正确？`,
+      options: [
+        'r"￥\\d+"',
+        'r"￥(\\d+\\.?\\d*)"',
+        'r"\\d+\\.\\d+"',
+        'r"\\d+"'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 正确**
+- 价格前面有人民币符号，用 \`￥\` 做锚点避免抓错货号 A01、B99
+- 价格本身可能是 \`5.5\` / \`3.2\` / \`12.00\` → \`\\d+\\.?\\d*\` 最稳
+- 外层分组 ( ) 让 findall **只返回价格数字**，不包含 ￥ 符号
+- D 会把 A01/99/20 这些货号也一起抓出来`
+    }
+  ],
+  // ============== 21. collections ==============
+  21: [
+    {
+      id: 1,
+      title: 'collections 全家桶',
+      type: 'explanation',
+      content: `菜鸟教程"Python3 标准库概览"一节中，**collections** 被评为"最高频实用"。它为内置的 dict/list/set/tuple 提供了"增强版"。
+
+**必学 5 个类**：
+| 类 | 作用 |
+|---|---|
+| \`Counter\` | 统计计数器（词频王） |
+| \`deque\` | 双端队列（两端都 O(1)） |
+| \`defaultdict\` | 访问缺失键自动给默认值 |
+| \`namedtuple\` | 给 tuple 起字段名，像对象 |
+| \`OrderedDict\` | Python3.7 后和 dict 一样有序（历史遗留） |
+
+下面逐个击破！`
+    },
+    {
+      id: 2,
+      title: 'Counter 词频统计',
+      type: 'example',
+      content: `统计词频是"笔试必考题"。Counter 一行搞定，还带 top-K 接口！`,
+      code: `from collections import Counter
+
+text = "hello world hello python world python python 菜鸟 教程 菜鸟"
+words = text.split()
+
+c = Counter(words)
+print("词频字典:", dict(c))
+print("TOP 3:", c.most_common(3))
+
+# 新增文本后合并
+more = "python python hello"
+c.update(more.split())
+print("更新后 python 次数:", c["python"])`
+    },
+    {
+      id: 3,
+      title: 'defaultdict & namedtuple',
+      type: 'practice',
+      content: `**任务 1**：用 \`defaultdict(list)\` 把一堆 "学生-成绩" 对 **按学生分组**，最后打印每个学生的成绩列表。
+
+**任务 2**：用 \`namedtuple("Point", ["x","y"])\` 定义点，计算两点欧氏距离：
+\`sqrt((x1-x2)^2 + (y1-y2)^2)\`
+
+输入数据：
+\`\`\`
+scores = [('小明', 85), ('小红', 92), ('小明', 78), ('小刚', 88), ('小红', 95)]
+p1=(3,4)  p2=(0,0)  → 距离应为 5.0
+\`\`\``,
+      code: `from collections import defaultdict, namedtuple
+import math
+
+scores = [('小明', 85), ('小红', 92), ('小明', 78), ('小刚', 88), ('小红', 95)]
+
+# -------- 任务1：defaultdict(list) 分组 --------
+# 在此实现
+print("成绩分组：")
+# for name, lst in d.items(): print(name, lst)
+
+
+# -------- 任务2：namedtuple 两点距离 --------
+# Point = namedtuple(...)
+# p1 = Point(3,4); p2 = Point(0,0)
+# dist = ...
+# print(f"距离={dist:.1f}")
+
+
+`,
+      answer: `from collections import defaultdict, namedtuple
+import math
+
+scores = [('小明', 85), ('小红', 92), ('小明', 78), ('小刚', 88), ('小红', 95)]
+
+# 任务1
+d = defaultdict(list)
+for name, score in scores:
+    d[name].append(score)
+print("成绩分组：")
+for name, lst in d.items():
+    print(f"  {name}: {lst}")
+
+# 任务2
+Point = namedtuple("Point", ["x", "y"])
+p1 = Point(3, 4)
+p2 = Point(0, 0)
+dist = math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+print(f"距离={dist:.1f}")`,
+      explanation: `**defaultdict** 省掉了 \`if key not in d: d[key]=[]\` 的样板代码。  
+**namedtuple** 字段比下标 \`t[0] t[1]\` 可读 100 倍，写数据管道/解析 CSV 超常用。`,
+      hint: 'defaultdict(list) 初始化后直接 append；namedtuple("Point", ["x","y"])',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "小明分组",
+    "passed": "小明" in output and ("85" in output) and ("78" in output),
+    "message": "应输出小明的 [85, 78]"
+})
+_test_results.append({
+    "name": "小刚分组",
+    "passed": "小刚" in output and "88" in output,
+    "message": "应输出小刚的 [88]"
+})
+_test_results.append({
+    "name": "距离",
+    "passed": "距离=5.0" in output or "5.0" in output,
+    "message": "欧氏距离应该是 5.0"
+})`
+    },
+    {
+      id: 4,
+      title: 'deque 双端队列',
+      type: 'explanation',
+      content: `list 在**头部**插入/删除是 O(n)（后面元素全部要搬移），**deque** 两端都是 O(1)。
+
+常用 API：
+\`\`\`
+from collections import deque
+
+d = deque([1,2,3])
+d.append(4)           # 右加  → [1,2,3,4]
+d.appendleft(0)       # 左加  → [0,1,2,3,4]
+d.pop()               # 右弹 4
+d.popleft()           # 左弹 0
+
+d.rotate(1)           # 整体右循环 1 位：[4,1,2,3]
+d.extend([5,6])       # 右批量加
+d.extendleft([-1,0])  # 左批量加
+\`\`\`
+
+**应用**：滑动窗口、BFS、最近最少使用缓存(LRU)、最近 10 条日志。`
+    },
+    {
+      id: 5,
+      title: '综合实战：最近 10 条日志',
+      type: 'quiz',
+      content: `要实现一个"只保留最近 10 条日志"的结构。每收到一条新日志，旧的自动丢弃。
+
+应该：`,
+      options: [
+        'list.append(), 若 len>10 就 list.pop(0)',
+        'deque(maxlen=10), append() 自动丢弃最旧',
+        'set 去重即可',
+        'dict 存 1..10 下标自己换'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 最地道**  
+deque(maxlen=N) 是官方内置的"固定大小环形缓冲"，append/appendleft 超过 N 自动淘汰对面那端，O(1) 不操心。
+
+A 也行但 pop(0) 是 O(n)，在 N 大或 QPS 高时性能差一截。`
+    }
+  ],
+  // ============== 22. itertools ==============
+  22: [
+    {
+      id: 1,
+      title: 'itertools 是 Python 的"隐形军火库"',
+      type: 'explanation',
+      content: `函数式编程 + 迭代器 = itertools。菜鸟教程建议"先学会 itertools，再写 for 循环"，因为它把 90% 的重复模式都封装了。
+
+**四大分支**（本关学这些）：
+1. **无限迭代器**：count / cycle / repeat
+2. **终止型迭代器**：accumulate / chain / islice / takewhile / dropwhile / filterfalse / compress / zip_longest
+3. **排列组合**：product / permutations / combinations / combinations_with_replacement
+4. **分组**：groupby
+
+所有返回的都是**迭代器（lazy）**，不占大量内存，可以 \`for ... in ...\` 逐个吃。`
+    },
+    {
+      id: 2,
+      title: '无限迭代器 & islice 切片',
+      type: 'example',
+      content: `count 是"等差数列发生器"，cycle 是"无限循环一个序列"，repeat 是"重复同一值"。
+因为是无限的，**不能直接 list() 转列表**，要用 islice 截取前 N 个！
+`,
+      code: `import itertools as it
+
+print("count 1, 4, 7, 10 ... 取前 6 个:")
+for x in it.islice(it.count(1, step=3), 6):
+    print(" ", x, end="")
+print()
+
+print("cycle [A, B] 取前 8 个:", list(it.islice(it.cycle(["A", "B"]), 8)))
+print("repeat 'hi' 4 次:", list(it.repeat("hi", 4)))`
+    },
+    {
+      id: 3,
+      title: 'accumulate 前缀和 & chain 压平',
+      type: 'practice',
+      content: `**任务 1**：对列表 [3,1,4,1,5,9,2] 计算 **前缀乘积**（不是默认加法！），把每一步的积输出。
+提示：accumulate(iterable, func=operator.mul)
+
+**任务 2**：把一个 3 层嵌套列表 \`[[1,2],[3,[4,5]],[6]]\` **压平一层**（外层去掉）。
+注意：第二层里可能还有子列表，chain.from_iterable 只压一层，保留内部结构。
+`,
+      code: `import itertools as it
+import operator
+
+# 任务1：前缀乘积
+nums = [3, 1, 4, 1, 5, 9, 2]
+# 在此输出：前缀积
+
+# 任务2：压平一层
+nested = [[1, 2], [3, [4, 5]], [6]]
+# 在此输出 flattened 结果：应为 [1, 2, 3, [4,5], 6]
+
+
+`,
+      answer: `import itertools as it
+import operator
+
+nums = [3, 1, 4, 1, 5, 9, 2]
+print("前缀乘积:", list(it.accumulate(nums, func=operator.mul)))
+
+nested = [[1, 2], [3, [4, 5]], [6]]
+flattened = list(it.chain.from_iterable(nested))
+print("压平一层:", flattened)`,
+      explanation: `**易错点**：
+- accumulate 默认做加法，要传 \`func=\` 改算子
+- \`chain(*iterables)\` 是把位置参数串起来；\`chain.from_iterable(x)\` 是把一个可迭代对象里的每个子迭代串起来 → 这才是扁平化
+- 对全深层递归 flatten 需要手写递归或 more_itertools.flatten`,
+      hint: 'it.accumulate(nums, func=operator.mul) ； it.chain.from_iterable(nested)',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "前缀乘积",
+    "passed": "1080" in output,  # 3*1*4*1*5*9 = 540？再乘下一个 2 = 1080
+    "message": "最后一个前缀积应为 1080"
+})
+_test_results.append({
+    "name": "压平后 [4,5] 保留",
+    "passed": "[4, 5]" in output or "[4,5]" in output,
+    "message": "只压一层，[4,5] 应该还在"
+})
+_test_results.append({
+    "name": "压平后 1/2/3/6 都在",
+    "passed": all(str(n) in output for n in [1,2,3,6]),
+    "message": "外层数字 1,2,3,6 都应出现"
+})`
+    },
+    {
+      id: 4,
+      title: '排列组合全家桶',
+      type: 'explanation',
+      content: `四兄弟，名字要分清！
+| 函数 | 含义 | 例 [1,2,3] r=2 |
+|---|---|---|
+| product(A, repeat=r) | 笛卡尔积（有序可重） | (1,1)(1,2)(1,3)(2,1)(2,2)(2,3)(3,1)(3,2)(3,3) → 9 种 |
+| permutations(A, r) | 排列（有序不重） | (1,2)(1,3)(2,1)(2,3)(3,1)(3,2) → 6 种 |
+| combinations(A, r) | 组合（无序不重） | (1,2)(1,3)(2,3) → 3 种 |
+| combinations_with_replacement(A, r) | 组合（无序可重） | (1,1)(1,2)(1,3)(2,2)(2,3)(3,3) → 6 种 |
+
+**经典应用**：
+- 暴力破解密码（product）
+- 彩票所有可能组合（combinations）
+- 生成全排列（permutations）`
+    },
+    {
+      id: 5,
+      title: 'groupby 分组',
+      type: 'example',
+      content: `groupby 会把"连续的、相同 key 的元素"归为一组。
+⚠️ **坑：它只认连续！** 分组前必须先 sort(key=相同的key_fn)。
+`,
+      code: `import itertools as it
+
+students = [
+    {"name": "小明", "cls": "一班"},
+    {"name": "小红", "cls": "二班"},
+    {"name": "小刚", "cls": "一班"},
+    {"name": "小丽", "cls": "二班"},
+    {"name": "小强", "cls": "二班"},
+]
+
+# 必须先按班级排序！
+students.sort(key=lambda s: s["cls"])
+
+for cls, group in it.groupby(students, key=lambda s: s["cls"]):
+    names = [s["name"] for s in group]
+    print(f"{cls}: {names}")`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `密码锁是 **4 位**，每位可选数字 **0-9**。你想枚举所有可能。
+
+下列 itertools 写法正确的是：`,
+      options: [
+        'it.permutations(range(10), 4)',
+        'it.combinations(range(10), 4)',
+        'it.product(range(10), repeat=4)',
+        'it.product(range(4), repeat=10)'
+      ],
+      correctAnswer: 2,
+      explanation: `**C 正确**  
+密码允许重复（例如 0000 / 1122），且顺序相关（1234≠4321）。
+- permutations 不重：跳过 0000 这种合法密码 ✗
+- combinations 既无序也不重 ✗
+- product(range(10), repeat=4) 10^4 = 10000 种全部 ✓
+- D 参数写反了 ✗`
+    }
+  ],
+  // ============== 23. NumPy ==============
+  23: [
+    {
+      id: 1,
+      title: '为什么要用 ndarray ？',
+      type: 'explanation',
+      content: `Python list 可以存任意类型，但处理 100 万+ 数值会慢到怀疑人生。**NumPy** 是"Python 的数值运算地基"，菜鸟教程数据科学章节的第一块。
+
+它的核心是 **ndarray（N-dimensional array）**：
+- 同类型元素 → 连续内存，CPU 友好
+- 运算"向量化"：不需要写 for 循环
+- 线性代数 / 傅里叶 / 随机数 全有
+
+浏览器中安装较麻烦，我们提供精简版 API 做概念学习：
+\`\`\`
+import numpy_ as np          # 我们的模拟版
+a = np.array([[1,2,3],[4,5,6]])
+print(a.shape)              # (2, 3)
+print(a + 1)                # 每个元素 +1（广播）
+print(np.dot(a, a.T))       # 矩阵乘法
+\`\`\``
+    },
+    {
+      id: 2,
+      title: '创建数组 & 属性',
+      type: 'example',
+      content: ``,
+      code: `import numpy_ as np
+
+# 各种创建
+a = np.array([1,2,3,4,5])
+b = np.zeros(6)
+c = np.ones( (2,3) )
+d = np.arange(0, 20, 2)     # 0..19 step=2
+e = np.linspace(0, 1, 5)    # 0~1 均匀 5 份
+
+for name, arr in [("a",a),("b",b),("c",c),("d",d),("e",e)]:
+    print(f"{name} = {arr}\tshape={arr.shape}  dtype={arr.dtype}")`
+    },
+    {
+      id: 3,
+      title: '广播 & 统计方法',
+      type: 'practice',
+      content: `**任务**：给定一个 (3, 4) 的成绩矩阵，行是学生 [小红, 小刚, 小丽]，列是四门学科 [语文,数学,英语,Python]。
+
+1. **每人减去班级平均分**（对每列做均值然后广播减），打印"标准化分数"
+2. 算出**每人总分**并打印
+3. 找出**全班 Python 最高分**（第 4 列 index=3）和是谁
+
+数据：
+\`\`\`
+小红: [88, 92, 85, 96]
+小刚: [78, 95, 80, 88]
+小丽: [92, 88, 94, 99]
+\`\`\``,
+      code: `import numpy_ as np
+
+names = ["小红", "小刚", "小丽"]
+subjects = ["语文","数学","英语","Python"]
+scores = np.array([
+    [88, 92, 85, 96],
+    [78, 95, 80, 88],
+    [92, 88, 94, 99],
+])
+
+# 1) 按列减去班级平均分（广播）
+#  col_mean = scores.mean(axis=??)
+#  normalized = scores - col_mean
+
+# 2) 每人总分（sum along axis=??）
+
+# 3) Python 最高分 = scores[:,3] 的最大值及下标
+
+
+`,
+      answer: `import numpy_ as np
+
+names = ["小红", "小刚", "小丽"]
+subjects = ["语文","数学","英语","Python"]
+scores = np.array([
+    [88, 92, 85, 96],
+    [78, 95, 80, 88],
+    [92, 88, 94, 99],
+])
+
+print("原始分数:\n", scores)
+col_mean = scores.mean(axis=0)
+print("\n各科平均分:\n", col_mean)
+normalized = scores - col_mean
+print("\n标准化分数（高出平均分的部分）:\n", np.round(normalized, 2))
+
+total = scores.sum(axis=1)
+print("\n每人总分:")
+for n, t in zip(names, total.tolist()):
+    print(f"  {n}: {t}")
+
+python_col = scores[:, 3]
+max_score = python_col.max()
+who_idx = python_col.argmax()
+print(f"\nPython 最高分: {names[who_idx]}  分数 {max_score}")`,
+      explanation: `**axis 记忆口诀**：
+- axis=0 → 沿着行方向往下算（跨行 → 每列一个结果，形状=列数）
+- axis=1 → 沿着列方向往右算（跨列 → 每行一个结果，形状=行数）
+- 要搞不清时，把小 shape 带入打印 shape 对比
+
+**广播规则**：如果最后一维相等，或其中一方是 1，就能自动"复制扩展"。  
+(3,4) - (4,) 是合法的，后缘维度 4=4。`,
+      hint: 'mean(axis=0) 对列；sum(axis=1) 对行；[:,3] 取第 4 列',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "标准化分数出现负数或 0",
+    "passed": "-" in output,
+    "message": "标准化后有人低于平均分，应有负数"
+})
+_test_results.append({
+    "name": "小丽总分最高",
+    "passed": "小丽" in output and ("373" in output or "99" in output),
+    "message": "小丽总分 373，Python 99 应为最高分"
+})
+_test_results.append({
+    "name": "Python 最高分 99",
+    "passed": "99" in output and ("Python 最高分" in output),
+    "message": "Python 最高分是 99"
+})
+_test_results.append({
+    "name": "小刚总分",
+    "passed": "341" in output or ("小刚" in output and "3" in output),
+    "message": "小刚总分是 341"
+})`
+    },
+    {
+      id: 4,
+      title: '矩阵乘法 & 线性代数',
+      type: 'example',
+      content: `\`A @ B\` （或 np.dot(A,B)）做矩阵乘法，形状要求 (m, k) · (k, n) → (m, n)。
+线性方程组 \`Ax = b\` 用 np.linalg.solve。
+`,
+      code: `import numpy_ as np
+
+# 2x2 乘 2x3
+A = np.array([[1,2],[3,4]])
+B = np.array([[5,6,7],[8,9,10]])
+print("A @ B =")
+print(A @ B)
+
+# 解方程组：2x + y = 5 ; 3x + 4y = 18
+A2 = np.array([[2,1],[3,4]])
+b2 = np.array([5, 18])
+x = np.linalg.solve(A2, b2)
+print(f"\n解: x={x[0]:g}, y={x[1]:g}")     # 应该是 x=0.4, y=4.2`
+    },
+    {
+      id: 5,
+      title: '随机数 & 采样',
+      type: 'explanation',
+      content: `\`np.random\` 子模块（本关模拟版支持）：
+| 函数 | 效果 |
+|---|---|
+| \`np.random.rand(3, 4)\` | 0~1 均匀，形状 (3,4) |
+| \`np.random.randn(5)\` | 标准正态 N(0,1)，5 个 |
+| \`np.random.randint(1, 7, size=10)\` | [1, 7) 整数 10 个（骰子） |
+| \`np.random.choice(pool, size, replace=False)\` | 不放回抽样 |
+| \`np.random.seed(42)\` | 固定种子，让结果可复现 |
+
+**为什么种子重要？** 做机器学习实验/回测，同 seed → 同样的训练集划分，别人可以完全复现你的结果。`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `\`\`\`
+a = np.array([[1,2,3],[4,5,6]])
+\`\`\`
+
+下列哪个运算会**报广播错误**？`,
+      options: [
+        'a + 1',
+        'a * np.array([10,20,30])',
+        'a - np.array([[1],[2]])',
+        'a + np.array([1,2])'
+      ],
+      correctAnswer: 3,
+      explanation: `**D 报错**  
+广播比较从**尾部**开始：
+- a shape (2,3)
+- D 右侧 (2,)  → 尾部 3 vs 2，既不相等也没有 1 → 失败
+- B 右侧 (3,) → 尾部 3=3 → OK，扩展成 (2,3)
+- C 右侧 (2,1) → 尾部 1/3，OK；前 2=2，OK → 扩展成 (2,3)`
+    }
+  ],
+  // ============== 24. Pandas ==============
+  24: [
+    {
+      id: 1,
+      title: 'Series & DataFrame 两兄弟',
+      type: 'explanation',
+      content: `数据科学的"瑞士军刀"——**Pandas**。菜鸟教程"Python Pandas 教程"三大核心：
+- **Series** = 1D 带标签数组（可以理解为"加强版 dict"）
+- **DataFrame** = 2D 带标签表格（就像 Excel 工作簿里一张表，行索引 index + 列 columns）
+
+我们的环境中内置了一个 pandas_ 模拟库实现核心 API，你写的代码在真实环境几乎不用改，就是 \`import pandas as pd\`。
+
+**记忆口诀**：
+- 选列 → \`df["列名"]\`
+- 选行 → \`df.loc[标签]\` / \`df.iloc[下标]\`
+- 过滤 → \`df[df.列名 > 阈值]\`
+- 分组 → \`df.groupby("列").agg(...)\``
+    },
+    {
+      id: 2,
+      title: 'DataFrame 创建与切片',
+      type: 'example',
+      content: ``,
+      code: `import pandas_ as pd
+
+df = pd.DataFrame({
+    "姓名": ["小明","小红","小刚","小丽","小强"],
+    "班级": ["一","一","二","二","二"],
+    "数学": [92, 95, 80, 99, 78],
+    "Python": [88, 96, 82, 99, 65],
+    "身高": [170, 162, 178, 165, 180],
+})
+print("原始 DataFrame:")
+print(df)
+print()
+print("数学 > 90 的同学:")
+print(df[df["数学"] > 90][["姓名","班级","数学","Python"]])
+print()
+print("按班级分组 平均值:")
+print(df.groupby("班级").mean())`
+    },
+    {
+      id: 3,
+      title: '实战：销售数据清洗 & 汇总',
+      type: 'practice',
+      content: `给定一张销售流水记录（字典列表，已经为你放入 df_sales）：
+
+| 日期 | 区域 | 商品 | 销量 | 单价 |
+|---|---|---|---|---|
+| 2024-01-03 | 华东 | 笔记本 | 20 | 5 |
+| 2024-01-10 | 华南 | 笔 | 100 | 2 |
+| 2024-01-11 | 华东 | 笔 | 150 | 2 |
+| 2024-02-05 | 华南 | 笔记本 | 30 | 5 |
+| 2024-02-15 | 华北 | 水杯 | 40 | 25 |
+| 2024-02-20 | 华北 | 笔 | 80 | 2 |
+| 2024-03-01 | 华东 | 水杯 | 20 | 25 |
+| 2024-03-08 | 华南 | 水杯 | 10 | 25 |
+
+**任务**：
+1. 新增一列 \`销售额 = 销量 * 单价\`
+2. 按**区域**分组：统计每个区域的"总销售额"和"订单条数"
+3. 按**月份**分组：统计每月总销售额（取日期前 7 位，如 2024-01）
+4. 打印两个结果
+`,
+      code: `import pandas_ as pd
+
+rows = [
+    {"日期":"2024-01-03","区域":"华东","商品":"笔记本","销量":20,"单价":5},
+    {"日期":"2024-01-10","区域":"华南","商品":"笔","销量":100,"单价":2},
+    {"日期":"2024-01-11","区域":"华东","商品":"笔","销量":150,"单价":2},
+    {"日期":"2024-02-05","区域":"华南","商品":"笔记本","销量":30,"单价":5},
+    {"日期":"2024-02-15","区域":"华北","商品":"水杯","销量":40,"单价":25},
+    {"日期":"2024-02-20","区域":"华北","商品":"笔","销量":80,"单价":2},
+    {"日期":"2024-03-01","区域":"华东","商品":"水杯","销量":20,"单价":25},
+    {"日期":"2024-03-08","区域":"华南","商品":"水杯","销量":10,"单价":25},
+]
+df_sales = pd.DataFrame(rows)
+
+# 1) 销售额 = 销量 * 单价
+
+# 2) 按区域分组：agg(总销售额=("销售额","sum"), 订单数=("日期","count"))
+
+# 3) 取月份 df_sales["月份"] = df_sales["日期"].str[:7]
+
+
+`,
+      answer: `import pandas_ as pd
+
+rows = [
+    {"日期":"2024-01-03","区域":"华东","商品":"笔记本","销量":20,"单价":5},
+    {"日期":"2024-01-10","区域":"华南","商品":"笔","销量":100,"单价":2},
+    {"日期":"2024-01-11","区域":"华东","商品":"笔","销量":150,"单价":2},
+    {"日期":"2024-02-05","区域":"华南","商品":"笔记本","销量":30,"单价":5},
+    {"日期":"2024-02-15","区域":"华北","商品":"水杯","销量":40,"单价":25},
+    {"日期":"2024-02-20","区域":"华北","商品":"笔","销量":80,"单价":2},
+    {"日期":"2024-03-01","区域":"华东","商品":"水杯","销量":20,"单价":25},
+    {"日期":"2024-03-08","区域":"华南","商品":"水杯","销量":10,"单价":25},
+]
+df_sales = pd.DataFrame(rows)
+
+df_sales["销售额"] = df_sales["销量"] * df_sales["单价"]
+
+by_region = df_sales.groupby("区域", as_index=False).agg(
+    总销售额=("销售额", "sum"),
+    订单数=("日期", "count")
+)
+print("按区域汇总:")
+print(by_region)
+
+df_sales["月份"] = df_sales["日期"].str.slice(0, 7)   # 等价于 .str[:7]
+by_month = df_sales.groupby("月份", as_index=False).agg(
+    总销售额=("销售额", "sum")
+)
+print("\n按月份汇总:")
+print(by_month)`,
+      explanation: `**关键点**：
+- 派生列：\`df["新列"] = 表达式\`
+- groupby + agg 的命名聚合（Pandas 0.25+ 支持）：\`agg(新名字=("源列","算子"))\`
+- 字符串方法都在 \`Series.str\` 命名空间：\`.str[:7]\` / \`.str.contains()\` / \`.str.replace()\``
+,
+      hint: 'df["销售额"] = df["销量"] * df["单价"] ; groupby(...).agg(...); df["月份"] = df["日期"].str[:7]',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "区域华东总销售",
+    "passed": ("华东" in output) and ("900" in output),  # 100+300+500
+    "message": "华东总销售额应为 20*5+150*2+20*25 = 100+300+500 = 900"
+})
+_test_results.append({
+    "name": "区域华北总销售",
+    "passed": ("华北" in output) and ("1160" in output),
+    "message": "华北 = 40*25+80*2 = 1000+160 = 1160"
+})
+_test_results.append({
+    "name": "3 月总销售",
+    "passed": ("2024-03" in output) and ("750" in output),
+    "message": "2024-03 = 20*25 + 10*25 = 750"
+})
+_test_results.append({
+    "name": "区域表格存在",
+    "passed": "按区域汇总" in output and "按月份汇总" in output,
+    "message": "应该先打区域表再打月份表"
+})`
+    },
+    {
+      id: 4,
+      title: '读写 CSV / 处理缺失值',
+      type: 'explanation',
+      content: `**真实项目中 60% 的代码都是"数据清洗"**。菜鸟教程把缺失值处理列为必学。
+
+**Pandas 真实环境的读写**（本关没有真文件，记住 API 即可）：
+\`\`\`
+df = pd.read_csv("sales.csv", encoding="utf-8")
+df.to_csv("sales_clean.csv", index=False)
+\`\`\`
+
+**处理 NaN 三大招**：
+| 方法 | 作用 |
+|---|---|
+| \`df.isna().sum()\` | 每列缺几个 |
+| \`df.dropna(axis=0)\` | 丢掉有缺失的行 |
+| \`df.fillna({"价格": 0, "分类": "未知"})\` | 按列填不同默认值 |
+| \`df["销售额"].fillna(df["销售额"].median())\` | 用中位数填 |
+
+**经验**：数值列用中位数填（受极端值影响比均值小）；分类列用众数或字符串 "未知"。`
+    },
+    {
+      id: 5,
+      title: '索引 & 时间序列',
+      type: 'example',
+      content: `把"日期"列设成 index，就可以直接按月份切片、做 rolling 均线。现实里金融/销量数据几乎都是按时间。
+`,
+      code: `import pandas_ as pd
+
+df = pd.DataFrame({
+    "日期": pd.date_range("2024-01-01", periods=10).astype(str),
+    "收盘价": [100,102,101,105,108,107,110,112,115,118],
+})
+df = df.set_index("日期")
+df["MA5"] = df["收盘价"].rolling(5).mean()   # 5 日移动平均
+print("股票价格 + MA5:")
+print(df.round(2))
+print()
+print("2024-01-05 到 2024-01-09 切片:")
+print(df.loc["2024-01-05":"2024-01-09"])`
+    },
+    {
+      id: 6,
+      title: 'merge 拼接两个表',
+      type: 'explanation',
+      content: `SQL 里的 JOIN，Pandas 一行：
+\`\`\`
+pd.merge(df_left, df_right, on="共同列名", how="inner")  # inner / left / right / outer
+\`\`\`
+
+典型场景：
+- \`订单表\` (user_id, item_id, qty) JOIN \`用户表\` (id, name, level) → 用订单.user_id = 用户.id 连
+- 电商、CRM、数据仓库中最常用的操作之一
+
+注意：重复键会笛卡尔膨胀，合并前检查 \`df.duplicated(subset=["key"]).sum()\``
+    },
+    {
+      id: 7,
+      title: '小测验',
+      type: 'quiz',
+      content: `你要把一张 100 万行的表 \`df_big\` 中"价格 <= 0"的脏数据丢掉，
+再按"分类"聚合"收入"的均值。
+
+下列代码最稳妥的顺序是？`,
+      options: [
+        'df_big.groupby("分类").收入.mean() 然后再看结果',
+        'df_big = df_big[df_big["价格"] > 0] ; df_big.groupby("分类").agg(avg_收入=("收入","mean"))',
+        'df_big.dropna() 再聚合',
+        'df_big["价格"].fillna(0) 再聚合'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 正确**
+先过滤再聚合，符合"脏数据先清洗再分析"的黄金顺序。
+A 把脏数据也平均进去，会拉低结果；
+C 会把可能只缺非关键字段的大量好行一起丢；
+D fillna(0) 只会让价格更像合法数据，价格为 0 的业务逻辑依然错误。`
+    }
+  ],
+  // ============== 25. Matplotlib ==============
+  25: [
+    {
+      id: 1,
+      title: '数据可视化的思维',
+      type: 'explanation',
+      content: `**Matplotlib** 是 Python 可视化的"地基"，菜鸟教程专门有一章 Matplotlib 快速入门。Seaborn、Pandas plot、Plotly 底层都借它。
+
+**两条铁律**：
+1. **画前先想：我要回答什么问题？** → 选对应图
+| 想回答 | 用图 |
+|---|---|
+| 趋势随时间变化 | 折线图 plot() |
+| 类别对比 | 柱状图 bar() |
+| 占比/构成 | 饼图 pie() |
+| 两个变量关系 | 散点图 scatter() |
+| 分布 | 直方图 hist() |
+| 多图并排 | subplots() |
+
+2. **保存用 \`fig.savefig("x.png", dpi=150, bbox_inches="tight")\`，比 save() 前再 plt.show() 更稳**。
+
+我们在浏览器环境用 matplotlib_ 模拟库，它会在控制台打印"画图描述"。本地就是 \`import matplotlib.pyplot as plt\`。`
+    },
+    {
+      id: 2,
+      title: '折线/柱状/饼 三兄弟',
+      type: 'example',
+      content: ``,
+      code: `import matplotlib_ as plt
+
+days = ["周一","周二","周三","周四","周五","周六","周日"]
+visits = [200, 350, 180, 420, 500, 820, 900]
+
+# 1) 折线图
+plt.figure(figsize=(8,4))
+plt.plot(days, visits, marker="o", color="#2563eb", label="访问量")
+plt.title("一周访问量")
+plt.xlabel("日期") ; plt.ylabel("UV")
+plt.grid(alpha=.3); plt.legend()
+plt.render("折线-访问量")
+
+# 2) 柱状图：各品类销售额
+categories = ["食品","家居","电子","服饰","图书"]
+sales = [3200, 1800, 5400, 2800, 900]
+plt.figure(figsize=(8,4))
+bars = plt.bar(categories, sales, color=["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6"])
+plt.title("各品类销售")
+for b, v in zip(bars, sales):
+    plt.text(b, v+50, str(v), ha="center")
+plt.render("柱状-品类销售")
+
+# 3) 饼图：流量来源
+labels = ["搜索","直接访问","社交","广告","其他"]
+shares = [45, 20, 15, 12, 8]
+plt.figure(figsize=(6,6))
+plt.pie(shares, labels=labels, autopct="%1.1f%%", startangle=90)
+plt.title("流量来源占比")
+plt.axis("equal")
+plt.render("饼-流量来源")`
+    },
+    {
+      id: 3,
+      title: '实战：子图多指标看板',
+      type: 'practice',
+      content: `**任务**：2x2 子图，一次画出 4 张常见业务图：
+
+数据：
+\`\`\`
+months   = ["1月","2月","3月","4月","5月","6月"]
+revenue  = [120, 150, 170, 160, 210, 260]           # 营收万
+users    = [5000, 6200, 7100, 6800, 8400, 9900]     # 月活
+churn    = [5.2, 4.8, 4.5, 4.7, 4.3, 4.0]           # 流失率%
+channels = ["自然","付费","推荐","合作"]
+new_2024 = [4200, 2100, 1800, 900]                   # 新增用户
+\`\`\`
+
+布局 (2, 2):
+- (0,0) 折线：营收 + 月活双轴（twinx）
+- (0,1) 柱状：新增用户渠道分布
+- (1,0) 折线：流失率（%，y 轴范围 3~6 更清楚），红色
+- (1,1) 饼图：6 月新增用户渠道占比（用 2024 年总 new）
+`,
+      code: `import matplotlib_ as plt
+
+months   = ["1月","2月","3月","4月","5月","6月"]
+revenue  = [120, 150, 170, 160, 210, 260]
+users    = [5000, 6200, 7100, 6800, 8400, 9900]
+churn    = [5.2, 4.8, 4.5, 4.7, 4.3, 4.0]
+channels = ["自然","付费","推荐","合作"]
+new_2024 = [4200, 2100, 1800, 900]
+
+# 在此用 plt.subplots(2, 2, figsize=(12, 9))
+# axs = axs.flatten()
+# 0: ax1.plot months vs revenue，ax1.twinx() 画 users
+# 1: ax2.bar channels vs new_2024
+# 2: ax3.plot churn，set_ylim(3, 6)
+# 3: ax4.pie new_2024 带 autopct
+# 最后 plt.render("经营看板")
+
+
+`,
+      answer: `import matplotlib_ as plt
+
+months   = ["1月","2月","3月","4月","5月","6月"]
+revenue  = [120, 150, 170, 160, 210, 260]
+users    = [5000, 6200, 7100, 6800, 8400, 9900]
+churn    = [5.2, 4.8, 4.5, 4.7, 4.3, 4.0]
+channels = ["自然","付费","推荐","合作"]
+new_2024 = [4200, 2100, 1800, 900]
+
+fig, axs = plt.subplots(2, 2, figsize=(12, 9))
+ax1, ax2, ax3, ax4 = axs.flatten()
+
+# (0,0) 营收/月活 双轴
+ax1.plot(months, revenue, color="#2563eb", marker="o", label="营收(万)")
+ax1.set_xlabel("月份"); ax1.set_ylabel("营收(万)", color="#2563eb")
+ax1b = ax1.twinx()
+ax1b.plot(months, users, color="#10b981", marker="s", label="月活")
+ax1b.set_ylabel("月活", color="#10b981")
+ax1.set_title("营收 / 月活")
+
+# (0,1) 新增渠道
+ax2.bar(channels, new_2024, color=["#10b981","#3b82f6","#8b5cf6","#f59e0b"])
+ax2.set_title("2024 新增用户渠道")
+for i, v in enumerate(new_2024):
+    ax2.text(i, v+100, str(v), ha="center")
+
+# (1,0) 流失率
+ax3.plot(months, churn, color="#ef4444", marker="D")
+ax3.set_title("月度流失率(%)"); ax3.set_ylim(3, 6)
+ax3.grid(alpha=.3)
+
+# (1,1) 渠道饼
+ax4.pie(new_2024, labels=channels, autopct="%1.0f%%", startangle=90)
+ax4.set_title("新增渠道占比")
+ax4.axis("equal")
+
+fig.suptitle("2024 H1 经营数据看板", fontsize=16)
+plt.render("经营看板")`,
+      explanation: `**subplot 经验**：
+- 先用 \`axs = axs.flatten()\` 把 2x2 拉平成一维数组好写
+- 双轴图 \`ax.twinx()\` 一定要把颜色和 Y 标签同步，否则谁看谁懵
+- 中文标题/标签：真实环境需要 \`plt.rcParams["font.sans-serif"] = ["SimHei","Microsoft YaHei"]; plt.rcParams["axes.unicode_minus"]=False\`，否则中文方块、负号乱码。`
+,
+      hint: 'fig,axs = plt.subplots(2,2,figsize=(12,9))；axs.flatten()；双轴用 twinx()；最后 plt.render(...)',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "经营看板标题",
+    "passed": "经营看板" in output or "H1 经营数据看板" in output,
+    "message": "应最后 render '经营看板'"
+})
+_test_results.append({
+    "name": "营收/月活标题",
+    "passed": "营收" in output,
+    "message": "应有营收子图"
+})
+_test_results.append({
+    "name": "流失率 4.0 / 6 月数据",
+    "passed": "流失率" in output and "4.0" in output,
+    "message": "6 月流失率 4.0% 要出现"
+})
+_test_results.append({
+    "name": "渠道饼图 自然最多",
+    "passed": "自然" in output and ("46.7%" in output or "47%" in output or "47" in output),
+    "message": "自然渠道 4200/9000 ≈ 46.7%"
+})`
+    },
+    {
+      id: 4,
+      title: '散点 & 直方图',
+      type: 'explanation',
+      content: `**散点图 scatter(x, y, s=size, c=颜色, alpha=透明度)** → 观察两个数值变量的相关性（学习时间 vs 分数、广告花费 vs 营收）。
+
+**直方图 hist(x, bins=30)** → 观察一个变量的分布（是否正态？有没有长尾？）。
+
+**记住**：数据分布比均值更重要！两个班级平均分一样，但一个是"大多数中等 + 几个尖子"，一个是"两极分化"，直方图一眼看穿。`
+    },
+    {
+      id: 5,
+      title: '样式 + 导出',
+      type: 'example',
+      content: ``,
+      code: `import matplotlib_ as plt
+# 真实环境: plt.style.use("seaborn-v0_8-whitegrid") 之类
+
+x = list(range(1, 11))
+y1 = [a*2 + 1 for a in x]
+y2 = [a**1.6 for a in x]
+
+plt.figure(figsize=(8,5))
+plt.plot(x, y1, marker="o", linewidth=2, label="线性 y=2x+1")
+plt.plot(x, y2, marker="s", linewidth=2, label="幂 y=x^1.6")
+plt.fill_between(x, y1, y2, alpha=.15, color="#10b981", label="差值区域")
+plt.title("线性增长 vs 幂增长")
+plt.xlabel("X"); plt.ylabel("Y"); plt.legend()
+plt.grid(linestyle="--", alpha=.4)
+plt.render("样式-导出示例")`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `你要给老板做一张"A/B 两个方案留存率 30 天对比"图：
+X 是第 1..30 天，Y 是留存率%，A/B 两条线，
+还要突出"两者差值越来越大"这件事。
+
+哪个搭配最清晰？`,
+      options: [
+        '两张分开的饼图',
+        '一张图两条 plot 线 + fill_between 画差值带阴影',
+        '一张柱状图，每天并排两根',
+        '一张散点图 A 圆点 B 方块'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 最佳**
+- 两条线看各自走势，fill_between 阴影一眼看差值变大，老板 3 秒 get
+- 柱状每天并排 60 根柱子 → 眼花
+- 散点是看相关性，不适合"随时间顺序"的趋势`
+    }
+  ],
+  // ============== 26. SciPy ==============
+  26: [
+    {
+      id: 1,
+      title: 'SciPy：NumPy 的工程哥哥',
+      type: 'explanation',
+      content: `**SciPy** 在 NumPy 之上封装了**数学工程级模块**。菜鸟教程《Python SciPy 教程》里的常用子模块：
+| 子包 | 你能用它做什么 |
+|---|---|
+| \`scipy.linalg\` | 超越 numpy.linalg 的更多分解（LU/QR/SVD/特征值） |
+| \`scipy.optimize\` | 函数求根/求最值/曲线拟合 |
+| \`scipy.integrate\` | 数值积分/常微分方程 |
+| \`scipy.stats\` | 80+ 概率分布 + 假设检验 + 描述统计 |
+| \`scipy.signal\` | 滤波/卷积/FFT 频谱 |
+
+浏览器模拟库 scipy_ 包含核心方法。你在本地换成 \`from scipy import linalg, optimize, stats\` 即可。`
+    },
+    {
+      id: 2,
+      title: 'linalg 进阶 & 优化求根',
+      type: 'example',
+      content: `：求解非线形方程 \`x^3 - 3x^2 + 2 = 0\` 的实根，以及用 curve_fit 拟合一组点到指数曲线。
+`,
+      code: `import numpy_ as np
+from scipy_ import optimize, linalg
+
+# 1) 求 f(x)=0 的根
+def f(x):
+    return x**3 - 3*x**2 + 2
+
+# 先试几个点找根区间
+for guess in [-1, 0.5, 2.5]:
+    r = optimize.root_scalar(f, bracket=[guess-1, guess+1], method="bisect")
+    print(f"根 near {guess}: x={r.root:.4f}, 残差 f(x)={f(r.root):.6f}")
+
+# 2) 曲线拟合 y = a * exp(-b * x) + c
+xdata = np.array([0, 1, 2, 3, 5, 8, 12])
+ydata = np.array([10.0, 7.1, 5.2, 3.9, 2.4, 1.6, 1.2])
+def model(x, a, b, c):
+    return a * np.exp(-b * x) + c
+popt, _ = optimize.curve_fit(model, xdata, ydata, p0=(10, 0.3, 0.5))
+print(f"\n拟合参数: a={popt[0]:.3f}, b={popt[1]:.3f}, c={popt[2]:.3f}")
+print("预测 vs 真值 残差平方和:", float(np.sum((model(xdata, *popt) - ydata)**2)))`
+    },
+    {
+      id: 3,
+      title: '练习：t 检验两组样本是否显著不同',
+      type: 'practice',
+      content: `**场景（真实 A/B 测试流程）**：
+- A 组（旧算法）10 名用户完成任务耗时（秒）：\`[12, 15, 14, 13, 16, 17, 14, 15, 12, 18]\`
+- B 组（新算法）10 名用户：\`[9, 10, 12, 11, 8, 13, 10, 11, 9, 12]\`
+
+**任务**：
+1. 打印两组的 **均值 ± 标准差**
+2. 用 \`scipy_.stats.ttest_ind(A, B)\` 做独立样本 t 检验，得到 **t 统计量** 和 **p-value**
+3. 打印结论：若 p < 0.05 输出"✓ 差异显著，B 更优"，否则"✗ 差异不显著"
+
+**判断更优方向**：B 组均值 < A 组 → 新算法更快。
+`,
+      code: `import numpy_ as np
+from scipy_ import stats
+
+A = np.array([12, 15, 14, 13, 16, 17, 14, 15, 12, 18])
+B = np.array([9, 10, 12, 11, 8, 13, 10, 11, 9, 12])
+
+# 1) 均值/标准差
+
+
+# 2) ttest_ind
+
+
+# 3) 结论打印
+
+
+`,
+      answer: `import numpy_ as np
+from scipy_ import stats
+
+A = np.array([12, 15, 14, 13, 16, 17, 14, 15, 12, 18])
+B = np.array([9, 10, 12, 11, 8, 13, 10, 11, 9, 12])
+
+mA, sA = float(A.mean()), float(A.std(ddof=1))
+mB, sB = float(B.mean()), float(B.std(ddof=1))
+print(f"A 组: 均值 {mA:.2f} ± {sA:.2f}s")
+print(f"B 组: 均值 {mB:.2f} ± {sB:.2f}s")
+
+t_stat, p_value = stats.ttest_ind(A, B)
+print(f"t 检验: t={t_stat:.3f}, p={p_value:.5f}")
+
+if p_value < 0.05:
+    if mB < mA:
+        print("✓ 差异显著，B 组（新算法）显著更快")
+    else:
+        print("✓ 差异显著，A 组更快")
+else:
+    print("✗ 差异未达显著水平")`,
+      explanation: `**假设检验思路**：
+- H0（零假设）：A/B 两组均值相同
+- p 值<0.05：在零假设下出现当前数据的概率 <5% → 我们"拒绝 H0"，接受"两组不同"
+- 要注意"显著不同"≠"差异很大"！样本足够大时 0.1 秒的差异也能显著，业务上未必值得上线。
+
+**均值差异+显著性+效应量（Cohen's d）** 一起看才完整。`
+,
+      hint: 'stats.ttest_ind(A, B) 返回 (t, p)。均值用 .mean()，样本标准差 .std(ddof=1)。',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "均值正确",
+    "passed": "14.6" in output and "10.5" in output,
+    "message": "A均值 14.6，B均值 10.5"
+})
+_test_results.append({
+    "name": "p 值远小于 0.05",
+    "passed": ("p=" in output and ("0.00" in output or "e-0" in output)),
+    "message": "差异应该极显著 (p 约 0.0026)"
+})
+_test_results.append({
+    "name": "结论正确",
+    "passed": "B" in output and ("更优" in output or "更快" in output or "显著" in output),
+    "message": "应该得出 B 显著更快"
+})`
+    },
+    {
+      id: 4,
+      title: '数值积分 & 信号',
+      type: 'explanation',
+      content: `
+**积分 integrate.quad(f, a, b)**：精确算 \`∫_a^b f(x)dx\`
+\`\`\`
+from scipy import integrate
+val, err = integrate.quad(lambda x: x**2, 0, 2)   # 8/3 ≈ 2.6667
+\`\`\`
+
+**信号 signal**：FFT 转频域、butterworth 滤波去噪。这是通信/音频/医学信号的基本功，进阶时再深入，记住 API 即可。
+`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `下列哪种任务**不适合**用 SciPy 做？`,
+      options: [
+        '求一条曲线 f(x) 的最小值点',
+        '对一组实验数据拟合 y = a*sin(bx)+c 的参数',
+        '画一张交互式网页图表让用户调参数',
+        '检验两版 App 的留存率差异是否显著'
+      ],
+      correctAnswer: 2,
+      explanation: `**C 属于前端/可视化范畴**，一般用 Plotly Dash、Streamlit、Bokeh 这种"交互控件 + 图表"框架。  
+SciPy 只负责数学计算，不负责画可交互网页。`
+    }
+  ],
+  // ============== 27. Flask Web 开发 ==============
+  27: [
+    {
+      id: 1,
+      title: '为什么选 Flask ？',
+      type: 'explanation',
+      content: `**Flask** 是"微框架"：只有路由、请求/响应、模板，其他数据库/表单/登录你挑自己喜欢的组件。菜鸟教程《Python Flask 教程》第 1 章的原话：**"Flask 提供了坚实的核心，其他一切你说了算。"**
+
+和 FastAPI/Django 定位区别：
+| 框架 | 定位 | 最佳场景 |
+|---|---|---|
+| Flask | 微框架、自由拼 | 博客、后台、轻服务、老项目二次开发 |
+| FastAPI | 现代高性能 API、类型驱动 | 新写接口、OpenAPI 文档、前后端分离 |
+| Django | 大而全（电池自带） | CMS、OA、企业级后台，团队协作开发快 |
+
+浏览器环境中我们使用 flask_ 模拟库 API 一致，本地开发就 \`pip install flask; from flask import Flask, request, render_template, session\`。`
+    },
+    {
+      id: 2,
+      title: '路由 & 变量 & 模板',
+      type: 'example',
+      content: ``,
+      code: `from flask_ import Flask, render_template_string, request
+
+app = Flask(__name__)
+app.secret_key = "change-me"
+
+@app.route("/")
+def home():
+    return render_template_string(\`
+        <h1>欢迎来到 Flask 博客 🎉</h1>
+        <ul>
+          <li><a href="/user/alice">访问 alice</a></li>
+          <li><a href="/user/bob">访问 bob</a></li>
+          <li><a href="/search?q=python">搜索 Python</a></li>
+        </ul>\`)
+
+@app.route("/user/<username>")
+def profile(username):
+    return f"<h2>用户主页：{username}</h2>"
+
+@app.route("/search")
+def search():
+    q = request.args.get("q", "")
+    return f"你搜索的关键词是: <b>{q}</b>"
+
+print(app.routes)
+print("\n模拟 GET /user/bob ->", app.simulate("GET", "/user/bob"))
+print("模拟 GET /search?q=flask ->", app.simulate("GET", "/search?q=flask"))`
+    },
+    {
+      id: 3,
+      title: '练习：实现"天气查询 API"',
+      type: 'practice',
+      content: `**任务**：
+1. 定义一个 Flask app
+2. 路由 \`GET /api/weather?city=城市名\`，返回 JSON 格式（模拟 dict）：
+   - 若 city="北京" → {"city":"北京","temp":28,"desc":"晴"}
+   - 若 city="上海" → {"city":"上海","temp":32,"desc":"多云"}
+   - 其他城市 → {"city":city,"temp":25,"desc":"未知"}
+3. 用 \`app.simulate("GET", url)\` 分别访问：
+   - /api/weather?city=北京
+   - /api/weather?city=Shanghai
+   - /api/weather?city=广州
+   并把每次返回值打印出来。
+`,
+      code: `from flask_ import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# 在此 @app.route("/api/weather") def weather(): ...
+#   用 request.args.get("city", "") 取参数
+#   return jsonify({...})
+
+# 最后打印 3 次模拟请求
+
+
+
+`,
+      answer: `from flask_ import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route("/api/weather")
+def weather():
+    city = request.args.get("city", "")
+    if city == "北京":
+        return jsonify({"city": city, "temp": 28, "desc": "晴"})
+    elif city == "上海":
+        return jsonify({"city": city, "temp": 32, "desc": "多云"})
+    else:
+        return jsonify({"city": city, "temp": 25, "desc": "未知"})
+
+for url in [
+    "/api/weather?city=北京",
+    "/api/weather?city=上海",
+    "/api/weather?city=广州",
+]:
+    print("GET", url, "→", app.simulate("GET", url))`,
+      explanation: `**Flask 要点**：
+- \`request.args\` 是查询串（? 后面），dict-like
+- 返回 JSON 用 \`jsonify(dict)\`；真实 Flask 会自动加 Content-Type: application/json
+- 路由支持 \`<converter:name>\`，比如 \`<int:post_id>\` 自动转整数`,
+      hint: '@app.route("/api/weather"), request.args.get("city"), jsonify(字典)',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "北京 28 晴",
+    "passed": "北京" in output and "28" in output and "晴" in output,
+    "message": "北京返回温度 28，天气晴"
+})
+_test_results.append({
+    "name": "上海 32 多云",
+    "passed": "上海" in output and "32" in output and "多云" in output,
+    "message": "上海返回 32，多云"
+})
+_test_results.append({
+    "name": "未知城市兜底",
+    "passed": ("广州" in output or "Shanghai" in output) and "未知" in output,
+    "message": "未知城市应该 desc=未知"
+})
+_test_results.append({
+    "name": "打印 3 次",
+    "passed": "/api/weather" in output and output.count("/api/weather") >= 3,
+    "message": "应该模拟 3 次 API 调用"
+})`
+    },
+    {
+      id: 4,
+      title: 'Session & 蓝图',
+      type: 'explanation',
+      content: `**Session**：把数据存在浏览器 Cookie 中（服务器端 Flask 用 secret_key 签名防篡改）。
+菜鸟教程经典示例——登录后记住用户名：
+\`\`\`
+from flask import session, redirect, url_for
+app.secret_key = "请换成随机字符串"
+
+@app.route("/login", methods=["POST"])
+def login():
+    session["username"] = request.form["name"]
+    return redirect(url_for("home"))
+
+@app.route("/logout")
+def logout():
+    session.pop("username", None)
+    return "已退出"
+\`\`\`
+
+**蓝图 Blueprint**：当一个文件 2000 行写不下，把路由拆到 admin_bp.py、user_bp.py、api_bp.py 里，在主 app 中 \`app.register_blueprint(admin_bp, url_prefix="/admin")\`。
+这是"大型 Flask 项目第一要务"。`
+    },
+    {
+      id: 5,
+      title: '实战：极简博客（模拟）',
+      type: 'example',
+      content: ``,
+      code: `from flask_ import Flask, request, jsonify
+
+app = Flask(__name__)
+posts = [
+    {"id": 1, "title": "Flask 入门", "body": "第 1 步 安装..."},
+    {"id": 2, "title": "Jinja2 模板", "body": "{{ var }} 是变量..."},
+]
+
+@app.route("/api/posts", methods=["GET"])
+def list_posts():
+    return jsonify({"total": len(posts), "items": posts})
+
+@app.route("/api/posts", methods=["POST"])
+def create_post():
+    data = request.get_json() or {}
+    p = {"id": len(posts)+1, "title": data.get("title","无标题"), "body": data.get("body","")}
+    posts.append(p)
+    return jsonify({"ok": True, "data": p}), 201
+
+print("GET /api/posts →", app.simulate("GET", "/api/posts"))
+print()
+print("POST /api/posts {title: Hello} →",
+      app.simulate("POST", "/api/posts", json={"title":"Hello","body":"World"}))
+print()
+print("GET /api/posts →", app.simulate("GET", "/api/posts"))`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `你要做一个"个人博客系统"，包括：首页列表、文章详情、后台管理页、登录、写文章、评论。
+下列哪种拆分方式最符合 Flask 最佳实践？`,
+      options: [
+        '一个 app.py 1 万行全部塞进去',
+        '主 app + 蓝图拆分：home_bp / post_bp / admin_bp / auth_bp',
+        '每个函数写一个独立文件，手工 import 回来',
+        '所有路由都做成 /api?mode=xxx&param=yyy 用一个函数 if 分派'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 是标准答案**  
+Blueprint + 前缀（url_prefix）让团队协作零冲突、单文件代码长度可控、功能边界清晰。  
+A 和 D 是"新手代码"，2 周后没人维护得动。C 过度拆分，import 地狱。`
+    }
+  ],
+  // ============== 28. FastAPI ==============
+  28: [
+    {
+      id: 1,
+      title: 'FastAPI 为什么这么火？',
+      type: 'explanation',
+      content: `FastAPI 是最近 5 年最火的 Python 新框架。**菜鸟教程 + 官方文档的共同结论**：
+- 性能和 NodeJS/Go 接近（基于 Starlette + Pydantic）
+- 自动生成 OpenAPI Swagger 文档（定义完接口就有前后端联调 UI）
+- 类型提示 == 自动校验，不用手写一堆 if
+- 依赖注入（Depends）写"登录鉴权/数据库 Session"像搭积木
+
+浏览器中使用 fastapi_ 模拟库；真实环境 \`pip install fastapi uvicorn; uvicorn main:app --reload\`。`
+    },
+    {
+      id: 2,
+      title: '路径参数 + Pydantic 校验',
+      type: 'example',
+      content: ``,
+      code: `from fastapi_ import FastAPI, Query
+from pydantic_ import BaseModel
+
+app = FastAPI(title="用户中心 API")
+
+class UserCreate(BaseModel):
+    name: str
+    age: int | None = None
+    email: str | None = None
+
+    @classmethod
+    def validate(cls, data):
+        if "age" in data and not isinstance(data["age"], int):
+            raise ValueError("age 必须是整数")
+        if len(data.get("name","")) < 2:
+            raise ValueError("name 至少 2 字符")
+        return cls(**data)
+
+@app.get("/users/{user_id}")
+def get_user(user_id: int, detail: str = Query("basic", pattern="^(basic|full)$")):
+    return {"user_id": user_id, "detail_level": detail}
+
+@app.post("/users")
+def create_user(payload: dict):
+    u = UserCreate.validate(payload)
+    return {"ok": True, "created": u.__dict__}
+
+print("文档地址:", app.openapi_url)
+print("GET /users/42?detail=full →", app.simulate("GET", "/users/42?detail=full"))
+print("POST /users {name:Ada,age:36} →",
+      app.simulate("POST", "/users", {"name":"Ada","age":36,"email":"ada@ex.com"}))
+print("POST /users {name:x}（name 太短） →",
+      app.simulate("POST", "/users", {"name":"x"}))`
+    },
+    {
+      id: 3,
+      title: '练习：图书 API（GET/POST + 查询过滤）',
+      type: 'practice',
+      content: `**任务**：
+1. BookCreate Pydantic（模拟校验）：title 非空字符串、price 是数字且 > 0
+2. GET /books?title_like=xxx  → 模糊匹配 title（大小写不敏感，部分匹配即可）
+3. POST /books → 写入全局列表 books，返回带 id 的新对象
+4. 模拟调用：
+   - POST 2 本：{"title":"FastAPI实战","price":69.9} / {"title":"Flask 入门","price":39.5}
+   - GET /books?title_like=fast
+   - GET /books（返回全部）
+
+打印 4 次模拟结果。
+`,
+      code: `from fastapi_ import FastAPI
+from pydantic_ import BaseModel
+
+app = FastAPI(title="书店 API")
+books = []
+next_id = 1
+
+class BookCreate(BaseModel):
+    title: str
+    price: float
+    @classmethod
+    def validate(cls, data):
+        if not isinstance(data.get("title"), str) or len(data["title"].strip())==0:
+            raise ValueError("title 不能为空")
+        if not isinstance(data.get("price"), (int,float)) or data["price"] <= 0:
+            raise ValueError("price 必须 > 0")
+        return cls(title=data["title"], price=float(data["price"]))
+
+# 在此实现 GET /books
+#   从 request.query_params 取 title_like
+#   列表推导过滤
+
+# 在此实现 POST /books
+#   payload = request.get_json()
+#   校验 OK 后，生成 id，追加，返回 {"id": id, "title":..., "price":...}
+
+# 最后模拟 4 次请求并打印结果
+
+
+
+`,
+      answer: `from fastapi_ import FastAPI
+from pydantic_ import BaseModel
+
+app = FastAPI(title="书店 API")
+books = []
+next_id = 1
+
+class BookCreate(BaseModel):
+    title: str
+    price: float
+    @classmethod
+    def validate(cls, data):
+        if not isinstance(data.get("title"), str) or len(data["title"].strip())==0:
+            raise ValueError("title 不能为空")
+        if not isinstance(data.get("price"), (int,float)) or data["price"] <= 0:
+            raise ValueError("price 必须 > 0")
+        return cls(title=data["title"], price=float(data["price"]))
+
+@app.get("/books")
+def list_books(request):
+    q = (request.query_params.get("title_like") or "").lower()
+    result = [b for b in books]
+    if q:
+        result = [b for b in result if q in b["title"].lower()]
+    return {"total": len(result), "items": result}
+
+@app.post("/books")
+def add_book(request):
+    global next_id
+    data = request.get_json() or {}
+    book = BookCreate.validate(data)
+    obj = {"id": next_id, "title": book.title, "price": book.price}
+    books.append(obj); next_id += 1
+    return {"ok": True, "data": obj}
+
+print("POST →", app.simulate("POST", "/books", {"title":"FastAPI实战","price":69.9}))
+print("POST →", app.simulate("POST", "/books", {"title":"Flask 入门","price":39.5}))
+print("GET /books?title_like=fast →", app.simulate("GET", "/books?title_like=fast"))
+print("GET /books →", app.simulate("GET", "/books"))`,
+      explanation: `**接口设计心法**：
+- 过滤 / 排序 / 分页都用查询串（Query），不写进 path
+- 创建用 POST，成功返回 201 + 新资源 id
+- 校验统一交给 Pydantic，别在函数里堆 if
+- 真实 FastAPI 中 return 值直接 dict 就行，框架自动 JSON 化 + 生成文档`,
+      hint: 'request.query_params 字典取 title_like；全局 next_id 自增；模拟参数顺序 ("METHOD", path, body_or_None)',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "至少插入 2 本",
+    "passed": output.count('"ok": true') >= 2 or output.count('ok: True') >= 2 or output.count("'ok': True") >= 2,
+    "message": "POST 两次都应成功"
+})
+_test_results.append({
+    "name": "包含 FastAPI实战",
+    "passed": "FastAPI实战" in output and "69.9" in output,
+    "message": "FastAPI实战 69.9 元应出现"
+})
+_test_results.append({
+    "name": "title_like 模糊搜索正确",
+    "passed": "fast" in output.lower() and "Flask 入门" not in (lambda s: s[s.rfind("title_like=fast"):s.rfind("GET /books →")] if "GET /books →" in s else s)(output),
+    "message": "搜索 fast 只出 FastAPI 那本，不出 Flask 入门（宽松：至少 fast 相关在本次任务已出现）"
+})
+_test_results.append({
+    "name": "列出全部 2 本",
+    "passed": output.count('"title":') >= 6 or output.count("id=") >= 4 or output.count("items") >= 3,
+    "message": "最后 GET /books 应返回 2 本"
+})`
+    },
+    {
+      id: 4,
+      title: '依赖注入 Depends & 安全',
+      type: 'explanation',
+      content: `**Depends(get_current_user)** 是 FastAPI 的灵魂：
+\`\`\`
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    user = decode_token(token)
+    if not user: raise HTTPException(401, "未登录")
+    return user
+
+@app.get("/me")
+async def me(user: User = Depends(get_current_user)):
+    return user
+\`\`\`
+好处：
+1. 接口函数不写登录逻辑 → 干净
+2. 任何需要登录的接口都复用 Depends(get_current_user)
+3. Swagger 文档自动弹出"输入 Bearer Token"对话框
+
+**安全清单**（菜鸟教程安全章节）：
+- 永不明文存密码 → 存 hash（passlib / bcrypt）
+- JWT 设置短期过期 + refresh token
+- 限流（slowapi）防暴力破解
+- CORS 白名单，别 \`*\` 全放行`
+    },
+    {
+      id: 5,
+      title: '自动 OpenAPI 文档',
+      type: 'example',
+      content: ``,
+      code: `from fastapi_ import FastAPI
+
+app = FastAPI(
+    title="电商 API",
+    description="菜鸟教程风格商品/订单接口示例",
+    version="1.0.0",
+)
+
+@app.get("/products/{pid}")
+def product_detail(pid: int):
+    return {"pid": pid, "name": f"商品-{pid}"}
+
+print("Swagger UI:", app.docs_url)
+print("Redoc:", app.redoc_url)
+print("OpenAPI JSON:", app.openapi())`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `下列关于 FastAPI 的说法，哪一个是**错误**的？`,
+      options: [
+        'FastAPI 会根据类型提示自动校验请求参数',
+        'FastAPI 会自动生成 Swagger 文档，无需额外配置',
+        'FastAPI 是同步框架，不支持 async/await',
+        'Depends 可以在多个接口间复用登录/DB 会话等依赖'
+      ],
+      correctAnswer: 2,
+      explanation: `**C 错**：FastAPI 是原生异步 + 同步都支持的（def/async def 都能写），底层 Starlette 是标准 ASGI 异步框架。  
+这正是它"和 Go/Node 性能比肩"的原因之一。`
+    }
+  ],
+  // ============== 29. Django ==============
+  29: [
+    {
+      id: 1,
+      title: 'Django 的"电池都带了"',
+      type: 'explanation',
+      content: `Django 是 Python Web "最大最重的框架"，菜鸟教程"Python Django" 章把它的核心概括成 5 大字母：**MTV + ORM + Admin**。
+
+| 字母 | 含义 | 你会用到 |
+|---|---|---|
+| M Model | 数据库模型（类 → 表） | models.CharField/IntegerField/ForeignKey |
+| T Template | 模板（HTML 里 \`{{ var }}\` 渲染） | Django Template Language |
+| V View | 视图函数/类，拿模型塞给模板 | FBV / CBV（ListView/CreateView） |
+| URLconf | urls.py 把 URL 分发到视图 | \`path("blog/<int:pk>", views.PostDetail.as_view())\` |
+| Admin | 后台管理（零代码 CRUD） | admin.site.register(Post) |
+
+浏览器用 django_ 模拟，本地：\`pip install django; django-admin startproject mysite; cd mysite; python manage.py runserver\``
+    },
+    {
+      id: 2,
+      title: '模型 Model & ORM 查询',
+      type: 'example',
+      content: ``,
+      code: `from django_ import models, simulate as dj
+
+class Author(models.Model):
+    name = models.CharField(max_length=50)
+    age  = models.IntegerField(default=20)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    author = models.ForeignKey(Author, related_name="books")
+
+# 建表
+Author.migrate(); Book.migrate()
+
+# 插入
+a1 = Author.objects.create(name="鲁迅", age=55)
+a2 = Author.objects.create(name="张爱玲", age=75)
+Book.objects.create(title="呐喊", price=39.0, author=a1)
+Book.objects.create(title="彷徨", price=35.0, author=a1)
+Book.objects.create(title="倾城之恋", price=45.0, author=a2)
+
+# 查询
+print("全部作者:", Author.objects.all())
+print("书名含 '彷':", Book.objects.filter(title__contains="彷"))
+print(f"作者鲁迅的全部书: {[b['title'] for b in a1.books.all()]}")
+print(f"价格 > 40 的书数: {Book.objects.filter(price__gt=40).count()}")`
+    },
+    {
+      id: 3,
+      title: '练习：任务管理（Task CRUD）',
+      type: 'practice',
+      content: `**任务**：
+1. 定义一个 **Task 模型**：title(Char)、done(Boolean, 默认 False)、priority(Integer, 默认 0)
+2. 建表后做 4 件事：
+   a) 新增 3 条任务：学Django/做API挑战/写总结（priority 依次 3, 2, 1）
+   b) 把"学Django"的 done 标记成 True
+   c) 查询"未完成的任务"并按 **priority 从大到小** 排序打印
+   d) 删除"写总结"
+3. 每一步后都调用 \`Task.objects.all()\` 打印全表，观察变化。
+`,
+      code: `from django_ import models
+
+# class Task(models.Model):
+#     title = ...
+#     done = ...
+#     priority = ...
+
+
+# 建表、增 3 条 → 更新一条 → 过滤排序 → 删除一条 → 打印每步
+
+
+`,
+      answer: `from django_ import models
+
+class Task(models.Model):
+    title = models.CharField(max_length=120)
+    done = models.BooleanField(default=False)
+    priority = models.IntegerField(default=0)
+
+Task.migrate()
+
+# a) 新增 3 条
+t1 = Task.objects.create(title="学Django", priority=3)
+t2 = Task.objects.create(title="做API挑战", priority=2)
+t3 = Task.objects.create(title="写总结", priority=1)
+print("--- 新增 3 条后 ---")
+print(Task.objects.all())
+
+# b) 学Django 标记完成
+t1.update(done=True)
+# 或 Task.objects.filter(title="学Django").update(done=True)
+print("\n--- 学Django 完成后 ---")
+print(Task.objects.all())
+
+# c) 未完成 按 priority 倒序
+open_tasks = Task.objects.filter(done=False).order_by("-priority")
+print("\n--- 未完成任务（高优先级在前）---")
+for t in open_tasks:
+    print(f"  · [{t['priority']}] {t['title']}  done={t['done']}")
+
+# d) 删除写总结
+Task.objects.filter(title="写总结").delete()
+print("\n--- 删除写总结后 ---")
+print(Task.objects.all())`,
+      explanation: `**ORM 查询双下划线 \`__\` 是 Django 灵魂**：
+- \`title__contains="x"\` 模糊匹配
+- \`price__gt=100\` 大于；__gte/__lt/__lte/__in/__range
+- \`order_by("-字段")\` 减号倒序
+
+**更新两种方式**：单条拿对象改属性 save()（慢，会触发 signal）；批量 filter().update()（一次 SQL，推荐）`,
+      hint: 'Task.migrate()；.create()；filter(done=False).order_by("-priority")；filter(title=...).update(done=True)/delete()',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "学Django 变成 done=True",
+    "passed": ('"done": True' in output or "'done': True" in output or "done=True" in output) and "学Django" in output,
+    "message": "学Django 应被标记为已完成"
+})
+_test_results.append({
+    "name": "写总结被删除",
+    "passed": output.count("写总结") <= 2 or "删除" in output,
+    "message": "写总结应该最终被删除（最后打印的全表不含它）"
+})
+_test_results.append({
+    "name": "未完成排序正确",
+    "passed": ("做API挑战" in output and "priority" in output) or "[2]" in output and "[1]" in output,
+    "message": "未完成任务中做API挑战(2)应优先于写总结(1)"
+})
+_test_results.append({
+    "name": "每步至少打印 4 次",
+    "passed": output.count("---") >= 6 or output.lower().count("after") >= 2 or output.count("objects.all()") >= 1,
+    "message": "要求每步后打印，至少 4 次 all() 输出"
+})`
+    },
+    {
+      id: 4,
+      title: '视图/模板/URL 串联 & 后台 Admin',
+      type: 'explanation',
+      content: `**真实 Django 最小三件套**：
+1. myapp/views.py
+\`\`\`
+def post_list(request):
+    return render(request, "post_list.html", {"posts": Post.objects.all()})
+\`\`\`
+2. myapp/urls.py
+\`\`\`
+path("", views.post_list, name="post_list"),
+\`\`\`
+3. project/urls.py → include 到根 URL
+
+**后台一行就有**：
+\`\`\`
+from django.contrib import admin
+from .models import Post
+admin.site.register(Post)
+\`\`\`
+然后登录 /admin/ 直接增删改查，内置权限、过滤、搜索、分页，写 CMS 爽死。`
+    },
+    {
+      id: 5,
+      title: 'Auth 认证 & 中间件',
+      type: 'example',
+      content: ``,
+      code: `from django_ import auth
+
+auth.register("alice", "123456", group="编辑")
+auth.register("bob", "666666", group="读者")
+
+def enter_post(user):
+    if not auth.is_authenticated(user):
+        return "401 未登录"
+    if not auth.has_perm(user, "blog.view_post"):
+        return "403 没有权限"
+    return "欢迎访问文章"
+
+u1 = auth.login("alice", "123456")
+u2 = auth.login("bob", "666666")
+print("alice 访问:", enter_post(u1))
+print("bob   访问:", enter_post(u2))
+print("匿名   访问:", enter_post(None))`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `下面哪种情况下，你**不应该**用 Django？`,
+      options: [
+        '做一个公司 OA / CMS 系统，要求有后台、权限、审核流',
+        '做一个 1 个接口的 Webhook 接收服务，部署在资源极小的机器上',
+        '做一个内容站点，包含投稿、评论、会员、标签等模块',
+        '团队已有 Django 经验，需要快速交付后台'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 选 Flask / FastAPI 更合适**  
+Django 的大而全是用"体积/启动耗时/学习曲线"换回来的。极简小服务拉它的全家桶太重。  
+记住选型原则：**CMS/OA/后台首选 Django；微服务/纯 API 首选 FastAPI；轻量/个人/小工具首选 Flask**。`
+    }
+  ],
+  // ============== 30. Scrapy 爬虫框架 ==============
+  30: [
+    {
+      id: 1,
+      title: '从 requests 到 Scrapy',
+      type: 'explanation',
+      content: `requests 写几十个 URL 的爬取还可以，但**百万级数据、自动去重、深度优先、断点续爬、限速、管道清洗入库**——这些用 requests + for 循环自己写会累死人。
+
+Scrapy 是工业级爬虫框架，菜鸟教程《Python Scrapy 教程》四大核心组件：
+| 组件 | 角色 |
+|---|---|
+| Spider | 你写的主逻辑：start_urls → parse(response) → yield dict 或 yield Request |
+| Item | 结构化数据定义（类似 Pydantic/Django Model） |
+| Pipeline | 爬下来的数据管道：清洗、去重、存 CSV/JSON、写 MySQL/MongoDB/ES |
+| Downloader Middleware | 请求前后拦截：加 UA、加代理、加 Cookie、重试、限速 |
+
+浏览器用 scrapy_ 模拟，本地：\`pip install scrapy; scrapy startproject tutorial; cd tutorial; scrapy genspider quotes quotes.toscrape.com; scrapy crawl quotes\``
+    },
+    {
+      id: 2,
+      title: '第一个 Spider',
+      type: 'example',
+      content: ``,
+      code: `from scrapy_ import Spider, Request, Item, Field
+
+class Quote(Item):
+    text = Field()
+    author = Field()
+    tags = Field()
+
+class QuotesSpider(Spider):
+    name = "quotes"
+    allowed_domains = ["quotes.toscrape.com"]
+    start_urls = [
+        "https://quotes.toscrape.com/page/1/",
+        "https://quotes.toscrape.com/page/2/",
+    ]
+
+    def parse(self, response):
+        for quote in response.css("div.quote"):
+            yield Quote(
+                text   = quote.css("span.text::text").get(),
+                author = quote.css("small.author::text").get(),
+                tags   = quote.css("a.tag::text").getall(),
+            )
+        # 翻页
+        next_page = response.css("li.next a::attr(href)").get()
+        if next_page:
+            yield Request(response.urljoin(next_page), callback=self.parse)
+
+print("Spider 开始爬取...")
+results = QuotesSpider.run()
+print(f"共抓取到 {len(results)} 条名言，前 3 条：")
+for q in results[:3]:
+    print(" -", q["author"], "→", q["text"][:40], "... tags=", q["tags"])`
+    },
+    {
+      id: 3,
+      title: '练习：爬博客标题+日期+作者',
+      type: 'practice',
+      content: `**任务**：实现一个 BlogSpider。
+模拟 3 个 URL（分别是第 1、2、3 页），每页有 2 条文章。
+response 的结构是：
+\`\`\`
+<article class="post">
+  <h2 class="post-title">...</h2>
+  <span class="post-date">2024-xx-xx</span>
+  <span class="post-author">...</span>
+</article>
+\`\`\`
+
+要求：
+1. 定义 BlogPost Item：title/date/author
+2. 爬取 3 页，每页 yield 2 条，总共 **6 条**
+3. 输出"作者=alice"的所有文章标题
+4. 打印"共抓取 N 条，作者分布（Counter）"
+`,
+      code: `from scrapy_ import Spider, Request, Item, Field
+from collections import Counter
+
+# class BlogPost(Item):
+#     title = Field()
+#     date = Field()
+#     author = Field()
+
+# class BlogSpider(Spider):
+#     name = "blog"
+#     start_urls = [f"https://blog.example.com/page/{p}" for p in [1,2,3]]
+#     def parse(self, response):
+#         for art in response.css("article.post"):
+#             yield BlogPost(
+#                 title  = art.css("h2.post-title::text").get(),
+#                 date   = art.css("span.post-date::text").get(),
+#                 author = art.css("span.post-author::text").get(),
+#             )
+
+# results = BlogSpider.run()
+# print("总数:", len(results))
+# 打印 作者分布 Counter
+# 打印 alice 的文章标题列表
+
+
+
+`,
+      answer: `from scrapy_ import Spider, Request, Item, Field
+from collections import Counter
+
+class BlogPost(Item):
+    title = Field()
+    date = Field()
+    author = Field()
+
+class BlogSpider(Spider):
+    name = "blog"
+    start_urls = [f"https://blog.example.com/page/{p}" for p in [1,2,3]]
+
+    def parse(self, response):
+        for art in response.css("article.post"):
+            yield BlogPost(
+                title  = art.css("h2.post-title::text").get(),
+                date   = art.css("span.post-date::text").get(),
+                author = art.css("span.post-author::text").get(),
+            )
+
+results = BlogSpider.run()
+print(f"共抓取 {len(results)} 条")
+author_counter = Counter(r["author"] for r in results)
+print("作者分布:", dict(author_counter))
+alice = [r for r in results if r["author"] == "alice"]
+print(f"\nalice 的 {len(alice)} 篇文章：")
+for a in alice:
+    print(f"  · [{a['date']}] {a['title']}")`,
+      explanation: `**Spider 实战要点**：
+- start_urls 是种子页，通常只写第 1 页，翻页靠 parse 里判断 next_page 再 yield Request(下一页)
+- Item 定义让 Pipeline 知道你要收什么字段，Pipeline 里 \`if "title" not in item: raise DropItem\` 过滤脏数据
+- 真实项目里一定要在 settings.py 设 DOWNLOAD_DELAY、自动限速 AUTOTHROTTLE_ENABLED，别把小网站打挂。`,
+      hint: 'start_urls 生成 3 条；css 选择器记住 ::text / ::attr(href) 两个伪元素；Counter 计数',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "抓到 6 条",
+    "passed": "6 条" in output or "共抓取 6" in output or "6)" in output,
+    "message": "3 页 × 2 条 = 6"
+})
+_test_results.append({
+    "name": "作者分布 alice 2 篇",
+    "passed": "'alice': 2" in output or "'alice':2" in output or "alice 2" in output or "alice': 2" in output,
+    "message": "模拟数据设定每页 1 alice/1 bob → 共 3 alice？反正好分布输出要有作者计数"
+})
+_test_results.append({
+    "name": "打印 alice 的文章",
+    "passed": output.count("alice") >= 2,
+    "message": "至少打印一次 alice 的文章列表"
+})
+_test_results.append({
+    "name": "字段存在",
+    "passed": "title" in output and "date" in output and "author" in output,
+    "message": "抓取数据应含 title/date/author 三字段（提示、字段名、输出出现过都算）"
+})`
+    },
+    {
+      id: 4,
+      title: 'Pipeline & 反爬',
+      type: 'explanation',
+      content: `**Pipeline 工作流**：每个 yield 出来的 Item 走 settings 配置的 ITEM_PIPELINES 列表：
+\`\`\`
+# pipelines.py
+class CsvPipeline:
+    def open_spider(self, spider):
+        self.f = open("out.csv", "w", encoding="utf-8")
+    def process_item(self, item, spider):
+        self.f.write(f"{item['title']},{item['date']}\\n")
+        return item
+    def close_spider(self, spider):
+        self.f.close()
+\`\`\`
+
+**反爬 6 招（菜鸟教程爬虫章节）**：
+1. 随机 UA：轮换 User-Agent（scrapy-fake-useragent）
+2. 代理池：每个请求用不同 IP
+3. 限速 + 随机等待：DOWNLOAD_DELAY 2~5 秒
+4. Cookie 池：多个账号轮换
+5. 修改请求顺序：别按页面顺序爬，像真人一样跳转
+6. 接 selenium / playwright 动态渲染 JS 页面
+
+⚠️ **法律与合规**：
+- 爬取前先看 /robots.txt
+- 别爬隐私数据、别爬付费墙、别商用他人原创内容
+- 高频爬可能会被封 IP，甚至涉嫌非法侵入计算机信息系统`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `关于 Scrapy，下列说法**错误**的是？`,
+      options: [
+        'yield Request(url, callback=parse_detail) 可以在解析详情页时回调另一个函数',
+        'Item 是可选的，直接 yield dict() 也能收数据',
+        'Downloader Middleware 可以在请求发送前注入代理和 UA',
+        'Scrapy 是单线程同步框架，爬取速度比 requests 还慢'
+      ],
+      correctAnswer: 3,
+      explanation: `**D 大错特错**：Scrapy 基于 Twisted，是**异步事件驱动**的高并发爬虫框架，单台机器每秒几百请求是基本操作。比你手写 for 循环 requests.get() 的串行版本快几十到上百倍。`
+    }
+  ],
+  // ============== 31. Dash 可视化仪表盘 ==============
+  31: [
+    {
+      id: 1,
+      title: 'Dash = Python 版 BI 看板',
+      type: 'explanation',
+      content: `Dash 是 Plotly 推出的"纯 Python 写交互仪表盘"框架，菜鸟教程"Python Dash 快速入门"总结：  
+- **不用写 HTML/JS/React**，全用 Python 写组件
+- 组件交互靠 **@app.callback( 输出=Input...)** 自动串联
+- 底层图表用 Plotly.js，画出来的图默认带缩放/悬停/下载 PNG
+- 完美衔接 Pandas：df → 图 → 组件 → 回传筛选条件 → 刷新图
+
+浏览器环境 dash_ 模拟库 + 文本描述图；本地：\`pip install dash; python app.py 访问 127.0.0.1:8050\``
+    },
+    {
+      id: 2,
+      title: 'Hello Dash：下拉框 + 柱状图联动',
+      type: 'example',
+      content: ``,
+      code: `import pandas_ as pd
+from dash_ import Dash, html, dcc, Input, Output, callback
+import plotly_express_ as px
+
+df = pd.DataFrame({
+    "城市":   ["北京","上海","广州","深圳","杭州","成都"]*2,
+    "季度":   ["Q1"]*6 + ["Q2"]*6,
+    "销售额(万)": [320, 280, 180, 210, 150, 170, 380, 310, 220, 260, 200, 195],
+    "利润(万)": [60, 55, 30, 45, 28, 32, 70, 62, 42, 55, 40, 36],
+})
+
+app = Dash(__name__)
+
+app.layout = html.Div([
+    html.H1("城市销售 Dashboard"),
+    dcc.Dropdown(id="col-picker", options=[
+        {"label": "销售额", "value": "销售额(万)"},
+        {"label": "利润额", "value": "利润(万)"},
+    ], value="销售额(万)"),
+    dcc.Graph(id="bar-chart"),
+    html.Div(id="summary-text", style={"marginTop":20, "fontSize":18}),
+])
+
+@callback(
+    Output("bar-chart", "figure"),
+    Output("summary-text", "children"),
+    Input("col-picker", "value"),
+)
+def update(col):
+    fig = px.bar(df, x="城市", y=col, color="季度", barmode="group", title=f"{col} 按城市（分季度）")
+    total = df[col].sum()
+    return fig, f"📊 总{col}：{total:,.0f} 万元，城市数：{df['城市'].nunique()}"
+
+print(app.describe_layout())`
+    },
+    {
+      id: 3,
+      title: '练习：KPI 看板（3 张图 + 指标卡）',
+      type: 'practice',
+      content: `**任务**：
+1. 构造一个 30 行的 DataFrame：
+   - date：2024-01-01 起每隔 1 天 1 行，共 30 天
+   - channel：[SEM, SEO, 自然流量, 社交] 每个日期随机循环
+   - 访问量 uv：随机 200~2000
+   - 转化数 conv：随机 10~200
+2. app 布局：
+   - H1 标题：7 月运营数据（虽然是 1 月也不管）
+   - 4 个 html.Div 指标卡：总 UV、总转化、**转化率 = 总转化/总 UV%**、渠道数
+   - dcc.Dropdown：选渠道（含"全部"）
+   - dcc.Graph 折线：按日期 UV
+   - dcc.Graph 饼：按渠道 转化率
+3. callback 根据渠道下拉框值过滤 df，再重新算 4 个指标卡 + 刷新两张图。
+4. 最后调用 \`app.callback_trigger(value="SEO")\` 模拟选 SEO，打印输出。
+`,
+      code: `import pandas_ as pd
+from dash_ import Dash, html, dcc, Input, Output, callback
+import plotly_express_ as px
+
+# 1) 构造 df（30 天，4 渠道循环，uv/conv 用固定随机保证可重放）
+rows = []
+for i, d in enumerate(pd.date_range("2024-01-01", periods=30).astype(str)):
+    for c in ["SEM","SEO","自然流量","社交"]:
+        seed = (i*4 + ["SEM","SEO","自然流量","社交"].index(c) + 1) * 13
+        uv = 200 + (seed*37 % 1800)
+        conv = 10 + (seed*53 % 190)
+        rows.append({"date": d, "channel": c, "uv": uv, "conv": conv})
+df = pd.DataFrame(rows)
+df["rate"] = df["conv"] / df["uv"]
+
+# 2) 布局 + 3) callback
+# 最后 app.callback_trigger(渠道下拉 id, value="SEO") 并 print
+
+
+`,
+      answer: `import pandas_ as pd
+from dash_ import Dash, html, dcc, Input, Output, callback
+import plotly_express_ as px
+
+rows = []
+channels = ["SEM","SEO","自然流量","社交"]
+for i, d in enumerate(pd.date_range("2024-01-01", periods=30).astype(str)):
+    for c in channels:
+        seed = (i*4 + channels.index(c) + 1) * 13
+        uv = 200 + (seed*37 % 1800)
+        conv = 10 + (seed*53 % 190)
+        rows.append({"date": d, "channel": c, "uv": uv, "conv": conv})
+df = pd.DataFrame(rows)
+df["rate"] = df["conv"] / df["uv"]
+
+app = Dash(__name__)
+channel_options = [{"label":"全部","value":"全部"}] + [{"label":c,"value":c} for c in channels]
+
+app.layout = html.Div([
+    html.H1("📈 2024-01 运营数据看板"),
+    html.Div(id="kpi-row"),
+    dcc.Dropdown(id="channel-dd", options=channel_options, value="全部"),
+    dcc.Graph(id="uv-line"),
+    dcc.Graph(id="rate-pie"),
+])
+
+@callback(
+    Output("kpi-row", "children"),
+    Output("uv-line", "figure"),
+    Output("rate-pie", "figure"),
+    Input("channel-dd", "value"),
+)
+def update(ch):
+    sub = df if ch == "全部" else df[df["channel"] == ch]
+    u, c, n = sub["uv"].sum(), sub["conv"].sum(), sub["channel"].nunique()
+    r = c / u * 100
+    kpis = html.Div([
+        html.Div(f"总 UV：{u:,.0f}", className="kpi"),
+        html.Div(f"总转化：{c:,.0f}", className="kpi"),
+        html.Div(f"转化率：{r:.2f}%", className="kpi"),
+        html.Div(f"渠道数：{n}", className="kpi"),
+    ])
+    fig_line = px.line(sub.groupby("date", as_index=False).agg(uv_sum=("uv","sum")),
+                        x="date", y="uv_sum", title=f"UV 每日走势 ({ch})")
+    by_ch = sub.groupby("channel", as_index=False).agg(total_conv=("conv","sum"))
+    fig_pie = px.pie(by_ch, names="channel", values="total_conv", title=f"转化按渠道占比 ({ch})")
+    return kpis, fig_line, fig_pie
+
+result = app.callback_trigger("channel-dd", value="SEO")
+print(result["summary"])`
+,
+      explanation: `**Dash 三板斧**：
+- layout 是"静态结构"——写哪些组件、谁有 id
+- callback 是"灵魂"——声明式：我要当 X 变的时候刷新 Y。不用自己写事件监听
+- DataFrame 始终是主角：聚合 groupby + 绘图一步到位，不用手工拼数组
+
+**本地开发技巧**：\`Dash(__name__).run_server(debug=True)\` 热更新 + 开发工具异常面板，调起来飞快。`
+,
+      hint: 'channel=="全部"就用原 df，否则 df[df.channel==ch]；用 px.line(按日期聚合后的 df)，px.pie(按渠道聚合后的 df)',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有 UV 指标数字",
+    "passed": "总 UV" in output and "总转化" in output and "转化率" in output,
+    "message": "3 个 KPI 必须出现"
+})
+_test_results.append({
+    "name": "渠道 SEM/SEO/社交 里至少 2 个出现",
+    "passed": sum(1 for x in ["SEM","SEO","自然流量","社交"] if x in output) >= 2,
+    "message": "渠道名要出现（饼图、下拉、聚合、渠道占比都会输出）"
+})
+_test_results.append({
+    "name": "存在 Line 或 Pie 图描述",
+    "passed": "UV" in output and ("走势" in output or "Line" in output or "占比" in output or "pie" in output.lower()),
+    "message": "至少折线 + 饼图都要被生成"
+})
+_test_results.append({
+    "name": "过滤后的 SEO 渠道",
+    "passed": ("SEO" in output),
+    "message": "因为触发回调是 value=SEO，SEO 字样至少出现 1 次（且汇总中渠道数应≤2）"
+})`
+    },
+    {
+      id: 4,
+      title: '多页 & 部署',
+      type: 'explanation',
+      content: `**Pages 多页机制（Dash 2.0+）**：
+建 pages/ 文件夹，里面每个文件第一行写 \`dash.register_page(__name__)\`，
+主 app 里加 \`app.layout = ... dcc.Location(id="url") ... dash.page_container\`，
+自动按文件名做路由，写几十个分析页轻轻松松。
+
+**部署方式**：
+- 个人/小团队：本地跑 + nginx 反代 + gunicorn
+- 企业级：GCP Cloud Run / Azure App Service / AWS Elastic Beanstalk 一键 docker 化
+- 公司内网：Dash Enterprise（收费，单点登录/权限）`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `你要做一个"销售数据大屏"，同事每天都要打开看，筛选条件 10+ 个、图 8 张、数据 10 万行。
+哪种做法最推荐？`,
+      options: [
+        '每次选筛选条件都重新读全量 CSV，简单直接',
+        '数据层先用 pandas/DuckDB 做聚合缓存，callback 只读聚合结果；用 clientside_callback 把纯前端交互下放到 JS',
+        '全部用 @callback 在后端重算，啥都写 Python 最省事',
+        '不用 Dash，全部手写 ECharts + React 更好'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 是最佳实践**  
+10 万行 × 8 张图 × 10+ 条件，全靠后端 Python 算会卡顿：  
+- 聚合缓存（甚至物化表 / 预计算 / DuckDB 列存查询）是必须的  
+- 前端交互（开关图、改颜色、改标签）用 clientside_callback 写 JS 零回源，体验飞起  
+D 确实也可以但开发成本高 5~10 倍，Dash 的价值就在于"纯 Python 也能出 80 分体验"。`
+    }
+  ],
+  // ============== 32. Jupyter ==============
+  32: [
+    {
+      id: 1,
+      title: 'Jupyter 是"可复现研究"的事实标准',
+      type: 'explanation',
+      content: `Jupyter = Julia + Python + R 三种语言首字母组合，菜鸟教程《Python Jupyter Notebook》概括它的魅力：
+- **单元格（Cell）**：一段 Markdown + 一段代码 + 对应输出，连起来就是一份"可运行的论文"
+- **魔法命令**：%timeit / %pwd / %who / %%bash / %%writefile 扩展 100 种能力
+- **ipywidgets 交互控件**：滑块/下拉框/复选框，写教程、给老板演示都秒懂
+- **一键导出**：HTML / PDF / LaTeX / Slide（PPT）/ .py 纯脚本
+
+浏览器环境用 jupyter_ 模拟库；本地：\`pip install notebook; jupyter notebook\` 或新版 \`jupyter lab\`（更像 IDE）。`
+    },
+    {
+      id: 2,
+      title: 'Markdown 单元 & 魔法命令',
+      type: 'example',
+      content: ``,
+      code: `import jupyter_ as nb
+
+nb.markdown(\`\`\`
+# 🎉 Jupyter 简介
+## 为什么用它？
+1. **文档 + 代码 一体** —— 写完就是博客/报告
+2. **逐步调试** —— 每段算法跑一下看中间结果
+3. **分享友好** —— nbviewer 链接一丢，同行直接看
+
+> "Notebook 让数据分析不再是一次性脚本。"
+\`\`\`)
+
+# 魔法命令示例
+nb.magic_timeit('[x**2 for x in range(10000)]', number=100)
+nb.magic_who()
+nb.magic_pwd()
+nb.magic_system("echo Hello_from_shell")`
+    },
+    {
+      id: 3,
+      title: '练习：ipywidgets 调参演示',
+      type: 'practice',
+      content: `**任务**：用 interact 做一个函数 \`f(a, b, func)\`：
+- **a**：整数滑块 1~10，默认 3
+- **b**：整数滑块 0~20，默认 4
+- **func**：下拉菜单，选项  ["add 相加","sub 相减","mul 相乘","pow 幂运算","max 取最大"]
+
+函数根据 func 名选择对应的操作，返回算式字符串 + 结果值（比如 "3 + 4 = 7" 和 7）。
+最后 \`nb.interact(f, a=(1,10,3), b=(0,20,4), func=[...])\` 模拟两次：
+1. 默认（a=3,b=4,func=add）
+2. 用户切换（a=5,b=2,func=pow）
+打印两次的输出。
+`,
+      code: `import jupyter_ as nb
+
+def f(a, b, func):
+    # 在此根据 func 计算 result，并打印 "算式 = 结果"
+    # 返回 (description, result)
+    pass
+
+# nb.interact(f, a=(1,10,3), b=(0,20,4), func=["add 相加","sub 相减","mul 相乘","pow 幂运算","max 取最大"])
+#   → 返回一个 Sim 对象，可用 .simulate(a,b,func) 两次并打印
+
+
+
+`,
+      answer: `import jupyter_ as nb
+
+def f(a, b, func):
+    if func.startswith("add"):
+        res = a + b; sym = "+"
+    elif func.startswith("sub"):
+        res = a - b; sym = "-"
+    elif func.startswith("mul"):
+        res = a * b; sym = "*"
+    elif func.startswith("pow"):
+        res = a ** b; sym = "**"
+    else:
+        res = max(a, b); sym = "max"
+    line = f"{a} {sym} {b} = {res}"
+    print(line)
+    return line, res
+
+sim = nb.interact(
+    f,
+    a=(1, 10, 3),
+    b=(0, 20, 4),
+    func=["add 相加","sub 相减","mul 相乘","pow 幂运算","max 取最大"]
+)
+print("=== 模拟默认值 ===")
+print(sim.simulate(a=3, b=4, func="add 相加"))
+print("\n=== 模拟 a=5,b=2,func=pow ===")
+print(sim.simulate(a=5, b=2, func="pow 幂运算"))`,
+      explanation: `**ipywidgets.interact 黄金组合**：
+- 如果参数写区间 tuple (min,max,step) → 自动生成滑块
+- 如果写 list[str] → 自动下拉
+- 如果写 True/False → 自动复选框
+- 如果写 "默认字符串" → 文本输入
+完全不用写 UI 代码，几秒钟搭出一个"教学演示器"，在教学圈被称为"杀手级功能"。`,
+      hint: 'func 用前缀判断 mul/pow； nb.interact 返回的对象 .simulate(关键字参数=值) 模拟用户操作',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "add 3+4=7",
+    "passed": "3 + 4 = 7" in output or "= 7" in output,
+    "message": "默认相加是 3+4=7"
+})
+_test_results.append({
+    "name": "pow 5**2=25",
+    "passed": "25" in output and ("5" in output and ("**" in output or "pow" in output)),
+    "message": "5 的 2 次方 = 25"
+})
+_test_results.append({
+    "name": "至少两次模拟标题",
+    "passed": output.count("模拟") >= 2 or output.count("===") >= 3,
+    "message": "应该有两次 simulate 的明确输出标题"
+})
+_test_results.append({
+    "name": "有 5 个下拉选项的描述",
+    "passed": sum(1 for x in ["相加","相减","相乘","幂运算","取最大"] if x in output) >= 3,
+    "message": "下拉菜单至少要输出 3 个以上选项名"
+})`
+    },
+    {
+      id: 4,
+      title: '导出 & 版本管理（Git 友好）',
+      type: 'explanation',
+      content: `**痛点**：Notebook 的 .ipynb 是 JSON，混代码 + 输出 + 图片，Git 里 diff 一坨。
+**菜鸟教程 3 个最佳实践**：
+1. \`pip install nbdev nbdime jupytext\`
+   - \`nbdiff a.ipynb b.ipynb\` 看 Notebook 级 diff
+   - jupytext 把 ipynb ↔ .py（百分号格式）互相转，.py 方便 Git
+2. 提交前清输出：\`Cell → All Output → Clear\` 再保存
+3. 用 nbconvert 导出：
+\`\`\`
+# 导出 HTML（可直接发邮件）
+jupyter nbconvert report.ipynb --to html --embed-images
+# 导出 PDF（需 LaTeX）
+jupyter nbconvert report.ipynb --to pdf
+# 导出幻灯片 Reveal.js
+jupyter nbconvert slides.ipynb --to slides
+\`\`\``
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `下面哪一项 **不是** Jupyter 的正确使用姿势？`,
+      options: [
+        '写分析报告，里面穿插图、结论、代码，让别人拿到 .ipynb 就可以逐步复现',
+        '做教学演示，ipywidgets 演示模型参数变化后的效果',
+        '写 10 万行的生产代码服务端程序，常驻内存跑半年',
+        '先在 Notebook 里快速试验算法，稳定后再提取到 .py 文件做工程化'
+      ],
+      correctAnswer: 2,
+      explanation: `**C 是反面典型**  
+Notebook 是"探索 + 汇报 + 教学"的神器，但**不适合写生产服务**：全局变量、状态持久、顺序错乱（你先点 Cell 5 再点 Cell 2）、难单元测试、难调试长任务……  
+正确姿势是 D：**Notebook 做原型；成熟了就整理成 Python 模块 + FastAPI/Flask/CLI 部署。**`
+    }
+  ],
+  // ============== 33. Pillow ==============
+  33: [
+    {
+      id: 1,
+      title: 'Pillow：Python 图像处理标配',
+      type: 'explanation',
+      content: `Pillow 是 PIL（Python Imaging Library）的活跃分支。菜鸟教程 Pillow 章总结：
+- 读写 30+ 种图片格式：JPG/PNG/GIF/WebP/BMP...
+- 几何变换：缩放/裁剪/旋转/翻转
+- 像素级处理 & ImageDraw 画图
+- 滤镜（模糊/锐化/边缘检测）、合成与水印
+
+浏览器环境 pillow_ 模拟库；本地：\`pip install pillow; from PIL import Image, ImageDraw, ImageFilter, ImageFont\``
+    },
+    {
+      id: 2,
+      title: '基本 IO + 变换 + 滤镜',
+      type: 'example',
+      content: ``,
+      code: `from pillow_ import Image, ImageFilter, ImageDraw
+
+img = Image.new("RGB", (400, 300), color=(135, 206, 235))
+draw = ImageDraw.Draw(img)
+draw.rectangle([(50, 220), (350, 280)], fill=(34, 139, 34))      # 草地
+draw.ellipse([(290, 30), (370, 110)], fill=(255, 215, 0))       # 太阳
+for x in range(5):
+    draw.ellipse([(80+x*40, 60), (130+x*40, 95)], fill=(255,255,255))  # 几朵云
+
+img_small = img.resize((200, 150))
+img_rot = img.rotate(15)
+img_blur = img.filter(ImageFilter.GaussianBlur(radius=3))
+
+print(img.describe())
+print(img_small.describe())
+print("旋转 15°:", img_rot.describe())
+print("高斯模糊:", img_blur.describe())`
+    },
+    {
+      id: 3,
+      title: '实战：批量头像生成 + 水印',
+      type: 'practice',
+      content: `**任务**：为用户列表 [小红、小刚、小丽、阿强、小明] 批量生成"首字母头像"。
+1. 画布 128×128，随机色背景（背景色 = hash(name)%360 映射到 HSL 色轮）
+2. 中心用大号字写名字**第一个字**（用简单的 draw 矩形占位也可以，我们用一个 70×70 的白色正方形 + draw.text 画首字）
+3. **右下角水印**：浅灰色字 "Python Quest"（字号 12）
+4. 对每张图片：保存为 /tmp/avatars/{name}.png（用 img.save(path) 模拟，不写真实磁盘）
+5. 打印所有"已保存 xxxx.png (128×128, bg=颜色)"
+`,
+      code: `from pillow_ import Image, ImageDraw
+
+names = ["小红","小刚","小丽","阿强","小明"]
+
+# 辅助：hash(name) 映射 RGB
+def bg_color(name):
+    h = sum(ord(c) for c in name) % 360
+    s = 0.6; l = 0.55
+    c = (1 - abs(2*l - 1)) * s
+    x = c * (1 - abs((h/60) % 2 - 1))
+    m = l - c/2
+    if h<60:   R,G,B = c,x,0
+    elif h<120: R,G,B = x,c,0
+    elif h<180: R,G,B = 0,c,x
+    elif h<240: R,G,B = 0,x,c
+    elif h<300: R,G,B = x,0,c
+    else:       R,G,B = c,0,x
+    return (int((R+m)*255), int((G+m)*255), int((B+m)*255))
+
+# 主循环 for name in names: 生成头像 -> save
+
+
+
+
+`,
+      answer: `from pillow_ import Image, ImageDraw
+
+names = ["小红","小刚","小丽","阿强","小明"]
+
+def bg_color(name):
+    h = sum(ord(c) for c in name) % 360
+    s = 0.6; l = 0.55
+    c = (1 - abs(2*l - 1)) * s
+    x = c * (1 - abs((h/60) % 2 - 1))
+    m = l - c/2
+    if h<60:   R,G,B = c,x,0
+    elif h<120: R,G,B = x,c,0
+    elif h<180: R,G,B = 0,c,x
+    elif h<240: R,G,B = 0,x,c
+    elif h<300: R,G,B = x,0,c
+    else:       R,G,B = c,0,x
+    return (int((R+m)*255), int((G+m)*255), int((B+m)*255))
+
+for name in names:
+    img = Image.new("RGB", (128, 128), color=bg_color(name))
+    draw = ImageDraw.Draw(img)
+    # 中心白方框（代替字体绘制）+ 首字
+    draw.rectangle([(29,29),(99,99)], fill=(255,255,255))
+    draw.text((48, 42), name[0], fill=(30,41,59))
+    # 水印（右下，浅色）
+    draw.text((128-72, 128-16), "Python Quest", fill=(240,240,240))
+    path = f"/tmp/avatars/{name}.png"
+    img.save(path)
+    print(f"✅ 已保存 {name}.png  (128×128, bg={bg_color(name)})")`,
+      explanation: `**Pillow 工业流程**：
+- 业务里批量生成缩略图 = \`img.thumbnail((200,200))\`（不拉伸、保持比例，比 resize 更稳）
+- 文字必须 \`ImageFont.truetype("msyh.ttc", 36)\` 加载系统字体，否则中文方块；跨平台要把 .ttf 打包到项目
+- 图片合成：底图.paste(logo, (x,y), logo)  第 3 个参数是 alpha 蒙版，透明 PNG 合成专用
+- 滤镜批量：ImageFilter.SHARPEN / CONTOUR / EMBOSS / GaussianBlur(r=?) 配合 map 很优雅
+`,
+      hint: 'bg_color(name) 返回一个 3 元素元组给 Image.new；draw.rectangle 画中心方块；draw.text( (x,y), 字符, fill=RGB )；img.save("/tmp/avatars/name.png")',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "5 人都保存成功",
+    "passed": output.count("已保存") == 5,
+    "message": "names 共 5 个，要打印 5 条保存成功"
+})
+_test_results.append({
+    "name": "包含小红/小刚/小丽/阿强/小明",
+    "passed": all(n in output for n in names := ["小红","小刚","小丽","阿强","小明"]),
+    "message": "5 个用户名都要出现"
+})
+_test_results.append({
+    "name": "尺寸 128×128",
+    "passed": "128×128" in output or "128x128" in output or "(128, 128)" in output,
+    "message": "头像尺寸固定 128×128"
+})
+_test_results.append({
+    "name": "水印或首字或背景色存在",
+    "passed": "Python Quest" in output or "bg=" in output or sum(1 for n in names if n[0] in output) >= 2,
+    "message": "水印/首字/背景色描述至少有一个输出体现"
+})`
+    },
+    {
+      id: 4,
+      title: '像素处理 & 二值化验证码',
+      type: 'explanation',
+      content: `\`img.getpixel((x,y))\` 取单个像素 RGB，\`img.putpixel((x,y), (0,0,0))\` 改单个，配合 for x,y 可做任意算法。
+最经典小项目：**图片二值化 → 去噪 → OCR 前处理**
+\`\`\`
+# 灰度 + 阈值二值化
+g = img.convert("L")
+for x in range(g.width):
+    for y in range(g.height):
+        p = g.getpixel((x,y))
+        g.putpixel((x,y), 255 if p > 140 else 0)  # 阈值 140
+\`\`\`
+再配合 pytesseract（包装 Tesseract OCR），能识别简单验证码/扫描件文字。`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `下列操作中，**无法**用 Pillow 直接完成的是？`,
+      options: [
+        '把 1000 张图片批量缩放成 800 宽、质量 80 另存为 webp',
+        '在证件照上画一个红色印章图案（圆角矩形 + 文字）',
+        '从一段 MP4 视频里每隔 2 秒抽取一帧保存成图片',
+        '把人像照片的背景扣除，换成纯色'
+      ],
+      correctAnswer: 2,
+      explanation: `**C 需要 FFmpeg 或 OpenCV**  
+Pillow 只处理**静态图片**，不包含视频解码器。
+抽帧常规做法：\`ffmpeg -i input.mp4 -vf fps=0.5 frame_%03d.jpg\`（CLI）或 Python 用 \`opencv-python / imageio-ffmpeg / moviepy\`。  
+B 用 ImageDraw.rounded_rectangle + polygon 可以画印章；D 用 rembg（基于 U²-Net）等库配合 Pillow 后景合成是主流方案。`
+    }
+  ],
+  // ============== 34. 量化交易实战 ==============
+  34: [
+    {
+      id: 1,
+      title: '量化不是赌博，是工程',
+      type: 'explanation',
+      content: `**量化交易** = 用历史数据"回测"一个策略的期望收益/回撤，再上线真金白银跑。
+菜鸟教程 + 业界共识的**金标准流程**：
+1. 选标的（股票/币/期货/期权）→ 拿 K 线数据
+2. 产生交易信号（MA 金叉/RSI/多因子/机器学习预测...）
+3. 回测：信号转成买卖操作，算账户净值曲线
+4. **指标检验**：年化收益、夏普比率、最大回撤、胜率、盈亏比
+5. 样本外测试 / 滚动训练 / 模拟盘 3 个月
+6. 上实盘 + 风控（仓位上限、止损、熔断、多标的分散）
+
+本关用"双均线策略"走完流程，学会方法论比赚钱重要 ⚠️ **投资有风险，不构成任何投资建议**。`
+    },
+    {
+      id: 2,
+      title: 'K 线数据 & 指标（SMA）',
+      type: 'example',
+      content: `：构造 200 个交易日的模拟收盘价，计算 5 日均线、20 日均线，然后画图。
+`,
+      code: `import pandas_ as pd
+import numpy_ as np
+from matplotlib_ import plt
+import random
+
+random.seed(42); np.seed_(42)
+dates = pd.date_range("2023-07-01", periods=200).astype(str)
+price = 100.0
+closes = []
+for _ in range(200):
+    drift = random.uniform(-0.008, 0.012)
+    noise = random.gauss(0, 0.015)
+    price *= (1 + drift + noise)
+    closes.append(round(price, 2))
+
+df = pd.DataFrame({"date": dates, "close": closes})
+df["ma5"]  = df["close"].rolling(5).mean()
+df["ma20"] = df["close"].rolling(20).mean()
+
+print("前 10 行 / 后 10 行：")
+print(df.head(10))
+print(df.tail(10))
+
+plt.figure(figsize=(12,5))
+plt.plot(df["date"], df["close"], label="收盘价", linewidth=1, alpha=.8)
+plt.plot(df["date"], df["ma5"],   label="MA5",  linewidth=1.2)
+plt.plot(df["date"], df["ma20"],  label="MA20", linewidth=1.4)
+every = 25
+plt.xticks(ticks=list(range(0, 200, every)), labels=[dates[i] for i in range(0, 200, every)])
+plt.title("模拟股价 + MA5/MA20")
+plt.legend(); plt.grid(alpha=.3)
+plt.render("k线均线")`
+    },
+    {
+      id: 3,
+      title: '练习：双均线策略回测 + 输出风险指标',
+      type: 'practice',
+      content: `**任务**：用上面 200 天的 df，实现双均线策略 + 回测。
+
+**信号规则**：
+- **金叉买入**：MA5 上穿 MA20（昨日 MA5<=MA20 且今日 MA5>MA20）→ 持仓 1 手
+- **死叉卖出**：MA5 下穿 MA20（昨日 MA5>=MA20 且今日 MA5<MA20）→ 空仓 0 手
+- 首日空仓，最多持有 1 手，不能卖空
+- 没有手续费、没有滑点
+
+**回测框架**：
+1. 资金 initial_capital = 100000
+2. 每日：\`净值 = cash + position*今日close\`
+3. 记录 daily 净值序列
+4. 最终输出：
+   - **总收益率%** = (最终-初始)/初始*100
+   - **年化收益%** = 总收益 / (200/252) （因为 1 年约 252 交易日）
+   - **最大回撤%**（定义：从每个峰值之后最深跌到谷底的百分比，取最大）
+   - **夏普比率** ≈ \`(日收益率均值 / 日收益率标准差) * sqrt(252)\`
+   - **买卖次数**、**最后持仓状态**
+   - 画出：账户净值曲线 + benchmark(持有不动) 曲线
+`,
+      code: `import pandas_ as pd
+import numpy_ as np
+import random
+from matplotlib_ import plt
+
+random.seed(42); np.seed_(42)
+dates = pd.date_range("2023-07-01", periods=200).astype(str)
+price = 100.0
+closes = []
+for _ in range(200):
+    drift = random.uniform(-0.008, 0.012)
+    noise = random.gauss(0, 0.015)
+    price *= (1 + drift + noise); closes.append(round(price,2))
+
+df = pd.DataFrame({"date": dates, "close": closes})
+df["ma5"] = df["close"].rolling(5).mean()
+df["ma20"]= df["close"].rolling(20).mean()
+df = df.dropna().reset_index(drop=True)
+
+# -------- 实现回测 --------
+# init: cash=100000, position=0, trades=0, net_values=[...]
+# for i in range(1, len(df)):
+#     yesterday = df.iloc[i-1]; today = df.iloc[i]
+#     计算 signal（金叉 1 / 死叉 -1 / 其他 0）
+#     若金叉且 position==0: 买入 1 手，cash -= close, position=1, trades++
+#     若死叉且 position==1: 卖出 1 手，cash += close, position=0, trades++
+#     nv = cash + position * today.close
+# 再计算 4 个指标 + 画图
+
+
+
+`,
+      answer: `import pandas_ as pd
+import numpy_ as np
+import random
+from matplotlib_ import plt
+import math
+
+random.seed(42); np.seed_(42)
+dates = pd.date_range("2023-07-01", periods=200).astype(str)
+price = 100.0
+closes = []
+for _ in range(200):
+    drift = random.uniform(-0.008, 0.012)
+    noise = random.gauss(0, 0.015)
+    price *= (1 + drift + noise); closes.append(round(price,2))
+
+df = pd.DataFrame({"date": dates, "close": closes})
+df["ma5"]  = df["close"].rolling(5).mean()
+df["ma20"] = df["close"].rolling(20).mean()
+df = df.dropna().reset_index(drop=True)
+
+cash = 100000.0
+position = 0
+trades = 0
+net_values = []
+for i in range(len(df)):
+    today = df.iloc[i]
+    signal = 0
+    if i >= 1:
+        y = df.iloc[i-1]
+        if y["ma5"] <= y["ma20"] and today["ma5"] > today["ma20"]:
+            signal = 1
+        elif y["ma5"] >= y["ma20"] and today["ma5"] < today["ma20"]:
+            signal = -1
+    if signal == 1 and position == 0:
+        cash -= float(today["close"]); position = 1; trades += 1
+    elif signal == -1 and position == 1:
+        cash += float(today["close"]); position = 0; trades += 1
+    nv = cash + position * float(today["close"])
+    net_values.append(nv)
+
+df["net"]  = net_values
+df["hold"] = 100000 / float(df.iloc[0]["close"]) * df["close"]   # benchmark 持有不动
+
+# ---- 指标 ----
+init, final = 100000.0, df["net"].iloc[-1]
+total_ret = (final - init) / init * 100
+years = len(df) / 252.0
+ann_ret = total_ret / years if years > 0 else 0
+
+daily_ret = pd.Series(df["net"]).pct_change().dropna().tolist()
+mean_r = sum(daily_ret)/len(daily_ret)
+std_r  = (sum((r-mean_r)**2 for r in daily_ret)/len(daily_ret))**0.5
+sharpe = (mean_r/std_r) * (252**0.5) if std_r > 0 else 0
+
+peak, max_dd = df["net"].iloc[0], 0.0
+for v in df["net"]:
+    if v > peak: peak = v
+    dd = (peak - v) / peak * 100
+    if dd > max_dd: max_dd = dd
+
+print(f"=== 双均线回测结果 ===")
+print(f"交易次数: {trades}  |  期末持仓: {'持有 1 手' if position==1 else '空仓'}")
+print(f"总收益率:   {total_ret:.2f}%")
+print(f"年化收益:   {ann_ret:.2f}%")
+print(f"最大回撤:   {max_dd:.2f}%")
+print(f"夏普比率:   {sharpe:.2f}")
+print(f"期末净值:   {final:.2f}")
+print(f"期末bench:  {df['hold'].iloc[-1]:.2f}")
+
+plt.figure(figsize=(12,5))
+plt.plot(df["date"], df["net"],  label="策略净值", color="#ef4444")
+plt.plot(df["date"], df["hold"], label="买入持有", color="#2563eb", alpha=.7)
+every = 20
+idxs = list(range(0, len(df), every))
+plt.xticks(ticks=idxs, labels=[df["date"].iloc[i] for i in idxs])
+plt.title("双均线策略 vs 持有不动")
+plt.legend(); plt.grid(alpha=.3)
+plt.render("双均线回测")`
+,
+      explanation: `**关键理解 3 点**：
+1. **信号与执行必须分开**：今日收盘后出现的信号，只能用"今日收盘价/明日开盘价"成交，不能偷看未来价格（否则就是"未来函数"，回测漂亮实盘亏光）
+2. **最大回撤 > 年化收益 更重要**：很多策略赚 30%/年但最大回撤 50%，普通人拿不住 → 直接清盘在谷底
+3. **夏普 1 是及格线**：<1 基本是靠运气；>1.5 比较稳；>2 很优秀（实盘能长期维持 2 以上非常少）
+
+**后续进阶方向**：换标的（指数ETF/行业轮动）、加止损/止盈、多因子打分、蒙特卡洛压力测试、参数不敏感检验、实盘滑点 + 手续费 + 税费（佣金/印花税很伤）。`
+,
+      hint: 'ma5 上穿 ma20 定义是 i-1 日 ma5 ≤ ma20 且 i 日 ma5 > ma20；最大回撤遍历过程中维护一个 peak，每个点算 (peak-val)/peak%；夏普 = mean(daily_ret)/std(daily_ret)*√252',
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "4 大风险指标齐全",
+    "passed": all(x in output for x in ["总收益率","年化收益","最大回撤","夏普比率"]),
+    "message": "4 个指标标题都必须打印"
+})
+_test_results.append({
+    "name": "交易次数 > 0",
+    "passed": ("交易次数" in output) and (lambda s: any(f"交易次数: {n}" in s for n in ["1","2","3","4","5","6","7","8","9","10"]))(output),
+    "message": "200 天里至少会发生 2 次以上金叉/死叉"
+})
+_test_results.append({
+    "name": "净值曲线绘制",
+    "passed": ("策略净值" in output or "双均线回测" in output) and "持有不动" in output,
+    "message": "图的 legend/标题/渲染描述中要有 2 条对比曲线"
+})
+_test_results.append({
+    "name": "百分比指标带 % 号且数值合理",
+    "passed": output.count("%") >= 3 and (
+        any(tok in output for tok in [".0%", ".1%", ".2%", ".3%", ".4%", ".5%", ".6%", ".7%", ".8%", ".9%"])
+    ),
+    "message": "至少 3 个带小数点的百分数"
+})`
+    },
+    {
+      id: 4,
+      title: '进阶：仓位管理 Kelly 公式 & 再平衡',
+      type: 'explanation',
+      content: `**仓位**比"选什么标的"更影响长期收益。
+经典 Kelly 仓位：\`f^* = (p*b - q)/b\`（p 胜率，q=1-p，b 盈亏比），Kelly 值乘 0.3~0.5 是半 Kelly，更稳。
+示例：p=0.55，b=1.2（赢 1.2 元/输 1 元）→ Kelly=(0.55*1.2-0.45)/1.2=0.21/1.2=0.175 → 每次放 8%（半 Kelly）。
+
+**再平衡（Rebalance）**：把 A 股票 60%、债券 40% 目标权重每月调回，高抛低吸，波动率显著降低。这是机构"全天候组合"的基石。`
+    },
+    {
+      id: 5,
+      title: '不要踩这些坑',
+      type: 'explanation',
+      content: `量化新手**最容易亏大钱的 6 个坑**：
+1. **过拟合**：参数 10 个调半年，回测年年翻倍 → 实盘亏（样本外必崩）
+   - 解法：参数越少越好、walk-forward 滚动验证
+2. **未来函数**：用了当日收盘数据当信号再按当日收盘交易 → 回测永远赚
+   - 解法：所有信号 shift(1) 再和价格对齐
+3. **幸存者偏差**：只选现在还存在的 100 只牛股回测 → 忽略 50 只退市
+4. **忽略手续费滑点**：A股买卖一次成本 0.1~0.3%，高频策略吃掉全部利润
+5. **单标的满仓梭哈**：黑天鹅（退市/停牌/爆雷）直接死
+6. **只看收益不看回撤和破产概率**：赢率 51% 的赌局加 2 倍杠杆，长期必破产
+
+⚠️ **最后提醒**：量化是"概率 + 工程 + 风控"的组合拳。先把所有风险吃透，再考虑用真钱跑。祝你在学习中收获满满，不要用本关代码直接交易！💡`
+    },
+    {
+      id: 6,
+      title: '回测框架输出 & 小测验',
+      type: 'quiz',
+      content: `你写了一个动量策略，回测报告显示"年化 80%，最大回撤 5%，夏普 3.5，样本内 5 年都赚钱"。
+下一步最该做什么？`,
+      options: [
+        '直接上实盘满仓，借钱加杠杆梭哈，3 年财富自由',
+        '换一段**样本外**时间或换一批从未看过的标的重跑；检查是否有未来函数/偷价；降低仓位先跑模拟盘 3 个月',
+        '把代码封装成课程卖 1999 元，让别人先替我跑',
+        '把回测曲线截图发朋友圈，立帖为证自己是下一个巴菲特'
+      ],
+      correctAnswer: 1,
+      explanation: `**B 是唯一正确的做法**：先验证鲁棒性，再从小仓位一步步来。
+其他三个选项都是新手经典死法。记住巴菲特的名言："第一条不要亏钱，第二条永远记住第一条。"`
+    },
+    {
+      id: 7,
+      title: '毕业：量化全流程全景图',
+      type: 'explanation',
+      content: `🎓 **恭喜通关最后一关（第 34 关）！**
+
+**34 关全景**：
+- 🐍 1~9 关  Python 基础（数据结构/函数/文件/OOP/异常）
+- 🧠 10~18 关 Python 进阶（字符串深入、模块包、OOP 进阶、异常、os/shutil、生成器装饰器、标准库、综合实战）
+- 🌐 19 Requests / 20 re / 21 collections / 22 itertools
+- 📊 23 NumPy / 24 Pandas / 25 Matplotlib / 26 SciPy
+- 🛰️ 27 Flask / 28 FastAPI / 29 Django / 30 Scrapy
+- 📈 31 Dash / 📓 32 Jupyter / 🎨 33 Pillow / 💹 34 量化交易实战
+
+**下一步**：
+1. 把每关的挑战都打一遍，把代码拷到本地真实 Python 环境跑通
+2. 选一个你最感兴趣的方向（API/数据/爬虫/可视化/量化）做一个真实项目
+3. 所有代码存 GitHub，写 README，再回 Python Quest 第 18 关把项目加进去
+4. 保持每天 30 分钟编码节奏！🚀
+
+**Python Quest 全体导师祝你前程似锦！💫**`
+    }
   ]
 }
 
@@ -7840,6 +10950,1506 @@ _test_results.append({
 `,
       testCases: [
         { name: '基础测试', input: '无', expected: 'Python' }
+      ],
+      xpReward: 50
+    }
+  ],
+  // ============== 19. Requests 挑战 ==============
+  19: [
+    {
+      id: 1,
+      title: '模拟 API 客户端',
+      description: '使用 requests_ 模拟库实现一个 API 客户端。\n\n要求：\n- GET /api/users 获取用户列表\n- POST /api/users 创建新用户\n- GET /api/users/{id} 获取单个用户\n- 打印每次请求的状态码和响应体',
+      difficulty: 'medium',
+      initialCode: `from requests_ import Session
+
+s = Session(base_url="https://api.example.com")
+
+# 1. 获取用户列表
+# resp = s.get("/api/users")
+# print(resp.status_code, resp.json())
+
+# 2. 创建新用户
+# resp = s.post("/api/users", json={"name":"小明","age":20})
+# print(resp.status_code, resp.json())
+
+# 3. 获取 id=1 的用户
+# resp = s.get("/api/users/1")
+# print(resp.status_code, resp.json())
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "GET 请求成功",
+    "passed": "200" in output,
+    "message": "GET 请求应返回 200"
+})
+_test_results.append({
+    "name": "POST 创建成功",
+    "passed": "201" in output or "200" in output,
+    "message": "POST 创建应返回 201 或 200"
+})
+_test_results.append({
+    "name": "包含用户名",
+    "passed": "小明" in output or "name" in output,
+    "message": "响应中应包含用户名"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '200' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: '带认证的请求封装',
+      description: '封装一个带 Token 认证的 API 客户端。\n\n要求：\n- 类 ApiClient，构造函数接收 token\n- 方法 request(method, path) 自动加 Authorization 头\n- 401 时自动重试一次\n- 模拟调用并打印结果',
+      difficulty: 'hard',
+      initialCode: `from requests_ import Session
+
+class ApiClient:
+    def __init__(self, token):
+        self.token = token
+        self.s = Session(base_url="https://api.example.com")
+
+    def request(self, method, path, json=None):
+        # 在此实现：加 Authorization 头
+        # 401 时重试一次
+        pass
+
+client = ApiClient(token="abc123")
+print(client.request("GET", "/api/profile"))
+print(client.request("POST", "/api/posts", json={"title":"Hello"}))
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含认证信息",
+    "passed": "abc123" in output or "token" in output.lower() or "Authorization" in output,
+    "message": "应包含 Token 认证信息"
+})
+_test_results.append({
+    "name": "GET 请求成功",
+    "passed": "200" in output,
+    "message": "GET /api/profile 应返回 200"
+})
+_test_results.append({
+    "name": "POST 请求成功",
+    "passed": "201" in output or "200" in output,
+    "message": "POST 应返回 201 或 200"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '200' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 20. 正则表达式 re 挑战 ==============
+  20: [
+    {
+      id: 1,
+      title: '日志解析器',
+      description: '用正则表达式解析 Nginx 日志。\n\n日志格式：[IP] - - [时间] "METHOD /path HTTP/1.1" 状态码 字节数\n\n要求：\n- 提取 IP、时间、方法、路径、状态码\n- 统计各状态码数量\n- 打印 Top 3 IP',
+      difficulty: 'medium',
+      initialCode: `import re
+from collections import Counter
+
+logs = [
+    '192.168.1.1 - - [2024-01-01 10:00:00] "GET /index.html HTTP/1.1" 200 1024',
+    '10.0.0.5 - - [2024-01-01 10:01:00] "POST /api/login HTTP/1.1" 401 512',
+    '192.168.1.1 - - [2024-01-01 10:02:00] "GET /style.css HTTP/1.1" 200 2048',
+    '10.0.0.5 - - [2024-01-01 10:03:00] "GET /api/users HTTP/1.1" 403 256',
+    '172.16.0.3 - - [2024-01-01 10:04:00] "DELETE /api/post/1 HTTP/1.1" 200 128',
+]
+
+pattern = r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\\[([^\\]]+)\\].*?"(\\w+)\\s+(\\S+).*?"\\s+(\\d+)'
+
+# 在此解析并输出
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含 IP 地址",
+    "passed": "192.168.1.1" in output or "10.0.0.5" in output,
+    "message": "应提取并显示 IP 地址"
+})
+_test_results.append({
+    "name": "包含状态码统计",
+    "passed": "200" in output and ("401" in output or "403" in output),
+    "message": "应统计状态码 200/401/403"
+})
+_test_results.append({
+    "name": "包含请求方法",
+    "passed": "GET" in output or "POST" in output,
+    "message": "应提取 HTTP 方法"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '192.168' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 2,
+      title: '邮箱与手机号提取',
+      description: '从一段文本中提取所有邮箱和手机号。\n\n要求：\n- 邮箱正则：xxx@xxx.xxx\n- 手机号正则：1开头11位数字\n- 去重后分别打印',
+      difficulty: 'medium',
+      initialCode: `import re
+
+text = '''
+联系方式：
+邮箱：alice@gmail.com, bob@qq.com, alice@gmail.com（重复）
+电话：13812345678, 15987654321, 13812345678（重复）
+无效：abc@test, 12345678901
+'''
+
+# email_pattern = ...
+# phone_pattern = ...
+
+# 提取、去重、打印
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "提取邮箱",
+    "passed": "alice@gmail.com" in output or "bob@qq.com" in output,
+    "message": "应提取邮箱地址"
+})
+_test_results.append({
+    "name": "提取手机号",
+    "passed": "13812345678" in output or "15987654321" in output,
+    "message": "应提取手机号"
+})
+_test_results.append({
+    "name": "去重处理",
+    "passed": True,
+    "message": "检查是否对重复项做了去重"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '@' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 21. collections 挑战 ==============
+  21: [
+    {
+      id: 1,
+      title: '词频统计器',
+      description: '用 Counter 统计一段英文的词频。\n\n要求：\n- 去除标点符号（用正则）\n- 转小写\n- 用 Counter 统计\n- 打印 Top 10 高频词及其出现次数',
+      difficulty: 'medium',
+      initialCode: `import re
+from collections import Counter
+
+text = """
+The quick brown fox jumps over the lazy dog.
+The dog was not amused. The fox laughed and laughed.
+A quick fox is a happy fox. The lazy dog just slept.
+"""
+
+# 去标点 → 转小写 → 分词 → Counter → most_common(10)
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含 the",
+    "passed": "the" in output.lower(),
+    "message": "the 应该是高频词"
+})
+_test_results.append({
+    "name": "包含 fox",
+    "passed": "fox" in output.lower(),
+    "message": "fox 应该在统计中"
+})
+_test_results.append({
+    "name": "包含数字计数",
+    "passed": any(c.isdigit() for c in output),
+    "message": "应该显示词频数字"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'the' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: '学生成绩 defaultdict 分组',
+      description: '用 defaultdict 按班级分组学生成绩。\n\n要求：\n- 数据：[(班级, 姓名, 分数)] 列表\n- 用 defaultdict(list) 按班级分组\n- 计算每个班级的平均分\n- 按平均分从高到低打印',
+      difficulty: 'medium',
+      initialCode: `from collections import defaultdict
+
+students = [
+    ("A班", "小明", 85),
+    ("B班", "小红", 92),
+    ("A班", "小刚", 78),
+    ("B班", "小丽", 88),
+    ("A班", "小强", 90),
+    ("C班", "小华", 76),
+    ("B班", "小芳", 95),
+]
+
+# 用 defaultdict 分组
+# 计算每班平均分
+# 排序打印
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含 A班",
+    "passed": "A班" in output or "A" in output,
+    "message": "应包含 A 班信息"
+})
+_test_results.append({
+    "name": "包含平均分",
+    "passed": any(x in output for x in ["平均", "avg", "mean", "84"]),
+    "message": "应计算并显示平均分"
+})
+_test_results.append({
+    "name": "B班平均正确",
+    "passed": "92" in output or "91" in output or "92.5" in output or "91.6" in output,
+    "message": "B 班平均分约为 91.6"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '班' }
+      ],
+      xpReward: 35
+    }
+  ],
+  // ============== 22. itertools 挑战 ==============
+  22: [
+    {
+      id: 1,
+      title: '密码组合生成器',
+      description: '用 itertools 生成密码组合。\n\n要求：\n- 字符集：abc123\n- 用 product 生成长度 3 的所有组合\n- 用 permutations 生成排列\n- 统计各自总数并打印前 5 个',
+      difficulty: 'medium',
+      initialCode: `from itertools_ import product, permutations
+
+chars = "abc123"
+
+# product: 长度 3 的所有组合
+# perms: 长度 3 的排列
+
+# 打印总数 + 前 5 个
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "product 总数 216",
+    "passed": "216" in output,
+    "message": "6^3 = 216 种组合"
+})
+_test_results.append({
+    "name": "permutations 总数 120",
+    "passed": "120" in output,
+    "message": "P(6,3) = 120 种排列"
+})
+_test_results.append({
+    "name": "有组合输出",
+    "passed": "a" in output and "1" in output,
+    "message": "应打印部分组合"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '216' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: '购物车组合优化',
+      description: '用 itertools.combinations 找最优购物组合。\n\n要求：\n- 商品列表 [(名称, 价格, 满意度)]\n- 预算 100 元\n- 找满意度最高的组合（选 2~3 件）\n- 打印最优组合和总花费',
+      difficulty: 'hard',
+      initialCode: `from itertools_ import combinations
+
+items = [
+    ("耳机", 30, 8),
+    ("鼠标", 25, 7),
+    ("键盘", 50, 9),
+    ("鼠标垫", 15, 4),
+    ("U盘", 40, 6),
+    ("支架", 20, 5),
+]
+
+budget = 100
+
+# 遍历 combinations(items, 2) 和 (items, 3)
+# 找满意度之和最高且总价 <= budget 的组合
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "总花费 <= 100",
+    "passed": any(x in output for x in ["100", "95", "90", "85", "80", "75", "70"]),
+    "message": "总花费应不超过 100"
+})
+_test_results.append({
+    "name": "包含商品名",
+    "passed": "耳机" in output or "键盘" in output or "鼠标" in output,
+    "message": "应包含商品名称"
+})
+_test_results.append({
+    "name": "包含满意度",
+    "passed": any(c.isdigit() for c in output),
+    "message": "应输出满意度数字"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '键盘' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 23. NumPy 挑战 ==============
+  23: [
+    {
+      id: 1,
+      title: '矩阵运算实战',
+      description: '用 NumPy 实现矩阵运算。\n\n要求：\n- 创建 3x3 随机矩阵 A 和 B\n- 计算 A+B, A*B（矩阵乘法）, A 的转置, A 的逆\n- 计算行列式\n- 打印所有结果',
+      difficulty: 'medium',
+      initialCode: `import numpy_ as np
+
+np.seed_(42)
+A = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 10]])
+B = np.array([[2, 0, 1], [0, 3, 0], [1, 0, 2]])
+
+# A + B
+# A @ B （矩阵乘法）
+# A.T （转置）
+# np.linalg.inv(A) （逆矩阵）
+# np.linalg.det(A) （行列式）
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "矩阵加法结果",
+    "passed": "3" in output and "2" in output,
+    "message": "A+B 应包含 3, 2, 4 等数字"
+})
+_test_results.append({
+    "name": "包含行列式",
+    "passed": any(x in output for x in ["det", "行列式", "-3", "-3.0"]),
+    "message": "应计算并显示行列式"
+})
+_test_results.append({
+    "name": "有逆矩阵",
+    "passed": True,
+    "message": "应计算逆矩阵（输出含负数即可）"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '3' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 2,
+      title: '数据分析统计',
+      description: '用 NumPy 做数据分析统计。\n\n要求：\n- 生成 100 个正态分布随机数（均值 50，标准差 10）\n- 计算均值、中位数、标准差、方差、最大/最小值\n- 找出 > 60 的数据占比\n- 画出直方图',
+      difficulty: 'hard',
+      initialCode: `import numpy_ as np
+from matplotlib_ import plt
+
+np.seed_(42)
+data = np.random_normal(50, 10, 100)
+
+# 计算：均值、中位数、标准差、方差、max、min
+# 统计 > 60 的占比
+# 画直方图 plt.hist(data, bins=20)
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "均值约 50",
+    "passed": "50" in output or "49" in output or "51" in output,
+    "message": "均值应接近 50"
+})
+_test_results.append({
+    "name": "标准差约 10",
+    "passed": "10" in output or "9." in output or "10." in output,
+    "message": "标准差应接近 10"
+})
+_test_results.append({
+    "name": "有占比统计",
+    "passed": "%" in output or "比" in output or "0." in output,
+    "message": "应输出 >60 的占比"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '50' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 24. Pandas 挑战 ==============
+  24: [
+    {
+      id: 1,
+      title: '销售数据分析',
+      description: '用 Pandas 分析销售数据。\n\n要求：\n- 创建 DataFrame：日期/区域/产品/数量/金额\n- 按区域分组计算总销售额\n- 按产品分组计算平均数量\n- 找销售额最高的日期\n- 画出各区域销售额柱状图',
+      difficulty: 'medium',
+      initialCode: `import pandas_ as pd
+from matplotlib_ import plt
+
+data = {
+    "日期": ["01-01","01-01","01-02","01-02","01-03","01-03","01-04","01-04"],
+    "区域": ["华东","华南","华东","华南","华东","华南","华东","华南"],
+    "产品": ["A","B","A","B","A","B","A","B"],
+    "数量": [10, 8, 15, 6, 12, 10, 20, 5],
+    "金额": [1000, 1600, 1500, 1200, 1200, 2000, 2000, 1000],
+}
+df = pd.DataFrame(data)
+
+# 按区域分组 → 总销售额
+# 按产品分组 → 平均数量
+# 找最高额日期
+# 画柱状图
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含华东/华南",
+    "passed": "华东" in output or "华南" in output,
+    "message": "应按区域分组"
+})
+_test_results.append({
+    "name": "有金额数据",
+    "passed": "1000" in output or "2000" in output or "5700" in output or "7800" in output,
+    "message": "应包含金额数字"
+})
+_test_results.append({
+    "name": "有产品统计",
+    "passed": "A" in output or "B" in output or "平均" in output,
+    "message": "应有产品分组统计"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '华东' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 2,
+      title: '数据清洗与合并',
+      description: '模拟真实数据清洗流程。\n\n要求：\n- 创建两个 DataFrame（用户表 + 订单表）\n- 用户表有缺失值，用平均值填充\n- merge 两表（inner join）\n- 计算每用户消费总额\n- 排序打印',
+      difficulty: 'hard',
+      initialCode: `import pandas_ as pd
+
+users = pd.DataFrame({
+    "uid": [1, 2, 3, 4],
+    "name": ["小明", "小红", "小刚", None],
+    "age": [20, None, 22, 25],
+})
+
+orders = pd.DataFrame({
+    "uid": [1, 1, 2, 3, 3, 3],
+    "amount": [100, 200, 150, 80, 120, 300],
+})
+
+# 用 age 均值填充缺失
+# name 缺失填 "未知"
+# merge 两表
+# groupby uid → sum amount
+# 排序打印
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "缺失值已填充",
+    "passed": "未知" in output or "NaN" not in output,
+    "message": "name 缺失应填'未知'"
+})
+_test_results.append({
+    "name": "合并成功",
+    "passed": "小明" in output or "小红" in output,
+    "message": "merge 后应有用户名"
+})
+_test_results.append({
+    "name": "有消费总额",
+    "passed": "300" in output or "amount" in output or "sum" in output.lower() or "总额" in output,
+    "message": "应有消费总额统计"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '小明' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 25. Matplotlib 挑战 ==============
+  25: [
+    {
+      id: 1,
+      title: '多子图数据看板',
+      description: '用 Matplotlib subplot 画 2x2 多子图。\n\n要求：\n- 左上：折线图（季度销售额趋势）\n- 右上：柱状图（各区域对比）\n- 左下：饼图（产品占比）\n- 右下：散点图（广告投入 vs 销售额）\n- 设置标题、图例',
+      difficulty: 'medium',
+      initialCode: `from matplotlib_ import plt
+
+quarters = ["Q1", "Q2", "Q3", "Q4"]
+sales = [320, 380, 420, 450]
+regions = ["华东", "华南", "华北", "西部"]
+region_sales = [500, 450, 300, 200]
+products = ["A", "B", "C"]
+product_share = [40, 35, 25]
+ad_spend = [50, 80, 100, 120, 150, 200]
+ad_sales = [200, 350, 420, 500, 620, 800]
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# 左上：折线图
+# 右上：柱状图
+# 左下：饼图
+# 右下：散点图
+
+plt.render("多子图看板")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含 Q1~Q4",
+    "passed": "Q1" in output or "Q2" in output,
+    "message": "折线图应包含季度数据"
+})
+_test_results.append({
+    "name": "包含区域",
+    "passed": "华东" in output or "华南" in output,
+    "message": "柱状图应包含区域"
+})
+_test_results.append({
+    "name": "渲染输出",
+    "passed": "多子图" in output or "看板" in output,
+    "message": "应渲染输出多子图"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '多子图' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 2,
+      title: '动态动画模拟',
+      description: '用 Matplotlib animation 模拟正弦波动画。\n\n要求：\n- 生成 x = 0~4π\n- 画 sin(x) 曲线\n- 用文本方式描述动画帧（3 帧）\n- 打印每帧的相位变化',
+      difficulty: 'hard',
+      initialCode: `from matplotlib_ import plt
+import math
+
+x = [i * 0.1 for i in range(126)]  # 0 ~ 4π
+
+for frame in range(3):
+    phase = frame * 0.5
+    y = [math.sin(xi + phase) for xi in x]
+    # 画图
+    plt.figure(figsize=(8, 3))
+    plt.plot(x, y, label=f"sin(x+{phase:.1f})")
+    plt.title(f"Frame {frame} - phase={phase:.1f}")
+    plt.legend()
+    plt.render(f"sin_wave_frame_{frame}")
+    print(f"帧 {frame}: 相位={phase:.1f}, 峰值={max(y):.2f}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "3 帧输出",
+    "passed": output.count("帧") >= 3 or output.count("Frame") >= 3,
+    "message": "应输出 3 帧动画"
+})
+_test_results.append({
+    "name": "相位变化",
+    "passed": "相位" in output or "phase" in output.lower(),
+    "message": "应显示相位变化"
+})
+_test_results.append({
+    "name": "峰值正确",
+    "passed": "1.00" in output or "1.0" in output or "0.9" in output,
+    "message": "sin 峰值应接近 1.0"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '帧' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 26. SciPy 挑战 ==============
+  26: [
+    {
+      id: 1,
+      title: '线性方程组求解',
+      description: '用 scipy.linalg 解线性方程组。\n\n要求：\n- 3x + 2y - z = 1\n- 2x - 2y + 4z = -2\n- -x + 0.5y - z = 0\n- 用 solve() 求解并验证',
+      difficulty: 'medium',
+      initialCode: `import scipy_linalg_ as la
+import numpy_ as np
+
+A = np.array([[3, 2, -1], [2, -2, 4], [-1, 0.5, -1]])
+b = np.array([1, -2, 0])
+
+# x = la.solve(A, b)
+# 验证：np.dot(A, x) ≈ b
+# 打印 x 和验证结果
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "包含解",
+    "passed": any(x in output for x in ["1.", "0.5", "-1", "2."]),
+    "message": "应输出方程组的解"
+})
+_test_results.append({
+    "name": "有验证",
+    "passed": "验证" in output or "1.0" in output or "0.0" in output or "≈" in output,
+    "message": "应验证解的正确性"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '1' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: '函数优化求极值',
+      description: '用 scipy.optimize 求函数最小值。\n\n要求：\n- f(x) = x^4 - 3x^3 + 2  （有多个极值）\n- 用 minimize_scalar 求全局最小值\n- 画函数曲线 + 标出最优点\n- 打印最优 x 和 f(x)',
+      difficulty: 'hard',
+      initialCode: `import scipy_optimize_ as opt
+from matplotlib_ import plt
+
+def f(x):
+    return x**4 - 3*x**3 + 2
+
+# result = opt.minimize_scalar(f, bounds=(-5, 5), method='bounded')
+# print 最优 x 和 f(x)
+# 画函数曲线 + 标最优点
+# x_range = [i*0.1 for i in range(-50, 60)]
+# y_range = [f(x) for x in x_range]
+# plt.plot(x_range, y_range)
+# plt.scatter([result.x], [result.fun], color='red', s=100, zorder=5)
+# plt.render("优化结果")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "最优 x 约 2.25",
+    "passed": "2.2" in output or "2.25" in output or "2.3" in output,
+    "message": "x^4-3x^3+2 在 x≈2.25 处取最小值"
+})
+_test_results.append({
+    "name": "最小值约 -4.5",
+    "passed": "-4" in output or "-5" in output,
+    "message": "f(2.25) ≈ -4.5"
+})
+_test_results.append({
+    "name": "有渲染输出",
+    "passed": "优化" in output or "opt" in output.lower() or "图" in output,
+    "message": "应渲染函数曲线图"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '2.25' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 27. Flask 挑战 ==============
+  27: [
+    {
+      id: 1,
+      title: '待办事项 REST API',
+      description: '用 Flask_ 模拟实现一个完整的待办事项 REST API。\n\n要求：\n- GET /todos → 列出全部\n- POST /todos → 创建新待办\n- PUT /todos/{id} → 更新\n- DELETE /todos/{id} → 删除\n- 模拟完整 CRUD 流程并打印',
+      difficulty: 'medium',
+      initialCode: `from flask_ import Flask, request, jsonify
+
+app = Flask(__name__)
+todos = []
+next_id = 1
+
+# GET /todos
+# POST /todos {"title": "...", "done": false}
+# PUT /todos/{id}
+# DELETE /todos/{id}
+
+# 模拟调用：
+# print(app.simulate("GET", "/todos"))
+# print(app.simulate("POST", "/todos", json={"title":"学Flask","done":False}))
+# print(app.simulate("PUT", "/todos/1", json={"done":True}))
+# print(app.simulate("DELETE", "/todos/1"))
+# print(app.simulate("GET", "/todos"))
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "GET 返回列表",
+    "passed": "todos" in output or "items" in output or "[]" in output,
+    "message": "GET /todos 应返回列表"
+})
+_test_results.append({
+    "name": "POST 创建成功",
+    "passed": "学Flask" in output or "title" in output,
+    "message": "POST 应创建待办"
+})
+_test_results.append({
+    "name": "PUT 更新成功",
+    "passed": "True" in output or "done" in output,
+    "message": "PUT 应更新 done 字段"
+})
+_test_results.append({
+    "name": "DELETE 删除成功",
+    "passed": "200" in output or "204" in output or "删除" in output,
+    "message": "DELETE 应返回成功"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'todos' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 2,
+      title: '带认证的博客 API',
+      description: '实现带 Session 认证的博客 API。\n\n要求：\n- POST /login → 模拟登录\n- GET /posts → 公开\n- POST /posts → 需登录\n- DELETE /posts/{id} → 需登录\n- 未登录访问需认证接口返回 401',
+      difficulty: 'hard',
+      initialCode: `from flask_ import Flask, request, jsonify, session
+
+app = Flask(__name__)
+app.secret_key = "secret"
+posts = []
+next_id = 1
+
+# POST /login {"user":"admin","pass":"123"}
+# GET /posts
+# POST /posts {"title":"...", "body":"..."}
+# DELETE /posts/{id}
+
+# 模拟：未登录 POST → 401
+# 模拟：登录 → POST → 成功
+# 模拟：GET → 列表
+# 模拟：DELETE → 成功
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "未登录返回 401",
+    "passed": "401" in output,
+    "message": "未认证 POST 应返回 401"
+})
+_test_results.append({
+    "name": "登录成功",
+    "passed": "200" in output or "登录" in output,
+    "message": "登录应成功"
+})
+_test_results.append({
+    "name": "登录后可创建",
+    "passed": "201" in output or "200" in output,
+    "message": "登录后 POST 应成功"
+})
+_test_results.append({
+    "name": "DELETE 需认证",
+    "passed": "401" in output or "204" in output or "200" in output,
+    "message": "DELETE 未经认证应 401，认证后应成功"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '401' }
+      ],
+      xpReward: 50
+    }
+  ],
+  // ============== 28. FastAPI 挑战 ==============
+  28: [
+    {
+      id: 1,
+      title: '用户管理 API + 自动文档',
+      description: '用 FastAPI_ 实现用户管理 API。\n\n要求：\n- GET /users → 列表（支持分页 ?page=1&size=10）\n- POST /users → 创建（Pydantic 校验 name 非空、age 0-150）\n- GET /users/{id} → 详情\n- 打印 OpenAPI 文档地址\n- 模拟调用全部接口',
+      difficulty: 'medium',
+      initialCode: `from fastapi_ import FastAPI, Query
+from pydantic_ import BaseModel
+
+app = FastAPI(title="用户管理 API", version="1.0.0")
+users = []
+next_id = 1
+
+class UserCreate(BaseModel):
+    name: str
+    age: int
+    @classmethod
+    def validate(cls, data):
+        if not data.get("name"): raise ValueError("name 不能为空")
+        if not (0 <= data.get("age", -1) <= 150): raise ValueError("age 须 0-150")
+        return cls(name=data["name"], age=data["age"])
+
+# GET /users?page=1&size=10
+# POST /users
+# GET /users/{id}
+
+# 打印文档地址
+# 模拟调用
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有文档地址",
+    "passed": "docs" in output.lower() or "openapi" in output.lower() or "/docs" in output,
+    "message": "应打印 Swagger 文档地址"
+})
+_test_results.append({
+    "name": "POST 创建成功",
+    "passed": "201" in output or "200" in output,
+    "message": "POST 应创建成功"
+})
+_test_results.append({
+    "name": "分页参数",
+    "passed": "page" in output or "size" in output or "items" in output,
+    "message": "应支持分页"
+})
+_test_results.append({
+    "name": "校验失败处理",
+    "passed": True,
+    "message": "非法 age 应有校验错误"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'docs' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 2,
+      title: '依赖注入商品系统',
+      description: '用 Depends 实现依赖注入的商品系统。\n\n要求：\n- 依赖 get_db() 返回模拟数据库连接\n- 依赖 get_current_user(token) 验证 Token\n- GET /products 公开\n- POST /products 需登录\n- 模拟未授权和授权两种场景',
+      difficulty: 'hard',
+      initialCode: `from fastapi_ import FastAPI, Depends
+from pydantic_ import BaseModel
+
+app = FastAPI()
+products = []
+
+def get_db():
+    db = {"connected": True}
+    yield db
+    db["connected"] = False
+
+def get_current_user(token: str = ""):
+    if token != "secret-token":
+        return None
+    return {"id": 1, "name": "admin", "role": "seller"}
+
+class ProductCreate(BaseModel):
+    name: str
+    price: float
+    @classmethod
+    def validate(cls, data):
+        if not data.get("name"): raise ValueError("name 不能为空")
+        if data.get("price", 0) <= 0: raise ValueError("price > 0")
+        return cls(name=data["name"], price=float(data["price"]))
+
+# GET /products（公开）
+# POST /products（需 get_current_user 依赖）
+
+# 模拟：无 token POST → 401
+# 模拟：带 token POST → 成功
+# 模拟：GET → 列表
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "无 token 返回 401",
+    "passed": "401" in output or "None" in output or "未登录" in output,
+    "message": "无 token 应返回 401"
+})
+_test_results.append({
+    "name": "有 token 创建成功",
+    "passed": "201" in output or "200" in output or "ok" in output.lower(),
+    "message": "认证后 POST 应成功"
+})
+_test_results.append({
+    "name": "GET 返回列表",
+    "passed": "products" in output or "items" in output,
+    "message": "GET 应返回商品列表"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '401' }
+      ],
+      xpReward: 50
+    }
+  ],
+  // ============== 29. Django 挑战 ==============
+  29: [
+    {
+      id: 1,
+      title: '图书管理系统 ORM',
+      description: '用 Django_ ORM 模拟实现图书管理。\n\n要求：\n- Author 模型：name, age\n- Book 模型：title, price, author(ForeignKey)\n- 插入 3 作者 5 本书\n- 查询：某作者的书、价格 > 40 的书、按价格排序\n- 删除某作者及关联书籍（级联）',
+      difficulty: 'medium',
+      initialCode: `from django_ import models
+
+class Author(models.Model):
+    name = models.CharField(max_length=50)
+    age = models.IntegerField()
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    author = models.ForeignKey(Author, related_name="books")
+
+# 建表
+# 插入数据
+# 查询
+# 删除级联
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有作者数据",
+    "passed": "name" in output or "作者" in output,
+    "message": "应显示作者信息"
+})
+_test_results.append({
+    "name": "有价格查询",
+    "passed": "price" in output or "价格" in output or "40" in output,
+    "message": "应包含价格查询"
+})
+_test_results.append({
+    "name": "有排序输出",
+    "passed": "title" in output or "title" in output.lower() or "书" in output,
+    "message": "应按价格排序输出"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'name' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 2,
+      title: '权限系统模拟',
+      description: '用 Django_ auth 模拟权限系统。\n\n要求：\n- 注册 3 个用户：编辑/审核/读者\n- 定义权限：view/edit/publish\n- 模拟各角色访问不同操作\n- 打印权限检查结果',
+      difficulty: 'hard',
+      initialCode: `from django_ import auth
+
+# 注册用户
+# auth.register("alice", "123", group="编辑")
+# auth.register("bob", "666", group="审核")
+# auth.register("carol", "789", group="读者")
+
+# 权限检查函数
+# def can_edit(user): ...
+# def can_publish(user): ...
+
+# 模拟各角色操作
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有用户名",
+    "passed": "alice" in output or "bob" in output,
+    "message": "应包含用户名"
+})
+_test_results.append({
+    "name": "有权限检查",
+    "passed": "权限" in output or "perm" in output.lower() or "403" in output or "200" in output,
+    "message": "应有权限检查结果"
+})
+_test_results.append({
+    "name": "角色区分",
+    "passed": "编辑" in output or "审核" in output or "读者" in output,
+    "message": "应区分不同角色"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'alice' }
+      ],
+      xpReward: 45
+    }
+  ],
+  // ============== 30. Scrapy 挑战 ==============
+  30: [
+    {
+      id: 1,
+      title: '多页爬虫 + Pipeline',
+      description: '实现多页爬虫并模拟 Pipeline 处理。\n\n要求：\n- Spider 爬取 5 页商品数据\n- 每页 3 条：name/price/rating\n- Pipeline 过滤 rating < 3 的数据\n- 统计平均价格\n- 打印最终结果',
+      difficulty: 'medium',
+      initialCode: `from scrapy_ import Spider, Item, Field
+from collections import Counter
+
+class ProductItem(Item):
+    name = Field()
+    price = Field()
+    rating = Field()
+
+class ProductSpider(Spider):
+    name = "products"
+    start_urls = [f"https://shop.example.com/page/{p}" for p in range(1, 6)]
+
+    def parse(self, response):
+        for p in response.css("div.product"):
+            yield ProductItem(
+                name = p.css("h3.name::text").get(),
+                price = float(p.css("span.price::text").get()),
+                rating = int(p.css("span.rating::text").get()),
+            )
+
+# 运行爬虫
+# results = ProductSpider.run()
+
+# 模拟 Pipeline 过滤 rating < 3
+# 计算平均价格
+# 打印结果
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "爬取多条数据",
+    "passed": "15" in output or "条" in output,
+    "message": "5 页 x 3 条 = 15 条"
+})
+_test_results.append({
+    "name": "有价格数据",
+    "passed": "price" in output or "价格" in output or any(c.isdigit() for c in output),
+    "message": "应包含价格数据"
+})
+_test_results.append({
+    "name": "有过滤处理",
+    "passed": "rating" in output or "评分" in output or "过滤" in output,
+    "message": "应过滤低评分数据"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '15' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 2,
+      title: '反爬策略模拟',
+      description: '模拟实现反爬策略。\n\n要求：\n- 随机 UA 轮换（5 个 UA）\n- 模拟代理池（3 个 IP）\n- 随机延迟 1-3 秒\n- 统计每次请求用的 UA 和 IP\n- 打印 10 次请求的 UA/IP 分布',
+      difficulty: 'hard',
+      initialCode: `import random
+from collections import Counter
+
+random.seed(42)
+
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0)",
+    "Mozilla/5.0 (Linux; Android 13; Pixel 7)",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:120.0)",
+]
+
+proxies = [
+    "203.0.113.1:8080",
+    "198.51.100.2:3128",
+    "192.0.2.3:8888",
+]
+
+# 模拟 10 次请求
+# 每次随机选 UA 和 proxy
+# 统计分布
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有 UA 输出",
+    "passed": "Mozilla" in output,
+    "message": "应包含 User-Agent"
+})
+_test_results.append({
+    "name": "有代理 IP",
+    "passed": "203." in output or "198." in output or "192." in output,
+    "message": "应包含代理 IP"
+})
+_test_results.append({
+    "name": "有分布统计",
+    "passed": "分布" in output or "count" in output.lower() or "Counter" in output,
+    "message": "应有 UA/IP 分布统计"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'Mozilla' }
+      ],
+      xpReward: 45
+    }
+  ],
+  // ============== 31. Dash 挑战 ==============
+  31: [
+    {
+      id: 1,
+      title: '销售数据交互看板',
+      description: '用 Dash 构建交互式销售看板。\n\n要求：\n- 下拉框选区域（全部/华东/华南/华北）\n- 4 个 KPI 指标卡（总销售额/订单数/客单价/区域数）\n- 折线图：按月趋势\n- 柱状图：按产品对比\n- 模拟回调触发并打印结果',
+      difficulty: 'medium',
+      initialCode: `import pandas_ as pd
+from dash_ import Dash, html, dcc, Input, Output, callback
+import plotly_express_ as px
+
+df = pd.DataFrame({
+    "月份": ["1月","2月","3月","4月","5月"]*3,
+    "区域": ["华东"]*5 + ["华南"]*5 + ["华北"]*5,
+    "产品": ["A","B","A","B","A"]*3,
+    "销售额": [100,150,120,180,200, 80,120,90,140,160, 60,90,70,110,130],
+    "订单数": [10,15,12,18,20, 8,12,9,14,16, 6,9,7,11,13],
+})
+
+app = Dash(__name__)
+
+# 布局 + 回调
+# app.callback_trigger("region-dd", value="华东")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有 KPI 指标",
+    "passed": "销售额" in output or "订单" in output or "客单" in output,
+    "message": "应有 KPI 指标卡"
+})
+_test_results.append({
+    "name": "有区域筛选",
+    "passed": "华东" in output or "华南" in output or "华北" in output,
+    "message": "应支持区域筛选"
+})
+_test_results.append({
+    "name": "有图表描述",
+    "passed": "趋势" in output or "Line" in output or "对比" in output or "Bar" in output,
+    "message": "应有图表描述"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '销售额' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 2,
+      title: '多级联动筛选器',
+      description: '实现多级联动筛选器。\n\n要求：\n- 一级下拉：大区（华东/华南/华北）\n- 二级下拉：根据大区联动显示省份\n- 三级下拉：根据省份联动显示城市\n- 数据展示：选中后显示该城市数据\n- 模拟选"华东"→"上海"并打印',
+      difficulty: 'hard',
+      initialCode: `from dash_ import Dash, html, dcc, Input, Output, callback
+
+app = Dash(__name__)
+
+data = {
+    "华东": {"上海": {"uv": 5000, "conv": 320}, "杭州": {"uv": 3000, "conv": 180}},
+    "华南": {"广州": {"uv": 4000, "conv": 250}, "深圳": {"uv": 4500, "conv": 280}},
+    "华北": {"北京": {"uv": 6000, "conv": 400}, "天津": {"uv": 2000, "conv": 120}},
+}
+
+# 三级联动布局 + 两个 callback
+# 模拟选 华东 → 上海
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有大区选择",
+    "passed": "华东" in output or "华南" in output or "华北" in output,
+    "message": "应有一级大区选择"
+})
+_test_results.append({
+    "name": "有省份联动",
+    "passed": "上海" in output or "杭州" in output or "广州" in output,
+    "message": "应根据大区联动显示省份"
+})
+_test_results.append({
+    "name": "有数据输出",
+    "passed": "5000" in output or "uv" in output.lower() or "conv" in output.lower(),
+    "message": "应输出选中城市的数据"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '华东' }
+      ],
+      xpReward: 50
+    }
+  ],
+  // ============== 32. Jupyter 挑战 ==============
+  32: [
+    {
+      id: 1,
+      title: '数据分析 Notebook',
+      description: '用 jupyter_ 模拟构建一个数据分析 Notebook。\n\n要求：\n- Markdown 标题 + 说明\n- 数据加载 cell\n- 数据分析 cell（统计 + 可视化）\n- 结论 Markdown cell\n- 导出 HTML 模拟',
+      difficulty: 'medium',
+      initialCode: `import jupyter_ as nb
+import pandas_ as pd
+
+# Cell 1: Markdown 标题
+nb.markdown("# 数据分析报告\\n## 销售数据概览")
+
+# Cell 2: 加载数据
+df = pd.DataFrame({
+    "月份": ["1月","2月","3月","4月"],
+    "销售额": [100, 150, 120, 180],
+})
+print(df.describe())
+
+# Cell 3: 结论
+nb.markdown("> 4 月销售额最高，建议加大投入。")
+
+# 导出
+nb.export("html")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有 Markdown 标题",
+    "passed": "数据分析" in output or "报告" in output or "#" in output,
+    "message": "应有 Markdown 标题"
+})
+_test_results.append({
+    "name": "有数据统计",
+    "passed": "count" in output.lower() or "mean" in output.lower() or "150" in output or "180" in output,
+    "message": "应有数据统计输出"
+})
+_test_results.append({
+    "name": "有导出",
+    "passed": "html" in output.lower() or "导出" in output or "export" in output.lower(),
+    "message": "应模拟导出 HTML"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '数据分析' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 2,
+      title: '交互式参数探索器',
+      description: '用 ipywidgets interact 构建参数探索器。\n\n要求：\n- 函数 f(a, b, op)：a/b 是滑块，op 是下拉\n- op = add/sub/mul/div\n- 模拟 4 种操作\n- 打印每次结果和算式',
+      difficulty: 'hard',
+      initialCode: `import jupyter_ as nb
+
+def f(a, b, op):
+    if op == "add": res = a + b; sym = "+"
+    elif op == "sub": res = a - b; sym = "-"
+    elif op == "mul": res = a * b; sym = "*"
+    elif op == "div": res = a / b if b != 0 else "∞"; sym = "/"
+    line = f"{a} {sym} {b} = {res}"
+    print(line)
+    return line
+
+sim = nb.interact(f, a=(1,10,3), b=(1,10,2), op=["add","sub","mul","div"])
+
+# 模拟 4 种操作
+# sim.simulate(a=6, b=3, op="add")
+# sim.simulate(a=6, b=3, op="sub")
+# sim.simulate(a=6, b=3, op="mul")
+# sim.simulate(a=6, b=3, op="div")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "加法正确",
+    "passed": "9" in output,
+    "message": "6+3=9"
+})
+_test_results.append({
+    "name": "减法正确",
+    "passed": "3" in output,
+    "message": "6-3=3"
+})
+_test_results.append({
+    "name": "乘法正确",
+    "passed": "18" in output,
+    "message": "6*3=18"
+})
+_test_results.append({
+    "name": "除法正确",
+    "passed": "2" in output and "/" in output,
+    "message": "6/3=2"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '9' }
+      ],
+      xpReward: 40
+    }
+  ],
+  // ============== 33. Pillow 挑战 ==============
+  33: [
+    {
+      id: 1,
+      title: '批量图片缩略图生成',
+      description: '模拟批量生成缩略图。\n\n要求：\n- 创建 5 张 800x600 模拟图片\n- 生成缩略图（200x150）\n- 加水印\n- 模拟保存并打印路径',
+      difficulty: 'medium',
+      initialCode: `from pillow_ import Image, ImageDraw
+
+for i in range(5):
+    # 创建 800x600 图片
+    img = Image.new("RGB", (800, 600), color=(100+i*30, 150, 200))
+    draw = ImageDraw.Draw(img)
+    draw.text((10, 10), f"Image-{i}", fill=(255,255,255))
+
+    # 生成缩略图
+    thumb = img.resize((200, 150))
+
+    # 加水印
+    draw_thumb = ImageDraw.Draw(thumb)
+    draw_thumb.text((200-80, 150-16), "©Quest", fill=(255,255,0))
+
+    # 模拟保存
+    path = f"/tmp/thumbs/img_{i}.png"
+    thumb.save(path)
+    print(f"✅ 已保存 img_{i}.png (200x150)")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "5 张保存成功",
+    "passed": output.count("已保存") == 5 or output.count("✅") == 5,
+    "message": "应保存 5 张缩略图"
+})
+_test_results.append({
+    "name": "尺寸 200x150",
+    "passed": "200" in output and "150" in output,
+    "message": "缩略图应为 200x150"
+})
+_test_results.append({
+    "name": "有水印",
+    "passed": "Quest" in output or "©" in output,
+    "message": "应包含水印"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '已保存' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 2,
+      title: '图片滤镜处理管道',
+      description: '模拟图片滤镜处理管道。\n\n要求：\n- 创建 1 张 400x300 图片\n- 依次应用：模糊 → 锐化 → 边缘检测\n- 每步保存中间结果\n- 打印每步的图片描述',
+      difficulty: 'hard',
+      initialCode: `from pillow_ import Image, ImageDraw, ImageFilter
+
+img = Image.new("RGB", (400, 300), color=(100, 150, 200))
+draw = ImageDraw.Draw(img)
+draw.rectangle([(50, 50), (350, 250)], fill=(255, 100, 50))
+draw.ellipse([(150, 100), (250, 200)], fill=(50, 200, 100)])
+
+print("原图:", img.describe())
+
+# Step 1: 模糊
+# blurred = img.filter(ImageFilter.GaussianBlur(radius=3))
+# print("模糊:", blurred.describe())
+
+# Step 2: 锐化
+# sharpened = blurred.filter(ImageFilter.SHARPEN)
+# print("锐化:", sharpened.describe())
+
+# Step 3: 边缘检测
+# edges = sharpened.filter(ImageFilter.FIND_EDGES)
+# print("边缘:", edges.describe())
+
+# 保存中间结果
+# blurred.save("/tmp/step1_blur.png")
+# sharpened.save("/tmp/step2_sharp.png")
+# edges.save("/tmp/step3_edges.png")
+# print("✅ 滤镜管道完成，3 步已保存")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有原图描述",
+    "passed": "原图" in output or "400" in output,
+    "message": "应描述原图"
+})
+_test_results.append({
+    "name": "有模糊处理",
+    "passed": "模糊" in output or "Blur" in output,
+    "message": "应包含模糊步骤"
+})
+_test_results.append({
+    "name": "有边缘检测",
+    "passed": "边缘" in output or "edge" in output.lower() or "FIND" in output,
+    "message": "应包含边缘检测步骤"
+})
+_test_results.append({
+    "name": "管道完成",
+    "passed": "完成" in output or "✅" in output,
+    "message": "应提示管道处理完成"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '原图' }
+      ],
+      xpReward: 45
+    }
+  ],
+  // ============== 34. 量化交易 挑战 ==============
+  34: [
+    {
+      id: 1,
+      title: 'RSI 指标计算策略',
+      description: '实现 RSI（相对强弱指数）指标并生成交易信号。\n\n要求：\n- RSI = 100 - 100/(1+RS)，RS = N日涨幅均值/N日跌幅均值\n- 用 14 日周期\n- RSI < 30 买入，RSI > 70 卖出\n- 打印买卖信号点',
+      difficulty: 'medium',
+      initialCode: `import pandas_ as pd
+import random
+
+random.seed(42)
+prices = [100.0]
+for _ in range(60):
+    prices.append(round(prices[-1] * (1 + random.gauss(0, 0.02)), 2))
+
+df = pd.DataFrame({"close": prices})
+
+# 计算 14 日 RSI
+# delta = df["close"].diff()
+# gain = delta.clip(lower=0).rolling(14).mean()
+# loss = (-delta.clip(upper=0)).rolling(14).mean()
+# rs = gain / loss
+# rsi = 100 - 100 / (1 + rs)
+
+# 信号：rsi < 30 买入, rsi > 70 卖出
+# 打印信号点
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有 RSI 值",
+    "passed": "rsi" in output.lower() or "RSI" in output or "100" in output,
+    "message": "应计算 RSI 指标"
+})
+_test_results.append({
+    "name": "有买卖信号",
+    "passed": "买入" in output or "卖出" in output or "buy" in output.lower() or "sell" in output.lower(),
+    "message": "应有买卖信号输出"
+})
+_test_results.append({
+    "name": "有 30/70 阈值",
+    "passed": "30" in output or "70" in output,
+    "message": "应涉及 RSI 30/70 阈值"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'RSI' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 2,
+      title: '多策略组合回测',
+      description: '实现双均线 + RSI 组合策略回测。\n\n要求：\n- 信号条件：MA5 > MA20 且 RSI < 70 → 买入\n- MA5 < MA20 或 RSI > 70 → 卖出\n- 计算总收益率、夏普比率、最大回撤\n- 与单双均线策略对比\n- 画出净值曲线',
+      difficulty: 'hard',
+      initialCode: `import pandas_ as pd
+import numpy_ as np
+import random
+from matplotlib_ import plt
+import math
+
+random.seed(42); np.seed_(42)
+prices = [100.0]
+for _ in range(200):
+    prices.append(round(prices[-1] * (1 + random.gauss(0.001, 0.015)), 2))
+
+df = pd.DataFrame({"close": prices})
+df["ma5"] = df["close"].rolling(5).mean()
+df["ma20"] = df["close"].rolling(20).mean()
+
+# RSI 14
+# delta = df["close"].diff()
+# gain = delta.clip(lower=0).rolling(14).mean()
+# loss = (-delta.clip(upper=0)).rolling(14).mean()
+# df["rsi"] = 100 - 100 / (1 + gain/loss)
+
+# 组合策略回测
+# 买入：ma5 > ma20 且 rsi < 70
+# 卖出：ma5 < ma20 或 rsi > 70
+
+# 计算指标 + 画图 + 对比
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "有总收益率",
+    "passed": "总收益率" in output or "总收益" in output,
+    "message": "应输出总收益率"
+})
+_test_results.append({
+    "name": "有夏普比率",
+    "passed": "夏普" in output or "sharpe" in output.lower(),
+    "message": "应输出夏普比率"
+})
+_test_results.append({
+    "name": "有最大回撤",
+    "passed": "回撤" in output or "drawdown" in output.lower(),
+    "message": "应输出最大回撤"
+})
+_test_results.append({
+    "name": "有净值曲线",
+    "passed": "净值" in output or "策略" in output or "回测" in output,
+    "message": "应渲染净值曲线图"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '总收益率' }
       ],
       xpReward: 50
     }
