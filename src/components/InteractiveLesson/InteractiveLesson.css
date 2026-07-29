@@ -291,6 +291,175 @@
   gap: var(--spacing-md);
 }
 
+/* ===== 答案区域样式 ===== */
+.answer-section {
+  margin-top: var(--spacing-sm);
+}
+
+.answer-toolbar {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-sm);
+}
+
+.btn-answer-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-answer-toggle:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.25));
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #c7d2fe;
+  transform: translateY(-1px);
+}
+
+.btn-copy-answer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-copy-answer:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-light);
+}
+
+.btn-copy-answer:active {
+  transform: scale(0.97);
+}
+
+.answer-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.05));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  animation: answerFadeIn 0.3s ease;
+}
+
+.quiz-explain-box {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 191, 36, 0.05));
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+@keyframes answerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.answer-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px dashed rgba(99, 102, 241, 0.25);
+}
+
+.answer-box-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.answer-code {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md);
+  margin: 0;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  white-space: pre;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.answer-code code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+.answer-explanation {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: var(--radius-sm);
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.answer-explanation .explanation-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.answer-explanation p {
+  margin: 0;
+}
+
+.answer-explanation p + p {
+  margin-top: var(--spacing-sm);
+}
+
+.answer-explanation strong {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.answer-explanation code {
+  background: rgba(99, 102, 241, 0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #c7d2fe;
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+}
+
+.quiz-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 768px) {
   .lesson-content {
     padding: var(--spacing-lg);
@@ -314,12 +483,15 @@
   }
 
   .practice-actions,
-  .result-actions {
+  .result-actions,
+  .quiz-actions {
     flex-direction: column;
   }
 
   .practice-actions .btn,
-  .result-actions .btn {
+  .result-actions .btn,
+  .quiz-actions .btn,
+  .quiz-actions .btn-answer-toggle {
     width: 100%;
   }
 }

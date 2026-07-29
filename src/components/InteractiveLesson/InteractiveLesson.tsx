@@ -10,6 +10,8 @@ interface InteractiveStep {
   code?: string
   testCode?: string
   hint?: string
+  answer?: string
+  explanation?: string
   options?: string[]
   correctAnswer?: number
 }
@@ -27,6 +29,8 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
   const [showResult, setShowResult] = useState(false)
   const [practicePassed, setPracticePassed] = useState(false)
   const [skipped, setSkipped] = useState(false)
+  const [showAnswer, setShowAnswer] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const step = steps[currentStep]
   const progress = ((currentStep + (completedSteps.has(currentStep) ? 1 : 0)) / steps.length) * 100
@@ -43,6 +47,8 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
     setShowResult(false)
     setPracticePassed(false)
     setSkipped(false)
+    setShowAnswer(false)
+    setCopied(false)
   }
 
   const handlePrev = () => {
@@ -52,6 +58,8 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
       setShowResult(false)
       setPracticePassed(false)
       setSkipped(false)
+      setShowAnswer(false)
+      setCopied(false)
     }
   }
 
@@ -82,6 +90,21 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
   const skipStep = () => {
     setSkipped(true)
     markComplete()
+  }
+
+  const handleShowAnswer = () => {
+    setShowAnswer(prev => !prev)
+  }
+
+  const handleCopyAnswer = async () => {
+    if (!step.answer) return
+    try {
+      await navigator.clipboard.writeText(step.answer)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch (err) {
+      console.error('复制失败', err)
+    }
   }
 
   return (
@@ -147,7 +170,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
 
           {step.type === 'practice' && (
             <div className="practice-content">
-              <div 
+              <div
                 className="markdown-content"
                 dangerouslySetInnerHTML={{ __html: formatContent(step.content) }}
               />
@@ -159,7 +182,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
               )}
               {step.code && (
                 <div className="practice-editor">
-                  <CodeEditor 
+                  <CodeEditor
                     initialCode={step.code}
                     height="300px"
                     testCode={step.testCode}
@@ -167,6 +190,47 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                   />
                 </div>
               )}
+
+              {step.answer && (
+                <div className="answer-section">
+                  <div className="answer-toolbar">
+                    <button
+                      type="button"
+                      className="btn-answer-toggle"
+                      onClick={handleShowAnswer}
+                      aria-expanded={showAnswer}
+                    >
+                      {showAnswer ? '🙈 隐藏答案' : '💡 查看答案'}
+                    </button>
+                    {showAnswer && (
+                      <button
+                        type="button"
+                        className="btn-copy-answer"
+                        onClick={handleCopyAnswer}
+                      >
+                        {copied ? '✓ 已复制' : '📋 复制答案'}
+                      </button>
+                    )}
+                  </div>
+                  {showAnswer && (
+                    <div className="answer-box">
+                      <div className="answer-box-header">
+                        <span className="answer-box-title">📝 参考答案</span>
+                      </div>
+                      <pre className="answer-code">
+                        <code>{step.answer}</code>
+                      </pre>
+                      {step.explanation && (
+                        <div className="answer-explanation">
+                          <span className="explanation-icon">🔎</span>
+                          <div dangerouslySetInnerHTML={{ __html: formatContent(step.explanation) }} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="practice-actions">
                 <button className="btn btn-secondary" onClick={handlePrev} disabled={currentStep === 0}>
                   ← 上一步
@@ -176,8 +240,8 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                     跳过此步
                   </button>
                 )}
-                <button 
-                  className="btn btn-primary" 
+                <button
+                  className="btn btn-primary"
                   onClick={() => { markComplete(); handleNext(); }}
                 >
                   {practicePassed || skipped ? (isLastStep ? '完成学习 🎉' : '继续下一步 →') : '跳过练习继续 →'}
@@ -193,7 +257,7 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
 
           {step.type === 'quiz' && (
             <div className="quiz-content">
-              <div 
+              <div
                 className="markdown-content"
                 dangerouslySetInnerHTML={{ __html: formatContent(step.content) }}
               />
@@ -210,13 +274,24 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                 ))}
               </div>
               {!showResult ? (
-                <button 
-                  className="btn btn-primary" 
-                  onClick={checkAnswer}
-                  disabled={selectedAnswer === null}
-                >
-                  提交答案
-                </button>
+                <div className="quiz-actions">
+                  <button
+                    className="btn btn-primary"
+                    onClick={checkAnswer}
+                    disabled={selectedAnswer === null}
+                  >
+                    提交答案
+                  </button>
+                  {step.answer && (
+                    <button
+                      type="button"
+                      className="btn-answer-toggle"
+                      onClick={handleShowAnswer}
+                    >
+                      {showAnswer ? '🙈 隐藏解析' : '💡 查看解析'}
+                    </button>
+                  )}
+                </div>
               ) : (
                 <div className="quiz-result">
                   {selectedAnswer === step.correctAnswer ? (
@@ -228,12 +303,30 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
                       ❌ 回答错误，正确答案是 {String.fromCharCode(65 + (step.correctAnswer || 0))}
                     </div>
                   )}
+                  {(showAnswer || step.explanation) && (
+                    <div className="answer-box quiz-explain-box">
+                      <div className="answer-box-header">
+                        <span className="answer-box-title">🔎 答案解析</span>
+                      </div>
+                      {step.answer && (
+                        <pre className="answer-code">
+                          <code>{step.answer}</code>
+                        </pre>
+                      )}
+                      {step.explanation && (
+                        <div className="answer-explanation">
+                          <span className="explanation-icon">📖</span>
+                          <div dangerouslySetInnerHTML={{ __html: formatContent(step.explanation) }} />
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="result-actions">
                     <button className="btn btn-secondary" onClick={() => { setShowResult(false); setSelectedAnswer(null); }}>
                       重新答题
                     </button>
-                    <button 
-                      className="btn btn-primary" 
+                    <button
+                      className="btn btn-primary"
                       onClick={() => { markComplete(); handleNext(); }}
                     >
                       {isLastStep ? '完成学习 🎉' : '继续下一步 →'}

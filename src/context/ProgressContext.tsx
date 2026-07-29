@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react'
 import { useAuth } from './AuthContext'
-import { isFirebaseEnabled, saveUserProgress, loadUserProgress } from '../config/firebase'
+import { readGist, writeGist } from '../config/github'
 import { achievements as allAchievements, AchievementStats } from '../data/achievements'
 
 interface LessonProgress {
@@ -48,7 +48,7 @@ export interface ActivityEntry {
 interface ProgressContextType {
   progress: UserProgress
   stats: AchievementStats
-  syncStatus: 'idle' | 'loading' | 'synced' | 'error'
+  syncStatus: 'idle' | 'loading' | 'synced' | 'syncing' | 'error'
   isLessonCompleted: (levelId: number, lessonId: number) => boolean
   isChallengeCompleted: (levelId: number, challengeId: number) => boolean
   isLevelUnlocked: (levelId: number) => boolean
@@ -66,10 +66,11 @@ interface ProgressContextType {
   getOverallProgress: () => { completed: number; total: number; percent: number }
   getRecentActivities: (limit?: number) => ActivityEntry[]
   resetProgress: () => void
+  manualSync: () => Promise<void>
 }
 
 const STORAGE_KEY = 'python-quest-progress'
-const STORAGE_VERSION = 'v3-cloud'
+const STORAGE_VERSION = 'v4-gist'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -107,7 +108,7 @@ const defaultProgress: UserProgress = {
 
 function migrateProgress(saved: any): UserProgress {
   if (!saved || typeof saved !== 'object') return { ...defaultProgress }
-  const merged: UserProgress = {
+  return {
     ...defaultProgress,
     ...saved,
     levels: saved.levels ? { ...defaultProgress.levels, ...saved.levels } : { ...defaultProgress.levels },
@@ -122,7 +123,6 @@ function migrateProgress(saved: any): UserProgress {
       : defaultProgress.activityLog,
     studyDays: Array.isArray(saved.studyDays) ? saved.studyDays : defaultProgress.studyDays
   }
-  return merged
 }
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined)
@@ -132,8 +132,8 @@ function makeId() {
 }
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const { user, isLoading: authLoading } = useAuth()
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'synced' | 'error'>('idle')
+  const { auth, isLoading: authLoading } = useAuth()
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'syncing' | 'synced' | 'error'>('idle')
   const [progress, setProgress] = useState<UserProgress>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -148,23 +148,23 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   })
 
   const hasSyncedRef = useRef(false)
+  const pendingSyncRef = useRef<NodeJS.Timeout | null>(null)
 
-  // 云端加载：用户登录后从 Firestore 拉取进度
+  // 登录后从 Gist 加载进度
   useEffect(() => {
     if (authLoading) return
-    if (!user || !isFirebaseEnabled()) {
+    if (!auth || !auth.gistId) {
       setSyncStatus('idle')
       return
     }
     if (hasSyncedRef.current) return
 
     setSyncStatus('loading')
-    loadUserProgress(user.uid)
+    readGist(auth.token, auth.gistId)
       .then(cloud => {
-        if (cloud) {
+        if (cloud && cloud.progress) {
           setProgress(prev => {
-            const merged = migrateProgress(cloud)
-            // 若本地已有更多进度，保留较高者（简单合并）
+            const merged = migrateProgress(cloud.progress)
             const localXP = prev.totalXP
             const cloudXP = merged.totalXP
             if (localXP > cloudXP) {
@@ -179,32 +179,41 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       .catch(err => {
         console.error('加载云端进度失败', err)
         setSyncStatus('error')
+        hasSyncedRef.current = true
       })
-  }, [user, authLoading])
+  }, [auth, authLoading])
 
-  // 登出后重置同步标记
   useEffect(() => {
-    if (!user) {
+    if (!auth) {
       hasSyncedRef.current = false
       setSyncStatus('idle')
     }
-  }, [user])
+  }, [auth])
 
-  // 保存到本地 + 云端
+  // 本地持久化
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
     } catch {}
 
-    if (user && isFirebaseEnabled() && syncStatus === 'synced') {
-      const timeout = setTimeout(() => {
-        saveUserProgress(user.uid, progress).catch(err => {
-          console.error('保存云端进度失败', err)
+    // 登录态 + 已同步过 -> 节流上传 Gist
+    if (auth && auth.gistId && hasSyncedRef.current && syncStatus !== 'loading') {
+      if (pendingSyncRef.current) clearTimeout(pendingSyncRef.current)
+      pendingSyncRef.current = setTimeout(() => {
+        setSyncStatus('syncing')
+        writeGist(auth.token, auth.gistId!, {
+          progress,
+          savedAt: new Date().toISOString(),
+          version: STORAGE_VERSION
         })
-      }, 800)
-      return () => clearTimeout(timeout)
+          .then(() => setSyncStatus('synced'))
+          .catch(err => {
+            console.error('上传 Gist 失败', err)
+            setSyncStatus('error')
+          })
+      }, 1500)
     }
-  }, [progress, user, syncStatus])
+  }, [progress, auth, syncStatus])
 
   const checkAchievements = useCallback((current: UserProgress) => {
     const completedLessons = Object.values(current.levels).reduce(
@@ -472,6 +481,22 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, [])
 
+  const manualSync = useCallback(async () => {
+    if (!auth || !auth.gistId) return
+    setSyncStatus('syncing')
+    try {
+      await writeGist(auth.token, auth.gistId, {
+        progress,
+        savedAt: new Date().toISOString(),
+        version: STORAGE_VERSION
+      })
+      setSyncStatus('synced')
+    } catch (err) {
+      console.error('手动同步失败', err)
+      setSyncStatus('error')
+    }
+  }, [auth, progress])
+
   const stats = useMemo<AchievementStats>(() => {
     const completedLessons = Object.values(progress.levels).reduce(
       (sum, l) => sum + Object.values(l.lessons).filter(x => x.completed).length, 0
@@ -513,7 +538,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       getLevelProgress,
       getOverallProgress,
       getRecentActivities,
-      resetProgress
+      resetProgress,
+      manualSync
     }}>
       {children}
     </ProgressContext.Provider>

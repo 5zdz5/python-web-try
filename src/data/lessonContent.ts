@@ -90,6 +90,21 @@ print("循环结束！")`
 
 完成后点击运行，你的代码应该输出：2, 4, 6, ..., 20`,
       hint: '试试 range(2, 21, 2)，这样每次都会增加 2',
+      answer: `# 打印 1 到 20 之间的所有偶数
+for i in range(2, 21, 2):
+    print(i)`,
+      explanation: `**关键点：range(start, stop, step)**
+- start=2：从 2 开始
+- stop=21：到 20 结束（左闭右开）
+- step=2：每次加 2
+
+**其他解法**：
+- 解法 2：\`for i in range(1, 21): if i % 2 == 0: print(i)\`
+- 解法 3：\`for i in range(20): print(i * 2 + 2)\`（不推荐，难懂）
+
+**易错点**：
+- 写成 \`range(1, 21, 2)\` 会得到 1, 3, 5...（奇数）
+- 写成 \`range(2, 20, 2)\` 少一个 20（左闭右开）`,
       code: `# 请在此处编写代码
 # 打印 1 到 20 之间的所有偶数
 
@@ -164,7 +179,17 @@ print("循环结束")`
         '0, 3, 6, 9',
         '1, 3, 6, 9'
       ],
-      correctAnswer: 1
+      correctAnswer: 1,
+      explanation: `**逐步拆解 range(1, 10, 3)**：
+- start=1：起点是 1
+- stop=10：终点是 10（不包含）
+- step=3：每次加 3
+- 序列：1, 1+3=4, 4+3=7, 7+3=10（10 ≥ 10，停止）
+- 结果：**1, 4, 7**
+
+**注意左闭右开**：
+- \`range(1, 10)\` = 1,2,3,4,5,6,7,8,9（不包含 10）
+- 加步长不影响这个规则`
     },
     {
       id: 7,
@@ -182,6 +207,58 @@ print("循环结束")`
     },
     {
       id: 8,
+      title: '练习：break 与 continue',
+      type: 'practice',
+      content: `**实战练习！** 使用 break 和 continue 完成两个小任务。
+
+**任务 1**：打印 1 到 20 的数字，但**跳过**所有 3 的倍数
+- 用 \`continue\` 跳过 3 的倍数
+
+**任务 2**：从 1 开始累加，当和**超过 100** 时停止循环
+- 用 \`break\` 退出循环
+- 打印最终的累加和
+
+预期输出：
+\`\`\`
+（任务1）1 2 4 5 7 8 10 11 13 14 16 17 19 20
+（任务2）累加和 = 105
+\`\`\``,
+      hint: 'continue 用 if i % 3 == 0: continue；break 用 if total > 100: break',
+      answer: `# 任务 1：跳过 3 的倍数
+print("（任务1）", end="")
+for i in range(1, 21):
+    if i % 3 == 0:
+        continue
+    print(i, end=" ")
+print()
+
+# 任务 2：累加超过 100 停止
+total = 0
+for i in range(1, 1000):
+    total += i
+    if total > 100:
+        break
+print(f"（任务2）累加和 = {total}")`,
+      explanation: `**continue 的工作原理**：
+- 遇到 continue 后，**本次循环剩余的代码不再执行**
+- 直接进入下一轮循环
+- 任务 1 中：i=3 时 continue，所以不 print
+
+**break 的工作原理**：
+- 遇到 break 后，**整个循环立即终止**
+- 任务 2 中：total=105 时 > 100，break 跳出
+
+**调试技巧**：
+- \`if i % 3 == 0\` 判断是否为 3 的倍数
+- 也可以 \`if i in [3, 6, 9, ...]\` 但太麻烦
+- break 写在累加之后，所以 total 已经包含了当前 i
+
+**常见错误**：
+- 把 \`if total > 100: break\` 写在累加之前会漏算
+- 写 \`if total >= 100: break\` 会提前停止（结果不同）`
+    },
+    {
+      id: 9,
       title: '实战：九九乘法表',
       type: 'practice',
       content: `**终极挑战！** 使用嵌套循环打印九九乘法表。
@@ -196,6 +273,25 @@ print("循环结束")`
 - 内层循环变量 j 从 1 到 i
 - 使用 print 的 end 参数控制不换行`,
       hint: '外层 for i in range(1, 10): 内层 for j in range(1, i+1):',
+      answer: `# 九九乘法表
+for i in range(1, 10):
+    for j in range(1, i + 1):
+        print(f"{j}x{i}={j*i}", end="\\t")
+    print()  # 换行`,
+      explanation: `**嵌套循环的执行过程**：
+- 外层 i=1 → 内层 j 跑 1 次：1x1=1
+- 外层 i=2 → 内层 j 跑 1,2：1x2=2  2x2=4
+- 外层 i=3 → 内层 j 跑 1,2,3：1x3=3  2x3=6  3x3=9
+- ... 以此类推
+
+**关键技巧**：
+- \`end="\\t"\` 让数字间用制表符分隔，不换行
+- 内层循环结束后 \`print()\` 用来换行
+- 用 \`f"{j}x{i}={j*i}"\` 格式化更清晰
+
+**易错点**：
+- 内层写成 \`range(1, 10)\` 会变成矩形（每行都一样）
+- 忘记内层 \`print()\` 会全部挤一行`,
       code: `# 打印九九乘法表
 # 外层循环控制行数，内层循环控制列数
 
@@ -314,6 +410,20 @@ Python 中有两种注释：
 我要成为 Python 高手
 \`\`\``,
       hint: '每条信息用一个 print()，注释用 # 开头',
+      answer: `# 自我介绍
+# 作者：你的名字
+print("我叫小明")
+print("我今年 18 岁")
+print("我要成为 Python 高手")`,
+      explanation: `**解题思路**：
+- 用 \`#\` 写注释说明作者信息
+- 每条信息用 \`print()\` 函数输出
+- 字符串必须用引号（单/双引号）包裹
+- print 默认会换行，无需手动加换行符
+
+**易错点**：
+- 忘记加引号会报错 \`NameError\`
+- 中文标点不会报错但建议用英文标点`,
       code: `# 在此写你的自我介绍
 # 例如：print("我叫小明")
 
@@ -380,7 +490,15 @@ print("World")
         'HelloWorld 在同一行，无空格',
         '程序报错'
       ],
-      correctAnswer: 1
+      correctAnswer: 1,
+      explanation: `**解析**：
+- \`end=" "\` 把 print 默认的换行符改成了空格，所以第一行末尾不再换行
+- 第二次 print 紧接着输出 \`World\`
+- 最终输出是 \`Hello World\`（中间有空格）
+
+**拓展知识**：
+- \`end=""\` 可以让两次 print 紧挨着输出
+- \`sep=""\` 可以让多个参数紧挨着输出（不加分隔）`
     },
     {
       id: 7,
@@ -405,6 +523,22 @@ print("World")
 ==================
 \`\`\``,
       hint: '可以用 print("=" * 18) 来生成分隔线',
+      answer: `# 制作个人名片
+print("=" * 18)
+print("\t个人名片")
+print("=" * 18)
+print("姓名：\t小明")
+print("职业：\t学生")
+print("座右铭：\t代码改变世界")
+print("=" * 18)`,
+      explanation: `**解题思路**：
+- 用 \`"=" * 18\` 快速生成长分隔线（字符串乘法）
+- \\t 制表符让"姓名"、"职业"、"座右铭"对齐
+- 每行单独 print 自动换行
+
+**进阶技巧**：
+- 把信息存到变量里，f-string 格式化：\`f"姓名：\\t{name}"\`
+- 这样改名字时只改一处就够了`,
       code: `# 制作你的个人名片
 
 `,
@@ -431,6 +565,84 @@ _test_results.append({
     "name": "有装饰分隔线",
     "passed": has_separator,
     "message": "添加分隔线让名片更美观"
+})
+`
+    },
+    {
+      id: 8,
+      title: '变量与赋值入门',
+      type: 'explanation',
+      content: `**变量**是用来存储数据的"小盒子"。
+
+\`\`\`
+name = "小明"
+\`\`\`
+
+上面的代码把字符串 \`"小明"\` 放进了名为 \`name\` 的盒子里。下次想用 \`"小明"\` 时，直接写 \`name\` 就行。
+
+**为什么用变量？**
+- 避免重复写同样的值
+- 让代码更易读、修改更方便
+- 一次定义，多处使用
+
+**变量命名规则**：
+- 只能包含字母、数字、下划线
+- 不能以数字开头
+- 区分大小写（Name 和 name 是不同的）
+- 见名知意（age 比 a 好）`
+    },
+    {
+      id: 9,
+      title: '实战练习：变量版自我介绍',
+      type: 'practice',
+      content: `**再练一次！** 这次用 **变量** 和 **f-string** 重写自我介绍。
+
+要求：
+- 定义 \`name\`、\`age\`、\`hobby\` 三个变量（自己编内容）
+- 用 f-string 把变量拼接到字符串里
+- 输出至少 2 行包含变量的内容
+
+提示：f-string 是 \`f"...{变量名}..."\``,
+      hint: 'print(f"我是 {name}，今年 {age} 岁，喜欢 {hobby}")',
+      answer: `# 用变量改造的自我介绍
+name = "小明"
+age = 18
+hobby = "编程"
+
+print(f"我是 {name}，今年 {age} 岁，喜欢 {hobby}")
+print(f"欢迎和我一起学习 Python！")`,
+      explanation: `**为什么用 f-string？**
+- 比字符串拼接 (\`+\`) 更直观
+- 比 \`format()\` 更简洁
+- 可以在 \`{}\` 里放任何表达式：\`f"1+1={1+1}"\` → \`1+1=2\`
+
+**三种写法对比**：
+\`\`\`
+# 写法1：+ 拼接（容易出错）
+print("我是" + name + "，今年" + str(age) + "岁")
+
+# 写法2：format
+print("我是{}，今年{}岁".format(name, age))
+
+# 写法3：f-string（推荐）
+print(f"我是{name}，今年{age}岁")
+\`\`\``,
+      code: `# 请用变量和 f-string 写自我介绍
+
+`,
+      testCode: `# 测试变量自我介绍
+output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "输出非空",
+    "passed": len(output.strip()) > 0,
+    "message": "应该有输出内容"
+})
+
+_test_results.append({
+    "name": "包含中文",
+    "passed": any('\\u4e00' <= c <= '\\u9fff' for c in output),
+    "message": "输出应该包含中文"
 })
 `
     }
@@ -570,6 +782,29 @@ BMI 公式：\`体重 / 身高的平方\`
 
 预期输出：\`BMI = 22.86\``,
       hint: 'bmi = weight / (height ** 2)，然后用 f-string 打印',
+      answer: `# 计算 BMI
+weight = 70
+height = 1.75
+
+# 计算 BMI
+bmi = weight / (height ** 2)
+
+# 打印结果
+print(f"BMI = {bmi:.2f}")`,
+      explanation: `**解题步骤**：
+1. 用 \`height ** 2\` 计算身高的平方
+2. \`weight / (height ** 2)\` 得出 BMI
+3. 用 f-string 的 \`{bmi:.2f}\` 保留 2 位小数
+
+**关键点**：
+- 运算符优先级：\`**\` 高于 \`/\`，但加括号更清晰
+- \`{bmi:.2f}\` 里的 \`:\` 后是格式说明符
+- \`.2f\` 表示保留 2 位的浮点数
+
+**拓展**：
+- \`{bmi:.1f}\` 保留 1 位
+- \`{bmi:.0f}\` 保留 0 位（四舍五入）
+- \`{bmi:8.2f}\` 总宽度 8，右对齐`,
       code: `# 计算 BMI
 weight = 70
 height = 1.75
@@ -618,7 +853,19 @@ print(x // y, x % y, x ** y)
         '2 1 10',
         '2.5 1 25'
       ],
-      correctAnswer: 0
+      correctAnswer: 0,
+      explanation: `**逐步计算**：
+- \`x // y\` = 5 \`//\` 2 = **2**（整除，向下取整）
+- \`x % y\` = 5 \`%\` 2 = **1**（取余数）
+- \`x ** y\` = 5 \`**\` 2 = **25**（5 的平方）
+
+**注意**：
+- \`/\` 是普通除法，结果是浮点数：5/2 = 2.5
+- \`//\` 是整除，结果是整数：5//2 = 2（即使能整除，结果也是 int 类型在 Python 3 之前的版本，3 之后 \`/\` 总是返回 float）
+
+**记忆技巧**：
+- 整除\`//\`想象成"切一刀"
+- 取余\`%\`想象成"切完剩下多少"`
     },
     {
       id: 7,
@@ -639,6 +886,33 @@ print(x // y, x % y, x ** y)
 6.28
 \`\`\``,
       hint: '使用 int()、float()、str() 进行类型转换',
+      answer: `# 类型转换练习
+s1 = "15"
+s2 = "27"
+n = 100
+
+# 1. 字符串转整数求和
+result = int(s1) + int(s2)
+print(result)
+
+# 2. 整数转字符串拼接
+print(str(n) + "分")
+
+# 3. 字符串转浮点数计算
+print(float("3.14") * 2)`,
+      explanation: `**关键函数**：
+- \`int(字符串)\` → 整数（如 \`int("15")\` = 15）
+- \`float(字符串)\` → 浮点数（如 \`float("3.14")\` = 3.14）
+- \`str(数字)\` → 字符串（如 \`str(100)\` = "100"）
+
+**为什么需要转换？**
+- 字符串 \`+\` 是拼接：\`"15" + "27"\` = "1527"
+- 数字 \`+\` 是相加：\`15 + 27\` = 42
+- 字符串和数字不能直接 \`+\`，必须先转换
+
+**易错点**：
+- \`int("3.14")\` 会报错（不能把"3.14"直接转成 int）
+- 应该先 \`float("3.14")\` 再 \`int(...)\``,
       code: `# 类型转换练习
 s1 = "15"
 s2 = "27"
@@ -848,6 +1122,28 @@ if not has_id:
 - 1900 → 不是闰年
 - 2000 → 是闰年`,
       hint: '条件：(year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)',
+      answer: `# 闰年判断
+year = 2024
+
+if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
+    print(f"{year} 是闰年")
+else:
+    print(f"{year} 不是闰年")`,
+      explanation: `**闰年规则拆解**：
+- 规则 1：能被 4 整除 **且** 不能被 100 整除（普通闰年）
+- 规则 2：能被 400 整除（世纪闰年）
+- 两个规则用 \`or\` 连接，满足任一即可
+
+**为什么这么设计？**
+- 地球公转一圈实际是 365.2422 天
+- 4 年一闰（多了 0.968 天）能补回大部分
+- 但每 100 年会多补一天，所以 100 年不闰
+- 400 年又必须补回来（少算了 0.22 天）
+
+**测试用例**：
+- 2024：4 整除，100 不整除 → ✅ 是
+- 1900：4 整除，100 也整除 → ❌ 不是
+- 2000：400 整除 → ✅ 是`,
       code: `# 闰年判断
 year = 2024
 
@@ -893,7 +1189,16 @@ else:
         'A B',
         'C'
       ],
-      correctAnswer: 0
+      correctAnswer: 0,
+      explanation: `**关键点：if-elif-else 只执行第一个满足的分支**
+
+- \`x > 3\`（5 > 3）→ **True**，执行 \`print("A")\`
+- 第一个条件满足后，**elif 和 else 都不会再判断**
+- 所以不会输出 B
+
+**陷阱提醒**：
+- 即使后面的 \`elif x > 4\` 也是 True，也不会执行
+- 多个条件互斥时，**条件顺序很重要**：把更严格/更具体的条件放前面`
     },
     {
       id: 8,
@@ -911,6 +1216,40 @@ else:
 
 提示：除法时注意输出可以是浮点数`,
       hint: '用 if op == "+": ... elif op == "-": ... 的结构',
+      answer: `# 简易计算器
+a = 12
+b = 4
+op = "*"
+
+if op == "+":
+    result = a + b
+elif op == "-":
+    result = a - b
+elif op == "*":
+    result = a * b
+elif op == "/":
+    result = a / b
+else:
+    result = "不支持的运算"
+
+if result == "不支持的运算":
+    print("不支持的运算")
+else:
+    print(f"{a} {op} {b} = {result}")`,
+      explanation: `**实现思路**：
+- 用 if-elif-else 链判断运算符
+- 字符串用 \`==\` 比较（不是 \`=\`）
+- 注意除法 \`/\` 在 Python 中返回浮点数
+
+**格式控制技巧**：
+- 用 f-string 拼接结果
+- 把"是否支持"也用变量保存，统一处理
+
+**进阶版（用字典）**：
+\`\`\`
+ops = {"+": lambda x,y: x+y, "-": lambda x,y: x-y}
+result = ops.get(op, lambda x,y: "不支持")(a, b)
+\`\`\``,
       code: `# 简易计算器
 a = 12
 b = 4
@@ -2552,6 +2891,2312 @@ _test_results.append({
 
 祝你在 Python 的道路上越走越远！🚀`
     }
+  ],
+  // ============== 字符串深入 ==============
+  10: [
+    {
+      id: 1,
+      title: '字符串的本质',
+      type: 'explanation',
+      content: `**字符串（str）**是 Python 中最重要的数据类型之一，它在底层是**不可变**的字符序列。
+
+**字符串的三大特点**：
+- 不可变：创建后不能修改任何字符
+- 可迭代：可以用 for 遍历每个字符
+- 支持索引：和列表一样有正/负索引
+
+\`\`\`
+s = "Hello"
+s[0]      # 'H'
+s[-1]     # 'o'
+s[1:4]    # 'ell'
+\`\`\`
+
+**多行字符串**：用三引号 ('三个双引号' 或 '三个单引号') 创建，可跨行。`
+    },
+    {
+      id: 2,
+      title: '字符串常用方法（上）',
+      type: 'example',
+      content: `Python 字符串提供了大量实用方法，下面是常用的几个：
+
+**查找类**：
+- \`str.find(sub)\` - 查找子串位置，找不到返回 -1
+- \`str.index(sub)\` - 同 find，但找不到会报错
+- \`str.count(sub)\` - 统计子串出现次数
+
+**判断类**：
+- \`str.startswith(prefix)\` - 是否以指定前缀开头
+- \`str.endswith(suffix)\` - 是否以指定后缀结尾
+- \`str.isdigit()\` / \`isalpha()\` / \`isspace()\` - 是否为数字/字母/空白
+
+运行下面的代码：`,
+      code: `text = "Hello, Python World!"
+
+# 查找
+print(text.find("Python"))    # 7
+print(text.count("o"))          # 3
+print(text.startswith("Hello")) # True
+print(text.endswith("!"))        # True
+
+# 判断
+print("123".isdigit())   # True
+print("abc".isalpha())   # True
+print("  ".isspace())    # True
+print("abc123".isalnum()) # True（字母+数字）`
+    },
+    {
+      id: 3,
+      title: '字符串常用方法（下）',
+      type: 'example',
+      content: `**修改类**（注意：原字符串不变，返回新字符串）：
+- \`str.replace(old, new)\` - 替换
+- \`str.upper()\` / \`lower()\` - 大小写转换
+- \`str.strip()\` - 去除两端空白（也支持 lstrip/rstrip）
+- \`str.split(sep)\` - 分割为列表
+- \`str.join(iterable)\` - 用字符串连接可迭代对象
+
+试试看：`,
+      code: `text = "  Hello, World!  "
+
+print("|" + text.strip() + "|")           # |Hello, World!|
+print(text.upper())                       # HELLO
+print(text.lower())                       # hello
+print(text.replace("World", "Python"))     # Hello, Python!
+
+# 分割和连接
+words = "apple,banana,orange".split(",")
+print(words)                  # ['apple', 'banana', 'orange']
+print("-".join(words))        # apple-banana-orange`
+    },
+    {
+      id: 4,
+      title: '小练习：字符串处理',
+      type: 'practice',
+      content: `**练习！** 综合运用字符串方法。
+
+要求：
+- 给定字符串 \`s = "  Hello, Python!  "\`
+- 去除两端空白
+- 全部转为大写
+- 用 ", " 分割成列表
+- 打印每一步的结果
+
+预期输出：
+\`\`\`
+原: '|' + s + '|'
+处理: 'Hello, Python!'
+大写: 'HELLO, PYTHON!'
+列表: ['Hello', 'Python!']
+\`\`\``,
+      hint: '按顺序用 strip() → upper() → split(", ")',
+      answer: `s = "  Hello, Python!  "
+
+# 1. 去空白
+cleaned = s.strip()
+print(f"清理: '{cleaned}'")
+
+# 2. 转大写
+upper = cleaned.upper()
+print(f"大写: '{upper}'")
+
+# 3. 分割
+parts = upper.split(", ")
+print(f"列表: {parts}")`,
+      explanation: `**关键点**：
+- \`strip()\` 默认去除空格、\\t、\\n
+- \`upper()\` 返回新字符串，原字符串不变
+- \`split(", ")\` 按 ", " 分割（注意空格）
+- 三步操作可以链式调用：\`s.strip().upper().split(", ")\``,
+      code: `s = "  Hello, Python!  "
+
+# 在此完成字符串处理
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含Hello",
+    "passed": "Hello" in output,
+    "message": "应该包含清理后的 Hello"
+})
+_test_results.append({
+    "name": "包含大写",
+    "passed": "HELLO" in output,
+    "message": "应该包含大写的 HELLO"
+})
+_test_results.append({
+    "name": "包含列表",
+    "passed": "[" in output and "]" in output,
+    "message": "应该有列表形式输出"
+})
+`
+    },
+    {
+      id: 5,
+      title: '字符串格式化',
+      type: 'explanation',
+      content: `**字符串格式化**是把变量插入到字符串中的方法。Python 提供了多种方式：
+
+**1. f-string（Python 3.6+，推荐）**
+\`\`\`
+name = "小明"
+age = 18
+print(f"我是{name}，今年{age}岁")  # 我是小明，今年18岁
+\`\`\`
+
+**2. format() 方法**
+\`\`\`
+print("我是{}，今年{}岁".format(name, age))
+print("我是{0}，今年{1}岁".format(name, age))
+\`\`\`
+
+**3. % 格式化（旧式）**
+\`\`\`
+print("我是%s，今年%d岁" % (name, age))
+\`\`\`
+
+**4. 格式化控制**
+- \`{:.2f}\` - 保留 2 位小数
+- \`{:>10}\` - 右对齐，宽度 10
+- \`{:,}\` - 千分位分隔符
+- \`{:.2%}\` - 百分比格式`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：执行下面代码后输出什么？
+
+\`\`\`
+s = "  hello world  "
+print(s.strip().title())
+\`\`\``,
+      options: [
+        'hello world',
+        'Hello World',
+        '  hello world  ',
+        'HELLO WORLD'
+      ],
+      correctAnswer: 1,
+      explanation: `**逐步执行**：
+- \`s.strip()\` → "hello world"（去两端空白）
+- \`.title()\` → "Hello World"（每个单词首字母大写）
+
+**记忆技巧**：
+- \`title()\` 把每个单词的首字母大写
+- \`capitalize()\` 只把第一个字母大写
+- \`upper()\` 全部大写，\`lower()\` 全部小写`
+    }
+  ],
+  // ============== 模块与包 ==============
+  11: [
+    {
+      id: 1,
+      title: '什么是模块？',
+      type: 'explanation',
+      content: `**模块（module）**就是一个 .py 文件，里面定义了函数、变量、类。
+
+为什么要用模块？
+- **代码组织**：把相关代码放一起
+- **代码复用**：一处定义，多处使用
+- **命名空间**：避免命名冲突
+
+**三种导入方式**：
+
+\`\`\`
+# 1. import 模块
+import math
+print(math.pi)       # 3.14159...
+
+# 2. from 模块 import 名称
+from math import pi, sqrt
+print(pi)             # 3.14159...
+
+# 3. import 模块 as 别名
+import numpy as np
+print(np.array([1, 2, 3]))
+\`\`\`
+
+**import 的本质**：执行模块文件，并把名字存入当前命名空间。`
+    },
+    {
+      id: 2,
+      title: '__name__ 变量',
+      type: 'explanation',
+      content: `**\`__name__\`** 是 Python 的内置变量，表示当前模块的名字。
+
+- 当文件**直接运行**时，\`__name__ = "__main__"\`
+- 当文件**被导入**时，\`__name__\` = 模块名
+
+**经典用法**：
+\`\`\`
+def main():
+    print("主程序")
+
+if __name__ == "__main__":
+    main()
+\`\`\`
+
+这样写的好处：
+- 直接运行：执行 main()
+- 被导入：不会执行 main()，避免副作用`
+    },
+    {
+      id: 3,
+      title: '常用标准库',
+      type: 'example',
+      content: `Python 自带大量标准库，无需安装即可使用：
+
+**sys** - 系统相关
+\`\`\`
+import sys
+print(sys.version)         # Python 版本
+print(sys.platform)        # 操作系统
+\`\`\`
+
+**os** - 操作系统接口
+\`\`\`
+import os
+print(os.getcwd())         # 当前工作目录
+print(os.listdir("."))     # 列出文件
+\`\`\`
+
+**datetime** - 日期时间
+\`\`\`
+from datetime import datetime
+now = datetime.now()
+print(now.year, now.month, now.day)
+\`\`\`
+
+**random** - 随机数
+\`\`\`
+import random
+print(random.randint(1, 10))   # 1-10 随机整数
+print(random.choice(["A", "B", "C"]))
+\`\`\`
+
+运行：`,
+      code: `import sys
+import os
+import random
+from datetime import datetime
+
+# 系统信息
+print("Python:", sys.version.split()[0])
+print("平台:", sys.platform)
+
+# 随机数
+nums = [random.randint(1, 100) for _ in range(5)]
+print("随机数:", nums)
+print("最大:", max(nums), "最小:", min(nums))
+
+# 当前时间
+now = datetime.now()
+print(f"现在是 {now.year}年{now.month}月{now.day}日")`
+    },
+    {
+      id: 4,
+      title: '小练习：自定义模块',
+      type: 'practice',
+      content: `**练习！** 创建一个简单的工具模块。
+
+要求：
+- 定义一个变量 \`PI = 3.14159\`
+- 定义函数 \`circle_area(r)\` 计算圆面积
+- 定义函数 \`circle_circumference(r)\` 计算圆周长
+- 在主程序中导入并使用这些
+
+预期输出：
+\`\`\`
+面积: 78.54
+周长: 31.42
+\`\`\``,
+      hint: '使用 from 模块 import 方式，或者在同一文件模拟模块',
+      answer: `# 在同一文件中模拟"自定义模块"
+PI = 3.14159
+
+def circle_area(r):
+    """计算圆的面积"""
+    return PI * r ** 2
+
+def circle_circumference(r):
+    """计算圆的周长"""
+    return 2 * PI * r
+
+# 模拟 from mymodule import circle_area
+from types import SimpleNamespace
+mymodule = SimpleNamespace(
+    PI=PI,
+    circle_area=circle_area,
+    circle_circumference=circle_circumference
+)
+
+# 使用
+print(f"面积: {mymodule.circle_area(5):.2f}")
+print(f"周长: {mymodule.circle_circumference(5):.2f}")`,
+      explanation: `**真实使用场景**：
+- 假设 \`mymodule.py\` 是保存的模块文件
+- 主程序用 \`from mymodule import circle_area\` 导入
+- 因为 Pyodide 没有文件系统，用 SimpleNamespace 模拟
+
+**模块文件示例（mymodule.py）**：
+\`\`\`
+PI = 3.14159
+
+def circle_area(r):
+    return PI * r ** 2
+\`\`\``,
+      code: `# 模拟创建工具模块
+PI = 3.14159
+
+def circle_area(r):
+    # 在此实现
+    pass
+
+def circle_circumference(r):
+    # 在此实现
+    pass
+
+# 测试
+print(f"面积: {circle_area(5):.2f}")
+print(f"周长: {circle_circumference(5):.2f}")
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含78.5",
+    "passed": "78.5" in output or "78.54" in output,
+    "message": "圆面积应该是 78.54"
+})
+_test_results.append({
+    "name": "包含31.4",
+    "passed": "31.4" in output or "31.42" in output,
+    "message": "圆周长应该是 31.42"
+})
+`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：关于 \`__name__\` 变量，下面哪个说法正确？`,
+      options: [
+        '总是等于 "__main__"',
+        '直接运行时等于模块名',
+        '直接运行时等于 "__main__"，被导入时等于模块名',
+        '等于文件名（不含扩展名）'
+      ],
+      correctAnswer: 2,
+      explanation: `**正确答案**：直接运行时 \`__name__ == "__main__"\`，被导入时等于模块名。
+
+**经典模式**：
+\`\`\`
+if __name__ == "__main__":
+    # 只在直接运行时执行
+    main()
+\`\`\`
+
+这个模式让模块既可以独立运行（测试），也可以被其他文件导入。`
+    }
+  ],
+  // ============== 面向对象基础 ==============
+  12: [
+    {
+      id: 1,
+      title: '什么是面向对象？',
+      type: 'explanation',
+      content: `**面向对象编程（OOP）**是一种组织代码的方式，把数据和操作数据的函数"打包"在一起。
+
+**核心概念**：
+- **类（Class）** - 对象的模板/蓝图
+- **对象（Object）** - 类的实例
+- **属性（Attribute）** - 对象的数据
+- **方法（Method）** - 对象的函数
+
+**为什么要用 OOP？**
+- **封装**：把数据和方法打包，隐藏细节
+- **复用**：类可以反复创建多个对象
+- **可维护**：结构清晰，易于扩展
+
+**类比**：类是"手机设计图"，对象是"生产出的手机"。`
+    },
+    {
+      id: 2,
+      title: '定义第一个类',
+      type: 'example',
+      content: `**\`class\`** 关键字用来定义类。
+
+最简单的类：
+\`\`\`
+class Dog:
+    pass
+\`\`\`
+
+带属性和方法的类：
+\`\`\`
+class Dog:
+    # 构造函数
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    # 方法
+    def bark(self):
+        return f"{self.name} 在汪汪叫"
+    
+    def info(self):
+        return f"{self.name} 今年 {self.age} 岁"
+\`\`\`
+
+**关键点**：
+- \`__init__\` 是构造函数，创建对象时自动调用
+- \`self\` 指向当前对象
+- 访问属性用 \`对象.属性\`
+- 调用方法用 \`对象.方法()\`
+
+试试：`,
+      code: `class Dog:
+    """狗类"""
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    def bark(self):
+        return f"{self.name} 在汪汪叫"
+    
+    def info(self):
+        return f"{self.name} 今年 {self.age} 岁"
+
+# 创建对象
+dog1 = Dog("旺财", 3)
+dog2 = Dog("小黑", 5)
+
+# 访问属性
+print(dog1.name)
+print(dog2.age)
+
+# 调用方法
+print(dog1.bark())
+print(dog2.info())`
+    },
+    {
+      id: 3,
+      title: 'self 的含义',
+      type: 'explanation',
+      content: `**self** 是方法的第一个参数，指向**调用该方法的对象**。
+
+\`\`\`
+class Cat:
+    def __init__(self, name):
+        self.name = name  # self.name 是对象的属性
+    
+    def meow(self):
+        return f"{self.name} 在喵喵叫"
+
+cat = Cat("小花")
+cat.meow()  # 实际调用 Cat.meow(cat)
+\`\`\`
+
+**注意事项**：
+- self 必须作为第一个参数（约定俗成）
+- 调用方法时**不需要**传 self，Python 自动传入
+- self 不是关键字，可以用其他名字，但强烈建议用 self`
+    },
+    {
+      id: 4,
+      title: '小练习：学生类',
+      type: 'practice',
+      content: `**练习！** 定义一个 \`Student\` 类。
+
+要求：
+- 属性：\`name\`（姓名）、\`score\`（成绩）
+- 方法 \`is_pass()\`：成绩 >= 60 返回 True，否则 False
+- 方法 \`grade()\`：返回等级（A: 90+, B: 80+, C: 70+, D: 60+, F: 其他）
+- 创建两个学生并测试
+
+预期输出：
+\`\`\`
+小明 及格: True 等级: B
+小红 及格: False 等级: F
+\`\`\``,
+      hint: '用 if-elif 在 grade() 中判断分数',
+      answer: `class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+    
+    def is_pass(self):
+        return self.score >= 60
+    
+    def grade(self):
+        if self.score >= 90:
+            return "A"
+        elif self.score >= 80:
+            return "B"
+        elif self.score >= 70:
+            return "C"
+        elif self.score >= 60:
+            return "D"
+        else:
+            return "F"
+
+# 测试
+s1 = Student("小明", 85)
+s2 = Student("小红", 45)
+
+print(f"{s1.name} 及格: {s1.is_pass()} 等级: {s1.grade()}")
+print(f"{s2.name} 及格: {s2.is_pass()} 等级: {s2.grade()}")`,
+      explanation: `**关键点**：
+- \`__init__\` 中用 \`self.xxx = xxx\` 创建实例属性
+- 每个方法第一个参数都是 self
+- 调用时 \`对象.方法()\` 不需要传 self
+
+**改进版**：
+- 添加 \`__str__\` 方法可以自定义 print 输出
+- 用 @property 装饰器可以把方法当属性调用`,
+      code: `class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+    
+    def is_pass(self):
+        # 在此实现
+        pass
+    
+    def grade(self):
+        # 在此实现
+        pass
+
+# 测试
+s1 = Student("小明", 85)
+s2 = Student("小红", 45)
+print(f"{s1.name} 及格: {s1.is_pass()} 等级: {s1.grade()}")
+print(f"{s2.name} 及格: {s2.is_pass()} 等级: {s2.grade()}")
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含小明",
+    "passed": "小明" in output,
+    "message": "应该输出学生姓名"
+})
+_test_results.append({
+    "name": "包含B等级",
+    "passed": "B" in output,
+    "message": "85分应该是B等级"
+})
+_test_results.append({
+    "name": "包含F等级",
+    "passed": "F" in output,
+    "message": "45分应该是F等级"
+})
+_test_results.append({
+    "name": "及格判断正确",
+    "passed": "True" in output and "False" in output,
+    "message": "应该同时有 True 和 False"
+})
+`
+    },
+    {
+      id: 5,
+      title: '类属性 vs 实例属性',
+      type: 'explanation',
+      content: `Python 类有两种属性：
+
+**实例属性**：每个对象独有
+\`\`\`
+class Dog:
+    def __init__(self, name):
+        self.name = name  # 实例属性
+
+d1 = Dog("旺财")
+d2 = Dog("小黑")
+print(d1.name)  # 旺财
+print(d2.name)  # 小黑
+\`\`\`
+
+**类属性**：所有对象共享
+\`\`\`
+class Dog:
+    species = "犬科"  # 类属性
+    
+    def __init__(self, name):
+        self.name = name
+
+d1 = Dog("旺财")
+d2 = Dog("小黑")
+print(d1.species)  # 犬科
+print(d2.species)  # 犬科
+\`\`\`
+
+**访问方式**：
+- 实例属性：\`对象.属性\`
+- 类属性：\`类名.属性\` 或 \`对象.属性\``
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：下面代码会输出什么？
+
+\`\`\`
+class Counter:
+    count = 0
+    
+    def __init__(self):
+        Counter.count += 1
+
+a = Counter()
+b = Counter()
+c = Counter()
+print(Counter.count)
+\`\`\``,
+      options: [
+        '0',
+        '1',
+        '2',
+        '3'
+      ],
+      correctAnswer: 3,
+      explanation: `**解析**：
+- 创建第一个对象 \`a\`：count 变为 1
+- 创建第二个对象 \`b\`：count 变为 2
+- 创建第三个对象 \`c\`：count 变为 3
+- \`Counter.count\` 输出 3
+
+**关键点**：
+- 类属性被所有实例共享
+- 修改类属性用 \`类名.属性 = 值\``
+    }
+  ],
+  // ============== 继承与多态 ==============
+  13: [
+    {
+      id: 1,
+      title: '什么是继承？',
+      type: 'explanation',
+      content: `**继承（Inheritance）**是 OOP 的核心特性，让一个新类可以基于现有类创建，自动获得父类的属性和方法。
+
+**为什么要继承？**
+- **代码复用**：不用重写父类的代码
+- **扩展性**：可以在子类中添加新功能
+- **层次结构**：建立类的层次关系
+
+**基本语法**：
+\`\`\`
+class Parent:        # 父类（基类）
+    pass
+
+class Child(Parent): # 子类（派生类）
+    pass
+\`\`\`
+
+**示例**：Dog 继承 Animal
+\`\`\`
+class Animal:
+    def __init__(self, name):
+        self.name = name
+    
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    pass  # 自动继承父类所有方法
+
+d = Dog("旺财")
+print(d.speak())  # ...
+print(d.name)     # 旺财
+\`\`\``
+    },
+    {
+      id: 2,
+      title: '方法重写（Override）',
+      type: 'example',
+      content: `子类可以**重写**父类的方法，提供自己的实现：
+
+\`\`\`
+class Animal:
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):  # 重写父类方法
+        return "汪汪汪"
+
+class Cat(Animal):
+    def speak(self):  # 重写父类方法
+        return "喵喵喵"
+
+d = Dog()
+c = Cat()
+print(d.speak())  # 汪汪汪
+print(c.speak())  # 喵喵喵
+\`\`\`
+
+**super() 函数**：调用父类的方法
+\`\`\`
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)  # 调用父类 __init__
+        self.breed = breed
+\`\`\`
+
+试试：`,
+      code: `class Animal:
+    def __init__(self, name):
+        self.name = name
+    
+    def speak(self):
+        return "..."
+
+    def info(self):
+        return f"我是 {self.name}"
+
+class Dog(Animal):
+    def speak(self):
+        return "汪汪汪"
+
+class Cat(Animal):
+    def speak(self):
+        return "喵喵喵"
+
+animals = [Dog("旺财"), Cat("小花"), Dog("小黑")]
+for a in animals:
+    print(f"{a.name}: {a.speak()}")`
+    },
+    {
+      id: 3,
+      title: '多态',
+      type: 'explanation',
+      content: `**多态（Polymorphism）**：相同的方法调用，不同的对象有不同的行为。
+
+\`\`\`
+def make_speak(animal):
+    print(animal.speak())
+
+make_speak(Dog("旺财"))  # 汪汪汪
+make_speak(Cat("小花"))  # 喵喵喵
+\`\`\`
+
+**多态的好处**：
+- 代码更灵活，添加新类不需要改 make_speak
+- 符合"开放-封闭"原则：对扩展开放，对修改封闭
+
+**Python 的鸭子类型**：
+"如果它走起来像鸭子、叫起来像鸭子，那它就是鸭子"
+- 不需要显式继承，只要对象有 speak() 方法就行
+- 比传统 OOP 更灵活`
+    },
+    {
+      id: 4,
+      title: '小练习：图形继承',
+      type: 'practice',
+      content: `**练习！** 用 OOP 实现图形面积计算。
+
+要求：
+- 父类 \`Shape\`：方法 \`area()\` 返回 0
+- 子类 \`Circle\`：属性 radius，重写 \`area()\` 返回 πr²
+- 子类 \`Rectangle\`：属性 width、height，重写 \`area()\` 返回 w*h
+- 创建一个列表，包含 1 个圆和 1 个矩形，遍历打印面积
+
+预期输出：
+\`\`\`
+圆面积: 78.54
+矩形面积: 24
+\`\`\``,
+      hint: '在 Shape 中定义 area(self) 返回 0，子类用 super().__init__() 或自定义',
+      answer: `import math
+
+class Shape:
+    def __init__(self):
+        pass
+    
+    def area(self):
+        return 0
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    
+    def area(self):
+        return math.pi * self.radius ** 2
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    def area(self):
+        return self.width * self.height
+
+# 测试
+shapes = [Circle(5), Rectangle(4, 6)]
+for s in shapes:
+    name = type(s).__name__
+    print(f"{name}面积: {s.area():.2f}")`,
+      explanation: `**关键点**：
+- 子类用 \`class 子类(父类):\` 继承
+- 重写方法：定义同名方法
+- \`type(s).__name__\` 获取类名
+- 圆面积公式：π × r²
+- 矩面积公式：w × h
+
+**多态体现**：
+- 同一个 \`s.area()\` 调用，根据对象类型返回不同结果`,
+      code: `import math
+
+class Shape:
+    def area(self):
+        return 0
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    # 在此重写 area()
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    # 在此重写 area()
+
+# 测试多态
+shapes = [Circle(5), Rectangle(4, 6)]
+for s in shapes:
+    name = type(s).__name__
+    print(f"{name}面积: {s.area():.2f}")
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含78.5",
+    "passed": "78.5" in output or "78.54" in output,
+    "message": "圆面积应该是 78.54"
+})
+_test_results.append({
+    "name": "包含24",
+    "passed": "24" in output or "24.00" in output,
+    "message": "矩形面积应该是 24"
+})
+`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：调用 \`super().__init__()\` 的作用是什么？`,
+      options: [
+        '创建新的父类对象',
+        '调用父类的构造函数',
+        '删除父类的属性',
+        '返回 self'
+      ],
+      correctAnswer: 1,
+      explanation: `**super()** 函数用于调用父类的方法，常用于：
+- 调用父类的 \`__init__\`
+- 调用父类被重写的方法
+- 确保父类的初始化逻辑被执行
+
+**示例**：
+\`\`\`
+class Parent:
+    def __init__(self):
+        self.x = 10
+
+class Child(Parent):
+    def __init__(self):
+        super().__init__()  # 调用 Parent.__init__
+        self.y = 20
+
+c = Child()
+print(c.x)  # 10
+print(c.y)  # 20
+\`\`\``
+    }
+  ],
+  // ============== 异常处理进阶 ==============
+  14: [
+    {
+      id: 1,
+      title: '异常的传播',
+      type: 'explanation',
+      content: `当异常没有被捕获时，它会**沿着调用栈向上传播**，直到被某个 try-except 捕获或导致程序崩溃。
+
+\`\`\`
+def level3():
+    return 1 / 0  # ZeroDivisionError
+
+def level2():
+    return level3()
+
+def level1():
+    return level2()
+
+# 在 main 中捕获
+try:
+    level1()
+except ZeroDivisionError:
+    print("捕获到除零异常")
+\`\`\`
+
+**异常传播的好处**：
+- 底层只管抛出
+- 上层决定如何处理
+- 让异常处理逻辑更集中`
+    },
+    {
+      id: 2,
+      title: '自定义异常',
+      type: 'example',
+      content: `除了内置异常，还可以**自定义异常类**：
+
+\`\`\`
+class AgeError(Exception):
+    """年龄不合法异常"""
+    pass
+
+def set_age(age):
+    if age < 0 or age > 150:
+        raise AgeError(f"年龄 {age} 不合法")
+    return age
+
+try:
+    set_age(200)
+except AgeError as e:
+    print(f"错误: {e}")
+\`\`\`
+
+**为什么要自定义？**
+- 让错误信息更具体
+- 便于上层针对性处理
+- 让代码更易读
+
+**最佳实践**：继承 \`Exception\` 类
+
+试试：`,
+      code: `class PasswordError(Exception):
+    """密码错误异常"""
+    pass
+
+def login(username, password):
+    if password != "123456":
+        raise PasswordError(f"用户 {username} 密码错误")
+    return f"欢迎 {username}"
+
+# 测试
+try:
+    msg = login("admin", "wrong")
+    print(msg)
+except PasswordError as e:
+    print(f"登录失败: {e}")
+
+# 正常情况
+try:
+    msg = login("admin", "123456")
+    print(msg)
+except PasswordError as e:
+    print(f"登录失败: {e}")`
+    },
+    {
+      id: 3,
+      title: 'with 语句与上下文管理',
+      type: 'explanation',
+      content: `**with 语句**用于资源管理，自动执行清理操作（如关闭文件）。
+
+\`\`\`
+with open("test.txt", "r") as f:
+    content = f.read()
+# 文件自动关闭，即使发生异常
+\`\`\`
+
+**原理**：实现了 \`__enter__\` 和 \`__exit__\` 方法的对象都可以用 with。
+
+\`\`\`
+class MyContext:
+    def __enter__(self):
+        print("进入")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("退出")
+        return False
+
+with MyContext() as ctx:
+    print("使用 ctx")
+# 输出：进入 / 使用 ctx / 退出
+\`\`\``
+    },
+    {
+      id: 4,
+      title: '小练习：自定义异常类',
+      type: 'practice',
+      content: `**练习！** 实现一个简单的银行账户类，包含异常处理。
+
+要求：
+- 类 \`BankAccount\`，属性 balance（初始为 0）
+- 方法 \`deposit(amount)\` 存款（amount > 0）
+- 方法 \`withdraw(amount)\` 取款
+- 自定义异常 \`InsufficientFundsError\`（余额不足时抛出）
+- 连续测试：存款 1000 → 取款 500 → 取款 800（应失败）→ 打印最终余额
+
+预期输出：
+\`\`\`
+存款成功: 1000
+取款成功: 500
+错误: 余额不足
+最终余额: 500
+\`\`\``,
+      hint: '用 raise InsufficientFundsError("...") 抛出异常',
+      answer: `class InsufficientFundsError(Exception):
+    """余额不足异常"""
+    pass
+
+class BankAccount:
+    def __init__(self):
+        self.balance = 0
+    
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError("存款金额必须大于0")
+        self.balance += amount
+        return f"存款成功: {amount}"
+    
+    def withdraw(self, amount):
+        if amount > self.balance:
+            raise InsufficientFundsError("余额不足")
+        self.balance -= amount
+        return f"取款成功: {amount}"
+
+# 测试
+account = BankAccount()
+
+try:
+    print(account.deposit(1000))
+except ValueError as e:
+    print(f"错误: {e}")
+
+try:
+    print(account.withdraw(500))
+except InsufficientFundsError as e:
+    print(f"错误: {e}")
+
+try:
+    print(account.withdraw(800))
+except InsufficientFundsError as e:
+    print(f"错误: {e}")
+
+print(f"最终余额: {account.balance}")`,
+      explanation: `**关键点**：
+- 自定义异常继承 Exception
+- 用 \`raise\` 抛出异常
+- 用 \`except ExceptionType as e:\` 捕获并获取信息
+- 不同异常类型可以分别处理
+
+**改进**：
+- 添加账户所有者属性
+- 添加交易记录功能
+- 用 @property 保护 balance 属性`,
+      code: `class InsufficientFundsError(Exception):
+    pass
+
+class BankAccount:
+    def __init__(self):
+        self.balance = 0
+    
+    def deposit(self, amount):
+        # 在此实现
+        pass
+    
+    def withdraw(self, amount):
+        # 在此实现
+        pass
+
+# 测试
+account = BankAccount()
+try:
+    print(account.deposit(1000))
+except Exception as e:
+    print(f"错误: {e}")
+
+try:
+    print(account.withdraw(500))
+except InsufficientFundsError as e:
+    print(f"错误: {e}")
+
+try:
+    print(account.withdraw(800))
+except InsufficientFundsError as e:
+    print(f"错误: {e}")
+
+print(f"最终余额: {account.balance}")
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含存款成功",
+    "passed": "存款成功" in output and "1000" in output,
+    "message": "应该显示存款成功 1000"
+})
+_test_results.append({
+    "name": "包含余额不足",
+    "passed": "余额不足" in output,
+    "message": "800 元取款应触发余额不足异常"
+})
+_test_results.append({
+    "name": "最终余额500",
+    "passed": "500" in output,
+    "message": "最终余额应该是 500"
+})
+`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：下面代码的输出是？
+
+\`\`\`
+try:
+    print("A")
+    raise ValueError("错误")
+    print("B")
+except ValueError:
+    print("C")
+finally:
+    print("D")
+\`\`\``,
+      options: [
+        'A B C D',
+        'A C D',
+        'A C',
+        'A D'
+      ],
+      correctAnswer: 1,
+      explanation: `**执行流程**：
+1. \`print("A")\` → 输出 A
+2. \`raise ValueError\` → 抛出异常，B 不会执行
+3. \`except\` 捕获 → 输出 C
+4. \`finally\` 无论如何执行 → 输出 D
+
+**关键点**：
+- raise 之后的代码不会执行
+- finally 块在退出 try 时必定执行（即使 return）`
+    }
+  ],
+  // ============== 文件与目录 ==============
+  15: [
+    {
+      id: 1,
+      title: 'os 模块概览',
+      type: 'explanation',
+      content: `**os 模块**提供了访问操作系统功能的接口。
+
+**常用功能**：
+
+**路径相关**：
+- \`os.getcwd()\` - 获取当前工作目录
+- \`os.chdir(path)\` - 切换目录
+- \`os.path.join(a, b)\` - 拼接路径
+
+**目录操作**：
+- \`os.listdir(path)\` - 列出目录内容
+- \`os.mkdir(path)\` - 创建单层目录
+- \`os.makedirs(path)\` - 递归创建多层目录
+- \`os.rmdir(path)\` - 删除空目录
+- \`os.rename(old, new)\` - 重命名
+
+**os.path 模块**：
+- \`os.path.exists(path)\` - 是否存在
+- \`os.path.isfile(path)\` - 是否为文件
+- \`os.path.isdir(path)\` - 是否为目录
+- \`os.path.basename(path)\` - 文件名部分
+- \`os.path.dirname(path)\` - 目录部分
+- \`os.path.splitext(path)\` - 分离扩展名`
+    },
+    {
+      id: 2,
+      title: 'shutil 模块：高级文件操作',
+      type: 'example',
+      content: `**shutil** 模块提供更高级的文件操作：
+
+\`\`\`
+import shutil
+
+# 复制文件
+shutil.copy("src.txt", "dst.txt")      # 复制文件+权限
+shutil.copy2("src.txt", "dst.txt")     # 复制文件+元数据
+shutil.copyfile("src.txt", "dst.txt")  # 只复制内容
+
+# 移动文件/目录
+shutil.move("old.txt", "new.txt")
+
+# 删除目录
+shutil.rmtree("mydir")  # 递归删除整个目录
+
+# 压缩
+shutil.make_archive("name", "zip", "dir")
+\`\`\`
+
+**glob 模块**：用通配符查找文件
+\`\`\`
+import glob
+# 查找所有 .py 文件
+files = glob.glob("*.py")
+# 递归查找
+files = glob.glob("**/*.py", recursive=True)
+\`\`\`
+
+试试：`,
+      code: `import os
+import shutil
+
+# 创建临时目录
+test_dir = "test_python_quest"
+if os.path.exists(test_dir):
+    shutil.rmtree(test_dir)
+os.makedirs(test_dir)
+
+# 创建几个测试文件
+for i in range(3):
+    with open(f"{test_dir}/file_{i}.txt", "w") as f:
+        f.write(f"内容 {i}")
+
+# 列出文件
+files = os.listdir(test_dir)
+print("文件列表:", files)
+
+# 清理
+shutil.rmtree(test_dir)
+print("清理完成")`
+    },
+    {
+      id: 3,
+      title: '遍历目录树',
+      type: 'example',
+      content: `**os.walk()** 可以递归遍历目录树：
+
+\`\`\`
+import os
+
+for root, dirs, files in os.walk("path"):
+    # root: 当前目录路径
+    # dirs: 当前目录下的子目录列表
+    # files: 当前目录下的文件列表
+    for file in files:
+        full_path = os.path.join(root, file)
+        print(full_path)
+\`\`\`
+
+**实际应用：批量重命名**
+
+试试看：`,
+      code: `import os
+
+# 模拟文件树
+sample = {
+    "photos": {
+        "img1.jpg": "",
+        "img2.jpg": "",
+        "sub": {
+            "img3.jpg": ""
+        }
+    }
+}
+
+# 简化的 walk 演示
+def walk_simulate(d, prefix=""):
+    for name, content in d.items():
+        path = prefix + "/" + name if prefix else name
+        if isinstance(content, dict):
+            print(f"[目录] {path}")
+            walk_simulate(content, path)
+        else:
+            print(f"[文件] {path}")
+
+walk_simulate(sample)`
+    },
+    {
+      id: 4,
+      title: '小练习：路径处理工具',
+      type: 'practice',
+      content: `**练习！** 实现一个路径处理工具函数。
+
+要求：
+- 函数 \`file_info(path)\` 返回一个字典：
+  - \`name\`: 文件名（不含目录）
+  - \`ext\`: 扩展名
+  - \`dir\`: 所在目录
+  - \`is_py\`: 是否为 .py 文件
+- 测试以下路径：
+  - "/home/user/project/main.py"
+  - "/var/log/app.log"
+  - "README.md"
+
+预期输出（每行一个文件信息）：
+\`\`\`
+main.py
+.py
+/home/user/project
+True
+...
+\`\`\``,
+      hint: '用 os.path.basename, os.path.splitext, os.path.dirname',
+      answer: `import os
+
+def file_info(path):
+    """返回文件信息字典"""
+    name = os.path.basename(path)
+    dir_ = os.path.dirname(path)
+    # 处理空目录的情况
+    if not dir_:
+        dir_ = "."
+    base, ext = os.path.splitext(path)
+    return {
+        "name": name,
+        "ext": ext,
+        "dir": dir_,
+        "is_py": ext == ".py"
+    }
+
+# 测试
+test_paths = [
+    "/home/user/project/main.py",
+    "/var/log/app.log",
+    "README.md"
+]
+
+for p in test_paths:
+    info = file_info(p)
+    print(f"路径: {p}")
+    print(f"  文件名: {info['name']}")
+    print(f"  扩展名: {info['ext']}")
+    print(f"  目录: {info['dir']}")
+    print(f"  是.py: {info['is_py']}")`,
+      explanation: `**关键函数**：
+- \`os.path.basename(path)\` - 获取文件名
+- \`os.path.dirname(path)\` - 获取目录
+- \`os.path.splitext(path)\` - 分离扩展名（返回元组）
+- 注意：\`splitext\` 不会检查文件是否存在
+
+**边界情况**：
+- 没有目录的路径：dirname 为空字符串
+- 没有扩展名：ext 为空字符串`,
+      code: `import os
+
+def file_info(path):
+    """返回文件信息字典"""
+    # 在此实现
+    pass
+
+# 测试
+for p in ["/home/user/project/main.py", "/var/log/app.log", "README.md"]:
+    info = file_info(p)
+    print(f"路径: {p}")
+    print(f"  文件名: {info['name']}")
+    print(f"  扩展名: {info['ext']}")
+    print(f"  目录: {info['dir']}")
+    print(f"  是.py: {info['is_py']}")
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含main.py",
+    "passed": "main.py" in output,
+    "message": "应该包含 main.py 文件名"
+})
+_test_results.append({
+    "name": "包含.py扩展名",
+    "passed": ".py" in output,
+    "message": "应该识别 .py 扩展名"
+})
+_test_results.append({
+    "name": "包含True",
+    "passed": "True" in output,
+    "message": "main.py 应该是 .py 文件"
+})
+`
+    },
+    {
+      id: 5,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：\`os.path.splitext("/data/file.tar.gz")\` 返回什么？`,
+      options: [
+        '("/data/file.tar", ".gz")',
+        '("/data/file", ".tar.gz")',
+        '("/data/file.tar.gz", "")',
+        '("/data", "/file.tar.gz")'
+      ],
+      correctAnswer: 0,
+      explanation: `**\`splitext\` 从右向左分割第一个 \`.\`**：
+- 输入：\`"/data/file.tar.gz"\`
+- 结果：\`("/data/file.tar", ".gz")\`
+- 不会分割中间的 \`.\`
+
+**如需分割多个扩展名**：
+\`\`\`
+filename.rsplit(".", 1)  # ["file.tar", "gz"]
+\`\`\``
+    }
+  ],
+  // ============== 高级特性 ==============
+  16: [
+    {
+      id: 1,
+      title: '生成器（Generator）',
+      type: 'explanation',
+      content: `**生成器**是特殊的迭代器，用 \`yield\` 关键字定义。
+
+**为什么用生成器？**
+- 节省内存：不会一次性生成所有数据
+- 惰性求值：按需计算
+- 适合处理大数据
+
+**两种创建方式**：
+
+**1. 生成器函数**（用 yield）
+\`\`\`
+def count_up(n):
+    i = 0
+    while i < n:
+        yield i
+        i += 1
+
+for x in count_up(5):
+    print(x)  # 0 1 2 3 4
+\`\`\`
+
+**2. 生成器表达式**（类似列表推导式）
+\`\`\`
+gen = (x**2 for x in range(5))
+# vs 列表推导式
+lst = [x**2 for x in range(5)]
+\`\`\`
+
+**关键区别**：
+- 列表推导式：\`[\`...\`]\` - 立即生成全部
+- 生成器表达式：\`(\`...\`)\` - 按需生成`
+    },
+    {
+      id: 2,
+      title: '装饰器（Decorator）',
+      type: 'explanation',
+      content: `**装饰器**用于在不修改原函数代码的情况下，给函数添加额外功能。
+
+**基本语法**：
+\`\`\`
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("调用前")
+        result = func(*args, **kwargs)
+        print("调用后")
+        return result
+    return wrapper
+
+@my_decorator
+def say_hello(name):
+    print(f"Hello, {name}!")
+
+say_hello("小明")
+# 输出: 调用前 / Hello, 小明! / 调用后
+\`\`\`
+
+**装饰器链**：可以叠加多个装饰器
+\`\`\`
+@decorator1
+@decorator2
+def func():
+    pass
+# 等价于 decorator1(decorator2(func))
+\`\`\`
+
+**常见用途**：
+- 日志记录
+- 性能测试（计时）
+- 权限检查
+- 缓存`
+    },
+    {
+      id: 3,
+      title: '闭包（Closure）',
+      type: 'example',
+      content: `**闭包**是指引用了外部作用域变量的内部函数。
+
+\`\`\`
+def outer(x):
+    def inner(y):
+        return x + y  # 引用了外部 x
+    return inner
+
+add5 = outer(5)
+print(add5(3))  # 8
+print(add5(10)) # 15
+\`\`\`
+
+**闭包的三个条件**：
+1. 有嵌套函数
+2. 内部函数引用了外部变量
+3. 外部函数返回内部函数
+
+**应用**：工厂函数、装饰器底层
+
+试试看：`,
+      code: `def power(n):
+    """返回计算 x^n 的函数"""
+    def calc(x):
+        return x ** n
+    return calc
+
+# 创建不同的幂函数
+square = power(2)
+cube = power(3)
+
+print(square(5))  # 25
+print(cube(2))    # 8
+print(power(4)(2)) # 16 (2的4次方)`
+    },
+    {
+      id: 4,
+      title: 'Lambda 表达式',
+      type: 'explanation',
+      content: `**Lambda** 是创建小型匿名函数的方式。
+
+\`\`\`
+# 普通函数
+def add(a, b):
+    return a + b
+
+# 等价 Lambda
+add = lambda a, b: a + b
+\`\`\`
+
+**语法**：\`lambda 参数: 表达式\`
+
+**常用于高阶函数**：
+
+\`\`\`
+# map: 对每个元素应用函数
+nums = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x**2, nums))
+
+# filter: 过滤元素
+evens = list(filter(lambda x: x % 2 == 0, nums))
+
+# sorted: 自定义排序
+students = [("小明", 85), ("小红", 92), ("小刚", 78)]
+by_score = sorted(students, key=lambda s: s[1], reverse=True)
+\`\`\`
+
+**注意**：
+- Lambda 只能写单个表达式
+- 复杂的逻辑应该用 def 定义函数`
+    },
+    {
+      id: 5,
+      title: '小练习：装饰器与生成器',
+      type: 'practice',
+      content: `**练习！** 实现一个计时装饰器，并应用到函数上。
+
+要求：
+- 装饰器 \`timer\`，打印函数执行耗时（毫秒）
+- 被装饰函数 \`slow_func(n)\`：循环 n 次做空操作
+- 测试 \`slow_func(1000000)\`
+
+预期输出：
+\`\`\`
+执行耗时: X 毫秒
+\`\`\`
+
+提示：使用 \`time.time()\` 获取时间戳`,
+      hint: '用 time.time() 在函数前后取时间差',
+      answer: `import time
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        elapsed = (end - start) * 1000
+        print(f"执行耗时: {elapsed:.2f} 毫秒")
+        return result
+    return wrapper
+
+@timer
+def slow_func(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+# 测试
+result = slow_func(1000000)
+print(f"结果: {result}")`,
+      explanation: `**关键点**：
+- \`time.time()\` 返回当前时间戳（秒，浮点）
+- 装饰器返回 wrapper 函数
+- \`*args, **kwargs\` 让装饰器适配任何函数
+- 毫秒 = 秒 × 1000
+
+**functools.wraps**：
+- 用 \`@functools.wraps(func)\` 保留原函数的元信息
+- 避免调试时混淆`,
+      code: `import time
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        # 在此实现计时逻辑
+        pass
+    return wrapper
+
+@timer
+def slow_func(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+# 测试
+slow_func(1000000)
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含耗时",
+    "passed": "耗时" in output or "毫秒" in output,
+    "message": "应该输出耗时信息"
+})
+`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：下面代码会输出什么？
+
+\`\`\`
+def gen():
+    yield 1
+    yield 2
+    yield 3
+
+g = gen()
+print(next(g))
+print(next(g))
+\`\`\``,
+      options: [
+        '1 2 3',
+        '1 2',
+        '2 3',
+        '报错'
+      ],
+      correctAnswer: 1,
+      explanation: `**解析**：
+- 创建生成器 \`g\`
+- 第一次 \`next(g)\` → 输出 1（执行到第一个 yield）
+- 第二次 \`next(g)\` → 输出 2（执行到第二个 yield）
+- 不调用第三次，所以 3 不会输出
+
+**生成器特点**：
+- 每次 \`next()\` 推进到下一个 yield
+- 状态会被保留
+- 用 \`for\` 循环会自动处理`
+    }
+  ],
+  // ============== 常用标准库 ==============
+  17: [
+    {
+      id: 1,
+      title: 'datetime：日期时间',
+      type: 'explanation',
+      content: `**datetime** 模块处理日期和时间：
+
+\`\`\`
+from datetime import datetime, date, time, timedelta
+
+# 当前时间
+now = datetime.now()
+print(now)  # 2025-01-01 12:00:00.000000
+
+# 创建指定时间
+d = datetime(2025, 12, 25, 10, 30, 0)
+
+# 格式化
+print(now.strftime("%Y-%m-%d %H:%M:%S"))
+print(now.strftime("%Y年%m月%d日"))
+
+# 解析字符串
+dt = datetime.strptime("2025-12-25", "%Y-%m-%d")
+
+# 时间差
+delta = timedelta(days=7)
+next_week = now + delta
+print(f"一周后: {next_week}")
+\`\`\`
+
+**常用格式化符号**：
+- \`%Y\` - 4位年、\`%m\` - 月、\`%d\` - 日
+- \`%H\` - 24小时、\`%M\` - 分钟、\`%S\` - 秒
+- \`%A\` - 星期名`
+    },
+    {
+      id: 2,
+      title: 're 模块：正则表达式',
+      type: 'example',
+      content: `**正则表达式**是用来匹配字符串的强大工具。
+
+**常用方法**：
+- \`re.match(pattern, str)\` - 从开头匹配
+- \`re.search(pattern, str)\` - 搜索第一个匹配
+- \`re.findall(pattern, str)\` - 找出所有匹配
+- \`re.sub(pattern, repl, str)\` - 替换
+
+**常用模式**：
+- \`\\d\` - 数字、\`\\w\` - 字母数字下划线、\`\\s\` - 空白
+- \`.\` - 任意字符、\`^\` - 开头、\`$\` - 结尾
+- \`*\` - 0+次、\`+\` - 1+次、\`?\` - 0或1次
+- \`{n}\` - n次、\`{n,m}\` - n到m次
+- \`[abc]\` - 字符集、\`[a-z]\` - 范围
+
+试试：`,
+      code: `import re
+
+text = "联系我: 138-0013-8000 或 email@example.com"
+
+# 查找电话号码
+phones = re.findall(r"\\d{3}-\\d{4}-\\d{4}", text)
+print("电话:", phones)
+
+# 查找邮箱
+emails = re.findall(r"[\\w.]+@[\\w.]+", text)
+print("邮箱:", emails)
+
+# 替换
+hidden = re.sub(r"\\d", "*", "我的密码: 123456")
+print("隐藏:", hidden)
+
+# 验证
+if re.match(r"^1[3-9]\\d{9}$", "13800138000"):
+    print("手机号格式正确")`
+    },
+    {
+      id: 3,
+      title: 'json 模块：JSON 处理',
+      type: 'example',
+      content: `**json** 模块处理 JSON 数据（API、配置文件常用）。
+
+\`\`\`
+import json
+
+# Python 对象 → JSON 字符串
+data = {"name": "小明", "age": 18, "scores": [85, 92, 78]}
+json_str = json.dumps(data, ensure_ascii=False, indent=2)
+
+# JSON 字符串 → Python 对象
+parsed = json.loads(json_str)
+
+# 读写文件
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+with open("data.json", "r", encoding="utf-8") as f:
+    loaded = json.load(f)
+\`\`\`
+
+**Python ↔ JSON 类型对应**：
+| Python | JSON |
+|--------|------|
+| dict | object {\`{}\`} |
+| list | array [\`[]\`] |
+| str | string |
+| int/float | number |
+| True/False | true/false |
+| None | null |
+
+试试：`,
+      code: `import json
+
+# 创建数据
+student = {
+    "name": "小明",
+    "age": 18,
+    "scores": {"math": 95, "english": 88},
+    "hobbies": ["编程", "阅读", "运动"]
+}
+
+# 序列化为 JSON
+json_str = json.dumps(student, ensure_ascii=False, indent=2)
+print("JSON 字符串:")
+print(json_str)
+
+# 反序列化
+restored = json.loads(json_str)
+print(f"\\n姓名: {restored['name']}")
+print(f"数学成绩: {restored['scores']['math']}")
+print(f"爱好数: {len(restored['hobbies'])}")`
+    },
+    {
+      id: 4,
+      title: 'collections：特殊容器',
+      type: 'explanation',
+      content: `**collections** 模块提供高级容器：
+
+**Counter** - 计数器
+\`\`\`
+from collections import Counter
+c = Counter("abracadabra")
+print(c)  # Counter({'a': 5, 'b': 2, 'r': 2, 'c': 1, 'd': 1})
+print(c.most_common(2))  # [('a', 5), ('b', 2)]
+\`\`\`
+
+**defaultdict** - 带默认值的字典
+\`\`\`
+from collections import defaultdict
+dd = defaultdict(list)
+dd["fruits"].append("苹果")
+print(dd)  # {'fruits': ['苹果']}
+\`\`\`
+
+**OrderedDict** - 保持插入顺序的字典
+**deque** - 双端队列（高效的头尾操作）
+\`\`\`
+from collections import deque
+d = deque([1, 2, 3])
+d.appendleft(0)  # 在头部添加
+d.append(4)      # 在尾部添加
+print(d)  # deque([0, 1, 2, 3, 4])
+\`\`\`
+
+**namedtuple** - 命名字段元组
+\`\`\`
+from collections import namedtuple
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 4)
+print(p.x, p.y)  # 3 4
+\`\`\``
+    },
+    {
+      id: 5,
+      title: '小练习：词频统计',
+      type: 'practice',
+      content: `**练习！** 用 \`collections.Counter\` 统计词频。
+
+要求：
+- 给定文本："the quick brown fox jumps over the lazy dog the"
+- 找出出现次数最多的 3 个单词
+- 统计 "the" 出现的次数
+
+预期输出：
+\`\`\`
+词频: [('the', 3), ('quick', 1), ('brown', 1)]
+'the' 出现 3 次
+\`\`\``,
+      hint: '用 Counter(words).most_common(3)',
+      answer: `from collections import Counter
+
+text = "the quick brown fox jumps over the lazy dog the"
+words = text.split()
+
+counter = Counter(words)
+print("词频:", counter.most_common(3))
+print(f"'the' 出现 {counter['the']} 次")`,
+      explanation: `**Counter 的强大功能**：
+- \`Counter(iterable)\` 直接统计
+- \`most_common(n)\` 返回前 n 个
+- 支持字典的所有操作
+- 支持加减运算：\`c1 + c2\`
+
+**应用场景**：
+- 词频统计
+- 投票计数
+- 找出多数元素
+- 任意需要"统计"的场景`,
+      code: `from collections import Counter
+
+text = "the quick brown fox jumps over the lazy dog the"
+
+# 在此实现词频统计
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含the",
+    "passed": "the" in output,
+    "message": "应该包含 the"
+})
+_test_results.append({
+    "name": "包含3次",
+    "passed": "3" in output,
+    "message": "the 应该出现 3 次"
+})
+_test_results.append({
+    "name": "包含词频",
+    "passed": "词频" in output or "出现" in output or "Common" in output or "most" in output.lower(),
+    "message": "应该输出词频统计结果"
+})
+`
+    },
+    {
+      id: 6,
+      title: '小测验',
+      type: 'quiz',
+      content: `**问题**：用正则 \`r"\\d+"\` 匹配 "abc 123 def 456" 会得到什么？`,
+      options: [
+        '["123 456"]',
+        '["123", "456"]',
+        '["1", "2", "3", "4", "5", "6"]',
+        '"123 456"'
+      ],
+      correctAnswer: 1,
+      explanation: `**解析**：
+- \`\\d+\` 匹配**一个或多个数字**
+- \`findall\` 找出所有匹配
+- 结果：\`["123", "456"]\`（每个数字块作为一个匹配）
+
+**相关**：
+- \`\\d\` - 单个数字
+- \`\\d+\` - 一个或多个（贪婪）
+- \`\\d*\` - 0 个或多个
+- \`\\d?\` - 0 个或 1 个`
+    }
+  ],
+  // ============== 综合实战 ==============
+  18: [
+    {
+      id: 1,
+      title: 'Python 大师之路',
+      type: 'explanation',
+      content: `🎉 **恭喜到达最终关！** 你已经走完了 Python 学习的完整旅程。
+
+**完整知识体系回顾**：
+1. ✅ 基础语法 - print、注释、变量、运算符
+2. ✅ 数据结构 - 列表、元组、字典、集合
+3. ✅ 控制流 - 条件判断、循环
+4. ✅ 函数 - 定义、参数、Lambda、装饰器
+5. ✅ OOP - 类、对象、继承、多态
+6. ✅ 文件 - 读写、with、os、shutil
+7. ✅ 异常 - try-except、自定义异常
+8. ✅ 高级 - 生成器、闭包、Lambda
+9. ✅ 标准库 - datetime、re、json、collections
+10. ✅ 项目 - 综合运用
+
+**下一步建议**：
+- 📦 学习 pip 和 venv（包管理与虚拟环境）
+- 🌐 Web 开发（Flask、Django、FastAPI）
+- 📊 数据分析（NumPy、Pandas、Matplotlib）
+- 🤖 AI/ML（Scikit-learn、PyTorch）
+- 🕷️ 爬虫（requests、BeautifulSoup、Scrapy）`
+    },
+    {
+      id: 2,
+      title: '实战：单词统计工具',
+      type: 'example',
+      content: `让我们做一个简单的**文本分析工具**，综合运用前面学到的知识：
+
+**功能**：
+1. 统计文本中的单词数
+2. 找出出现频率最高的 5 个单词
+3. 统计句子数（按 . ! ? 分隔）
+4. 找出最长的单词
+
+\`\`\`
+输入: "Python is great. Python is dynamic. I love Python!"
+输出: 单词数: 9, 句子数: 3, 高频词: [('python', 3), ...]
+\`\`\`
+
+运行下面的实现：`,
+      code: `import re
+from collections import Counter
+
+text = """
+Python is a great programming language.
+Python is easy to learn.
+Python is powerful and Python is fun.
+I love Python programming.
+"""
+
+# 1. 清理文本：转小写，去标点
+cleaned = re.sub(r"[^a-zA-Z\\s]", "", text.lower())
+words = cleaned.split()
+
+# 2. 统计
+word_count = len(words)
+counter = Counter(words)
+top5 = counter.most_common(5)
+
+# 3. 句子数
+sentences = re.split(r"[.!?]+", text)
+sentences = [s for s in sentences if s.strip()]
+sentence_count = len(sentences)
+
+# 4. 最长单词
+longest = max(words, key=len) if words else ""
+
+print(f"单词数: {word_count}")
+print(f"句子数: {sentence_count}")
+print(f"高频词 TOP 5: {top5}")
+print(f"最长单词: '{longest}' (长度: {len(longest)})")`
+    },
+    {
+      id: 3,
+      title: '实战：简易计算器（OOP版）',
+      type: 'example',
+      content: `用面向对象的方式重写计算器，更专业：
+
+\`\`\`
+class Calculator:
+    def add(self, a, b): ...
+    def subtract(self, a, b): ...
+    def multiply(self, a, b): ...
+    def divide(self, a, b): ...
+    def calculate(self, a, op, b): ...
+\`\`\`
+
+试试：`,
+      code: `class Calculator:
+    """支持 +、-、*、/ 的计算器"""
+    
+    def add(self, a, b):
+        return a + b
+    
+    def subtract(self, a, b):
+        return a - b
+    
+    def multiply(self, a, b):
+        return a * b
+    
+    def divide(self, a, b):
+        if b == 0:
+            raise ValueError("不能除以零")
+        return a / b
+    
+    def calculate(self, a, op, b):
+        ops = {
+            "+": self.add,
+            "-": self.subtract,
+            "*": self.multiply,
+            "/": self.divide
+        }
+        if op not in ops:
+            raise ValueError(f"不支持的运算符: {op}")
+        return ops[op](a, b)
+
+# 使用
+calc = Calculator()
+print(calc.calculate(10, "+", 5))
+print(calc.calculate(10, "*", 4))
+print(calc.calculate(2, "**", 10) if False else "暂不支持 **")`
+    },
+    {
+      id: 4,
+      title: '实战：学生管理系统',
+      type: 'practice',
+      content: `**综合实战！** 用 OOP + 异常处理 + JSON 实现一个学生管理系统。
+
+要求：
+- 类 \`Student\`：name, age, scores（字典：科目→分数）
+- 类 \`StudentManager\`：管理学生列表
+  - \`add_student(student)\`
+  - \`find_student(name)\` - 找不到抛 StudentNotFoundError
+  - \`get_average(name)\` - 返回学生平均分
+  - \`save_to_file(filename)\` - 序列化为 JSON
+  - \`load_from_file(filename)\` - 从 JSON 加载
+- 自定义异常 \`StudentNotFoundError\`
+- 测试：创建 2 个学生 → 保存 → 重新加载 → 打印信息
+
+预期输出包含：
+\`\`\`
+加载成功，共 2 名学生
+小明 平均分: 88.5
+\`\`\``,
+      hint: '用 json.dumps/loads 序列化，注意处理异常',
+      answer: `import json
+
+class StudentNotFoundError(Exception):
+    pass
+
+class Student:
+    def __init__(self, name, age, scores):
+        self.name = name
+        self.age = age
+        self.scores = scores  # dict: 科目→分数
+    
+    def average(self):
+        if not self.scores:
+            return 0
+        return sum(self.scores.values()) / len(self.scores)
+    
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "age": self.age,
+            "scores": self.scores
+        }
+    
+    @staticmethod
+    def from_dict(d):
+        return Student(d["name"], d["age"], d["scores"])
+
+class StudentManager:
+    def __init__(self):
+        self.students = []
+    
+    def add_student(self, student):
+        self.students.append(student)
+    
+    def find_student(self, name):
+        for s in self.students:
+            if s.name == name:
+                return s
+        raise StudentNotFoundError(f"未找到学生: {name}")
+    
+    def get_average(self, name):
+        s = self.find_student(name)
+        return s.average()
+    
+    def save_to_file(self, filename):
+        data = [s.to_dict() for s in self.students]
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    def load_from_file(self, filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        self.students = [Student.from_dict(d) for d in data]
+        return len(self.students)
+
+# 使用
+mgr = StudentManager()
+mgr.add_student(Student("小明", 18, {"math": 95, "english": 82}))
+mgr.add_student(Student("小红", 19, {"math": 88, "english": 91}))
+
+# 保存到文件
+mgr.save_to_file("students.json")
+
+# 重新加载
+new_mgr = StudentManager()
+count = new_mgr.load_from_file("students.json")
+print(f"加载成功，共 {count} 名学生")
+print(f"小明 平均分: {new_mgr.get_average('小明')}")`,
+      explanation: `**这个例子综合运用了**：
+- **类与对象**：Student、StudentManager
+- **OOP 进阶**：静态方法、实例方法
+- **自定义异常**：StudentNotFoundError
+- **JSON 序列化**：to_dict / from_dict
+- **文件操作**：with open
+- **列表推导式**：\`[s.to_dict() for s in self.students]\`
+- **错误处理**：异常向上传播
+
+**可扩展方向**：
+- 添加删除、修改功能
+- 改成 SQLite 数据库存储
+- 添加 CLI / Web 界面`,
+      code: `import json
+
+class StudentNotFoundError(Exception):
+    pass
+
+class Student:
+    def __init__(self, name, age, scores):
+        self.name = name
+        self.age = age
+        self.scores = scores
+    
+    def average(self):
+        if not self.scores:
+            return 0
+        return sum(self.scores.values()) / len(self.scores)
+
+class StudentManager:
+    def __init__(self):
+        self.students = []
+    
+    def add_student(self, student):
+        self.students.append(student)
+    
+    def find_student(self, name):
+        # 在此实现
+        pass
+    
+    def get_average(self, name):
+        # 在此实现
+        pass
+    
+    def save_to_file(self, filename):
+        # 在此实现
+        pass
+    
+    def load_from_file(self, filename):
+        # 在此实现
+        pass
+
+# 测试
+mgr = StudentManager()
+mgr.add_student(Student("小明", 18, {"math": 95, "english": 82}))
+mgr.add_student(Student("小红", 19, {"math": 88, "english": 91}))
+
+mgr.save_to_file("students.json")
+
+new_mgr = StudentManager()
+count = new_mgr.load_from_file("students.json")
+print(f"加载成功，共 {count} 名学生")
+print(f"小明 平均分: {new_mgr.get_average('小明'):.1f}")
+
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "加载成功",
+    "passed": "加载成功" in output or "2 名学生" in output or "2名学生" in output,
+    "message": "应该提示加载成功 2 名学生"
+})
+_test_results.append({
+    "name": "平均分88",
+    "passed": "88" in output,
+    "message": "小明的平均分应该是 88.5"
+})
+`
+    },
+    {
+      id: 5,
+      title: '毕业总结',
+      type: 'explanation',
+      content: `🎓 **恭喜毕业！** 你已经是一名 Python 程序员了！
+
+**你掌握的技能**：
+- ✅ 完整的 Python 基础语法
+- ✅ 数据结构与算法思维
+- ✅ 函数式与面向对象编程
+- ✅ 异常处理与代码健壮性
+- ✅ 文件与系统操作
+- ✅ 正则表达式与文本处理
+- ✅ JSON 数据处理
+- ✅ 模块化与代码组织
+
+**继续保持进步的秘诀**：
+1. **多写代码** - 每天至少 30 分钟
+2. **读优秀代码** - GitHub 上的开源项目
+3. **做项目** - 用 Python 解决实际问题
+4. **加入社区** - Python 中文社区、Stack Overflow
+5. **学习新库** - 跟上生态发展
+
+**Python 的精髓**：
+\`\`\`
+import this
+\`\`\`
+运行上面这行代码，看看 Python 之禅！
+
+**祝你在编程的道路上越走越远！** 🚀
+
+— Python Quest 全体导师敬上`
+    }
   ]
 }
 
@@ -3678,6 +6323,1525 @@ _test_results.append({
         { name: '幂运算', input: '2,**,10', expected: '1024' }
       ],
       xpReward: 40
+    }
+  ],
+  // ============== 字符串深入 挑战 ==============
+  10: [
+    {
+      id: 1,
+      title: '回文判断',
+      description: '判断一个字符串是否为回文（正反读都一样）。\n\n要求：\n- 函数 is_palindrome(s) 返回 True 或 False\n- 忽略大小写和空格\n- 测试 "A man a plan a canal Panama" → True\n- 测试 "hello" → False',
+      difficulty: 'easy',
+      initialCode: `def is_palindrome(s):
+    # 在此实现
+    pass
+
+print(is_palindrome("A man a plan a canal Panama"))
+print(is_palindrome("hello"))
+print(is_palindrome("racecar"))
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含True",
+    "passed": "True" in output,
+    "message": "回文应该返回 True"
+})
+_test_results.append({
+    "name": "包含False",
+    "passed": "False" in output,
+    "message": "hello 不是回文"
+})
+_test_results.append({
+    "name": "同时出现",
+    "passed": output.count("True") >= 2 and "False" in output,
+    "message": "应该有多个 True 和 False"
+})
+`,
+      testCases: [
+        { name: '基础回文', input: 'A man a plan a canal Panama', expected: 'True' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '统计字符频率',
+      description: '统计字符串中每个字符出现的次数。\n\n要求：\n- 函数 char_frequency(s) 返回字典\n- 统计 "hello world" 中每个字符',
+      difficulty: 'easy',
+      initialCode: `def char_frequency(s):
+    # 在此实现
+    pass
+
+result = char_frequency("hello world")
+print(result)
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含字典",
+    "passed": "{" in output and "}" in output,
+    "message": "应该返回字典"
+})
+_test_results.append({
+    "name": "l出现3次",
+    "passed": "3" in output,
+    "message": "l 出现 3 次"
+})
+`,
+      testCases: [
+        { name: 'hello world', input: '无', expected: "l: 3" }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 3,
+      title: '字符串模板',
+      description: '实现简单的字符串模板替换。\n\n要求：\n- 函数 render(template, data)\n- 将 template 中的 {key} 替换为 data[key]\n- 例如 render("Hi, {name}!", {"name": "小明"}) → "Hi, 小明!"',
+      difficulty: 'medium',
+      initialCode: `def render(template, data):
+    # 在此实现
+    pass
+
+print(render("Hi, {name}! You are {age} years old.", {"name": "小明", "age": 18}))
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含小明",
+    "passed": "小明" in output,
+    "message": "应该替换 {name} 为小明"
+})
+_test_results.append({
+    "name": "包含18",
+    "passed": "18" in output,
+    "message": "应该替换 {age} 为 18"
+})
+_test_results.append({
+    "name": "无大括号",
+    "passed": "{" not in output and "}" not in output,
+    "message": "模板标记应被替换"
+})
+`,
+      testCases: [
+        { name: '基础模板', input: '无', expected: 'Hi, 小明!' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 4,
+      title: '凯撒密码加密',
+      description: '实现简单的凯撒密码加密。\n\n要求：\n- 函数 caesar_cipher(text, shift)\n- 将每个字母按 shift 偏移（保留大小写）\n- 测试 "Hello, World!" shift=3 → "Khoor, Zruog!"',
+      difficulty: 'hard',
+      initialCode: `def caesar_cipher(text, shift):
+    # 在此实现
+    pass
+
+print(caesar_cipher("Hello, World!", 3))
+print(caesar_cipher("Python", 1))
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含Khoor",
+    "passed": "Khoor" in output,
+    "message": "Hello 加密 3 位应该是 Khoor"
+})
+_test_results.append({
+    "name": "包含Zruog",
+    "passed": "Zruog" in output,
+    "message": "World 加密 3 位应该是 Zruog"
+})
+_test_results.append({
+    "name": "包含Qzuipo",
+    "passed": "Qzuipo" in output,
+    "message": "Python 加密 1 位应该是 Qzuipo"
+})
+`,
+      testCases: [
+        { name: 'Hello 加密3', input: '无', expected: 'Khoor' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 模块与包 挑战 ==============
+  11: [
+    {
+      id: 1,
+      title: '随机密码生成器',
+      description: '使用 random 模块生成随机密码。\n\n要求：\n- 函数 generate_password(length=8)\n- 包含大小写字母和数字\n- 测试生成长度为 12 的密码',
+      difficulty: 'easy',
+      initialCode: `import random
+import string
+
+def generate_password(length=8):
+    # 在此实现
+    pass
+
+pwd = generate_password(12)
+print(f"密码: {pwd}")
+print(f"长度: {len(pwd)}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "长度12",
+    "passed": "12" in output,
+    "message": "密码长度应该是 12"
+})
+_test_results.append({
+    "name": "包含密码",
+    "passed": "密码" in output,
+    "message": "应该输出密码"
+})
+`,
+      testCases: [
+        { name: '长度测试', input: '12', expected: '12' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '计时器装饰器',
+      description: '实现一个计时装饰器。\n\n要求：\n- 装饰器 timer\n- 打印函数执行耗时（毫秒）\n- 用 time 模块',
+      difficulty: 'medium',
+      initialCode: `import time
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        # 在此实现
+        pass
+    return wrapper
+
+@timer
+def slow_func():
+    time.sleep(0.01)
+
+slow_func()
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含耗时",
+    "passed": "耗时" in output or "毫秒" in output or "ms" in output.lower(),
+    "message": "应该输出耗时信息"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '耗时' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 3,
+      title: 'JSON 工具类',
+      description: '创建一个 JSON 工具模块。\n\n要求：\n- 类 JsonHelper\n- 方法 save(obj, filename) 序列化保存\n- 方法 load(filename) 反序列化加载\n- 测试保存和加载字典',
+      difficulty: 'medium',
+      initialCode: `import json
+import os
+
+class JsonHelper:
+    def save(self, obj, filename):
+        # 在此实现
+        pass
+    
+    def load(self, filename):
+        # 在此实现
+        pass
+
+helper = JsonHelper()
+data = {"name": "Python", "version": 3.10, "features": ["easy", "powerful"]}
+helper.save(data, "test.json")
+loaded = helper.load("test.json")
+print(loaded)
+print(type(loaded))
+
+# 清理
+if os.path.exists("test.json"):
+    os.remove("test.json")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含Python",
+    "passed": "Python" in output,
+    "message": "应该加载出 Python"
+})
+_test_results.append({
+    "name": "包含dict",
+    "passed": "dict" in output.lower() or "{" in output,
+    "message": "应该返回字典类型"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'dict' }
+      ],
+      xpReward: 25
+    },
+    {
+      id: 4,
+      title: '简易日志系统',
+      description: '实现一个日志记录器。\n\n要求：\n- 类 Logger\n- 方法 log(level, message) 打印带时间戳的日志\n- 方法 log_to_file(message, filename) 追加到文件\n- 测试两种用法',
+      difficulty: 'hard',
+      initialCode: `from datetime import datetime
+import os
+
+class Logger:
+    def log(self, level, message):
+        # 在此实现
+        pass
+    
+    def log_to_file(self, message, filename="app.log"):
+        # 在此实现
+        pass
+
+logger = Logger()
+logger.log("INFO", "应用启动")
+logger.log("ERROR", "发生错误")
+logger.log_to_file("文件日志测试")
+logger.log_to_file("另一条日志")
+
+# 读取并显示
+if os.path.exists("app.log"):
+    with open("app.log", "r", encoding="utf-8") as f:
+        print("--- 文件内容 ---")
+        print(f.read())
+    os.remove("app.log")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含INFO",
+    "passed": "INFO" in output,
+    "message": "应该显示 INFO 级别"
+})
+_test_results.append({
+    "name": "包含ERROR",
+    "passed": "ERROR" in output,
+    "message": "应该显示 ERROR 级别"
+})
+_test_results.append({
+    "name": "包含时间戳",
+    "passed": "20" in output or ":" in output,
+    "message": "应该包含时间戳"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'INFO' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 面向对象基础 挑战 ==============
+  12: [
+    {
+      id: 1,
+      title: '矩形类',
+      description: '创建一个 Rectangle 类。\n\n要求：\n- 初始化 width 和 height\n- 方法 area() 返回面积\n- 方法 perimeter() 返回周长\n- 测试 4x3 的矩形',
+      difficulty: 'easy',
+      initialCode: `class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    def area(self):
+        # 在此实现
+        pass
+    
+    def perimeter(self):
+        # 在此实现
+        pass
+
+r = Rectangle(4, 3)
+print(f"面积: {r.area()}")
+print(f"周长: {r.perimeter()}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "面积12",
+    "passed": "12" in output,
+    "message": "4*3 = 12"
+})
+_test_results.append({
+    "name": "周长14",
+    "passed": "14" in output,
+    "message": "(4+3)*2 = 14"
+})
+`,
+      testCases: [
+        { name: '面积', input: '4,3', expected: '12' },
+        { name: '周长', input: '4,3', expected: '14' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '银行账户类',
+      description: '创建 BankAccount 类。\n\n要求：\n- 初始化 owner 和 balance\n- deposit(amount) 存款\n- withdraw(amount) 取款\n- 测试存取款操作',
+      difficulty: 'medium',
+      initialCode: `class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+    
+    def deposit(self, amount):
+        # 在此实现
+        pass
+    
+    def withdraw(self, amount):
+        # 在此实现
+        pass
+    
+    def __str__(self):
+        return f"{self.owner}: {self.balance}元"
+
+acc = BankAccount("小明", 1000)
+acc.deposit(500)
+print(acc)
+acc.withdraw(200)
+print(acc)
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含1500",
+    "passed": "1500" in output,
+    "message": "存款 500 后应该是 1500"
+})
+_test_results.append({
+    "name": "包含1300",
+    "passed": "1300" in output,
+    "message": "取款 200 后应该是 1300"
+})
+_test_results.append({
+    "name": "包含小明",
+    "passed": "小明" in output,
+    "message": "应该显示账户名"
+})
+`,
+      testCases: [
+        { name: '存款后', input: '无', expected: '1500' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 3,
+      title: '计数器类',
+      description: '创建一个可以记录调用次数的类装饰器。\n\n要求：\n- 类 CallCounter\n- 实现 __call__ 方法\n- 每次调用时打印是第几次调用',
+      difficulty: 'medium',
+      initialCode: `class CallCounter:
+    def __init__(self):
+        self.count = 0
+    
+    def __call__(self, *args, **kwargs):
+        # 在此实现
+        pass
+
+counter = CallCounter()
+counter()
+counter()
+counter("hello")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含第1次",
+    "passed": "1" in output,
+    "message": "第一次调用"
+})
+_test_results.append({
+    "name": "包含第3次",
+    "passed": "3" in output,
+    "message": "第三次调用"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '3' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 4,
+      title: '图书管理系统',
+      description: '创建一个 Book 类。\n\n要求：\n- 属性：title, author, year, available（默认True）\n- borrow() 借书（如果可用，标记为不可用）\n- return_book() 还书\n- 测试借还书流程',
+      difficulty: 'hard',
+      initialCode: `class Book:
+    def __init__(self, title, author, year):
+        # 在此实现
+        pass
+    
+    def borrow(self):
+        # 在此实现
+        pass
+    
+    def return_book(self):
+        # 在此实现
+        pass
+    
+    def __str__(self):
+        return f"{self.title} - {self.author} ({'可借' if self.available else '已借出'})"
+
+book = Book("Python编程", "小明", 2024)
+print(book)
+book.borrow()
+print(book)
+book.borrow()  # 应该提示
+book.return_book()
+print(book)
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含可借",
+    "passed": "可借" in output,
+    "message": "初始状态应该是可借"
+})
+_test_results.append({
+    "name": "包含已借出",
+    "passed": "已借出" in output,
+    "message": "借出后应该是已借出"
+})
+_test_results.append({
+    "name": "包含Python编程",
+    "passed": "Python编程" in output,
+    "message": "应该显示书名"
+})
+`,
+      testCases: [
+        { name: '借书后', input: '无', expected: '已借出' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 继承与多态 挑战 ==============
+  13: [
+    {
+      id: 1,
+      title: '动物声音多态',
+      description: '用多态实现不同动物的叫声。\n\n要求：\n- 父类 Animal，方法 speak() 返回 "..."\n- 子类 Dog 重写 speak() 返回 "汪汪"\n- 子类 Cat 重写 speak() 返回 "喵喵"\n- 用循环调用 speak()',
+      difficulty: 'easy',
+      initialCode: `class Animal:
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    # 在此重写
+    pass
+
+class Cat(Animal):
+    # 在此重写
+    pass
+
+animals = [Dog(), Cat(), Dog(), Cat()]
+for a in animals:
+    print(a.speak())
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含汪汪",
+    "passed": "汪汪" in output,
+    "message": "Dog 应该返回汪汪"
+})
+_test_results.append({
+    "name": "包含喵喵",
+    "passed": "喵喵" in output,
+    "message": "Cat 应该返回喵喵"
+})
+`,
+      testCases: [
+        { name: '狗叫', input: '无', expected: '汪汪' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '员工薪资系统',
+      description: '用继承实现不同类型员工的薪资计算。\n\n要求：\n- 父类 Employee，属性 name，方法 calculate_salary() 返回基础工资 5000\n- 子类 Manager 重写，基础 + 奖金 3000\n- 子类 Developer 重写，基础 + 项目奖金',
+      difficulty: 'medium',
+      initialCode: `class Employee:
+    def __init__(self, name):
+        self.name = name
+    
+    def calculate_salary(self):
+        return 5000
+
+class Manager(Employee):
+    # 在此重写
+    pass
+
+class Developer(Employee):
+    def __init__(self, name, projects=0):
+        super().__init__(name)
+        self.projects = projects
+    
+    def calculate_salary(self):
+        return super().calculate_salary() + self.projects * 1000
+
+emps = [
+    Manager("经理A"),
+    Developer("开发B", 5),
+    Employee("普通员工C")
+]
+for e in emps:
+    print(f"{e.name}: {e.calculate_salary()}元")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含8000",
+    "passed": "8000" in output,
+    "message": "经理 5000+3000=8000"
+})
+_test_results.append({
+    "name": "包含10000",
+    "passed": "10000" in output,
+    "message": "开发 5000+5*1000=10000"
+})
+_test_results.append({
+    "name": "包含5000",
+    "passed": "5000" in output,
+    "message": "普通员工应该是 5000"
+})
+`,
+      testCases: [
+        { name: '经理薪资', input: '无', expected: '8000' }
+      ],
+      xpReward: 25
+    },
+    {
+      id: 3,
+      title: '几何图形系统',
+      description: '用继承实现几何图形。\n\n要求：\n- 父类 Shape，方法 area() 返回 0\n- 子类 Square（边长）\n- 子类 Triangle（底和高）\n- 列表中放不同图形，遍历打印面积',
+      difficulty: 'medium',
+      initialCode: `class Shape:
+    def area(self):
+        return 0
+
+class Square(Shape):
+    def __init__(self, side):
+        self.side = side
+    # 在此重写 area()
+
+class Triangle(Shape):
+    def __init__(self, base, height):
+        self.base = base
+        self.height = height
+    # 在此重写 area()
+
+shapes = [Square(5), Triangle(4, 6), Square(3)]
+for s in shapes:
+    print(f"{type(s).__name__} 面积: {s.area()}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含25",
+    "passed": "25" in output,
+    "message": "正方形 5*5=25"
+})
+_test_results.append({
+    "name": "包含12",
+    "passed": "12" in output,
+    "message": "三角形 4*6/2=12"
+})
+_test_results.append({
+    "name": "包含9",
+    "passed": "9" in output,
+    "message": "正方形 3*3=9"
+})
+`,
+      testCases: [
+        { name: '正方形', input: '5', expected: '25' }
+      ],
+      xpReward: 25
+    },
+    {
+      id: 4,
+      title: 'RPG 角色系统',
+      description: '用继承实现 RPG 游戏角色。\n\n要求：\n- 父类 Character，hp、attack 属性，方法 take_damage()\n- 子类 Warrior 高攻击\n- 子类 Mage 有 mana 属性和 spell() 方法\n- 测试战士和法师',
+      difficulty: 'hard',
+      initialCode: `class Character:
+    def __init__(self, name, hp, attack):
+        self.name = name
+        self.hp = hp
+        self.attack = attack
+    
+    def take_damage(self, dmg):
+        self.hp -= dmg
+        return f"{self.name} 受到 {dmg} 伤害，剩余 HP: {self.hp}"
+
+class Warrior(Character):
+    def __init__(self, name):
+        super().__init__(name, 100, 15)
+
+class Mage(Character):
+    def __init__(self, name):
+        super().__init__(name, 60, 8)
+        self.mana = 100
+    
+    def spell(self, target):
+        if self.mana >= 20:
+            self.mana -= 20
+            damage = 25
+            target.hp -= damage
+            return f"{self.name} 施法对 {target.name} 造成 {damage} 伤害"
+        return "法力不足"
+
+w = Warrior("战士A")
+m = Mage("法师B")
+print(w.take_damage(10))
+print(m.spell(w))
+print(f"法师剩余法力: {m.mana}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含HP",
+    "passed": "HP" in output or "hp" in output or "血" in output,
+    "message": "应该显示 HP"
+})
+_test_results.append({
+    "name": "包含法力",
+    "passed": "法力" in output or "mana" in output.lower(),
+    "message": "法师有法力"
+})
+_test_results.append({
+    "name": "包含战士",
+    "passed": "战士" in output,
+    "message": "应该显示战士"
+})
+_test_results.append({
+    "name": "包含法师",
+    "passed": "法师" in output,
+    "message": "应该显示法师"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '法力' }
+      ],
+      xpReward: 35
+    }
+  ],
+  // ============== 异常处理进阶 挑战 ==============
+  14: [
+    {
+      id: 1,
+      title: '安全除法器',
+      description: '实现一个安全除法函数，处理各种异常。\n\n要求：\n- 函数 safe_div(a, b)\n- 处理 ZeroDivisionError\n- 处理 TypeError\n- 返回结果或错误信息',
+      difficulty: 'easy',
+      initialCode: `def safe_div(a, b):
+    # 在此实现
+    pass
+
+print(safe_div(10, 2))
+print(safe_div(10, 0))
+print(safe_div("10", 2))
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含5",
+    "passed": "5.0" in output or "5" in output,
+    "message": "10/2 = 5"
+})
+_test_results.append({
+    "name": "包含错误",
+    "passed": "错" in output or "零" in output,
+    "message": "除以零应该返回错误"
+})
+`,
+      testCases: [
+        { name: '正常', input: '10,2', expected: '5.0' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '输入验证器',
+      description: '实现用户输入验证。\n\n要求：\n- 函数 validate_age(age)\n- age < 0 或 > 150 抛出 ValueError\n- age 不是数字抛 TypeError\n- 测试三种情况',
+      difficulty: 'medium',
+      initialCode: `class InvalidAgeError(ValueError):
+    pass
+
+def validate_age(age):
+    # 在此实现
+    pass
+
+# 测试
+for test_age in [25, -5, 200, "abc", 30]:
+    try:
+        validate_age(test_age)
+        print(f"{test_age}: 有效")
+    except (ValueError, TypeError) as e:
+        print(f"{test_age}: 无效 - {e}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含有效",
+    "passed": "有效" in output,
+    "message": "25 应该是有效"
+})
+_test_results.append({
+    "name": "包含无效",
+    "passed": "无效" in output,
+    "message": "应该识别无效输入"
+})
+`,
+      testCases: [
+        { name: '有效年龄', input: '25', expected: '有效' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 3,
+      title: '上下文管理器',
+      description: '实现一个计时上下文管理器。\n\n要求：\n- 类 Timer\n- __enter__ 记录开始时间\n- __exit__ 计算并打印耗时\n- 用 with 语句测试',
+      difficulty: 'hard',
+      initialCode: `import time
+
+class Timer:
+    def __enter__(self):
+        # 在此实现
+        pass
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # 在此实现
+        pass
+
+with Timer() as t:
+    # 模拟耗时操作
+    total = 0
+    for i in range(100000):
+        total += i
+    print(f"计算结果: {total}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含耗时",
+    "passed": "耗时" in output or "秒" in output or "s" in output.lower(),
+    "message": "应该输出耗时"
+})
+_test_results.append({
+    "name": "包含结果",
+    "passed": "4999950000" in output or "结果" in output,
+    "message": "应该输出计算结果"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '耗时' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 文件与目录 挑战 ==============
+  15: [
+    {
+      id: 1,
+      title: '列出所有 .py 文件',
+      description: '使用 glob 模块列出所有 Python 文件。\n\n要求：\n- 使用 glob 查找当前目录所有 .py 文件\n- 打印文件列表和数量',
+      difficulty: 'easy',
+      initialCode: `import glob
+import os
+
+# 模拟一些文件名
+files = ["main.py", "test.py", "app.py", "data.txt", "readme.md"]
+py_files = [f for f in files if f.endswith(".py")]
+print("Python 文件:", py_files)
+print(f"数量: {len(py_files)}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含.py",
+    "passed": ".py" in output,
+    "message": "应该包含 .py 文件"
+})
+_test_results.append({
+    "name": "包含数量3",
+    "passed": "3" in output,
+    "message": "应该有 3 个 .py 文件"
+})
+_test_results.append({
+    "name": "包含main",
+    "passed": "main" in output,
+    "message": "应该包含 main.py"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '3' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '路径信息工具',
+      description: '实现一个函数提取路径信息。\n\n要求：\n- 函数 path_info(path) 返回字典\n- 包含 name, dir, ext, exists 字段\n- 测试多个路径',
+      difficulty: 'medium',
+      initialCode: `import os
+
+def path_info(path):
+    # 在此实现
+    pass
+
+for p in ["/home/user/main.py", "test.txt", "../data.json"]:
+    info = path_info(p)
+    print(f"{p}:")
+    print(f"  name={info['name']}, dir={info['dir']}, ext={info['ext']}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含main.py",
+    "passed": "main.py" in output,
+    "message": "应该识别 main.py"
+})
+_test_results.append({
+    "name": "包含.json",
+    "passed": ".json" in output,
+    "message": "应该识别 .json 扩展名"
+})
+_test_results.append({
+    "name": "包含txt",
+    "passed": "txt" in output,
+    "message": "应该识别 .txt 扩展名"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'ext' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 3,
+      title: '批量重命名',
+      description: '实现批量重命名文件。\n\n要求：\n- 函数 batch_rename(file_list, prefix)\n- 给所有文件添加前缀\n- 返回新文件名列表',
+      difficulty: 'medium',
+      initialCode: `def batch_rename(file_list, prefix):
+    # 在此实现
+    pass
+
+originals = ["report.txt", "data.csv", "image.png"]
+renamed = batch_rename(originals, "2024_")
+for old, new in zip(originals, renamed):
+    print(f"{old} -> {new}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含2024_",
+    "passed": "2024_" in output,
+    "message": "应该添加 2024_ 前缀"
+})
+_test_results.append({
+    "name": "包含report",
+    "passed": "report" in output,
+    "message": "应该保留原文件名"
+})
+_test_results.append({
+    "name": "包含3个文件",
+    "passed": output.count("->") >= 3,
+    "message": "应该重命名 3 个文件"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '2024_' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 4,
+      title: '文件统计器',
+      description: '统计目录中的文件信息。\n\n要求：\n- 函数 count_files(file_list)\n- 统计文件总数、.py 数量、总大小（假设每个文件100字节）',
+      difficulty: 'hard',
+      initialCode: `def count_files(file_list):
+    # 在此实现
+    pass
+
+files = ["a.py", "b.txt", "c.py", "d.py", "e.md", "f.py"]
+result = count_files(files)
+print(f"总文件: {result['total']}")
+print(f".py 文件: {result['py_count']}")
+print(f"总大小: {result['total_size']} 字节")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "总文件6",
+    "passed": "6" in output,
+    "message": "总文件数 6"
+})
+_test_results.append({
+    "name": "py文件4",
+    "passed": "4" in output,
+    "message": ".py 文件 4 个"
+})
+_test_results.append({
+    "name": "大小600",
+    "passed": "600" in output,
+    "message": "总大小 6*100=600 字节"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '600' }
+      ],
+      xpReward: 25
+    }
+  ],
+  // ============== 高级特性 挑战 ==============
+  16: [
+    {
+      id: 1,
+      title: '斐波那契生成器',
+      description: '用生成器实现斐波那契数列。\n\n要求：\n- 函数 fib(n) 是生成器\n- yield 前 n 个斐波那契数\n- 测试 fib(10)',
+      difficulty: 'easy',
+      initialCode: `def fib(n):
+    # 在此实现
+    pass
+
+# 测试
+for num in fib(10):
+    print(num, end=" ")
+print()
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含0",
+    "passed": "0" in output,
+    "message": "第一个应该是 0"
+})
+_test_results.append({
+    "name": "包含34",
+    "passed": "34" in output,
+    "message": "第10个斐波那契是 34"
+})
+_test_results.append({
+    "name": "包含21",
+    "passed": "21" in output,
+    "message": "应该包含 21"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '34' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '缓存装饰器',
+      description: '实现一个简单的缓存装饰器。\n\n要求：\n- 装饰器 cache\n- 第二次调用相同参数时直接返回缓存结果\n- 用字典存缓存',
+      difficulty: 'medium',
+      initialCode: `def cache(func):
+    cached = {}
+    def wrapper(*args):
+        # 在此实现
+        pass
+    return wrapper
+
+@cache
+def slow_add(a, b):
+    print(f"计算 {a} + {b}")
+    return a + b
+
+print(slow_add(1, 2))
+print(slow_add(1, 2))  # 应该用缓存
+print(slow_add(2, 3))
+print(slow_add(2, 3))  # 应该用缓存
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含3",
+    "passed": "3" in output,
+    "message": "1+2=3"
+})
+_test_results.append({
+    "name": "包含5",
+    "passed": "5" in output,
+    "message": "2+3=5"
+})
+_test_results.append({
+    "name": "计算次数",
+    "passed": output.count("计算") == 2,
+    "message": "实际计算应该只发生 2 次"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '3' }
+      ],
+      xpReward: 25
+    },
+    {
+      id: 3,
+      title: '日志装饰器',
+      description: '实现一个日志装饰器。\n\n要求：\n- 装饰器 log_call\n- 打印函数名、参数、返回值\n- 用 functools.wraps 保留元信息',
+      difficulty: 'medium',
+      initialCode: `import functools
+
+def log_call(func):
+    # 在此实现
+    pass
+
+@log_call
+def add(a, b):
+    return a + b
+
+result = add(3, 5)
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含add",
+    "passed": "add" in output,
+    "message": "应该包含函数名 add"
+})
+_test_results.append({
+    "name": "包含3",
+    "passed": "3" in output,
+    "message": "应该包含参数"
+})
+_test_results.append({
+    "name": "包含8",
+    "passed": "8" in output,
+    "message": "应该包含返回值"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'add' }
+      ],
+      xpReward: 25
+    },
+    {
+      id: 4,
+      title: '数据管道',
+      description: '用 map/filter/lambda 处理数据。\n\n要求：\n- 给定 [1,2,3,4,5,6,7,8,9,10]\n- 筛选出偶数\n- 每个数平方\n- 求总和',
+      difficulty: 'hard',
+      initialCode: `numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# 在此实现数据管道
+result = None
+
+print(f"原数据: {numbers}")
+print(f"偶数平方和: {result}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含220",
+    "passed": "220" in output,
+    "message": "4+16+36+64+100 = 220"
+})
+_test_results.append({
+    "name": "包含原数据",
+    "passed": "原数据" in output or "1" in output,
+    "message": "应该输出原数据"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '220' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 常用标准库 挑战 ==============
+  17: [
+    {
+      id: 1,
+      title: '日期计算器',
+      description: '使用 datetime 计算日期。\n\n要求：\n- 计算今天到年底还有多少天\n- 打印今天的日期、星期',
+      difficulty: 'easy',
+      initialCode: `from datetime import datetime, timedelta
+
+now = datetime.now()
+year_end = datetime(now.year, 12, 31)
+days_left = (year_end - now).days
+
+print(f"今天: {now.strftime('%Y-%m-%d %A')}")
+print(f"距离年底还有: {days_left} 天")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含今天",
+    "passed": "今天" in output,
+    "message": "应该显示今天"
+})
+_test_results.append({
+    "name": "包含距离",
+    "passed": "距离" in output,
+    "message": "应该显示距离年底"
+})
+_test_results.append({
+    "name": "包含天",
+    "passed": "天" in output,
+    "message": "应该包含天数"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '今天' }
+      ],
+      xpReward: 15
+    },
+    {
+      id: 2,
+      title: '邮箱验证',
+      description: '用正则验证邮箱格式。\n\n要求：\n- 函数 is_email(s)\n- 用正则匹配\n- 测试多个邮箱',
+      difficulty: 'medium',
+      initialCode: `import re
+
+def is_email(s):
+    # 在此实现
+    pass
+
+tests = ["test@example.com", "user.name+tag@domain.co.uk", "invalid.email", "@nodomain.com", "no@dot"]
+for t in tests:
+    print(f"{t}: {'有效' if is_email(t) else '无效'}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含有效",
+    "passed": "有效" in output,
+    "message": "test@example.com 应该是有效"
+})
+_test_results.append({
+    "name": "包含无效",
+    "passed": "无效" in output,
+    "message": "应该有无效的邮箱"
+})
+_test_results.append({
+    "name": "包含test",
+    "passed": "test@example" in output or "test" in output,
+    "message": "应该输出 test 邮箱"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '有效' }
+      ],
+      xpReward: 20
+    },
+    {
+      id: 3,
+      title: 'JSON 配置加载',
+      description: '加载和修改 JSON 配置。\n\n要求：\n- 创建配置字典\n- 序列化为 JSON 字符串\n- 修改配置再反序列化\n- 验证修改生效',
+      difficulty: 'medium',
+      initialCode: `import json
+
+config = {
+    "app_name": "MyApp",
+    "version": "1.0.0",
+    "debug": False,
+    "max_users": 100
+}
+
+# 序列化
+json_str = json.dumps(config, ensure_ascii=False, indent=2)
+print("原配置:")
+print(json_str)
+
+# 反序列化修改
+loaded = json.loads(json_str)
+loaded["version"] = "2.0.0"
+loaded["debug"] = True
+loaded["max_users"] = 200
+
+print("\\n修改后:")
+print(json.dumps(loaded, ensure_ascii=False, indent=2))
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含MyApp",
+    "passed": "MyApp" in output,
+    "message": "应该包含 app_name"
+})
+_test_results.append({
+    "name": "包含2.0.0",
+    "passed": "2.0.0" in output,
+    "message": "修改后的版本号"
+})
+_test_results.append({
+    "name": "包含200",
+    "passed": "200" in output,
+    "message": "修改后的 max_users"
+})
+_test_results.append({
+    "name": "包含true",
+    "passed": "true" in output,
+    "message": "debug 应该是 true"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '2.0.0' }
+      ],
+      xpReward: 25
+    },
+    {
+      id: 4,
+      title: '词频分析报告',
+      description: '分析一段文本的词频。\n\n要求：\n- 给定英文段落\n- 用 Counter 统计\n- 找出前 3 个高频词\n- 找出只出现一次的词数',
+      difficulty: 'hard',
+      initialCode: `from collections import Counter
+
+text = "the quick brown fox jumps over the lazy dog the fox is quick and the dog is lazy"
+words = text.split()
+counter = Counter(words)
+
+top3 = counter.most_common(3)
+once = [w for w, c in counter.items() if c == 1]
+
+print(f"总词数: {len(words)}")
+print(f"不重复词数: {len(counter)}")
+print(f"前3高频: {top3}")
+print(f"只出现1次的词: {once}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含the",
+    "passed": "the" in output and ("4" in output or "3" in output),
+    "message": "the 是高频词"
+})
+_test_results.append({
+    "name": "包含总数",
+    "passed": "总词数" in output,
+    "message": "应该输出总词数"
+})
+_test_results.append({
+    "name": "包含前3",
+    "passed": "前3" in output or "Top" in output or "top" in output.lower(),
+    "message": "应该输出高频词"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'the' }
+      ],
+      xpReward: 30
+    }
+  ],
+  // ============== 综合实战 挑战 ==============
+  18: [
+    {
+      id: 1,
+      title: '待办事项管理器',
+      description: '实现一个待办事项管理器。\n\n要求：\n- 类 TodoList\n- 方法 add(item), remove(item), list_all()\n- 方法 mark_done(item) 标记完成\n- 测试增删改查',
+      difficulty: 'medium',
+      initialCode: `class TodoList:
+    def __init__(self):
+        self.items = []
+    
+    def add(self, item):
+        # 在此实现
+        pass
+    
+    def list_all(self):
+        # 在此实现
+        pass
+    
+    def mark_done(self, item):
+        # 在此实现
+        pass
+
+todo = TodoList()
+todo.add("学习 Python")
+todo.add("做项目")
+todo.add("写博客")
+print("--- 所有待办 ---")
+todo.list_all()
+todo.mark_done("学习 Python")
+print("--- 完成后 ---")
+todo.list_all()
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含学习",
+    "passed": "学习" in output,
+    "message": "应该包含待办"
+})
+_test_results.append({
+    "name": "包含✓",
+    "passed": "✓" in output or "[x]" in output or "完成" in output,
+    "message": "应该显示完成标记"
+})
+_test_results.append({
+    "name": "包含所有待办",
+    "passed": "所有" in output,
+    "message": "应该列出所有待办"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '学习' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: '数据导出器',
+      description: '实现一个数据导出器，支持多种格式。\n\n要求：\n- 类 DataExporter\n- 方法 to_json(data), to_csv(data)\n- 数据是字典列表\n- 测试两种导出',
+      difficulty: 'medium',
+      initialCode: `import json
+import csv
+import io
+
+class DataExporter:
+    def to_json(self, data):
+        # 在此实现
+        pass
+    
+    def to_csv(self, data):
+        # 在此实现
+        pass
+
+data = [
+    {"name": "小明", "age": 18, "score": 95},
+    {"name": "小红", "age": 19, "score": 88}
+]
+
+exporter = DataExporter()
+print("=== JSON ===")
+print(exporter.to_json(data))
+print("\\n=== CSV ===")
+print(exporter.to_csv(data))
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含JSON",
+    "passed": "JSON" in output and "{" in output,
+    "message": "应该有 JSON 输出"
+})
+_test_results.append({
+    "name": "包含CSV",
+    "passed": "CSV" in output and "," in output,
+    "message": "应该有 CSV 输出"
+})
+_test_results.append({
+    "name": "包含小明",
+    "passed": "小明" in output,
+    "message": "应该包含数据"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'JSON' }
+      ],
+      xpReward: 35
+    },
+    {
+      id: 3,
+      title: '简易爬虫',
+      description: '实现一个简易的网页内容获取。\n\n要求：\n- 模拟函数 fetch(url)\n- 模拟解析函数 parse(html)\n- 主流程：获取 → 解析 → 提取标题',
+      difficulty: 'hard',
+      initialCode: `import re
+
+# 模拟的 fetch（实际用 requests）
+def fetch(url):
+    """模拟获取网页内容"""
+    if "example" in url:
+        return "<html><head><title>Example Page</title></head><body>Hello World</body></html>"
+    return "<html><head><title>Other</title></head></html>"
+
+# 解析标题
+def extract_title(html):
+    match = re.search(r"<title>(.*?)</title>", html)
+    return match.group(1) if match else None
+
+# 主流程
+url = "https://example.com"
+html = fetch(url)
+title = extract_title(html)
+print(f"URL: {url}")
+print(f"标题: {title}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含标题",
+    "passed": "标题" in output or "Example" in output,
+    "message": "应该提取标题"
+})
+_test_results.append({
+    "name": "包含URL",
+    "passed": "URL" in output or "url" in output or "example" in output,
+    "message": "应该输出 URL"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'Example' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 4,
+      title: '毕业挑战：迷你电商',
+      description: '综合实战：迷你电商系统。\n\n要求：\n- 类 Product、Cart、Order\n- Product: name, price\n- Cart: add/remove/total\n- Order: 整合 Cart 生成订单（含时间戳）\n- 测试完整流程',
+      difficulty: 'hard',
+      initialCode: `from datetime import datetime
+
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+class Cart:
+    def __init__(self):
+        self.items = []
+    
+    def add(self, product, qty=1):
+        # 在此实现
+        pass
+    
+    def total(self):
+        # 在此实现
+        pass
+
+class Order:
+    def __init__(self, cart):
+        self.cart = cart
+        self.created_at = datetime.now()
+    
+    def summary(self):
+        # 在此实现
+        pass
+
+# 测试
+cart = Cart()
+cart.add(Product("Python书", 59.9), 2)
+cart.add(Product("咖啡", 25.0), 1)
+
+order = Order(cart)
+print(order.summary())
+`,
+      testCode: `output = _output_buffer.getvalue()
+
+_test_results.append({
+    "name": "包含Python",
+    "passed": "Python" in output,
+    "message": "应该包含商品"
+})
+_test_results.append({
+    "name": "包含价格",
+    "passed": "144" in output or "59.9" in output or "25" in output,
+    "message": "应该输出价格"
+})
+_test_results.append({
+    "name": "包含时间",
+    "passed": "20" in output or ":" in output,
+    "message": "应该包含时间戳"
+})
+_test_results.append({
+    "name": "包含订单",
+    "passed": "订单" in output or "Order" in output or "总价" in output or "合计" in output,
+    "message": "应该输出订单信息"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'Python' }
+      ],
+      xpReward: 50
     }
   ]
 }

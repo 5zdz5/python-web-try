@@ -7,6 +7,7 @@ import { useProgress } from '../../context/ProgressContext'
 import InteractiveLesson from '../../components/InteractiveLesson'
 import ChallengeArena from '../../components/ChallengeArena'
 import { usePyodide } from '../../context/PyodideContext'
+import { runoobTopics, categoryLabels, categoryColors } from '../../data/runoobTopics'
 
 type TabType = 'learn' | 'challenges' | 'notes'
 
@@ -155,6 +156,57 @@ function LevelDetail() {
           <div className="topics-tags">
             {level.topics.map((topic, i) => (
               <span key={i} className="topic-chip">{topic}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="runoob-section">
+          <div className="runoob-header">
+            <h3 className="section-title-sm">
+              <span className="runoob-logo">📚</span>
+              Python / 数据科学 · 拓展学习路径
+            </h3>
+            <span className="runoob-source">风格借鉴自菜鸟教程</span>
+          </div>
+          <p className="runoob-intro">
+            完成当前关卡后，可以挑战更多 Python 生态方向。本页展示的扩展主题按难度递进，建议先打通主线关卡再探索。
+          </p>
+          <div className="runoob-grid">
+            {runoobTopics.map(topic => (
+              <div
+                key={topic.id}
+                className={`runoob-card ${topic.unlocked ? 'unlocked' : 'locked'}`}
+                style={{ '--topic-color': categoryColors[topic.category] } as React.CSSProperties}
+              >
+                <div className="runoob-card-icon">
+                  <span className="runoob-icon-emoji">{topic.icon}</span>
+                </div>
+                <div className="runoob-card-body">
+                  <div className="runoob-card-header">
+                    <h4 className="runoob-card-title">【{topic.name.replace('学习 ', '')}】</h4>
+                    <span
+                      className="runoob-card-category"
+                      style={{ background: categoryColors[topic.category] + '22', color: categoryColors[topic.category] }}
+                    >
+                      {categoryLabels[topic.category]}
+                    </span>
+                  </div>
+                  <p className="runoob-card-desc">{topic.description}</p>
+                  <div className="runoob-card-footer">
+                    <span className="runoob-difficulty">
+                      {Array(5).fill(0).map((_, i) => (
+                        <span key={i} className={`runoob-dot ${i < topic.difficulty ? 'filled' : ''}`}>●</span>
+                      ))}
+                    </span>
+                    {!topic.unlocked && (
+                      <span className="runoob-lock-badge">🔒 待解锁</span>
+                    )}
+                    {topic.unlocked && (
+                      <span className="runoob-go-badge">进入学习 →</span>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>

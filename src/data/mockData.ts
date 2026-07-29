@@ -117,6 +117,123 @@ export const levels: Level[] = [
     challenges: 3,
     topics: ['项目规划', '模块化设计', '测试调试', '项目部署'],
     side: 'left'
+  },
+  {
+    id: 10,
+    title: '第10关：字符串深入',
+    subtitle: '玩转字符串操作',
+    description: '深入学习字符串的索引、切片、常用方法（find、replace、split、join、format等），掌握字符串的进阶处理技巧。',
+    status: 'locked',
+    difficulty: 2,
+    duration: '约2小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['字符串索引', '字符串方法', '格式化输出', '字符串编码'],
+    side: 'right'
+  },
+  {
+    id: 11,
+    title: '第11关：模块与包',
+    subtitle: '代码的组织艺术',
+    description: '学习模块的导入、自定义模块、Python包管理（pip）、常用标准库（sys、os、datetime、re），让代码更易管理。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2小时',
+    lessons: 5,
+    challenges: 4,
+    topics: ['import语句', '自定义模块', '包管理', '标准库'],
+    side: 'left'
+  },
+  {
+    id: 12,
+    title: '第12关：面向对象基础',
+    subtitle: '类与对象入门',
+    description: '学习面向对象编程思想，理解类、对象、属性、方法、构造函数、self，掌握OOP的核心概念。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2.5小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['类与对象', '属性方法', '构造函数', 'self关键字', '封装'],
+    side: 'right'
+  },
+  {
+    id: 13,
+    title: '第13关：继承与多态',
+    subtitle: 'OOP进阶特性',
+    description: '深入学习类的继承、方法重写、super()函数、多态、抽象类，掌握面向对象的高级特性。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约2.5小时',
+    lessons: 5,
+    challenges: 4,
+    topics: ['类的继承', '方法重写', 'super()', '多态', '抽象类'],
+    side: 'left'
+  },
+  {
+    id: 14,
+    title: '第14关：异常处理进阶',
+    subtitle: '优雅地处理错误',
+    description: '学习自定义异常、异常的传递、with语句、断言、调试技巧，编写健壮的Python程序。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2小时',
+    lessons: 5,
+    challenges: 3,
+    topics: ['自定义异常', '异常链', '上下文管理', '断言与调试'],
+    side: 'right'
+  },
+  {
+    id: 15,
+    title: '第15关：文件与目录',
+    subtitle: 'os模块的妙用',
+    description: '深入学习os、os.path、shutil模块，掌握路径处理、目录操作、文件遍历、批量重命名等高级文件操作。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2小时',
+    lessons: 5,
+    challenges: 4,
+    topics: ['os模块', '路径处理', '目录遍历', '文件操作'],
+    side: 'left'
+  },
+  {
+    id: 16,
+    title: '第16关：高级特性',
+    subtitle: '生成器、装饰器与闭包',
+    description: '学习Python的三大高级特性：生成器（yield）、装饰器（@）、闭包，掌握函数式编程的核心思想。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约3小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['生成器', '装饰器', '闭包', 'Lambda', 'map/filter/reduce'],
+    side: 'right'
+  },
+  {
+    id: 17,
+    title: '第17关：常用标准库',
+    subtitle: '站在巨人的肩膀上',
+    description: '系统学习Python常用标准库：datetime、re、json、collections、itertools，让代码更优雅高效。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2.5小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['datetime', '正则表达式', 'json', 'collections'],
+    side: 'left'
+  },
+  {
+    id: 18,
+    title: '第18关：综合实战',
+    subtitle: '完成Python大师之路',
+    description: '综合运用所有知识，完成爬虫、命令行工具、数据处理等实战项目，成为真正的Python大师！',
+    status: 'locked',
+    difficulty: 5,
+    duration: '约4小时',
+    lessons: 5,
+    challenges: 4,
+    topics: ['项目实战', '命令行工具', '数据处理', '代码优化'],
+    side: 'right'
   }
 ]
 
@@ -140,7 +257,7 @@ export const currentLevelChallenges: Challenge[] = [
 ]
 
 export const userProgress: UserProgress = {
-  totalLevels: 9,
+  totalLevels: 18,
   completedLevels: 3,
   totalXP: 180,
   currentXP: 50,
