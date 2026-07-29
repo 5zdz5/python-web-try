@@ -175,12 +175,18 @@ function LevelDetail() {
             {runoobTopics.map(topic => (
               <div
                 key={topic.id}
-                className={`runoob-card ${topic.unlocked ? 'unlocked' : 'locked'}`}
-                style={{ '--topic-color': categoryColors[topic.category] } as React.CSSProperties}
+                className={`runoob-card ${topic.unlocked ? 'unlocked' : 'locked'} ${topic.unlocked && !topic.href ? 'no-nav' : ''}`}
+                style={{
+                  '--topic-color': categoryColors[topic.category],
+                  cursor: !topic.href && topic.unlocked ? 'default' : undefined
+                } as React.CSSProperties}
                 onClick={() => {
-                  if (topic.unlocked && topic.href) {
+                  if (!topic.unlocked) return
+                  if (topic.href) {
                     const match = topic.href.match(/#\/level\/(\d+)/)
                     if (match) navigate(`/level/${match[1]}`)
+                  } else {
+                    console.info(`Topic "${topic.name}" 暂无对应关卡，将作为拓展阅读内容`)
                   }
                 }}
                 role={topic.unlocked && topic.href ? 'button' : undefined}
@@ -208,8 +214,11 @@ function LevelDetail() {
                     {!topic.unlocked && (
                       <span className="runoob-lock-badge">🔒 待解锁</span>
                     )}
-                    {topic.unlocked && (
+                    {topic.unlocked && topic.href && (
                       <span className="runoob-go-badge">进入学习 →</span>
+                    )}
+                    {topic.unlocked && !topic.href && (
+                      <span className="runoob-read-badge">📚 拓展阅读</span>
                     )}
                   </div>
                 </div>

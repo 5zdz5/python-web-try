@@ -900,6 +900,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.runoob-card.unlocked.no-nav:hover {
+  background: var(--color-bg-secondary);
+  transform: none;
+  box-shadow: none;
+}
+
 .runoob-card.locked {
   opacity: 0.55;
   filter: grayscale(40%);
@@ -985,7 +991,8 @@
 }
 
 .runoob-lock-badge,
-.runoob-go-badge {
+.runoob-go-badge,
+.runoob-read-badge {
   font-size: 11px;
   padding: 2px 10px;
   border-radius: var(--radius-full);
@@ -1000,6 +1007,11 @@
 .runoob-go-badge {
   background: rgba(16, 185, 129, 0.1);
   color: var(--color-accent-primary);
+}
+
+.runoob-read-badge {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--color-info, #6366f1);
 }
 
 @media (max-width: 900px) {
