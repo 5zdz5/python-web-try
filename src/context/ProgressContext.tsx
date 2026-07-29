@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { useAuth } from './AuthContext'
 import { readGist, writeGist } from '../config/github'
 import { achievements as allAchievements, AchievementStats } from '../data/achievements'
+import { initVersionSystem, getVersionStorageKey, CURRENT_VERSION, getCurrentVersionInfo, VersionInfo } from '../config/versionManager'
 
 interface LessonProgress {
   completed: boolean
@@ -71,11 +72,16 @@ interface ProgressContextType {
   resetProgress: () => void
   manualSync: () => Promise<void>
   forceLocalSave: () => void
+  currentVersion: VersionInfo | null
+  versionHistory: VersionInfo[]
 }
 
-const STORAGE_KEY = 'python-quest-progress'
-const STORAGE_VERSION = 'v7-save-optimized'
+// 版本化存储：每次迭代使用独立的 key，旧版本数据冻结保留
 const LOCAL_SAVE_DEBOUNCE = 300 // 本地保存防抖时间(ms)
+// 启动时初始化版本系统，获取当前版本的存储 key
+const _versionRegistry = initVersionSystem()
+const STORAGE_KEY = getVersionStorageKey(CURRENT_VERSION)
+const STORAGE_VERSION = CURRENT_VERSION
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -201,12 +207,27 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [syncError, setSyncError] = useState('')
   const [localSaveStatus, setLocalSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const [lastLocalSave, setLastLocalSave] = useState<string | null>(null)
+  const [versionHistory] = useState<VersionInfo[]>(_versionRegistry)
+  const currentVersion = useMemo(() => getCurrentVersionInfo(), [])
   const [progress, setProgress] = useState<UserProgress>(() => {
+    // 优先从当前版本的存储 key 加载
     const saved = safeGetItem(STORAGE_KEY)
-    const version = safeGetItem(STORAGE_KEY + '-version')
-    if (saved && version === STORAGE_VERSION) {
+    if (saved) {
       try {
-        return JSON.parse(saved)
+        const parsed = JSON.parse(saved)
+        // 如果旧版本有数据，迁移过来作为初始状态
+        const legacyData = safeGetItem('python-quest-progress')
+        if (legacyData && !saved) {
+          return migrateProgress(JSON.parse(legacyData))
+        }
+        return parsed
+      } catch {}
+    }
+    // 回退：尝试旧版数据并迁移
+    const legacyData = safeGetItem('python-quest-progress')
+    if (legacyData) {
+      try {
+        return migrateProgress(JSON.parse(legacyData))
       } catch {}
     }
     safeSetItem(STORAGE_KEY + '-version', STORAGE_VERSION)
@@ -690,7 +711,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       getRecentActivities,
       resetProgress,
       manualSync,
-      forceLocalSave
+      forceLocalSave,
+      currentVersion,
+      versionHistory
     }}>
       {children}
     </ProgressContext.Provider>

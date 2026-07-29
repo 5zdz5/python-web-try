@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
+import VersionHistory from '../../components/VersionHistory'
+import { CURRENT_VERSION, getCurrentVersionInfo } from '../../config/versionManager'
 
 function Home() {
+  const [showVersionHistory, setShowVersionHistory] = useState(false)
+  const versionInfo = getCurrentVersionInfo()
   const stats = [
     { value: '10', label: '大关卡' },
     { value: '52', label: '编程挑战' },
@@ -99,6 +104,17 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* 版本号入口 */}
+      <div className="version-badge-footer">
+        <button className="version-badge" onClick={() => setShowVersionHistory(true)}>
+          <span className="vb-dot"></span>
+          {CURRENT_VERSION} {versionInfo?.label}
+        </button>
+      </div>
+
+      {/* 版本历史弹窗 */}
+      {showVersionHistory && <VersionHistory onClose={() => setShowVersionHistory(false)} />}
     </div>
   )
 }
