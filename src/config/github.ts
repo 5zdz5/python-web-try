@@ -4,6 +4,9 @@
 
 const GIST_FILENAME = 'python-quest-progress.json'
 const GIST_DESCRIPTION = 'Python Quest 学习进度备份'
+const FETCH_TIMEOUT = 15000
+const MAX_RETRIES = 2
+const RETRY_DELAY = 2000
 
 export interface GithubUser {
   login: string
@@ -52,57 +55,114 @@ export function clearAuth() {
   localStorage.removeItem(GIST_ID_KEY)
 }
 
-async function githubFetch<T>(url: string, token: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      'Accept': 'application/vnd.github+json',
-      'Authorization': `Bearer ${token}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...(options.headers || {})
-    }
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`GitHub API ${res.status}: ${text}`)
+export class GithubApiError extends Error {
+  status: number
+  constructor(message: string, status: number = 0) {
+    super(message)
+    this.status = status
   }
-  return res.json() as Promise<T>
+}
+
+export function isNetworkError(err: unknown): boolean {
+  if (err instanceof GithubApiError) return err.status === 0
+  if (err instanceof TypeError) return true
+  const msg = err instanceof Error ? err.message : String(err)
+  return msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('AbortError') || msg.includes('timeout')
+}
+
+async function githubFetch<T>(url: string, token: string, options: RequestInit = {}): Promise<T> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT)
+
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+        ...(options.headers || {})
+      }
+    })
+
+    if (!res.ok) {
+      const text = await res.text()
+      throw new GithubApiError(`GitHub API ${res.status}: ${text}`, res.status)
+    }
+    return res.json() as Promise<T>
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new GithubApiError('请求超时（网络不稳定）', 0)
+    }
+    throw err
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+async function withRetry<T>(fn: () => Promise<T>, opName: string): Promise<T> {
+  let lastErr: unknown
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      if (attempt < MAX_RETRIES && isNetworkError(err)) {
+        const delay = RETRY_DELAY * Math.pow(2, attempt)
+        console.warn(`${opName} 第 ${attempt + 1} 次失败，${delay}ms 后重试...`)
+        await new Promise(resolve => setTimeout(resolve, delay))
+      } else {
+        break
+      }
+    }
+  }
+  throw lastErr
 }
 
 export async function verifyToken(token: string): Promise<GithubUser> {
-  return githubFetch<GithubUser>('https://api.github.com/user', token)
+  return withRetry(() => githubFetch<GithubUser>('https://api.github.com/user', token), '验证Token')
 }
 
 export async function findOrCreateGist(token: string): Promise<string> {
-  // 查找现有 Gist
   try {
-    const gists = await githubFetch<any[]>('https://api.github.com/gists?per_page=100', token)
+    const gists = await withRetry(
+      () => githubFetch<any[]>('https://api.github.com/gists?per_page=100', token),
+      '查询Gist'
+    )
     const existing = gists.find(g => g.files && g.files[GIST_FILENAME])
     if (existing) return existing.id
   } catch (err) {
-    console.warn('查询 Gist 失败', err)
+    if (!isNetworkError(err)) {
+      throw err
+    }
   }
 
-  // 创建新 Gist
-  const created = await githubFetch<any>('https://api.github.com/gists', token, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      description: GIST_DESCRIPTION,
-      public: false,
-      files: {
-        [GIST_FILENAME]: {
-          content: JSON.stringify({ initialized: true, savedAt: new Date().toISOString() })
+  const created = await withRetry(
+    () => githubFetch<any>('https://api.github.com/gists', token, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description: GIST_DESCRIPTION,
+        public: false,
+        files: {
+          [GIST_FILENAME]: {
+            content: JSON.stringify({ initialized: true, savedAt: new Date().toISOString() })
+          }
         }
-      }
-    })
-  })
+      })
+    }),
+    '创建Gist'
+  )
   return created.id
 }
 
 export async function readGist(token: string, gistId: string): Promise<any | null> {
   try {
-    const gist = await githubFetch<any>(`https://api.github.com/gists/${gistId}`, token)
+    const gist = await withRetry(
+      () => githubFetch<any>(`https://api.github.com/gists/${gistId}`, token),
+      '读取Gist'
+    )
     const file = gist.files?.[GIST_FILENAME]
     if (!file) return null
     return JSON.parse(file.content)
@@ -113,22 +173,28 @@ export async function readGist(token: string, gistId: string): Promise<any | nul
 }
 
 export async function writeGist(token: string, gistId: string, data: any): Promise<void> {
-  await githubFetch<any>(`https://api.github.com/gists/${gistId}`, token, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      files: {
-        [GIST_FILENAME]: {
-          content: JSON.stringify(data, null, 2)
+  await withRetry(
+    () => githubFetch<any>(`https://api.github.com/gists/${gistId}`, token, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        files: {
+          [GIST_FILENAME]: {
+            content: JSON.stringify(data, null, 2)
+          }
         }
-      }
-    })
-  })
+      })
+    }),
+    '写入Gist'
+  )
 }
 
 export async function testGistAccess(token: string): Promise<boolean> {
   try {
-    await githubFetch<any>('https://api.github.com/gists?per_page=1', token)
+    await withRetry(
+      () => githubFetch<any>('https://api.github.com/gists?per_page=1', token),
+      '测试Gist访问'
+    )
     return true
   } catch {
     return false

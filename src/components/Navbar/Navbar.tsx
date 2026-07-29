@@ -11,20 +11,40 @@ interface NavbarProps {
 
 function Navbar({ showUserInfo }: NavbarProps) {
   const location = useLocation()
-  const { progress, syncStatus } = useProgress()
+  const { progress, syncStatus, syncError, manualSync } = useProgress()
   const { auth, signOutUser } = useAuth()
   const [showLogin, setShowLogin] = useState(false)
   const isHome = location.pathname === '/'
   const displayUserInfo = showUserInfo !== undefined ? showUserInfo : !isHome
+  const [showErrorTip, setShowErrorTip] = useState(false)
 
   const initials = auth?.user?.login?.slice(0, 2).toUpperCase() || 'LY'
 
   const renderSyncBadge = () => {
-    if (!auth) return <span className="sync-badge local">本地保存</span>
-    if (syncStatus === 'loading') return <span className="sync-badge loading">同步中...</span>
-    if (syncStatus === 'syncing') return <span className="sync-badge loading">上传中...</span>
-    if (syncStatus === 'synced') return <span className="sync-badge synced">☁️ 已同步</span>
-    if (syncStatus === 'error') return <span className="sync-badge error">同步失败</span>
+    if (!auth) return <span className="sync-badge local" title="未登录，数据仅本地保存">本地保存</span>
+    if (syncStatus === 'loading') return <span className="sync-badge loading" title="正在从云端加载进度">同步中...</span>
+    if (syncStatus === 'syncing') return <span className="sync-badge loading" title="正在上传进度到云端">上传中...</span>
+    if (syncStatus === 'synced') return <span className="sync-badge synced" title="所有进度已同步到云端">☁️ 已同步</span>
+    if (syncStatus === 'error') {
+      const isNetwork = syncError.includes('超时') || syncError.includes('网络') || syncError.includes('Failed to fetch')
+      const tip = isNetwork
+        ? '网络不稳定，数据已保存本地，可手动重试'
+        : syncError.includes('401') || syncError.includes('403')
+          ? 'Token 无效或权限不足，请重新登录'
+          : syncError || '同步失败'
+      return (
+        <span
+          className="sync-badge error clickable"
+          title={tip}
+          onClick={() => manualSync()}
+          onMouseEnter={() => setShowErrorTip(true)}
+          onMouseLeave={() => setShowErrorTip(false)}
+        >
+          ⚠️ 同步失败
+          {showErrorTip && <span className="sync-error-tip">{tip} · 点击重试</span>}
+        </span>
+      )
+    }
     return null
   }
 

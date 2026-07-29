@@ -49,6 +49,7 @@ interface ProgressContextType {
   progress: UserProgress
   stats: AchievementStats
   syncStatus: 'idle' | 'loading' | 'synced' | 'syncing' | 'error'
+  syncError: string
   isLessonCompleted: (levelId: number, lessonId: number) => boolean
   isChallengeCompleted: (levelId: number, challengeId: number) => boolean
   isLevelUnlocked: (levelId: number) => boolean
@@ -159,6 +160,7 @@ function makeId() {
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const { auth, isLoading: authLoading } = useAuth()
   const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'syncing' | 'synced' | 'error'>('idle')
+  const [syncError, setSyncError] = useState('')
   const [progress, setProgress] = useState<UserProgress>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -174,12 +176,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const hasSyncedRef = useRef(false)
   const pendingSyncRef = useRef<NodeJS.Timeout | null>(null)
+  const syncErrorRef = useRef<string>('')
 
   // 登录后从 Gist 加载进度
   useEffect(() => {
     if (authLoading) return
     if (!auth || !auth.gistId) {
       setSyncStatus('idle')
+      hasSyncedRef.current = false
       return
     }
     if (hasSyncedRef.current) return
@@ -199,12 +203,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           })
         }
         setSyncStatus('synced')
+        syncErrorRef.current = ''
         hasSyncedRef.current = true
       })
       .catch(err => {
         console.error('加载云端进度失败', err)
+        const msg = err instanceof Error ? err.message : String(err)
+        syncErrorRef.current = msg
         setSyncStatus('error')
-        hasSyncedRef.current = true
+        // 网络问题时允许后续重试（不阻止 hasSyncedRef）
+        if (msg.includes('超时') || msg.includes('网络') || msg.includes('Failed to fetch')) {
+          hasSyncedRef.current = false
+        } else {
+          hasSyncedRef.current = true
+        }
       })
   }, [auth, authLoading])
 
@@ -231,9 +243,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           savedAt: new Date().toISOString(),
           version: STORAGE_VERSION
         })
-          .then(() => setSyncStatus('synced'))
+          .then(() => {
+            setSyncStatus('synced')
+            setSyncError('')
+          })
           .catch(err => {
             console.error('上传 Gist 失败', err)
+            const msg = err instanceof Error ? err.message : String(err)
+            setSyncError(msg)
             setSyncStatus('error')
           })
       }, 1500)
@@ -509,6 +526,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const manualSync = useCallback(async () => {
     if (!auth || !auth.gistId) return
     setSyncStatus('syncing')
+    setSyncError('')
     try {
       await writeGist(auth.token, auth.gistId, {
         progress,
@@ -518,6 +536,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setSyncStatus('synced')
     } catch (err) {
       console.error('手动同步失败', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      setSyncError(msg)
       setSyncStatus('error')
     }
   }, [auth, progress])
@@ -547,6 +567,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       progress,
       stats,
       syncStatus,
+      syncError,
       isLessonCompleted,
       isChallengeCompleted,
       isLevelUnlocked,
