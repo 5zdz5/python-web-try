@@ -9,7 +9,7 @@ import { Level } from '../../types'
 function LevelMap() {
   const navigate = useNavigate()
   const [selectedLevel, setSelectedLevel] = useState<Level>(levels[3])
-  const { progress, isLevelUnlocked, isLevelCompleted, isChallengeCompleted, getLevelProgress } = useProgress()
+  const { progress, isLevelUnlocked, isLevelCompleted, isChallengeCompleted, getLevelProgress, godMode, toggleGodMode } = useProgress()
 
   const levelsWithStatus = useMemo(() => {
     return levels.map(level => {
@@ -73,17 +73,31 @@ function LevelMap() {
             </p>
           </div>
 
-          <div className="progress-bar-section">
-            <div className="progress-info">
-              <span className="progress-label">学习进度</span>
-              <span className="progress-percent">{progressPercent}%</span>
+          <div className="map-controls">
+            <div className="progress-bar-section">
+              <div className="progress-info">
+                <span className="progress-label">学习进度</span>
+                <span className="progress-percent">{progressPercent}%</span>
+              </div>
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+              </div>
             </div>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill"
-                style={{ width: `${progressPercent}%` }}
-              ></div>
-            </div>
+
+            <button
+              className={`god-mode-btn ${godMode ? 'active' : ''}`}
+              onClick={toggleGodMode}
+              title={godMode ? '无敌模式已开启：所有关卡解锁' : '点击开启无敌模式：解锁所有关卡'}
+            >
+              <span className="god-mode-icon">{godMode ? '⚡' : '🔒'}</span>
+              <span className="god-mode-text">{godMode ? '无敌模式' : '按进度解锁'}</span>
+              <span className="god-mode-toggle">
+                <span className={`toggle-slider ${godMode ? 'on' : ''}`}></span>
+              </span>
+            </button>
           </div>
         </div>
 

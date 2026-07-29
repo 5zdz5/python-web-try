@@ -34,6 +34,7 @@ interface UserProgress {
   unlockedAchievements: string[]
   claimedAchievements: string[]
   activityLog: ActivityEntry[]
+  godMode?: boolean
 }
 
 export interface ActivityEntry {
@@ -74,6 +75,8 @@ interface ProgressContextType {
   forceLocalSave: () => void
   currentVersion: VersionInfo | null
   versionHistory: VersionInfo[]
+  godMode: boolean
+  toggleGodMode: () => void
 }
 
 // 版本化存储：每次迭代使用独立的 key，旧版本数据冻结保留
@@ -388,6 +391,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, [progress])
 
   const isLevelUnlocked = useCallback((levelId: number) => {
+    if (progress.godMode) return true
     return progress.levels[levelId]?.unlocked || false
   }, [progress])
 
@@ -636,6 +640,73 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     return progress.activityLog.slice(0, limit)
   }, [progress])
 
+  const toggleGodMode = useCallback(() => {
+    setProgress(prev => {
+      const newGodMode = !prev.godMode
+      if (newGodMode) {
+        // 开启无敌版：解锁所有关卡
+        const levels: Record<number, LevelProgress> = {}
+        for (let i = 1; i <= 34; i++) {
+          levels[i] = {
+            ...(prev.levels[i] || { lessons: {}, challenges: {} }),
+            unlocked: true,
+            completed: prev.levels[i]?.completed || false
+          }
+        }
+        return {
+          ...prev,
+          godMode: true,
+          levels,
+          activityLog: [
+            {
+              id: 'godmode-on-' + Date.now(),
+              type: 'achievement' as const,
+              title: '无敌模式已开启',
+              description: '所有关卡已解锁，自由探索！',
+              xp: 0,
+              timestamp: new Date().toISOString(),
+              icon: '⚡'
+            },
+            ...prev.activityLog
+          ]
+        }
+      } else {
+        // 关闭无敌版：恢复按进度解锁（第1关解锁，其余按完成情况）
+        const levels: Record<number, LevelProgress> = {}
+        for (let i = 1; i <= 34; i++) {
+          const existing = prev.levels[i] || { lessons: {}, challenges: {} }
+          levels[i] = {
+            ...existing,
+            unlocked: i === 1 || existing.completed
+          }
+        }
+        // 确保已完成关卡的下一关是解锁的
+        for (let i = 1; i <= 33; i++) {
+          if (levels[i].completed) {
+            levels[i + 1].unlocked = true
+          }
+        }
+        return {
+          ...prev,
+          godMode: false,
+          levels,
+          activityLog: [
+            {
+              id: 'godmode-off-' + Date.now(),
+              type: 'achievement' as const,
+              title: '无敌模式已关闭',
+              description: '恢复按进度解锁关卡',
+              xp: 0,
+              timestamp: new Date().toISOString(),
+              icon: '🔒'
+            },
+            ...prev.activityLog
+          ]
+        }
+      }
+    })
+  }, [])
+
   const resetProgress = useCallback(() => {
     setProgress({ ...defaultProgress })
     try {
@@ -713,7 +784,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       manualSync,
       forceLocalSave,
       currentVersion,
-      versionHistory
+      versionHistory,
+      godMode: progress.godMode || false,
+      toggleGodMode
     }}>
       {children}
     </ProgressContext.Provider>

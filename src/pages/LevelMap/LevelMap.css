@@ -64,6 +64,82 @@
   margin-bottom: var(--spacing-3xl);
 }
 
+.map-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 无敌模式按钮 */
+.god-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+  user-select: none;
+}
+
+.god-mode-btn:hover {
+  border-color: rgba(255, 170, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.god-mode-btn.active {
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.15), rgba(255, 100, 50, 0.1));
+  border-color: rgba(255, 170, 0, 0.5);
+  color: #ffaa00;
+  box-shadow: 0 0 16px rgba(255, 170, 0, 0.15);
+}
+
+.god-mode-icon {
+  font-size: 16px;
+}
+
+.god-mode-text {
+  font-size: 13px;
+}
+
+.god-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: background 0.3s;
+}
+
+.god-mode-btn.active .god-mode-toggle {
+  background: rgba(255, 170, 0, 0.3);
+}
+
+.toggle-slider {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #888;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-slider.on {
+  left: 18px;
+  background: #ffaa00;
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);
+}
+
 .path-info {
   margin-bottom: var(--spacing-xl);
 }
