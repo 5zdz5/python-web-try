@@ -120,18 +120,19 @@ export function initVersionSystem(): VersionInfo[] {
     return registry
   }
 
-  // 新版本：冻结所有旧版本
-  registry.forEach(v => { v.frozen = true })
-
-  // 把当前活跃版本的数据复制到其冻结 key
+  // 新版本：先找到当前活跃版本，再冻结所有旧版本
   const lastActive = registry.find(v => !v.frozen)
   if (lastActive) {
+    // 把活跃版本的数据复制到其冻结 key（确保快照保留）
     const currentData = safeGet(lastActive.storageKey) || safeGet(LEGACY_PROGRESS_KEY)
     if (currentData) {
       safeSet(lastActive.storageKey, currentData)
     }
     lastActive.frozen = true
   }
+
+  // 冻结所有版本（确保新版本是唯一未冻结的）
+  registry.forEach(v => { v.frozen = true })
 
   // 添加新版本
   const newVersion: VersionInfo = {
@@ -151,6 +152,17 @@ export function initVersionSystem(): VersionInfo[] {
 export function getCurrentVersionInfo(): VersionInfo | null {
   const registry = getVersionRegistry()
   return registry.find(v => v.version === CURRENT_VERSION && !v.frozen) || null
+}
+
+/** 获取上一版本的存储 key（用于版本迁移时读取旧进度） */
+export function getPreviousVersionStorageKey(): string | null {
+  const registry = getVersionRegistry()
+  // 找到最后一个冻结版本（即上一版本）
+  const frozen = registry.filter(v => v.frozen)
+  if (frozen.length === 0) return null
+  // 按日期排序取最近的冻结版本
+  const sorted = frozen.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  return sorted[0].storageKey
 }
 
 /** 获取指定版本的进度数据（只读） */

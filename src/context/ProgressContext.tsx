@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext'
 import { readGist, writeGist } from '../config/github'
 import { achievements as allAchievements, AchievementStats } from '../data/achievements'
 import { levels as ALL_LEVELS } from '../data/mockData'
-import { initVersionSystem, getVersionStorageKey, CURRENT_VERSION, getCurrentVersionInfo, VersionInfo } from '../config/versionManager'
+import { initVersionSystem, getVersionStorageKey, CURRENT_VERSION, getCurrentVersionInfo, getPreviousVersionStorageKey, VersionInfo } from '../config/versionManager'
 
 interface LessonProgress {
   completed: boolean
@@ -245,7 +245,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         return sanitizeProgress(parsed)
       } catch {}
     }
-    // 回退：尝试旧版数据并迁移
+    // 回退1：尝试上一版本的存储 key 并迁移
+    const prevKey = getPreviousVersionStorageKey()
+    if (prevKey) {
+      const prevData = safeGetItem(prevKey)
+      if (prevData) {
+        try {
+          const migrated = migrateProgress(JSON.parse(prevData))
+          // 把迁移后的数据存到当前版本的 key
+          safeSetItem(STORAGE_KEY, JSON.stringify(migrated))
+          return migrated
+        } catch {}
+      }
+    }
+    // 回退2：尝试旧版数据并迁移
     const legacyData = safeGetItem('python-quest-progress')
     if (legacyData) {
       try {
