@@ -43,10 +43,10 @@ function Home() {
             <Link to="/map" className="btn btn-primary btn-lg">
               开始冒险
             </Link>
-            <button className="btn btn-secondary btn-lg">
-              <span className="btn-icon">▶</span>
-              免费试学
-            </button>
+            <Link to="/source" className="btn btn-secondary btn-lg">
+              <span className="btn-icon">🔧</span>
+              源码探索
+            </Link>
           </div>
 
           <div className="hero-stats animate-fade-in delay-400">
