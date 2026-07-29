@@ -1,0 +1,148 @@
+.eb-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a, #1e1b4b);
+  padding: 20px;
+}
+
+.eb-card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.eb-icon {
+  font-size: 64px;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: eb-shake 0.5s ease;
+}
+
+@keyframes eb-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.eb-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ef4444;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.eb-message {
+  color: #94a3b8;
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.eb-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.eb-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.eb-btn-primary {
+  background: #6366f1;
+  color: #fff;
+}
+
+.eb-btn-primary:hover {
+  background: #5558e0;
+  transform: translateY(-2px);
+}
+
+.eb-btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.eb-btn-secondary:hover {
+  background: #475569;
+}
+
+.eb-btn-outline {
+  background: transparent;
+  border: 1px solid #6366f1;
+  color: #6366f1;
+}
+
+.eb-btn-outline:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.eb-report {
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.eb-details-toggle {
+  width: 100%;
+  padding: 10px;
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  margin-top: 12px;
+}
+
+.eb-details-toggle:hover {
+  background: #1e293b;
+}
+
+.eb-details {
+  margin-top: 12px;
+  padding: 16px;
+  background: #0f172a;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.eb-details h4 {
+  color: #ef4444;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.eb-details pre {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.eb-details .eb-stack {
+  color: #94a3b8;
+  margin-top: 8px;
+  font-size: 11px;
+}
