@@ -9,7 +9,7 @@
  *   5. 可调参数实时展示
  *   6. 快照管理（带版本号）
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAIAgent } from '../context/AIAgentContext'
 import type { AgentState, TunableParams, OptDomain, OrchestrationEntryType } from '../types/ai'
 import './AIAgentPanel.css'
@@ -110,13 +110,46 @@ function AIAgentPanel() {
     startAgent, stopAgent, pauseAgent, resetAgent, updateConfig, resetParams,
     createSnapshot, restoreSnapshot, deleteSnapshot, markSnapshotStable,
     orchestration, runGlobalOrchestration, clearOrchestrationEntries,
+    clearAgentRuntimeCache, safeFullReset, agentCacheStats,
   } = useAIAgent()
 
   const [showParams, setShowParams] = useState(false)
   const [showConfig, setShowConfig] = useState(false)
   const [showOrchestration, setShowOrchestration] = useState(false)
+  const [cacheStats, setCacheStats] = useState(() => ({ localStorageCount: 0, sessionStorageCount: 0 }))
+  const [clearedMsg, setClearedMsg] = useState<string | null>(null)
+
+  // 缓存统计懒刷新（避免每帧都遍历 storage）
+  const refreshCacheStats = () => { try { setCacheStats(agentCacheStats()) } catch { /* ignore */ } }
 
   const isRunning = !['idle', 'paused', 'committed', 'rolledback'].includes(state)
+
+  // 组件挂载时刷新一次缓存统计
+  useEffect(() => {
+    try {
+      const t = setTimeout(refreshCacheStats, 100)
+      return () => clearTimeout(t)
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  // 更安全的重置确认（不依赖原生 confirm，避免浏览器策略差异）
+  const handleFullReset = () => {
+    const msg = '确认对 Agent 做安全全量重置？\n（不会影响你的学习进度和登录状态）\n\n点「确定」继续，点「取消」返回'
+    const ok = typeof window !== 'undefined' ? (window as any).confirm ? window.confirm(msg) : true : true
+    if (ok) {
+      try {
+        safeFullReset()
+        setClearedMsg('✓ 已安全全量重置')
+        setTimeout(() => setClearedMsg(null), 3000)
+        refreshCacheStats()
+      } catch {
+        setClearedMsg('⚠ 重置已跳过')
+        setTimeout(() => setClearedMsg(null), 3000)
+      }
+    }
+  }
 
   return (
     <div className="aap-container">
@@ -164,6 +197,36 @@ function AIAgentPanel() {
           >
             {orchestration.active ? '⏳ 调配中...' : '🌐 全局调配'}
           </button>
+          <button
+            className="aap-btn aap-btn-cache"
+            onClick={() => {
+              try {
+                const n = clearAgentRuntimeCache()
+                setClearedMsg(`✓ 已清除 ${n} 项缓存`)
+                setTimeout(() => setClearedMsg(null), 3000)
+                refreshCacheStats()
+              } catch {
+                setClearedMsg('⚠ 清理已跳过')
+                setTimeout(() => setClearedMsg(null), 3000)
+              }
+            }}
+          >
+            🧹 清缓存
+          </button>
+          <button
+            className="aap-btn aap-btn-fullreset"
+            onClick={handleFullReset}
+          >
+            ♻️ 安全重置
+          </button>
+        </div>
+        {clearedMsg && (
+          <div className="aap-cleared-msg">{clearedMsg}</div>
+        )}
+        <div className="aap-cache-hint">
+          <span>localStorage: {cacheStats.localStorageCount} 项</span>
+          <span>sessionStorage: {cacheStats.sessionStorageCount} 项</span>
+          <span style={{ opacity: 0.6 }}>（仅清理 Agent 自身数据，不碰学习进度/登录）</span>
         </div>
 
         {/* 摘要统计 */}

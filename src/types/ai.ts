@@ -61,6 +61,9 @@ export interface OptimizationStrategy {
   risk: number
   // 是否首页安全（true 表示可在首页运行）
   homepageSafe: boolean
+  // 条件过滤：当前参数是否还能应用此策略（避免到达边界的无效优化）
+  // 可选：未提供时默认始终可应用（后续由 willChange 二次过滤）
+  appliesTo?: (params: TunableParams) => boolean
   // 应用函数（返回应用后的参数变更）
   apply: (params: TunableParams) => TunableParams
 }

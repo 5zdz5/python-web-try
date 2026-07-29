@@ -34,7 +34,35 @@ export const DEFAULT_PARAMS: TunableParams = {
   enableErrorRecovery: true,
 }
 
+// ===== 参数边界常量（优化前先检测是否可达，避免无效 apply）=====
+const BOUNDS = {
+  cacheTTL: { min: 0, max: 30 * 60 * 1000 },
+  memoryCacheSize: { min: 0, max: 200 },
+  debounceMs: { min: 0, max: 800 },
+  throttleMs: { min: 0, max: 1000 },
+  lazyLoadThreshold: { min: 0, max: 2000 },
+  toastDuration: { min: 1500, max: 10000 },
+  animationDuration: { min: 150, max: 1000 },
+  loadingTimeout: { min: 5000, max: 30000 },
+  autoSaveInterval: { min: 500, max: 5000 },
+  maxRetries: { min: 0, max: 5 },
+  retryBaseDelay: { min: 1000, max: 10000 },
+  snapshotInterval: { min: 60 * 1000, max: 60 * 60 * 1000 },
+  errorThreshold: { min: 3, max: 50 },
+} as const
+
+/** 检测策略对当前参数是否还能改变（避免无效优化） */
+function willChange(params: TunableParams, apply: (p: TunableParams) => TunableParams): boolean {
+  const next = apply(params)
+  return Object.keys(next).some(k => {
+    const key = k as keyof TunableParams
+    return (params[key] as unknown) !== (next[key] as unknown)
+  })
+}
+
 // ===== 优化策略库 =====
+// 说明：每个策略都附加了 appliesTo 函数，用于在 selectStrategies 阶段先过滤
+// 已经到达边界或布尔开关已经是目标值的策略直接跳过，减少无效优化
 export const STRATEGIES: OptimizationStrategy[] = [
   // ===== 性能优化 =====
   {
@@ -45,7 +73,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.15,
     risk: 0.1,
     homepageSafe: true,
-    apply: (p) => ({ ...p, cacheTTL: Math.min(p.cacheTTL * 1.5, 30 * 60 * 1000) }),
+    appliesTo: (p) => p.cacheTTL < BOUNDS.cacheTTL.max,
+    apply: (p) => ({ ...p, cacheTTL: Math.min(p.cacheTTL * 1.5, BOUNDS.cacheTTL.max) }),
   },
   {
     id: 'perf-expand-memory-cache',
@@ -55,7 +84,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.1,
     risk: 0.2,
     homepageSafe: true,
-    apply: (p) => ({ ...p, memoryCacheSize: Math.min(p.memoryCacheSize + 25, 200) }),
+    appliesTo: (p) => p.memoryCacheSize < BOUNDS.memoryCacheSize.max,
+    apply: (p) => ({ ...p, memoryCacheSize: Math.min(p.memoryCacheSize + 25, BOUNDS.memoryCacheSize.max) }),
   },
   {
     id: 'perf-increase-debounce',
@@ -65,7 +95,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.08,
     risk: 0.15,
     homepageSafe: true,
-    apply: (p) => ({ ...p, debounceMs: Math.min(p.debounceMs + 100, 800) }),
+    appliesTo: (p) => p.debounceMs < BOUNDS.debounceMs.max,
+    apply: (p) => ({ ...p, debounceMs: Math.min(p.debounceMs + 100, BOUNDS.debounceMs.max) }),
   },
   {
     id: 'perf-enable-prefetch',
@@ -75,18 +106,11 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.2,
     risk: 0.3,
     homepageSafe: true,
+    appliesTo: (p) => p.enablePrefetch !== true,
     apply: (p) => ({ ...p, enablePrefetch: true }),
   },
-  {
-    id: 'perf-lazy-pyodide',
-    domain: 'performance',
-    name: 'Pyodide 懒加载',
-    description: '推迟Pyodide初始化到首次使用，加快首屏。',
-    expectedGain: 0.25,
-    risk: 0.2,
-    homepageSafe: true,
-    apply: (p) => ({ ...p, enableLazyPyodide: true }),
-  },
+  // perf-lazy-pyodide 和 stab-enable-recovery 已在 DEFAULT_PARAMS 中默认开启，
+  // apply 不会产生任何变化，属于无效优化，已移除。
   // ===== UX 优化 =====
   {
     id: 'ux-shorten-animation',
@@ -96,7 +120,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.1,
     risk: 0.1,
     homepageSafe: true,
-    apply: (p) => ({ ...p, animationDuration: Math.max(p.animationDuration - 50, 150) }),
+    appliesTo: (p) => p.animationDuration > BOUNDS.animationDuration.min,
+    apply: (p) => ({ ...p, animationDuration: Math.max(p.animationDuration - 50, BOUNDS.animationDuration.min) }),
   },
   {
     id: 'ux-shorten-toast',
@@ -106,7 +131,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.05,
     risk: 0.05,
     homepageSafe: true,
-    apply: (p) => ({ ...p, toastDuration: Math.max(p.toastDuration - 500, 1500) }),
+    appliesTo: (p) => p.toastDuration > BOUNDS.toastDuration.min,
+    apply: (p) => ({ ...p, toastDuration: Math.max(p.toastDuration - 500, BOUNDS.toastDuration.min) }),
   },
   {
     id: 'ux-reduce-loading-timeout',
@@ -116,7 +142,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.12,
     risk: 0.2,
     homepageSafe: true,
-    apply: (p) => ({ ...p, loadingTimeout: Math.max(p.loadingTimeout - 2000, 5000) }),
+    appliesTo: (p) => p.loadingTimeout > BOUNDS.loadingTimeout.min,
+    apply: (p) => ({ ...p, loadingTimeout: Math.max(p.loadingTimeout - 2000, BOUNDS.loadingTimeout.min) }),
   },
   {
     id: 'ux-speedup-autosave',
@@ -126,7 +153,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.08,
     risk: 0.3,
     homepageSafe: true,
-    apply: (p) => ({ ...p, autoSaveInterval: Math.max(p.autoSaveInterval - 300, 500) }),
+    appliesTo: (p) => p.autoSaveInterval > BOUNDS.autoSaveInterval.min,
+    apply: (p) => ({ ...p, autoSaveInterval: Math.max(p.autoSaveInterval - 300, BOUNDS.autoSaveInterval.min) }),
   },
   // ===== 稳定性优化 =====
   {
@@ -137,7 +165,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.15,
     risk: 0.2,
     homepageSafe: true,
-    apply: (p) => ({ ...p, maxRetries: Math.min(p.maxRetries + 1, 5) }),
+    appliesTo: (p) => p.maxRetries < BOUNDS.maxRetries.max,
+    apply: (p) => ({ ...p, maxRetries: Math.min(p.maxRetries + 1, BOUNDS.maxRetries.max) }),
   },
   {
     id: 'stab-reduce-retry-delay',
@@ -147,7 +176,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.1,
     risk: 0.25,
     homepageSafe: true,
-    apply: (p) => ({ ...p, retryBaseDelay: Math.max(p.retryBaseDelay - 500, 1000) }),
+    appliesTo: (p) => p.retryBaseDelay > BOUNDS.retryBaseDelay.min,
+    apply: (p) => ({ ...p, retryBaseDelay: Math.max(p.retryBaseDelay - 500, BOUNDS.retryBaseDelay.min) }),
   },
   {
     id: 'stab-increase-snapshot-freq',
@@ -157,7 +187,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.12,
     risk: 0.15,
     homepageSafe: true,
-    apply: (p) => ({ ...p, snapshotInterval: Math.max(p.snapshotInterval / 2, 60 * 1000) }),
+    appliesTo: (p) => p.snapshotInterval > BOUNDS.snapshotInterval.min,
+    apply: (p) => ({ ...p, snapshotInterval: Math.max(p.snapshotInterval / 2, BOUNDS.snapshotInterval.min) }),
   },
   {
     id: 'stab-lower-error-threshold',
@@ -167,17 +198,8 @@ export const STRATEGIES: OptimizationStrategy[] = [
     expectedGain: 0.1,
     risk: 0.3,
     homepageSafe: true,
-    apply: (p) => ({ ...p, errorThreshold: Math.max(p.errorThreshold - 2, 3) }),
-  },
-  {
-    id: 'stab-enable-recovery',
-    domain: 'stability',
-    name: '启用错误恢复',
-    description: '自动从错误状态恢复，减少白屏。',
-    expectedGain: 0.2,
-    risk: 0.1,
-    homepageSafe: true,
-    apply: (p) => ({ ...p, enableErrorRecovery: true }),
+    appliesTo: (p) => p.errorThreshold > BOUNDS.errorThreshold.min,
+    apply: (p) => ({ ...p, errorThreshold: Math.max(p.errorThreshold - 2, BOUNDS.errorThreshold.min) }),
   },
 ]
 
@@ -264,21 +286,40 @@ export function getStrategiesByDomain(domain: OptDomain): OptimizationStrategy[]
 
 /**
  * 选择本轮要应用的策略
- *  - 按（预期收益 / (风险+0.1)）降序排列
- *  - 限制每轮最多 3 条，避免一次性变化过大
- *  - 首页保护模式下只选 homepageSafe=true 的策略
+ *  过滤器层级（从强到弱，每一层都减少无效策略）：
+ *   1. 领域筛选（enabledDomains）
+ *   2. 首页保护（homepageSafe）
+ *   3. appliesTo 条件（参数是否还能改变）
+ *   4. willChange 二次检测（apply 前后是否真的不同）
+ *   5. 高评分减少策略：当 overall≥85 时最多 1 条，≥90 时直接跳过
+ *   6. 按收益/风险排序
+ *   7. maxPerIteration 限制
  */
 export function selectStrategies(
   enabledDomains: OptDomain[],
   homepageProtected: boolean,
   maxPerIteration = 3,
+  params?: TunableParams,
+  overallScore?: number,
 ): OptimizationStrategy[] {
+  // 过滤 5: 评分已很高时停止微调
+  if (overallScore !== undefined && overallScore >= 90) return []
+  const effectiveMax = overallScore !== undefined && overallScore >= 85
+    ? Math.min(maxPerIteration, 1)
+    : maxPerIteration
+
   const candidates = STRATEGIES.filter(s => {
+    // 1. 领域筛选
     if (!enabledDomains.includes(s.domain)) return false
+    // 2. 首页保护
     if (homepageProtected && !s.homepageSafe) return false
+    // 3. appliesTo 条件（可选）
+    if (params && s.appliesTo && !s.appliesTo(params)) return false
+    // 4. willChange 二次检测（最严格的去无效优化）
+    if (params && !willChange(params, s.apply)) return false
     return true
   })
   return candidates
     .sort((a, b) => (b.expectedGain / (b.risk + 0.1)) - (a.expectedGain / (a.risk + 0.1)))
-    .slice(0, maxPerIteration)
+    .slice(0, effectiveMax)
 }

@@ -79,6 +79,11 @@ interface AIAgentContextValue {
   orchestration: GlobalOrchestrationState
   runGlobalOrchestration: () => Promise<void>
   clearOrchestrationEntries: () => void
+
+  // 缓存与重置（安全无破坏性，不影响用户数据）
+  clearAgentRuntimeCache: () => number   // 清 Agent 自身缓存/指标，返回被清理项数
+  safeFullReset: () => void              // 安全全量重置（仅 Agent 数据，不碰用户进度/认证）
+  agentCacheStats: () => { localStorageCount: number; sessionStorageCount: number }
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -369,6 +374,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       config.enabledDomains,
       config.homepageProtected && onHome,
       3,
+      params,
+      scoresBefore.overall,
     )
     const decisions: Decision[] = []
     for (const s of strategies) {
@@ -602,6 +609,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       config.enabledDomains,
       config.homepageProtected && onHome,
       5,  // 全局调配选最多 5 个策略
+      params,
+      scores.overall,
     )
     let newParams = { ...params }
     const appliedNames: string[] = []
@@ -671,6 +680,78 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     setOrchestration(prev => ({ ...prev, entries: [], totalAdaptations: 0 }))
   }, [])
 
+  // ===== 缓存与重置（安全，不碰用户进度/认证）=====
+  // 只清理 `python-quest-agent-*` 前缀的 localStorage/sessionStorage
+  const AGENT_KEY_PREFIXES = [
+    'python-quest-agent-state',
+    'python-quest-agent-config',
+    'python-quest-agent-params',
+    'python-quest-agent-history',
+    'python-quest-agent-snapshots',
+    'python-quest-agent-orchestration',
+    'python-quest-agent-metrics-',
+  ]
+
+  const agentCacheStats = useCallback(() => {
+    let lsCount = 0
+    let ssCount = 0
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && AGENT_KEY_PREFIXES.some(p => k.startsWith(p))) lsCount++
+    }
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i)
+      if (k && AGENT_KEY_PREFIXES.some(p => k.startsWith(p))) ssCount++
+    }
+    return { localStorageCount: lsCount, sessionStorageCount: ssCount }
+  }, [])
+
+  const clearAgentRuntimeCache = useCallback(() => {
+    let cleared = 0
+    const lsKeys: string[] = []
+    const ssKeys: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && AGENT_KEY_PREFIXES.some(p => k.startsWith(p))) lsKeys.push(k)
+    }
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i)
+      if (k && AGENT_KEY_PREFIXES.some(p => k.startsWith(p))) ssKeys.push(k)
+    }
+    lsKeys.forEach(k => { localStorage.removeItem(k); cleared++ })
+    ssKeys.forEach(k => { sessionStorage.removeItem(k); cleared++ })
+    // 重置运行时状态（不触发副作用写入）
+    setParams(DEFAULT_PARAMS)
+    setConfig(DEFAULT_CONFIG)
+    setHistory([])
+    setSnapshots([])
+    setOrchestration({ ...DEFAULT_ORCHESTRATION })
+    resetCounters()
+    monitor.logEvent('info', 'agent', `Agent 缓存清理完成，共清除 ${cleared} 项`)
+    return cleared
+  }, [monitor])
+
+  const safeFullReset = useCallback(() => {
+    // 1. 直接清定时器，确保一定停下来
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    // 2. 再调 stopAgent 做状态同步（幂等）
+    stopAgentRef.current?.()
+    // 3. 清缓存
+    clearAgentRuntimeCache()
+    // 4. 强制重置所有状态
+    setState('idle')
+    setCurrentIteration(null)
+    setCurrentMetrics(null)
+    setCurrentScores(null)
+    setRollbackCount(0)
+    setAppliedOptimizations(0)
+    startTimeRef.current = Date.now()
+    monitor.logEvent('info', 'agent', 'Agent 安全全量重置完成（用户数据未受影响）')
+  }, [clearAgentRuntimeCache, monitor])
+
   // ===== 自动运行 =====
   useEffect(() => {
     if (config.autoRun && state === 'idle') {
@@ -707,6 +788,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     createSnapshot, restoreSnapshot, deleteSnapshot, markSnapshotStable,
     currentMetrics, currentScores, strategies: STRATEGIES,
     orchestration, runGlobalOrchestration, clearOrchestrationEntries,
+    clearAgentRuntimeCache, safeFullReset, agentCacheStats,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>
