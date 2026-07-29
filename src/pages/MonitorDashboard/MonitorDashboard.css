@@ -762,3 +762,23 @@
     margin-left: 0;
   }
 }
+
+/* ===== AI Agent 介绍 ===== */
+.md-agent-intro {
+  background: linear-gradient(135deg, #1e293b 0%, #312e81 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.md-agent-intro .md-panel-title {
+  color: #e2e8f0;
+  margin-bottom: 8px;
+}
+
+.md-agent-intro .md-panel-desc {
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}

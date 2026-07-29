@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useMonitor } from '../../context/MonitorContext'
 import { SOURCE_CODE_ENTRIES } from '../../data/sourceCodeData'
+import AIAgentPanel from '../../components/AIAgentPanel'
 import type { MonitorGroup, MonitorEvent } from '../../types/monitor'
 import './MonitorDashboard.css'
 
-type Tab = 'overview' | 'groups' | 'source' | 'patrol' | 'snapshots'
+type Tab = 'overview' | 'groups' | 'source' | 'patrol' | 'snapshots' | 'agent'
 
 const STATUS_COLORS: Record<MonitorGroup['status'], string> = {
   healthy: '#10b981',
@@ -61,6 +62,7 @@ function MonitorDashboard() {
     { id: 'source', label: '源码原理', icon: '🔬' },
     { id: 'patrol', label: '巡游记录', icon: '🚀' },
     { id: 'snapshots', label: '快照保险', icon: '💾' },
+    { id: 'agent', label: 'AI Agent', icon: '🤖' },
   ]
 
   const groupList = Object.values(groups)
@@ -420,6 +422,20 @@ function MonitorDashboard() {
                 <div className="md-empty">暂无快照，点击"创建新快照"开始</div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ===== AI Agent ===== */}
+        {activeTab === 'agent' && (
+          <div className="md-panel">
+            <div className="md-agent-intro">
+              <h2 className="md-panel-title">🤖 AI Agent 自主迭代优化</h2>
+              <p className="md-panel-desc">
+                浏览器端 AI Agent，通过"观察→分析→决策→快照→执行→验证→提交/回溯"循环自主优化。
+                每次执行前创建版本号快照，评分下降超阈值时自动回溯，首页受保护永不修改。
+              </p>
+            </div>
+            <AIAgentPanel />
           </div>
         )}
       </div>
