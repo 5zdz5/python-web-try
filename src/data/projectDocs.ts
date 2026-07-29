@@ -39,7 +39,7 @@ export const DOC_CHANGES = [
   '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
   '对齐菜鸟教程10大教程全目录：Python3、FastAPI、Django、NumPy、Pandas、Matplotlib、Jupyter Notebook、Pillow、Python Qt、R 语言',
   '引入8大分类地图系统：基础、进阶、网络爬虫、数据科学、Web开发、工具、金融、系统编程，每类独立主题色',
-  '新增17张菜鸟教程主题卡片，覆盖 Requests、Scrapy、正则表达式、MySQL、SQLite、Redis、Git、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 等',
+  '主题卡片扩展至76张：新增 MongoDB、BeautifulSoup、Selenium、pyecharts、pip 包管理、venv 虚拟环境、CSV、logging、datetime 等细分主题，覆盖 Requests、Scrapy、正则表达式、MySQL、SQLite、Redis、Git、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 全生态',
   '无敌模式覆盖全部60关，分类地图切换支持主题色动态变化',
   '版本化存储 key 自动升级，旧版本数据冻结保留'
 ]
@@ -110,7 +110,7 @@ export const FILE_TREE: FileNode[] = [
           { name: 'mockData.ts', type: 'file', path: 'src/data/mockData.ts', desc: '60关卡元数据（标题/难度/图标/分类/主题，8大分类地图）' },
           { name: 'lessonContent.ts', type: 'file', path: 'src/data/lessonContent.ts', desc: '课程内容（10000+行，60关×多步，含讲解/示例/练习/测验）' },
           { name: 'achievements.ts', type: 'file', path: 'src/data/achievements.ts', desc: '成就系统定义（XP/徽章/解锁条件）' },
-          { name: 'runoobTopics.ts', type: 'file', path: 'src/data/runoobTopics.ts', desc: '菜鸟教程17张拓展主题卡片' },
+          { name: 'runoobTopics.ts', type: 'file', path: 'src/data/runoobTopics.ts', desc: '菜鸟教程76张拓展主题卡片' },
           { name: 'projectDocs.ts', type: 'file', path: 'src/data/projectDocs.ts', desc: '项目文档数据（本文件）' }
         ]
       },
@@ -171,7 +171,7 @@ export const FEATURES: FeatureItem[] = [
   {
     icon: '🗂️',
     title: '菜鸟教程主题卡片',
-    desc: '17张拓展主题卡片对齐菜鸟教程，覆盖 Requests、Scrapy、正则表达式、MySQL、SQLite、Redis、Git、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 等，带分类标识和难度等级',
+    desc: '76张拓展主题卡片对齐菜鸟教程，覆盖 Requests、Scrapy、BeautifulSoup、Selenium、MongoDB、MySQL、SQLite、Redis、Git、pip、venv、CSV、logging、datetime、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 全生态，带分类标识和难度等级',
     files: ['src/data/runoobTopics.ts', 'src/pages/LevelDetail/LevelDetail.tsx']
   },
   {

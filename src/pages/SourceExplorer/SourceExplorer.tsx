@@ -131,7 +131,7 @@ function SourceExplorer() {
                   <div className="os-row"><span className="os-label">页面</span><span className="os-val">7 个</span></div>
                   <div className="os-row"><span className="os-label">关卡</span><span className="os-val">60 关</span></div>
                   <div className="os-row"><span className="os-label">分类地图</span><span className="os-val">8 大主题</span></div>
-                  <div className="os-row"><span className="os-label">主题卡片</span><span className="os-val">17 张</span></div>
+                  <div className="os-row"><span className="os-label">主题卡片</span><span className="os-val">76 张</span></div>
                   <div className="os-row"><span className="os-label">课程步骤</span><span className="os-val">10000+ 行</span></div>
                   <div className="os-row"><span className="os-label">依赖</span><span className="os-val">4 运行时 + 5 开发</span></div>
                 </div>

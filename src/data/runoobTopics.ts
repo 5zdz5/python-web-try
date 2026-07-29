@@ -400,6 +400,26 @@ export const runoobTopics: RunoobTopic[] = [
     unlocked: true,
     href: '#/level/30'
   },
+  {
+    id: 'beautifulsoup',
+    name: 'BeautifulSoup',
+    description: 'HTML/XML 解析、标签树遍历、CSS 选择器、数据提取。',
+    icon: '🍲',
+    category: 'web',
+    difficulty: 3,
+    unlocked: true,
+    href: '#/level/57'
+  },
+  {
+    id: 'selenium',
+    name: 'Selenium 自动化',
+    description: '浏览器驱动、元素定位、等待策略、自动化测试。',
+    icon: '🎭',
+    category: 'web',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/57'
+  },
 
   // ===== 数据科学 =====
   {
@@ -482,6 +502,16 @@ export const runoobTopics: RunoobTopic[] = [
     unlocked: true,
     href: '#/level/31'
   },
+  {
+    id: 'pyecharts',
+    name: 'pyecharts',
+    description: 'ECharts Python 封装、交互式图表、地理可视化、组合组件。',
+    icon: '🎴',
+    category: 'data',
+    difficulty: 3,
+    unlocked: true,
+    href: '#/level/57'
+  },
 
   // ===== 数据库 =====
   {
@@ -511,7 +541,18 @@ export const runoobTopics: RunoobTopic[] = [
     icon: '⚡',
     category: 'tool',
     difficulty: 3,
-    unlocked: true
+    unlocked: true,
+    href: '#/level/40'
+  },
+  {
+    id: 'mongodb',
+    name: 'Python MongoDB',
+    description: 'PyMongo 连接、CRUD、索引、聚合管道。',
+    icon: '🍃',
+    category: 'tool',
+    difficulty: 3,
+    unlocked: true,
+    href: '#/level/40'
   },
 
   // ===== 开发工具 =====
@@ -573,6 +614,56 @@ export const runoobTopics: RunoobTopic[] = [
     category: 'tool',
     difficulty: 2,
     unlocked: true
+  },
+  {
+    id: 'pip',
+    name: 'pip 包管理',
+    description: 'pip install/uninstall、requirements.txt、镜像源、虚拟环境隔离。',
+    icon: '📦',
+    category: 'tool',
+    difficulty: 1,
+    unlocked: true,
+    href: '#/level/11'
+  },
+  {
+    id: 'venv',
+    name: 'venv 虚拟环境',
+    description: 'python -m venv、激活/退出、依赖隔离、requirements 导出。',
+    icon: '🏚️',
+    category: 'tool',
+    difficulty: 2,
+    unlocked: true,
+    href: '#/level/56'
+  },
+  {
+    id: 'csv',
+    name: 'CSV 模块',
+    description: 'csv.reader/writer、DictReader、分隔符、大文件流式读取。',
+    icon: '📑',
+    category: 'tool',
+    difficulty: 2,
+    unlocked: true,
+    href: '#/level/46'
+  },
+  {
+    id: 'logging',
+    name: 'logging 日志',
+    description: 'Logger/Handler/Formatter、级别、文件日志、滚动日志、配置文件。',
+    icon: '🗒️',
+    category: 'tool',
+    difficulty: 3,
+    unlocked: true,
+    href: '#/level/46'
+  },
+  {
+    id: 'datetime',
+    name: 'datetime 时间处理',
+    description: 'date/time/datetime、格式化 strftime、时区 pytz、时间差 timedelta。',
+    icon: '🕰️',
+    category: 'tool',
+    difficulty: 2,
+    unlocked: true,
+    href: '#/level/46'
   },
 
   // ===== 其他语言 =====
