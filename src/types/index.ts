@@ -54,3 +54,9 @@ export type {
   CodingConvention, DesignPattern, LessonLearned, ReusableComponent,
   ExtensionRoadmap, BuildConstraints, ExperiencePack,
 } from './experiencePack'
+
+// 主题系统类型导出
+export type {
+  ThemeColors, ThemeFonts, ThemeDecoration, ThemeRadii,
+  ThemeMeta, ThemePreset, ThemeId, ThemeContextValue,
+} from './theme'

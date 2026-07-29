@@ -3,7 +3,9 @@ import { Link, useLocation } from 'react-router-dom'
 import './Navbar.css'
 import { useProgress } from '../../context/ProgressContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import LoginModal from '../LoginModal'
+import ThemePanel from '../ThemePanel/ThemePanel'
 
 interface NavbarProps {
   showUserInfo?: boolean
@@ -13,7 +15,9 @@ function Navbar({ showUserInfo }: NavbarProps) {
   const location = useLocation()
   const { progress, syncStatus, syncError, manualSync } = useProgress()
   const { auth, signOutUser } = useAuth()
+  const { theme } = useTheme()
   const [showLogin, setShowLogin] = useState(false)
+  const [showThemePanel, setShowThemePanel] = useState(false)
   const isHome = location.pathname === '/'
   const displayUserInfo = showUserInfo !== undefined ? showUserInfo : !isHome
   const [showErrorTip, setShowErrorTip] = useState(false)
@@ -82,6 +86,22 @@ function Navbar({ showUserInfo }: NavbarProps) {
           </div>
 
           <div className="navbar-actions">
+            {/* 主题切换按钮 — 始终显示 */}
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setShowThemePanel(true)}
+              title={`当前主题：${theme.meta.name}（点击切换）`}
+              style={{
+                // 用当前主色给按钮点个指示
+                borderLeft: '3px solid var(--color-accent-primary)',
+                boxShadow: '0 0 6px var(--color-accent-glow)',
+              }}
+            >
+              <span className="btn-icon" aria-hidden style={{ fontSize: 14 }}>
+                🎨
+              </span>
+              主题
+            </button>
             {displayUserInfo && (
               <div className="user-info">
                 <div className="xp-badge">
@@ -129,6 +149,7 @@ function Navbar({ showUserInfo }: NavbarProps) {
       </nav>
 
       <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
+      <ThemePanel isOpen={showThemePanel} onClose={() => setShowThemePanel(false)} />
     </>
   )
 }
