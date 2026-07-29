@@ -1,4 +1,4 @@
-var ct=Object.defineProperty;var ut=(t,s,r)=>s in t?ct(t,s,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[s]=r;var Oe=(t,s,r)=>ut(t,typeof s!="symbol"?s+"":s,r);import{r as o,a as mt,u as ft,L as z,b as Te,c as gt,R as ht,d as K,e as _t,H as yt}from"./react-vendor-CDhdc4Dt.js";import{$ as xt}from"./pyodide-C5f6T6KV.js";(function(){const s=document.createElement("link").relList;if(s&&s.supports&&s.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))a(i);new MutationObserver(i=>{for(const l of i)if(l.type==="childList")for(const _ of l.addedNodes)_.tagName==="LINK"&&_.rel==="modulepreload"&&a(_)}).observe(document,{childList:!0,subtree:!0});function r(i){const l={};return i.integrity&&(l.integrity=i.integrity),i.referrerPolicy&&(l.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?l.credentials="include":i.crossOrigin==="anonymous"?l.credentials="omit":l.credentials="same-origin",l}function a(i){if(i.ep)return;i.ep=!0;const l=r(i);fetch(i.href,l)}})();var We={exports:{}},he={};/**
+var ct=Object.defineProperty;var ut=(t,s,r)=>s in t?ct(t,s,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[s]=r;var De=(t,s,r)=>ut(t,typeof s!="symbol"?s+"":s,r);import{r as o,a as mt,u as ft,L as H,b as Te,c as gt,R as ht,d as K,e as _t,H as yt}from"./react-vendor-CDhdc4Dt.js";import{$ as xt}from"./pyodide-C5f6T6KV.js";(function(){const s=document.createElement("link").relList;if(s&&s.supports&&s.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))a(i);new MutationObserver(i=>{for(const l of i)if(l.type==="childList")for(const _ of l.addedNodes)_.tagName==="LINK"&&_.rel==="modulepreload"&&a(_)}).observe(document,{childList:!0,subtree:!0});function r(i){const l={};return i.integrity&&(l.integrity=i.integrity),i.referrerPolicy&&(l.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?l.credentials="include":i.crossOrigin==="anonymous"?l.credentials="omit":l.credentials="same-origin",l}function a(i){if(i.ep)return;i.ep=!0;const l=r(i);fetch(i.href,l)}})();var Ve={exports:{}},he={};/**
  * @license React
  * react-jsx-runtime.production.min.js
  *
@@ -6,7 +6,7 @@ var ct=Object.defineProperty;var ut=(t,s,r)=>s in t?ct(t,s,{enumerable:!0,config
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- */var bt=o,vt=Symbol.for("react.element"),wt=Symbol.for("react.fragment"),jt=Object.prototype.hasOwnProperty,kt=bt.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,Nt={key:!0,ref:!0,__self:!0,__source:!0};function Je(t,s,r){var a,i={},l=null,_=null;r!==void 0&&(l=""+r),s.key!==void 0&&(l=""+s.key),s.ref!==void 0&&(_=s.ref);for(a in s)jt.call(s,a)&&!Nt.hasOwnProperty(a)&&(i[a]=s[a]);if(t&&t.defaultProps)for(a in s=t.defaultProps,s)i[a]===void 0&&(i[a]=s[a]);return{$$typeof:vt,type:t,key:l,ref:_,props:i,_owner:kt.current}}he.Fragment=wt;he.jsx=Je;he.jsxs=Je;We.exports=he;var e=We.exports,Pe={},Le=mt;Pe.createRoot=Le.createRoot,Pe.hydrateRoot=Le.hydrateRoot;const fe="python-quest-progress.json",Pt="Python Quest 学习进度备份",Ct=15e3,Fe=2,St=2e3,Ie="python-quest-github-token",Ee="python-quest-github-user",ge="python-quest-gist-id";function At(){try{const t=localStorage.getItem(Ie),s=localStorage.getItem(Ee),r=localStorage.getItem(ge);return!t||!s?null:{token:t,user:JSON.parse(s),gistId:r}}catch{return null}}function Tt(t){localStorage.setItem(Ie,t.token),localStorage.setItem(Ee,JSON.stringify(t.user)),t.gistId?localStorage.setItem(ge,t.gistId):localStorage.removeItem(ge)}function Be(){localStorage.removeItem(Ie),localStorage.removeItem(Ee),localStorage.removeItem(ge)}class Ce extends Error{constructor(r,a=0){super(r);Oe(this,"status");this.status=a}}function Ve(t){if(t instanceof Ce)return t.status===0;if(t instanceof TypeError)return!0;const s=t instanceof Error?t.message:String(t);return s.includes("Failed to fetch")||s.includes("NetworkError")||s.includes("AbortError")||s.includes("timeout")}async function ne(t,s,r={}){const a=new AbortController,i=setTimeout(()=>a.abort(),Ct);try{const l=await fetch(t,{...r,signal:a.signal,headers:{Accept:"application/vnd.github+json",Authorization:`Bearer ${s}`,"X-GitHub-Api-Version":"2022-11-28",...r.headers||{}}});if(!l.ok){const _=await l.text();throw new Ce(`GitHub API ${l.status}: ${_}`,l.status)}return l.json()}catch(l){throw l instanceof DOMException&&l.name==="AbortError"?new Ce("请求超时（网络不稳定）",0):l}finally{clearTimeout(i)}}async function ie(t,s){let r;for(let a=0;a<=Fe;a++)try{return await t()}catch(i){if(r=i,a<Fe&&Ve(i)){const l=St*Math.pow(2,a);console.warn(`${s} 第 ${a+1} 次失败，${l}ms 后重试...`),await new Promise(_=>setTimeout(_,l))}else break}throw r}async function It(t){return ie(()=>ne("https://api.github.com/user",t),"验证Token")}async function Et(t){try{const a=(await ie(()=>ne("https://api.github.com/gists?per_page=100",t),"查询Gist")).find(i=>i.files&&i.files[fe]);if(a)return a.id}catch(r){if(!Ve(r))throw r}return(await ie(()=>ne("https://api.github.com/gists",t,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description:Pt,public:!1,files:{[fe]:{content:JSON.stringify({initialized:!0,savedAt:new Date().toISOString()})}}})}),"创建Gist")).id}async function Rt(t,s){var r;try{const i=(r=(await ie(()=>ne(`https://api.github.com/gists/${s}`,t),"读取Gist")).files)==null?void 0:r[fe];return i?JSON.parse(i.content):null}catch(a){return console.warn("读取 Gist 失败",a),null}}async function Me(t,s,r){await ie(()=>ne(`https://api.github.com/gists/${s}`,t,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({files:{[fe]:{content:JSON.stringify(r,null,2)}}})}),"写入Gist")}async function Dt(t){try{return await ie(()=>ne("https://api.github.com/gists?per_page=1",t),"测试Gist访问"),!0}catch{return!1}}const Xe=o.createContext(void 0);function Ot({children:t}){const[s,r]=o.useState(null),[a,i]=o.useState(!0),[l,_]=o.useState(!1),[P,p]=o.useState("");o.useEffect(()=>{const A=At();A?(r(A),Dt(A.token).then(v=>{v||(Be(),r(null))}).catch(()=>{}).finally(()=>i(!1))):i(!1)},[]);const N=async A=>{_(!0),p("");try{const v=A.trim();if(!v)return p("请输入 Token"),!1;const m=await It(v),g=await Et(v),d={token:v,user:m,gistId:g};return Tt(d),r(d),!0}catch(v){console.error("登录失败",v);const m=(v==null?void 0:v.message)||"";return m.includes("401")?p("Token 无效或已过期，请重新生成"):m.includes("403")?p("Token 权限不足，请勾选 Gist 权限"):m.includes("network")||v instanceof TypeError?p("网络错误，请检查是否能访问 github.com"):p("登录失败："+(m||"未知错误")),!1}finally{_(!1)}},b=()=>{Be(),r(null),p("")};return e.jsx(Xe.Provider,{value:{auth:s,isLoading:a,isLoggingIn:l,loginError:P,signInWithToken:N,signOutUser:b},children:t})}function Re(){const t=o.useContext(Xe);if(t===void 0)throw new Error("useAuth must be used within an AuthProvider");return t}const $e=o.createContext(void 0),Lt={pyodide:null,isLoading:!1,error:null,runCode:async()=>({output:"",error:"Python 环境未初始化"}),runCodeWithTests:async()=>({output:"",error:"Python 环境未初始化",passed:!1,testResults:[]}),retryLoad:()=>{}};function Ft({children:t}){const[s,r]=o.useState(null),[a,i]=o.useState(!1),[l,_]=o.useState(null),P=o.useRef(!1),p=o.useCallback(async()=>{if(!P.current){P.current=!0,i(!0),_(null);try{await new Promise(m=>setTimeout(m,100));const v=await xt({indexURL:"/python-web-try/pyodide/",checkAPIVersion:!1});await v.runPythonAsync(`
+ */var bt=o,vt=Symbol.for("react.element"),wt=Symbol.for("react.fragment"),jt=Object.prototype.hasOwnProperty,kt=bt.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,Nt={key:!0,ref:!0,__self:!0,__source:!0};function We(t,s,r){var a,i={},l=null,_=null;r!==void 0&&(l=""+r),s.key!==void 0&&(l=""+s.key),s.ref!==void 0&&(_=s.ref);for(a in s)jt.call(s,a)&&!Nt.hasOwnProperty(a)&&(i[a]=s[a]);if(t&&t.defaultProps)for(a in s=t.defaultProps,s)i[a]===void 0&&(i[a]=s[a]);return{$$typeof:vt,type:t,key:l,ref:_,props:i,_owner:kt.current}}he.Fragment=wt;he.jsx=We;he.jsxs=We;Ve.exports=he;var e=Ve.exports,Pe={},Fe=mt;Pe.createRoot=Fe.createRoot,Pe.hydrateRoot=Fe.hydrateRoot;const fe="python-quest-progress.json",Pt="Python Quest 学习进度备份",Ct=15e3,Le=2,St=2e3,Ee="python-quest-github-token",Re="python-quest-github-user",ge="python-quest-gist-id";function At(){try{const t=localStorage.getItem(Ee),s=localStorage.getItem(Re),r=localStorage.getItem(ge);return!t||!s?null:{token:t,user:JSON.parse(s),gistId:r}}catch{return null}}function Tt(t){localStorage.setItem(Ee,t.token),localStorage.setItem(Re,JSON.stringify(t.user)),t.gistId?localStorage.setItem(ge,t.gistId):localStorage.removeItem(ge)}function Me(){localStorage.removeItem(Ee),localStorage.removeItem(Re),localStorage.removeItem(ge)}class Ce extends Error{constructor(r,a=0){super(r);De(this,"status");this.status=a}}function Je(t){if(t instanceof Ce)return t.status===0;if(t instanceof TypeError)return!0;const s=t instanceof Error?t.message:String(t);return s.includes("Failed to fetch")||s.includes("NetworkError")||s.includes("AbortError")||s.includes("timeout")}async function ne(t,s,r={}){const a=new AbortController,i=setTimeout(()=>a.abort(),Ct);try{const l=await fetch(t,{...r,signal:a.signal,headers:{Accept:"application/vnd.github+json",Authorization:`Bearer ${s}`,"X-GitHub-Api-Version":"2022-11-28",...r.headers||{}}});if(!l.ok){const _=await l.text();throw new Ce(`GitHub API ${l.status}: ${_}`,l.status)}return l.json()}catch(l){throw l instanceof DOMException&&l.name==="AbortError"?new Ce("请求超时（网络不稳定）",0):l}finally{clearTimeout(i)}}async function ie(t,s){let r;for(let a=0;a<=Le;a++)try{return await t()}catch(i){if(r=i,a<Le&&Je(i)){const l=St*Math.pow(2,a);console.warn(`${s} 第 ${a+1} 次失败，${l}ms 后重试...`),await new Promise(_=>setTimeout(_,l))}else break}throw r}async function Et(t){return ie(()=>ne("https://api.github.com/user",t),"验证Token")}async function Rt(t){try{const a=(await ie(()=>ne("https://api.github.com/gists?per_page=100",t),"查询Gist")).find(i=>i.files&&i.files[fe]);if(a)return a.id}catch(r){if(!Je(r))throw r}return(await ie(()=>ne("https://api.github.com/gists",t,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description:Pt,public:!1,files:{[fe]:{content:JSON.stringify({initialized:!0,savedAt:new Date().toISOString()})}}})}),"创建Gist")).id}async function It(t,s){var r;try{const i=(r=(await ie(()=>ne(`https://api.github.com/gists/${s}`,t),"读取Gist")).files)==null?void 0:r[fe];return i?JSON.parse(i.content):null}catch(a){return console.warn("读取 Gist 失败",a),null}}async function Be(t,s,r){await ie(()=>ne(`https://api.github.com/gists/${s}`,t,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({files:{[fe]:{content:JSON.stringify(r,null,2)}}})}),"写入Gist")}async function Ot(t){try{return await ie(()=>ne("https://api.github.com/gists?per_page=1",t),"测试Gist访问"),!0}catch{return!1}}const Xe=o.createContext(void 0);function Dt({children:t}){const[s,r]=o.useState(null),[a,i]=o.useState(!0),[l,_]=o.useState(!1),[P,p]=o.useState("");o.useEffect(()=>{const A=At();A?(r(A),Ot(A.token).then(v=>{v||(Me(),r(null))}).catch(()=>{}).finally(()=>i(!1))):i(!1)},[]);const N=async A=>{_(!0),p("");try{const v=A.trim();if(!v)return p("请输入 Token"),!1;const m=await Et(v),g=await Rt(v),d={token:v,user:m,gistId:g};return Tt(d),r(d),!0}catch(v){console.error("登录失败",v);const m=(v==null?void 0:v.message)||"";return m.includes("401")?p("Token 无效或已过期，请重新生成"):m.includes("403")?p("Token 权限不足，请勾选 Gist 权限"):m.includes("network")||v instanceof TypeError?p("网络错误，请检查是否能访问 github.com"):p("登录失败："+(m||"未知错误")),!1}finally{_(!1)}},b=()=>{Me(),r(null),p("")};return e.jsx(Xe.Provider,{value:{auth:s,isLoading:a,isLoggingIn:l,loginError:P,signInWithToken:N,signOutUser:b},children:t})}function Ie(){const t=o.useContext(Xe);if(t===void 0)throw new Error("useAuth must be used within an AuthProvider");return t}const $e=o.createContext(void 0),Ft={pyodide:null,isLoading:!1,error:null,runCode:async()=>({output:"",error:"Python 环境未初始化"}),runCodeWithTests:async()=>({output:"",error:"Python 环境未初始化",passed:!1,testResults:[]}),retryLoad:()=>{}};function Lt({children:t}){const[s,r]=o.useState(null),[a,i]=o.useState(!1),[l,_]=o.useState(null),P=o.useRef(!1),p=o.useCallback(async()=>{if(!P.current){P.current=!0,i(!0),_(null);try{await new Promise(m=>setTimeout(m,100));const v=await xt({indexURL:"/python-web-try/pyodide/",checkAPIVersion:!1});await v.runPythonAsync(`
 import sys
 import io
 import traceback
@@ -38,16 +38,16 @@ _test_results = []
 `),await s.runPythonAsync(m);const S=s.runPython(`
 import json
 json.dumps(_test_results)
-`),n=JSON.parse(S);g.push(...n),d=n.every(F=>F.passed);const I=s.runPython("_output_buffer.getvalue()");return I&&(u+=`
+`),n=JSON.parse(S);g.push(...n),d=n.every(L=>L.passed);const E=s.runPython("_output_buffer.getvalue()");return E&&(u+=`
 --- 测试输出 ---
-`+I),s.runPython(`
+`+E),s.runPython(`
 sys.stdout = sys.__stdout__
 sys.stderr = sys.__stderr__
 `),{output:u||"代码执行完成，无输出",error:null,passed:d,testResults:g}}catch(y){let S="";try{const n=s.runPython("_output_buffer.getvalue()");n&&(S=n+`
 `)}catch{}y.message?S+=y.message:typeof y=="string"?S+=y:S+="未知错误";try{s.runPython(`
 sys.stdout = sys.__stdout__
 sys.stderr = sys.__stderr__
-`)}catch{}return{output:u,error:S,passed:!1,testResults:[]}}},[s]);return e.jsx($e.Provider,{value:{pyodide:s,isLoading:a,error:l,runCode:b,runCodeWithTests:A,retryLoad:N},children:t})}function Ke(){const t=o.useContext($e);return t===void 0?(console.warn("usePyodide called outside PyodideProvider, using default"),Lt):t}const Y=[{id:"first-step",title:"初出茅庐",description:"完成第一个学习步骤",icon:"🌱",category:"learning",rarity:"common",xpReward:20,condition:t=>t.completedLessons>=1,progress:t=>({current:Math.min(t.completedLessons,1),total:1})},{id:"lesson-10",title:"勤学不辍",description:"完成 10 个学习步骤",icon:"📚",category:"learning",rarity:"common",xpReward:50,condition:t=>t.completedLessons>=10,progress:t=>({current:Math.min(t.completedLessons,10),total:10})},{id:"lesson-50",title:"学富五车",description:"完成 50 个学习步骤",icon:"🎓",category:"learning",rarity:"rare",xpReward:200,condition:t=>t.completedLessons>=50,progress:t=>({current:Math.min(t.completedLessons,50),total:50})},{id:"first-challenge",title:"初战告捷",description:"完成第一个编程挑战",icon:"🎯",category:"challenge",rarity:"common",xpReward:30,condition:t=>t.completedChallenges>=1,progress:t=>({current:Math.min(t.completedChallenges,1),total:1})},{id:"challenge-5",title:"小试牛刀",description:"完成 5 个编程挑战",icon:"⚔️",category:"challenge",rarity:"common",xpReward:80,condition:t=>t.completedChallenges>=5,progress:t=>({current:Math.min(t.completedChallenges,5),total:5})},{id:"challenge-15",title:"身经百战",description:"完成 15 个编程挑战",icon:"🛡️",category:"challenge",rarity:"rare",xpReward:200,condition:t=>t.completedChallenges>=15,progress:t=>({current:Math.min(t.completedChallenges,15),total:15})},{id:"level-1",title:"初窥门径",description:"完成第 1 个关卡",icon:"🚪",category:"mastery",rarity:"common",xpReward:50,condition:t=>t.completedLevels>=1,progress:t=>({current:Math.min(t.completedLevels,1),total:1})},{id:"level-half",title:"半程英雄",description:"完成 50% 的关卡",icon:"⭐",category:"mastery",rarity:"rare",xpReward:300,condition:t=>t.completedLevels>=Math.ceil(t.totalLevels/2),progress:t=>({current:Math.min(t.completedLevels,Math.ceil(t.totalLevels/2)),total:Math.ceil(t.totalLevels/2)})},{id:"level-all",title:"登峰造极",description:"完成所有关卡",icon:"👑",category:"mastery",rarity:"legendary",xpReward:1e3,condition:t=>t.completedLevels>=t.totalLevels&&t.totalLevels>0,progress:t=>({current:Math.min(t.completedLevels,t.totalLevels),total:t.totalLevels})},{id:"xp-100",title:"小有所成",description:"累计获得 100 XP",icon:"💫",category:"learning",rarity:"common",xpReward:30,condition:t=>t.totalXP>=100,progress:t=>({current:Math.min(t.totalXP,100),total:100})},{id:"xp-500",title:"中流砥柱",description:"累计获得 500 XP",icon:"✨",category:"learning",rarity:"rare",xpReward:100,condition:t=>t.totalXP>=500,progress:t=>({current:Math.min(t.totalXP,500),total:500})},{id:"xp-1000",title:"登堂入室",description:"累计获得 1000 XP",icon:"🌟",category:"learning",rarity:"epic",xpReward:250,condition:t=>t.totalXP>=1e3,progress:t=>({current:Math.min(t.totalXP,1e3),total:1e3})},{id:"streak-3",title:"坚持不懈",description:"连续学习 3 天",icon:"🔥",category:"streak",rarity:"common",xpReward:50,condition:t=>t.streak>=3,progress:t=>({current:Math.min(t.streak,3),total:3})},{id:"streak-7",title:"周周向上",description:"连续学习 7 天",icon:"🔥",category:"streak",rarity:"rare",xpReward:150,condition:t=>t.streak>=7,progress:t=>({current:Math.min(t.streak,7),total:7})},{id:"streak-30",title:"持之以恒",description:"连续学习 30 天",icon:"🌋",category:"streak",rarity:"epic",xpReward:500,condition:t=>t.streak>=30,progress:t=>({current:Math.min(t.streak,30),total:30})},{id:"all-rounder",title:"全能选手",description:"同时拥有 5 个成就",icon:"🏆",category:"special",rarity:"epic",xpReward:300,condition:t=>t.completedLessons>=5&&t.completedChallenges>=5&&t.completedLevels>=1},{id:"first-day",title:"启航",description:"欢迎来到 Python Quest",icon:"🎉",category:"special",rarity:"common",xpReward:10,condition:()=>!0}],ye=[{id:"all",label:"全部",icon:"🏆"},{id:"learning",label:"学习",icon:"📚"},{id:"challenge",label:"挑战",icon:"⚔️"},{id:"mastery",label:"精通",icon:"👑"},{id:"streak",label:"连续",icon:"🔥"},{id:"special",label:"特殊",icon:"✨"}],qe={common:{label:"普通",color:"#94a3b8",bg:"rgba(148, 163, 184, 0.15)"},rare:{label:"稀有",color:"#3b82f6",bg:"rgba(59, 130, 246, 0.15)"},epic:{label:"史诗",color:"#a855f7",bg:"rgba(168, 85, 247, 0.15)"},legendary:{label:"传说",color:"#f59e0b",bg:"rgba(245, 158, 11, 0.15)"}},Bt=[{rank:1,name:"PythonMaster",avatar:"PM",xp:2850,streak:45,levels:9,color:"#f59e0b"},{rank:2,name:"CodeWizard",avatar:"CW",xp:2340,streak:32,levels:8,color:"#a855f7"},{rank:3,name:"DataDragon",avatar:"DD",xp:1980,streak:28,levels:8,color:"#3b82f6"},{rank:4,name:"LoopLegend",avatar:"LL",xp:1650,streak:21,levels:7,color:"#10b981"},{rank:5,name:"FunctionFox",avatar:"FF",xp:1320,streak:18,levels:6,color:"#ec4899"},{rank:6,name:"SyntaxSage",avatar:"SS",xp:1080,streak:15,levels:5,color:"#06b6d4"},{rank:7,name:"BinaryBard",avatar:"BB",xp:920,streak:12,levels:4,color:"#84cc16"},{rank:8,name:"RecursionR",avatar:"RR",xp:760,streak:10,levels:3,color:"#f97316"},{rank:9,name:"TupleTitan",avatar:"TT",xp:540,streak:8,levels:2,color:"#8b5cf6"},{rank:10,name:"StringSlayer",avatar:"ST",xp:320,streak:5,levels:1,color:"#ef4444"}],U="v1.2",xe="菜鸟教程完整版",be="44关完整内容 + 6大分类主题体系 + 菜鸟教程对齐",Ye="python-quest-version-registry",ze="python-quest-progress",Mt="python-quest-progress-version";function se(t){try{return localStorage.getItem(t)}catch{return null}}function Se(t,s){try{return localStorage.setItem(t,s),!0}catch{return console.warn("localStorage 写入失败:",t),!1}}function me(t){return`python-quest-progress@${t}`}function _e(){const t=se(Ye);if(!t)return[];try{const s=JSON.parse(t);return Array.isArray(s)?s:[]}catch{return[]}}function ve(t){Se(Ye,JSON.stringify(t))}function qt(){let t=_e();if(t.length===0){const i=se(ze),l=se(Mt),_={version:U,label:xe,date:new Date().toISOString(),storageKey:me(U),frozen:!1,description:be};if(i){const P={version:l||"v1.0",label:"历史版本",date:new Date().toISOString(),storageKey:me(l||"v1.0"),frozen:!0,description:"从旧版迁移的数据"};Se(P.storageKey,i),t=[P,_]}else t=[_];return ve(t),t}const s=t.find(i=>i.version===U);if(s)return s.label=xe,s.description=be,ve(t),t;t.forEach(i=>{i.frozen=!0});const r=t.find(i=>!i.frozen);if(r){const i=se(r.storageKey)||se(ze);i&&Se(r.storageKey,i),r.frozen=!0}const a={version:U,label:xe,date:new Date().toISOString(),storageKey:me(U),frozen:!1,description:be};return t.push(a),ve(t),t}function Ze(){return _e().find(s=>s.version===U&&!s.frozen)||null}function et(t){const r=_e().find(i=>i.version===t);if(!r)return null;const a=se(r.storageKey);if(!a)return null;try{return JSON.parse(a)}catch{return null}}function zt(){return _e().map(s=>{var P;const r=et(s.version);if(!r)return{version:s.version,totalXP:0,completedLevels:0,completedLessons:0,completedChallenges:0,studyDays:[],activityLogLength:0,snapshotDate:s.date};const a=r.levels||{},i=Object.values(a).filter(p=>p==null?void 0:p.completed).length,l=Object.values(a).reduce((p,N)=>p+Object.values((N==null?void 0:N.lessons)||{}).filter(b=>b==null?void 0:b.completed).length,0),_=Object.values(a).reduce((p,N)=>p+Object.values((N==null?void 0:N.challenges)||{}).filter(b=>b==null?void 0:b.completed).length,0);return{version:s.version,totalXP:r.totalXP||0,completedLevels:i,completedLessons:l,completedChallenges:_,studyDays:r.studyDays||[],activityLogLength:((P=r.activityLog)==null?void 0:P.length)||0,snapshotDate:s.date}})}const Gt=300,Ht=qt(),V=me(U),de=U,Ge=()=>new Date().toISOString().slice(0,10);function ce(t,s){try{return localStorage.setItem(t,s),!0}catch(r){if(r instanceof DOMException&&(r.name==="QuotaExceededError"||r.name==="NS_ERROR_DOM_QUOTA_REACHED")){console.warn("localStorage 存储空间不足，尝试清理旧数据...");try{const a=localStorage.getItem(V);if(a){const i=JSON.parse(a);if(i.activityLog&&i.activityLog.length>30)return i.activityLog=i.activityLog.slice(0,30),localStorage.setItem(V,JSON.stringify(i)),!0}}catch{}}return console.error("localStorage 写入失败:",r),!1}}function we(t){try{return localStorage.getItem(t)}catch{return null}}const Q={xp:50,totalXP:500,streak:7,studyDays:[Ge()],lastStudyDate:Ge(),levels:{1:{unlocked:!0,completed:!1,lessons:{},challenges:{}},2:{unlocked:!0,completed:!1,lessons:{},challenges:{}},3:{unlocked:!0,completed:!1,lessons:{},challenges:{}},4:{unlocked:!0,completed:!1,lessons:{},challenges:{}},5:{unlocked:!0,completed:!1,lessons:{},challenges:{}},6:{unlocked:!0,completed:!1,lessons:{},challenges:{}},7:{unlocked:!0,completed:!1,lessons:{},challenges:{}},8:{unlocked:!0,completed:!1,lessons:{},challenges:{}},9:{unlocked:!0,completed:!1,lessons:{},challenges:{}},10:{unlocked:!0,completed:!1,lessons:{},challenges:{}},11:{unlocked:!0,completed:!1,lessons:{},challenges:{}},12:{unlocked:!0,completed:!1,lessons:{},challenges:{}},13:{unlocked:!0,completed:!1,lessons:{},challenges:{}},14:{unlocked:!0,completed:!1,lessons:{},challenges:{}},15:{unlocked:!0,completed:!1,lessons:{},challenges:{}},16:{unlocked:!0,completed:!1,lessons:{},challenges:{}},17:{unlocked:!0,completed:!1,lessons:{},challenges:{}},18:{unlocked:!0,completed:!1,lessons:{},challenges:{}},19:{unlocked:!0,completed:!1,lessons:{},challenges:{}},20:{unlocked:!0,completed:!1,lessons:{},challenges:{}},21:{unlocked:!0,completed:!1,lessons:{},challenges:{}},22:{unlocked:!0,completed:!1,lessons:{},challenges:{}},23:{unlocked:!0,completed:!1,lessons:{},challenges:{}},24:{unlocked:!0,completed:!1,lessons:{},challenges:{}},25:{unlocked:!0,completed:!1,lessons:{},challenges:{}},26:{unlocked:!0,completed:!1,lessons:{},challenges:{}},27:{unlocked:!0,completed:!1,lessons:{},challenges:{}},28:{unlocked:!0,completed:!1,lessons:{},challenges:{}},29:{unlocked:!0,completed:!1,lessons:{},challenges:{}},30:{unlocked:!0,completed:!1,lessons:{},challenges:{}},31:{unlocked:!0,completed:!1,lessons:{},challenges:{}},32:{unlocked:!0,completed:!1,lessons:{},challenges:{}},33:{unlocked:!0,completed:!1,lessons:{},challenges:{}},34:{unlocked:!0,completed:!1,lessons:{},challenges:{}},35:{unlocked:!0,completed:!1,lessons:{},challenges:{}},36:{unlocked:!0,completed:!1,lessons:{},challenges:{}},37:{unlocked:!0,completed:!1,lessons:{},challenges:{}},38:{unlocked:!0,completed:!1,lessons:{},challenges:{}},39:{unlocked:!0,completed:!1,lessons:{},challenges:{}},40:{unlocked:!0,completed:!1,lessons:{},challenges:{}},41:{unlocked:!0,completed:!1,lessons:{},challenges:{}},42:{unlocked:!0,completed:!1,lessons:{},challenges:{}},43:{unlocked:!0,completed:!1,lessons:{},challenges:{}},44:{unlocked:!0,completed:!1,lessons:{},challenges:{}},45:{unlocked:!0,completed:!1,lessons:{},challenges:{}},46:{unlocked:!0,completed:!1,lessons:{},challenges:{}},47:{unlocked:!0,completed:!1,lessons:{},challenges:{}},48:{unlocked:!0,completed:!1,lessons:{},challenges:{}},49:{unlocked:!0,completed:!1,lessons:{},challenges:{}},50:{unlocked:!0,completed:!1,lessons:{},challenges:{}},51:{unlocked:!0,completed:!1,lessons:{},challenges:{}},52:{unlocked:!0,completed:!1,lessons:{},challenges:{}},53:{unlocked:!0,completed:!1,lessons:{},challenges:{}},54:{unlocked:!0,completed:!1,lessons:{},challenges:{}},55:{unlocked:!0,completed:!1,lessons:{},challenges:{}}},unlockedAchievements:["first-day"],claimedAchievements:[],activityLog:[{id:"welcome",type:"achievement",title:"欢迎来到 Python Quest",description:"开始你的编程冒险之旅",xp:10,timestamp:new Date().toISOString(),icon:"🎉"}]};function ue(t){return!t||typeof t!="object"?{...Q}:{...Q,...t,levels:t.levels?{...Q.levels,...t.levels}:{...Q.levels},unlockedAchievements:Array.isArray(t.unlockedAchievements)?t.unlockedAchievements:Q.unlockedAchievements,claimedAchievements:Array.isArray(t.claimedAchievements)?t.claimedAchievements:Q.claimedAchievements,activityLog:Array.isArray(t.activityLog)&&t.activityLog.length>0?t.activityLog:Q.activityLog,studyDays:Array.isArray(t.studyDays)?t.studyDays:Q.studyDays}}const tt=o.createContext(void 0);function je(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}function Qt({children:t}){const{auth:s,isLoading:r}=Re(),[a,i]=o.useState("idle"),[l,_]=o.useState(""),[P,p]=o.useState("saved"),[N,b]=o.useState(null),[A]=o.useState(Ht),v=o.useMemo(()=>Ze(),[]),[m,g]=o.useState(()=>{const c=we(V);if(c)try{const C=JSON.parse(c),k=we("python-quest-progress");return k&&!c?ue(JSON.parse(k)):C}catch{}const x=we("python-quest-progress");if(x)try{return ue(JSON.parse(x))}catch{}return ce(V+"-version",de),{...Q}}),d=o.useRef(!1),u=o.useRef(null),y=o.useRef(null),S=o.useRef("");o.useEffect(()=>{if(!r){if(!s||!s.gistId){i("idle"),d.current=!1;return}d.current||(i("loading"),Rt(s.token,s.gistId).then(c=>{c&&c.progress&&g(x=>{const C=ue(c.progress),k=x.totalXP,w=C.totalXP;return k>w?ue({...C,...x}):C}),i("synced"),S.current="",d.current=!0}).catch(c=>{console.error("加载云端进度失败",c);const x=c instanceof Error?c.message:String(c);S.current=x,i("error"),x.includes("超时")||x.includes("网络")||x.includes("Failed to fetch")?d.current=!1:d.current=!0}))}},[s,r]),o.useEffect(()=>{s||(d.current=!1,i("idle"))},[s]),o.useEffect(()=>{p("saving"),y.current&&clearTimeout(y.current),y.current=setTimeout(()=>{ce(V,JSON.stringify(m))?(p("saved"),b(new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))):p("error")},Gt),s&&s.gistId&&d.current&&a!=="loading"&&(u.current&&clearTimeout(u.current),u.current=setTimeout(()=>{i("syncing"),Me(s.token,s.gistId,{progress:m,savedAt:new Date().toISOString(),version:de}).then(()=>{i("synced"),_("")}).catch(c=>{console.error("上传 Gist 失败",c);const x=c instanceof Error?c.message:String(c);_(x),i("error")})},1500))},[m,s,a]);const n=o.useCallback(()=>{p("saving"),y.current&&clearTimeout(y.current),ce(V,JSON.stringify(m))?(p("saved"),b(new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))):p("error")},[m]),I=o.useCallback(c=>{const x=Object.values(c.levels).reduce((q,J)=>q+Object.values(J.lessons).filter(X=>X.completed).length,0),C=Object.values(c.levels).reduce((q,J)=>q+Object.values(J.challenges).filter(X=>X.completed).length,0),k=Object.values(c.levels).filter(q=>q.completed).length,w=Object.keys(c.levels).length,E={totalXP:c.totalXP,streak:c.streak,completedLevels:k,completedLessons:x,completedChallenges:C,perfectChallenges:C,totalLevels:w},L=[];for(const q of Y)c.unlockedAchievements.includes(q.id)||q.condition(E)&&L.push(q.id);return L.length>0?{...c,unlockedAchievements:[...c.unlockedAchievements,...L]}:c},[]),F=o.useCallback((c,x)=>{var C,k;return((k=(C=m.levels[c])==null?void 0:C.lessons[x])==null?void 0:k.completed)||!1},[m]),D=o.useCallback((c,x)=>{var C,k;return((k=(C=m.levels[c])==null?void 0:C.challenges[x])==null?void 0:k.completed)||!1},[m]),f=o.useCallback(c=>{var x;return m.godMode?!0:((x=m.levels[c])==null?void 0:x.unlocked)||!1},[m]),T=o.useCallback(c=>{var x;return((x=m.levels[c])==null?void 0:x.completed)||!1},[m]),h=o.useCallback(c=>m.unlockedAchievements.includes(c),[m]),R=o.useCallback(c=>m.claimedAchievements.includes(c),[m]),j=o.useCallback((c,x,C)=>{g(k=>{const w=k.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},E=w.lessons[x]||{completed:!1};if(E.completed)return k;const L={...w.lessons,[x]:{...E,completed:!0,lastCode:C||E.lastCode,completedAt:new Date().toISOString()}},q=Object.values(L).every(G=>G.completed),J=Object.values(w.challenges).every(G=>G.completed),X=Object.keys(w.challenges).length>0,le=q&&(X?J:!0),$=c+1,ee={...k.levels,[c]:{...w,lessons:L,completed:le||w.completed}};le&&!w.completed&&k.levels[$]&&(ee[$]={...k.levels[$],unlocked:!0});let W={...k,levels:ee};if(le&&!w.completed){const G={id:je(),type:"level",title:`完成第 ${c} 关`,description:"解锁下一关卡",timestamp:new Date().toISOString(),icon:"🎊"};W={...W,activityLog:[G,...W.activityLog].slice(0,100)}}return W=I(W),W})},[I]),M=o.useCallback((c,x,C=10,k)=>{g(w=>{const E=w.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},L=E.challenges[x]||{completed:!1,attempts:0},q=L.completed,J={...E.challenges,[x]:{...L,completed:!0,lastCode:k||L.lastCode,completedAt:new Date().toISOString(),attempts:L.attempts+1}},X=Object.values(J).every(pe=>pe.completed),le=Object.values(E.lessons).every(pe=>pe.completed),$=X&&le,ee=c+1,W={...w.levels,[c]:{...E,challenges:J,completed:$}};$&&w.levels[ee]&&(W[ee]={...w.levels[ee],unlocked:!0});let G={...w,xp:q?w.xp:w.xp+C,totalXP:q?w.totalXP:w.totalXP+C,levels:W};if($){const pe={id:je(),type:"level",title:`完成第 ${c} 关`,description:"解锁下一关卡",timestamp:new Date().toISOString(),icon:"🎊"};G={...G,activityLog:[pe,...G.activityLog].slice(0,100)}}return G=I(G),G})},[I]),H=o.useCallback(c=>{g(x=>{if(!x.unlockedAchievements.includes(c)||x.claimedAchievements.includes(c))return x;const C=Y.find(w=>w.id===c);if(!C)return x;const k={id:je(),type:"achievement",title:`解锁成就：${C.title}`,description:C.description,xp:C.xpReward,timestamp:new Date().toISOString(),icon:C.icon};return{...x,xp:x.xp+C.xpReward,totalXP:x.totalXP+C.xpReward,claimedAchievements:[...x.claimedAchievements,c],activityLog:[k,...x.activityLog].slice(0,100)}})},[]),oe=o.useCallback((c,x)=>{var C,k;return(k=(C=m.levels[c])==null?void 0:C.lessons[x])==null?void 0:k.lastCode},[m]),Z=o.useCallback((c,x)=>{var C,k;return(k=(C=m.levels[c])==null?void 0:C.challenges[x])==null?void 0:k.lastCode},[m]),O=o.useCallback((c,x,C)=>{g(k=>{const w=k.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},E=w.lessons[x]||{completed:!1};return{...k,levels:{...k.levels,[c]:{...w,lessons:{...w.lessons,[x]:{...E,lastCode:C}}}}}})},[]),B=o.useCallback((c,x,C)=>{g(k=>{const w=k.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},E=w.challenges[x]||{completed:!1,attempts:0};return{...k,levels:{...k.levels,[c]:{...w,challenges:{...w.challenges,[x]:{...E,lastCode:C}}}}}})},[]),nt=o.useCallback(c=>{const x=m.levels[c];if(!x)return{completed:0,total:0,percent:0};const C=Object.values(x.lessons),k=Object.values(x.challenges),w=C.filter(L=>L.completed).length+k.filter(L=>L.completed).length,E=C.length+k.length;return{completed:w,total:E,percent:E>0?Math.round(w/E*100):0}},[m]),it=o.useCallback(()=>{let c=0,x=0;for(const C of Object.values(m.levels))c+=Object.keys(C.lessons).length+Object.keys(C.challenges).length,x+=Object.values(C.lessons).filter(k=>k.completed).length,x+=Object.values(C.challenges).filter(k=>k.completed).length;return{completed:x,total:c,percent:c>0?Math.round(x/c*100):0}},[m]),rt=o.useCallback((c=10)=>m.activityLog.slice(0,c),[m]),ot=o.useCallback(()=>{g(c=>{var C;if(!c.godMode){const k={};for(let w=1;w<=55;w++)k[w]={...c.levels[w]||{lessons:{},challenges:{}},unlocked:!0,completed:((C=c.levels[w])==null?void 0:C.completed)||!1};return{...c,godMode:!0,levels:k,activityLog:[{id:"godmode-on-"+Date.now(),type:"achievement",title:"无敌模式已开启",description:"所有关卡已解锁，自由探索！",xp:0,timestamp:new Date().toISOString(),icon:"⚡"},...c.activityLog]}}else{const k={};for(let w=1;w<=55;w++){const E=c.levels[w]||{lessons:{},challenges:{}};k[w]={...E,unlocked:w===1||E.completed}}for(let w=1;w<=54;w++)k[w].completed&&(k[w+1].unlocked=!0);return{...c,godMode:!1,levels:k,activityLog:[{id:"godmode-off-"+Date.now(),type:"achievement",title:"无敌模式已关闭",description:"恢复按进度解锁关卡",xp:0,timestamp:new Date().toISOString(),icon:"🔒"},...c.activityLog]}}})},[]),lt=o.useCallback(()=>{g({...Q});try{localStorage.removeItem(V),ce(V+"-version",de),p("saved"),b(new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))}catch{}},[]),pt=o.useCallback(async()=>{if(!(!s||!s.gistId)){i("syncing"),_("");try{await Me(s.token,s.gistId,{progress:m,savedAt:new Date().toISOString(),version:de}),i("synced")}catch(c){console.error("手动同步失败",c);const x=c instanceof Error?c.message:String(c);_(x),i("error")}}},[s,m]),dt=o.useMemo(()=>{const c=Object.values(m.levels).reduce((w,E)=>w+Object.values(E.lessons).filter(L=>L.completed).length,0),x=Object.values(m.levels).reduce((w,E)=>w+Object.values(E.challenges).filter(L=>L.completed).length,0),C=Object.values(m.levels).filter(w=>w.completed).length,k=Object.keys(m.levels).length;return{totalXP:m.totalXP,streak:m.streak,completedLevels:C,completedLessons:c,completedChallenges:x,perfectChallenges:x,totalLevels:k}},[m]);return e.jsx(tt.Provider,{value:{progress:m,stats:dt,syncStatus:a,syncError:l,localSaveStatus:P,lastLocalSave:N,isLessonCompleted:F,isChallengeCompleted:D,isLevelUnlocked:f,isLevelCompleted:T,isAchievementUnlocked:h,isAchievementClaimed:R,completeLesson:j,completeChallenge:M,claimAchievement:H,getLessonCode:oe,getChallengeCode:Z,saveLessonCode:O,saveChallengeCode:B,getLevelProgress:nt,getOverallProgress:it,getRecentActivities:rt,resetProgress:lt,manualSync:pt,forceLocalSave:n,currentVersion:v,versionHistory:A,godMode:m.godMode||!1,toggleGodMode:ot},children:t})}function re(){const t=o.useContext(tt);if(t===void 0)throw new Error("useProgress must be used within a ProgressProvider");return t}function Ut({isOpen:t,onClose:s}){const{signInWithToken:r,isLoggingIn:a,loginError:i}=Re(),[l,_]=o.useState(""),[P,p]=o.useState(!1);if(o.useEffect(()=>{t&&_("")},[t]),o.useEffect(()=>{const b=A=>{A.key==="Escape"&&t&&s()};return window.addEventListener("keydown",b),()=>window.removeEventListener("keydown",b)},[t,s]),!t)return null;const N=async b=>{b.preventDefault(),await r(l)&&s()};return e.jsx("div",{className:"login-modal-backdrop",onClick:s,children:e.jsxs("div",{className:"login-modal",onClick:b=>b.stopPropagation(),children:[e.jsx("button",{className:"lm-close",onClick:s,"aria-label":"关闭",children:"×"}),e.jsxs("div",{className:"lm-header",children:[e.jsx("div",{className:"lm-icon",children:e.jsx("svg",{viewBox:"0 0 24 24",width:"40",height:"40",fill:"currentColor",children:e.jsx("path",{d:"M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"})})}),e.jsx("h2",{className:"lm-title",children:"使用 GitHub 登录"}),e.jsx("p",{className:"lm-subtitle",children:"连接 GitHub 账号，云端保存你的学习进度"})]}),e.jsxs("form",{onSubmit:N,className:"lm-form",children:[e.jsxs("div",{className:"lm-field",children:[e.jsxs("label",{className:"lm-label",children:[e.jsx("span",{children:"Personal Access Token"}),e.jsx("span",{className:"lm-required",children:"必填"})]}),e.jsxs("div",{className:"lm-input-wrap",children:[e.jsx("input",{type:P?"text":"password",className:"lm-input",value:l,onChange:b=>_(b.target.value),placeholder:"ghp_xxxxxxxxxxxxxxxxxxxx",autoComplete:"off",spellCheck:!1}),e.jsx("button",{type:"button",className:"lm-toggle",onClick:()=>p(b=>!b),"aria-label":P?"隐藏":"显示",children:P?"🙈":"👁️"})]}),e.jsx("p",{className:"lm-hint",children:"需要 Gist 权限。Token 仅保存在你的浏览器本地，不会上传到任何服务器。"})]}),i&&e.jsxs("div",{className:"lm-error",children:[e.jsx("span",{children:"⚠️"})," ",i]}),e.jsx("button",{type:"submit",className:"lm-submit",disabled:a||!l.trim(),children:a?"连接中...":"登录"})]}),e.jsx("div",{className:"lm-guide",children:e.jsxs("details",{children:[e.jsx("summary",{children:"📖 如何获取 Token？（点击展开）"}),e.jsxs("ol",{className:"lm-steps",children:[e.jsxs("li",{children:["访问 ",e.jsx("a",{href:"https://github.com/settings/tokens?type=beta",target:"_blank",rel:"noopener noreferrer",children:"github.com/settings/tokens"})]}),e.jsxs("li",{children:["点击 ",e.jsx("strong",{children:"Generate new token"})," → 选择 ",e.jsx("strong",{children:"Fine-grained"})]}),e.jsx("li",{children:'设置 Token 名称（如 "Python Quest"）和过期时间'}),e.jsxs("li",{children:["在 ",e.jsx("strong",{children:"Resource owner"})," 选择你的账号"]}),e.jsxs("li",{children:["在 ",e.jsx("strong",{children:"Repository access"})," 中选择 ",e.jsx("strong",{children:"All repositories"})," 或仅特定仓库"]}),e.jsxs("li",{children:["展开 ",e.jsx("strong",{children:"Account permissions"}),"，找到 ",e.jsx("strong",{children:"Gists"})," 权限，设置为 ",e.jsx("strong",{children:"Read and write"})]}),e.jsxs("li",{children:["点击 ",e.jsx("strong",{children:"Generate token"}),"，复制生成的 token（只显示一次！）"]}),e.jsx("li",{children:"回到这里粘贴 token 并登录"})]}),e.jsxs("div",{className:"lm-warning",children:[e.jsx("strong",{children:"⚠️ 安全提示："}),"请勿将 Token 分享给他人。退出登录或更换设备时，记得在 GitHub 设置中撤销旧 Token。"]})]})})]})})}function Wt({showUserInfo:t}){var u,y;const s=ft(),{progress:r,syncStatus:a,syncError:i,manualSync:l}=re(),{auth:_,signOutUser:P}=Re(),[p,N]=o.useState(!1),b=s.pathname==="/",A=t!==void 0?t:!b,[v,m]=o.useState(!1),g=((y=(u=_==null?void 0:_.user)==null?void 0:u.login)==null?void 0:y.slice(0,2).toUpperCase())||"LY",d=()=>{if(!_)return e.jsx("span",{className:"sync-badge local",title:"未登录，数据仅本地保存",children:"本地保存"});if(a==="loading")return e.jsx("span",{className:"sync-badge loading",title:"正在从云端加载进度",children:"同步中..."});if(a==="syncing")return e.jsx("span",{className:"sync-badge loading",title:"正在上传进度到云端",children:"上传中..."});if(a==="synced")return e.jsx("span",{className:"sync-badge synced",title:"所有进度已同步到云端",children:"☁️ 已同步"});if(a==="error"){const n=i.includes("超时")||i.includes("网络")||i.includes("Failed to fetch")?"网络不稳定，数据已保存本地，可手动重试":i.includes("401")||i.includes("403")?"Token 无效或权限不足，请重新登录":i||"同步失败";return e.jsxs("span",{className:"sync-badge error clickable",title:n,onClick:()=>l(),onMouseEnter:()=>m(!0),onMouseLeave:()=>m(!1),children:["⚠️ 同步失败",v&&e.jsxs("span",{className:"sync-error-tip",children:[n," · 点击重试"]})]})}return null};return e.jsxs(e.Fragment,{children:[e.jsx("nav",{className:`navbar ${b?"navbar-home":"navbar-inner"}`,children:e.jsxs("div",{className:"navbar-container container",children:[e.jsxs(z,{to:"/",className:"navbar-logo",children:[e.jsx("div",{className:"logo-icon",children:e.jsxs("svg",{viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[e.jsx("path",{d:"M12 2L2 7L12 12L22 7L12 2Z",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 17L12 22L22 17",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 12L12 17L22 12",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"})]})}),e.jsx("span",{className:"logo-text",children:"Python Quest"})]}),e.jsxs("div",{className:"navbar-links",children:[e.jsx(z,{to:"/",className:`nav-link ${s.pathname==="/"?"active":""}`,children:"首页"}),e.jsx(z,{to:"/map",className:`nav-link ${s.pathname==="/map"?"active":""}`,children:"冒险地图"}),e.jsx(z,{to:"/path",className:`nav-link ${s.pathname==="/path"?"active":""}`,children:"学习路径"}),e.jsx(z,{to:"/achievements",className:`nav-link ${s.pathname==="/achievements"?"active":""}`,children:"成就"}),e.jsx(z,{to:"/leaderboard",className:`nav-link ${s.pathname==="/leaderboard"?"active":""}`,children:"排行榜"})]}),e.jsxs("div",{className:"navbar-actions",children:[A&&e.jsxs("div",{className:"user-info",children:[e.jsxs("div",{className:"xp-badge",children:[e.jsx("span",{className:"xp-icon",children:"⭐"}),e.jsxs("span",{className:"xp-text",children:[r.xp," / ",r.totalXP," XP"]})]}),e.jsxs("div",{className:"streak-badge",children:[e.jsx("span",{className:"streak-icon",children:"🔥"}),e.jsxs("span",{className:"streak-text",children:[r.streak,"天"]})]}),d(),_?e.jsx("a",{className:"avatar avatar-online",title:`${_.user.name||_.user.login} (@${_.user.login})`,href:_.user.html_url,target:"_blank",rel:"noopener noreferrer",children:e.jsx("img",{src:_.user.avatar_url,alt:g})}):e.jsx("div",{className:"avatar",children:e.jsx("span",{children:"LY"})})]}),_?e.jsx("button",{className:"btn btn-secondary btn-sm",onClick:P,children:"退出"}):e.jsxs("button",{className:"btn btn-primary btn-sm",onClick:()=>N(!0),children:[e.jsx("span",{className:"btn-icon",children:e.jsx("svg",{viewBox:"0 0 24 24",width:"14",height:"14",fill:"currentColor",children:e.jsx("path",{d:"M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"})})}),"GitHub 登录"]})]})]})}),e.jsx(Ut,{isOpen:p,onClose:()=>N(!1)})]})}function Jt(){return e.jsxs("footer",{className:"footer",children:[e.jsxs("div",{className:"container footer-container",children:[e.jsxs("div",{className:"footer-brand",children:[e.jsxs(z,{to:"/",className:"footer-logo",children:[e.jsx("div",{className:"logo-icon",children:e.jsxs("svg",{viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[e.jsx("path",{d:"M12 2L2 7L12 12L22 7L12 2Z",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 17L12 22L22 17",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 12L12 17L22 12",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"})]})}),e.jsx("span",{className:"logo-text",children:"Python Quest"})]}),e.jsx("p",{className:"footer-tagline",children:"通过游戏化学习，从零到英雄掌握Python编程"})]}),e.jsxs("div",{className:"footer-links",children:[e.jsxs("div",{className:"footer-column",children:[e.jsx("h4",{children:"关于我们"}),e.jsxs("ul",{children:[e.jsx("li",{children:e.jsx("a",{href:"#",children:"课程介绍"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"团队成员"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"联系我们"})})]})]}),e.jsxs("div",{className:"footer-column",children:[e.jsx("h4",{children:"学习资源"}),e.jsxs("ul",{children:[e.jsx("li",{children:e.jsx("a",{href:"#",children:"学习路径"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"文档中心"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"常见问题"})})]})]}),e.jsxs("div",{className:"footer-column",children:[e.jsx("h4",{children:"社区"}),e.jsxs("ul",{children:[e.jsx("li",{children:e.jsx("a",{href:"#",children:"排行榜"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"讨论区"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"合作伙伴"})})]})]})]})]}),e.jsx("div",{className:"footer-bottom",children:e.jsx("div",{className:"container",children:e.jsx("p",{children:"© 2024 Python Quest. All rights reserved."})})})]})}function Vt({onClose:t}){var P;const[s,r]=o.useState(null),i=[...o.useMemo(()=>zt(),[])].reverse(),l=s?et(s):null,_=p=>{try{return new Date(p).toLocaleDateString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}catch{return p}};return e.jsx("div",{className:"version-history-overlay",onClick:t,children:e.jsxs("div",{className:"version-history-modal",onClick:p=>p.stopPropagation(),children:[e.jsxs("div",{className:"vh-header",children:[e.jsx("h2",{children:"📦 版本历史"}),e.jsx("button",{className:"vh-close",onClick:t,children:"✕"})]}),e.jsxs("div",{className:"vh-body",children:[e.jsxs("div",{className:"vh-version-list",children:[i.length===0&&e.jsx("p",{className:"vh-empty",children:"暂无版本记录"}),i.map(p=>{const N=p.version===U,b=s===p.version;return e.jsxs("div",{className:`vh-version-card ${b?"selected":""} ${N?"current":""}`,onClick:()=>r(p.version),children:[e.jsxs("div",{className:"vh-card-header",children:[e.jsx("span",{className:"vh-version-tag",children:p.version}),N?e.jsx("span",{className:"vh-badge vh-badge-current",children:"当前版本"}):e.jsx("span",{className:"vh-badge vh-badge-frozen",children:"🔒 已冻结"})]}),e.jsxs("div",{className:"vh-card-stats",children:[e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.totalXP}),e.jsx("span",{className:"vh-stat-label",children:"总XP"})]}),e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.completedLevels}),e.jsx("span",{className:"vh-stat-label",children:"通关数"})]}),e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.completedLessons}),e.jsx("span",{className:"vh-stat-label",children:"课程"})]}),e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.completedChallenges}),e.jsx("span",{className:"vh-stat-label",children:"挑战"})]})]}),e.jsx("div",{className:"vh-card-date",children:_(p.snapshotDate)})]},p.version)})]}),l&&s&&e.jsxs("div",{className:"vh-detail-panel",children:[e.jsxs("div",{className:"vh-detail-header",children:[e.jsxs("h3",{children:["版本 ",s," 进度详情"]}),e.jsx("span",{className:"vh-readonly-hint",children:"📋 只读快照"})]}),e.jsxs("div",{className:"vh-detail-stats",children:[e.jsxs("div",{className:"vh-detail-stat",children:[e.jsx("div",{className:"vh-detail-icon",children:"⭐"}),e.jsxs("div",{children:[e.jsx("span",{className:"vh-detail-big",children:l.totalXP||0}),e.jsx("span",{className:"vh-detail-small",children:"经验值"})]})]}),e.jsxs("div",{className:"vh-detail-stat",children:[e.jsx("div",{className:"vh-detail-icon",children:"📅"}),e.jsxs("div",{children:[e.jsx("span",{className:"vh-detail-big",children:((P=l.studyDays)==null?void 0:P.length)||0}),e.jsx("span",{className:"vh-detail-small",children:"学习天数"})]})]}),e.jsxs("div",{className:"vh-detail-stat",children:[e.jsx("div",{className:"vh-detail-icon",children:"🏆"}),e.jsxs("div",{children:[e.jsx("span",{className:"vh-detail-big",children:Object.values(l.levels||{}).filter(p=>p==null?void 0:p.completed).length}),e.jsx("span",{className:"vh-detail-small",children:"完成关卡"})]})]})]}),e.jsxs("div",{className:"vh-detail-section",children:[e.jsx("h4",{children:"关卡完成情况"}),e.jsx("div",{className:"vh-levels-grid",children:Object.entries(l.levels||{}).map(([p,N])=>e.jsxs("div",{className:`vh-level-chip ${N.completed?"completed":N.unlocked?"unlocked":"locked"}`,children:[e.jsxs("span",{className:"vh-level-num",children:["第",p,"关"]}),e.jsx("span",{className:"vh-level-status",children:N.completed?"✓":N.unlocked?"进行中":"🔒"})]},p))})]}),l.activityLog&&l.activityLog.length>0&&e.jsxs("div",{className:"vh-detail-section",children:[e.jsxs("h4",{children:["最近活动 (",l.activityLog.length," 条)"]}),e.jsx("div",{className:"vh-activity-list",children:l.activityLog.slice(0,8).map(p=>e.jsxs("div",{className:"vh-activity-item",children:[e.jsx("span",{className:"vh-activity-icon",children:p.icon}),e.jsxs("div",{className:"vh-activity-info",children:[e.jsx("span",{className:"vh-activity-title",children:p.title}),e.jsx("span",{className:"vh-activity-time",children:_(p.timestamp)})]})]},p.id))})]})]})]})]})})}function Xt(){const[t,s]=o.useState(!1),r=Ze(),a=[{value:"10",label:"大关卡"},{value:"52",label:"编程挑战"},{value:"156+",label:"学习者"},{value:"98%",label:"好评率"}];return e.jsxs("div",{className:"home-page",children:[e.jsxs("section",{className:"hero-section",children:[e.jsxs("div",{className:"hero-bg-decorations",children:[e.jsx("div",{className:"floating-element elem-1"}),e.jsx("div",{className:"floating-element elem-2"}),e.jsx("div",{className:"floating-element elem-3"}),e.jsx("div",{className:"code-symbol code-1",children:"</>"}),e.jsx("div",{className:"code-symbol code-2",children:"{ }"}),e.jsx("div",{className:"code-symbol code-3",children:"🐍"})]}),e.jsxs("div",{className:"container hero-content",children:[e.jsx("div",{className:"hero-badge animate-fade-in",children:e.jsx("span",{children:"🎮 游戏化学习"})}),e.jsx("h1",{className:"hero-title animate-fade-in delay-100",children:e.jsx("span",{className:"title-gradient",children:"Python Quest"})}),e.jsx("p",{className:"hero-subtitle animate-fade-in delay-200",children:"通过 9 大关卡、50+ 编程挑战，从零到英雄独立完成项目"}),e.jsxs("div",{className:"hero-actions animate-fade-in delay-300",children:[e.jsx(z,{to:"/map",className:"btn btn-primary btn-lg",children:"开始冒险"}),e.jsxs(z,{to:"/source",className:"btn btn-secondary btn-lg",children:[e.jsx("span",{className:"btn-icon",children:"🔧"}),"源码探索"]})]}),e.jsx("div",{className:"hero-stats animate-fade-in delay-400",children:a.map((i,l)=>e.jsxs("div",{className:"stat-item",children:[e.jsx("div",{className:"stat-value",children:i.value}),e.jsx("div",{className:"stat-label",children:i.label})]},l))})]})]}),e.jsx("section",{className:"features-section",children:e.jsxs("div",{className:"container",children:[e.jsx("h2",{className:"section-title",children:"为什么选择 Python Quest？"}),e.jsx("p",{className:"section-subtitle",children:"游戏化学习，让编程变得有趣又高效"}),e.jsxs("div",{className:"features-grid",children:[e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"🎯"}),e.jsx("h3",{children:"闯关式学习"}),e.jsx("p",{children:"9大精心设计的关卡，从基础到进阶，每一步都有明确的目标和成就感。"})]}),e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"💻"}),e.jsx("h3",{children:"实战挑战"}),e.jsx("p",{children:"50+编程挑战，边学边练，在实践中真正掌握Python编程技能。"})]}),e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"🏆"}),e.jsx("h3",{children:"成就系统"}),e.jsx("p",{children:"XP经验值、徽章、排行榜，在竞争中激发学习动力，不断进步。"})]}),e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"📊"}),e.jsx("h3",{children:"进度追踪"}),e.jsx("p",{children:"可视化学习地图，清晰展示学习进度，让成长之路一目了然。"})]})]})]})}),e.jsx("section",{className:"cta-section",children:e.jsx("div",{className:"container",children:e.jsxs("div",{className:"cta-card",children:[e.jsx("h2",{children:"准备好开始你的编程冒险了吗？"}),e.jsx("p",{children:"加入 Python Quest，从零开始，成为Python编程高手"}),e.jsx(z,{to:"/map",className:"btn btn-primary btn-lg",children:"立即开始 →"})]})})}),e.jsx("div",{className:"version-badge-footer",children:e.jsxs("button",{className:"version-badge",onClick:()=>s(!0),children:[e.jsx("span",{className:"vb-dot"}),U," ",r==null?void 0:r.label]})}),t&&e.jsx(Vt,{onClose:()=>s(!1)})]})}const ae=[{id:1,title:"第1关：初见 Python",subtitle:"认识 Python 的世界",description:"了解Python的历史、特点和应用场景，安装开发环境，写出你的第一行代码。",status:"completed",difficulty:1,duration:"约1小时",lessons:5,challenges:3,topics:["Python简介","环境搭建","第一个程序","打印输出"],side:"left",category:"basic"},{id:2,title:"第2关：变量与数据类型",subtitle:"掌握数据的存储与运算",description:"学习变量、基本数据类型、运算符和类型转换，打下编程基础。",status:"completed",difficulty:1,duration:"约1.5小时",lessons:6,challenges:4,topics:["变量","数字类型","字符串","运算符","类型转换"],side:"right",category:"basic"},{id:3,title:"第3关：条件判断",subtitle:"让程序学会思考",description:"学习if-else条件语句、逻辑运算符和比较运算，让程序做出决策。",status:"completed",difficulty:2,duration:"约1.5小时",lessons:5,challenges:5,topics:["if语句","else和elif","比较运算","逻辑运算","嵌套条件"],side:"left",category:"basic"},{id:4,title:"第4关：循环结构",subtitle:"重复的力量",description:"掌握for循环、while循环、循环控制语句，以及循环的嵌套使用。",status:"current",difficulty:2,duration:"约2小时",lessons:7,challenges:6,topics:["for循环","range()函数","while循环","break与continue","循环嵌套"],side:"right",category:"basic"},{id:5,title:"第5关：列表与元组",subtitle:"数据的集合",description:"学习列表和元组的使用，掌握索引、切片、常用方法和列表推导式。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:5,topics:["列表基础","列表操作","元组","切片","列表推导式"],side:"left",category:"basic"},{id:6,title:"第6关：字典与集合",subtitle:"键值的魔法",description:"深入学习字典和集合的使用，理解哈希表原理和应用场景。",status:"locked",difficulty:3,duration:"约2小时",lessons:6,challenges:5,topics:["字典基础","字典操作","集合","字典推导式","常用场景"],side:"right",category:"basic"},{id:7,title:"第7关：函数",subtitle:"代码的封装与复用",description:"学习函数的定义、参数、返回值、作用域，以及递归和高阶函数。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:8,challenges:7,topics:["函数定义","参数类型","返回值","作用域","递归","Lambda函数"],side:"left",category:"basic"},{id:8,title:"第8关：文件操作",subtitle:"与文件系统交互",description:"学习文件的读写、目录操作、异常处理，掌握数据持久化。",status:"locked",difficulty:3,duration:"约2小时",lessons:6,challenges:5,topics:["文件读写","上下文管理器","目录操作","异常处理","JSON处理"],side:"right",category:"basic"},{id:9,title:"第9关：项目实战",subtitle:"综合项目挑战",description:"运用所学知识，完成一个完整的Python项目，检验你的学习成果。",status:"locked",difficulty:4,duration:"约3小时",lessons:4,challenges:3,topics:["项目规划","模块化设计","测试调试","项目部署"],side:"left",category:"basic"},{id:10,title:"第10关：字符串深入",subtitle:"玩转字符串操作",description:"深入学习字符串的索引、切片、常用方法（find、replace、split、join、format等），掌握字符串的进阶处理技巧。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:4,topics:["字符串索引","字符串方法","格式化输出","字符串编码"],side:"right",category:"advanced"},{id:11,title:"第11关：模块与包",subtitle:"代码的组织艺术",description:"学习模块的导入、自定义模块、Python包管理（pip）、常用标准库（sys、os、datetime、re），让代码更易管理。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["import语句","自定义模块","包管理","标准库"],side:"left",category:"advanced"},{id:12,title:"第12关：面向对象基础",subtitle:"类与对象入门",description:"学习面向对象编程思想，理解类、对象、属性、方法、构造函数、self，掌握OOP的核心概念。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["类与对象","属性方法","构造函数","self关键字","封装"],side:"right",category:"advanced"},{id:13,title:"第13关：继承与多态",subtitle:"OOP进阶特性",description:"深入学习类的继承、方法重写、super()函数、多态、抽象类，掌握面向对象的高级特性。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:5,challenges:4,topics:["类的继承","方法重写","super()","多态","抽象类"],side:"left",category:"advanced"},{id:14,title:"第14关：异常处理进阶",subtitle:"优雅地处理错误",description:"学习自定义异常、异常的传递、with语句、断言、调试技巧，编写健壮的Python程序。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:3,topics:["自定义异常","异常链","上下文管理","断言与调试"],side:"right",category:"advanced"},{id:15,title:"第15关：文件与目录",subtitle:"os模块的妙用",description:"深入学习os、os.path、shutil模块，掌握路径处理、目录操作、文件遍历、批量重命名等高级文件操作。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["os模块","路径处理","目录遍历","文件操作"],side:"left",category:"advanced"},{id:16,title:"第16关：高级特性",subtitle:"生成器、装饰器与闭包",description:"学习Python的三大高级特性：生成器（yield）、装饰器（@）、闭包，掌握函数式编程的核心思想。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["生成器","装饰器","闭包","Lambda","map/filter/reduce"],side:"right",category:"advanced"},{id:17,title:"第17关：常用标准库",subtitle:"站在巨人的肩膀上",description:"系统学习Python常用标准库：datetime、re、json、collections、itertools，让代码更优雅高效。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["datetime","正则表达式","json","collections"],side:"left",category:"advanced"},{id:18,title:"第18关：综合实战",subtitle:"完成Python大师之路",description:"综合运用所有知识，完成爬虫、命令行工具、数据处理等实战项目，成为真正的Python大师！",status:"locked",difficulty:5,duration:"约4小时",lessons:5,challenges:4,topics:["项目实战","命令行工具","数据处理","代码优化"],side:"right",category:"advanced"},{id:19,title:"第19关：Requests 网络请求",subtitle:"HTTP 请求的瑞士军刀",description:"学习使用 requests 库进行 HTTP GET/POST 请求、Session 管理、文件上传、Headers/Cookies 处理，掌握与 Web API 交互的核心能力。",status:"locked",difficulty:3,duration:"约2小时",lessons:6,challenges:4,topics:["requests","GET/POST","Session","Headers","JSON 接口"],side:"left",category:"network"},{id:20,title:"第20关：正则表达式 re",subtitle:"文本处理的终极武器",description:"系统学习 Python 标准库 re：元字符、分组、贪婪/非贪婪、match/search/findall/sub，配合菜鸟教程的案例完成手机号、邮箱、HTML 标签等场景实战。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["re 模块","正则语法","分组捕获","查找替换","爬虫文本解析"],side:"right",category:"network"},{id:21,title:"第21关：collections 标准库",subtitle:"更强大的数据结构",description:"学习 collections 中的 Counter/deque/defaultdict/namedtuple/OrderedDict，使用场景覆盖统计计数、双端队列、缺失键默认值等。",status:"locked",difficulty:2,duration:"约2小时",lessons:5,challenges:4,topics:["Counter","deque","defaultdict","namedtuple","OrderedDict"],side:"left",category:"network"},{id:22,title:"第22关：itertools 迭代工具",subtitle:"生成器的军火库",description:"学习 itertools：count/cycle/repeat、chain/islice、product/permutations/combinations、groupby，写出更优雅的流式代码。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["无限迭代器","组合迭代器","groupby","排列组合","排列密码"],side:"right",category:"network"},{id:23,title:"第23关：NumPy 科学计算",subtitle:"告别循环，拥抱向量化",description:"学习 NumPy ndarray：创建数组、切片与广播、矩阵运算、线性代数、随机数，为 Pandas/机器学习打好地基。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["ndarray","广播","矩阵运算","统计方法","随机抽样"],side:"left",category:"data-science"},{id:24,title:"第24关：Pandas 数据分析",subtitle:"Excel 终结者",description:"学习 Pandas Series/DataFrame、读写 CSV/Excel、缺失值处理、分组聚合、透视表、时间序列，完成数据分析实战。",status:"locked",difficulty:4,duration:"约3小时",lessons:7,challenges:4,topics:["DataFrame","读写 CSV","数据清洗","groupby","时间序列"],side:"right",category:"data-science"},{id:25,title:"第25关：Matplotlib 可视化",subtitle:"让数据说话",description:"学习 matplotlib.pyplot：折线图、柱状图、饼图、散点图、子图布局、中文显示、导出 PNG，打造专业图表。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:4,topics:["折线图","柱状图","饼图","子图","样式与导出"],side:"left",category:"data-science"},{id:26,title:"第26关：SciPy 科学计算",subtitle:"数学/物理/工程全能手",description:"学习 SciPy：线性代数、数值积分、优化求根、信号处理、统计分布，解决工程计算问题。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:5,challenges:4,topics:["linalg","optimize","integrate","stats","signal"],side:"right",category:"data-science"},{id:27,title:"第27关：Flask Web 开发",subtitle:"轻量但不简单",description:"学习 Flask：路由、模板 Jinja2、请求表单、Session、蓝图、RESTful API，写出完整博客后端。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["路由","模板","表单","Session","REST API"],side:"left",category:"web"},{id:28,title:"第28关：FastAPI 高性能接口",subtitle:"现代 Python API 新标准",description:"学习 FastAPI：Pydantic 数据校验、路径/查询参数、依赖注入、WebSocket、自动 OpenAPI 文档，快速构建工业级 API。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["路径参数","Pydantic","依赖注入","OAuth2","文档生成"],side:"right",category:"web"},{id:29,title:"第29关：Django 全栈框架",subtitle:"包含一切电池的大而全",description:"学习 Django：MTV 模型、ORM、Admin 后台、表单、Auth 认证、中间件，完成完整 CMS 项目。",status:"locked",difficulty:5,duration:"约4小时",lessons:6,challenges:4,topics:["MTV","ORM","Admin","认证","中间件"],side:"left",category:"web"},{id:30,title:"第30关：Scrapy 爬虫框架",subtitle:"千万级数据的流水线",description:"学习 Scrapy：Spider/Item/Pipeline/Middleware、选择器 XPath/CSS、深度/广度优先，配合反爬策略构建工业级爬虫。",status:"locked",difficulty:5,duration:"约3小时",lessons:6,challenges:4,topics:["Spider","Item Pipeline","Selector","中间件","反爬处理"],side:"right",category:"network"},{id:31,title:"第31关：Dash 可视化仪表盘",subtitle:"用 Python 写 BI 看板",description:"学习 Dash + Plotly：组件、回调 Callback、多页应用、与 Pandas 结合，搭建交互式数据仪表盘。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:5,challenges:4,topics:["组件","Callback","Plotly 图","多页布局","Pandas 联动"],side:"left",category:"tools"},{id:32,title:"第32关：Jupyter 交互计算",subtitle:"数据科学家的工作台",description:"学习 Jupyter Notebook/Lab：Markdown、魔法命令 %timeit、交互式控件 ipywidgets、导出 HTML/PDF，打造可复现研究报告。",status:"locked",difficulty:2,duration:"约2小时",lessons:5,challenges:4,topics:["单元格","魔法命令","ipywidgets","导出","可复现研究"],side:"right",category:"tools"},{id:33,title:"第33关：Pillow 图像处理",subtitle:"Python 版 PS",description:"学习 Pillow：打开/保存图片、像素操作、裁剪缩放旋转、滤镜、合成与水印，完成批量图片处理脚本。",status:"locked",difficulty:2,duration:"约2小时",lessons:5,challenges:4,topics:["IO 操作","像素","变换","滤镜","水印与合成"],side:"left",category:"tools"},{id:34,title:"第34关：量化交易实战",subtitle:"让代码帮你算账",description:"学习量化基础：K 线数据获取、均线策略、回测框架、风险指标、仓位管理，构建第一个可回测策略。",status:"locked",difficulty:5,duration:"约4小时",lessons:7,challenges:4,topics:["均线策略","回测","夏普比率","最大回撤","仓位管理"],side:"right",category:"finance"},{id:35,title:"第35关：R 语言入门",subtitle:"统计分析利器",description:'学习 R 语言基础：向量与数据框、数据清洗、统计分析、可视化绘图，掌握统计学界的"通用语"。',status:"locked",difficulty:3,duration:"约3小时",lessons:6,challenges:3,topics:["向量","数据框","dplyr","ggplot2","统计检验"],side:"left",category:"finance"},{id:36,title:"第36关：Julia 科学计算",subtitle:"高性能计算新贵",description:"学习 Julia 语言基础：类型系统、多维数组、数学计算、微分方程求解，兼顾 Python 效率和 C 性能。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:3,topics:["多重派发","数组运算","微分方程","性能优化","与 Python 对比"],side:"right",category:"finance"},{id:37,title:"第37关：Python 输入输出",subtitle:"格式化输出与用户交互",description:"学习 input()/print() 进阶用法、格式化字符串（%、format、f-string）、文件读写、标准输入输出流。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:4,topics:["input/print","格式化输出","f-string","stdin/stdout","文件IO"],side:"left",category:"system"},{id:38,title:"第38关：迭代器与生成器",subtitle:"惰性计算的艺术",description:"学习 iter()/next()、自定义迭代器、生成器 yield、列表推导式、生成器表达式，掌握惰性求值与内存优化。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:6,challenges:4,topics:["iter/next","yield","生成器表达式","列表推导","内存优化"],side:"right",category:"system"},{id:39,title:"第39关：JSON 与 XML 处理",subtitle:"数据交换格式",description:"学习 json 模块（序列化/反序列化）、XML 解析（ElementTree）、数据格式转换，掌握主流数据交换格式。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["json","pickle","XML/ElementTree","数据格式转换"],side:"left",category:"system"},{id:40,title:"第40关：Python 数据库编程",subtitle:"SQLite 与 MySQL",description:"学习 SQLite 内置数据库、MySQL 连接、CRUD 操作、事务管理、ORM 基础（SQLAlchemy），掌握 Python 数据库开发。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["sqlite3","MySQL","事务","SQLAlchemy","ORM"],side:"right",category:"system"},{id:41,title:"第41关：多线程与多进程",subtitle:"并发编程入门",description:"学习 threading 模块、GIL 全局解释器锁、multiprocessing 多进程、线程池/进程池、同步互斥，掌握 Python 并发模型。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["threading","GIL","multiprocessing","线程池","锁与条件变量"],side:"left",category:"system"},{id:42,title:"第42关：异步编程 asyncio",subtitle:"协程与事件循环",description:"学习 asyncio 事件循环、async/await、协程、Task、Future、异步IO、aiohttp，掌握现代 Python 异步编程。",status:"locked",difficulty:5,duration:"约3小时",lessons:6,challenges:4,topics:["asyncio","async/await","事件循环","Task","aiohttp"],side:"right",category:"system"},{id:43,title:"第43关：单元测试 pytest",subtitle:"代码质量保障",description:"学习 unittest 标准库、pytest 框架、测试用例组织、fixture、参数化测试、Mock、覆盖率分析，建立测试驱动开发思维。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["unittest","pytest","fixture","Mock","覆盖率"],side:"left",category:"system"},{id:44,title:"第44关：内存与性能优化",subtitle:"写出更快的 Python",description:"学习引用计数与垃圾回收、内存剖析、性能分析（cProfile）、优化技巧、缓存策略（lru_cache）、代码性能调优实战。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:6,challenges:4,topics:["GC机制","cProfile","lru_cache","内存剖析","优化实战"],side:"right",category:"system"},{id:45,title:"第45关：Python 网络编程",subtitle:"Socket 与网络通信",description:"学习 socket 编程、TCP/UDP、urllib 网络请求、SMTP 发送邮件，掌握 Python 网络编程基础。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["socket","TCP/UDP","urllib","SMTP","端口扫描"],side:"left",category:"network"},{id:46,title:"第46关：Python 系统模块",subtitle:"常用标准库实战",description:"学习 sys、subprocess、logging、csv、datetime、queue、StringIO 等常用模块，掌握系统编程。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["sys","subprocess","logging","csv","datetime","queue"],side:"right",category:"system"},{id:47,title:"第47关：PyQt 桌面应用",subtitle:"GUI 编程入门",description:"学习 PyQt5 基础、窗口与控件、布局管理、信号与槽、事件处理、Qt Designer，创建桌面应用。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["QWidget","信号槽","布局","Qt Designer","事件"],side:"left",category:"tools"},{id:48,title:"第48关：FastAPI 核心",subtitle:"现代 API 开发",description:"学习 FastAPI 路由、路径参数、Pydantic 校验、依赖注入、中间件、认证、WebSocket。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["路由","Pydantic","依赖注入","中间件","认证","WebSocket"],side:"right",category:"web"},{id:49,title:"第49关：Django 核心",subtitle:"全栈 Web 框架",description:"学习 Django MVT 模式、视图与 URL、模板系统、模型 ORM、Admin 后台、表单处理、静态文件。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["MVT","URL路由","模板","ORM","Admin","表单"],side:"left",category:"web"},{id:50,title:"第50关：NumPy 核心",subtitle:"数组运算深入",description:"学习 ndarray 详解、高级索引、广播机制、位运算、统计函数、线性代数、傅里叶变换。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["ndarray","索引","广播","统计","线性代数","FFT"],side:"right",category:"data-science"},{id:51,title:"第51关：Pandas 核心",subtitle:"数据分析深入",description:"学习 Series/DataFrame、数据读取、清洗处理、分组聚合、合并连接、时间序列、数据可视化。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["Series","DataFrame","清洗","groupby","merge","时间序列"],side:"left",category:"data-science"},{id:52,title:"第52关：Matplotlib 核心",subtitle:"可视化进阶",description:"学习折线图、柱状图、散点图、饼图、子图、3D 图形、动画、样式定制与导出。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["折线图","柱状图","散点图","子图","3D","动画"],side:"right",category:"data-science"},{id:53,title:"第53关：Jupyter 进阶",subtitle:"交互式计算深入",description:"学习魔法命令、IPython Widget、自定义魔术、Cell 魔术、导出与发布、JupyterLab。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:3,topics:["魔法命令","Widget","Cell魔术","导出","JupyterLab"],side:"left",category:"tools"},{id:54,title:"第54关：Pillow 进阶",subtitle:"图像处理深入",description:"学习像素操作、滤镜增强、图像绘制、水印添加、颜色空间转换、格式转换、批量处理。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:3,topics:["像素","滤镜","绘制","水印","色彩空间","批处理"],side:"right",category:"tools"},{id:55,title:"第55关：R 语言进阶",subtitle:"统计分析与可视化",description:"学习 R 向量与数据框、dplyr 数据处理、ggplot2 绘图、统计检验、回归分析、数据挖掘。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["向量","数据框","dplyr","ggplot2","统计检验","回归"],side:"left",category:"finance"}],ke=[{id:1,title:"for 循环基础",duration:"12分钟",completed:!0,type:"video"},{id:2,title:"range() 函数详解",duration:"15分钟",completed:!0,type:"video"},{id:3,title:"遍历列表与字典",duration:"18分钟",completed:!0,type:"video"},{id:4,title:"while 循环",duration:"14分钟",completed:!0,type:"video"},{id:5,title:"break 与 continue",duration:"16分钟",completed:!1,type:"video"},{id:6,title:"循环嵌套",duration:"20分钟",completed:!1,type:"video"},{id:7,title:"实战：打印九九乘法表",duration:"25分钟",completed:!1,type:"interactive"}],$t=[{id:1,title:"计算1到100的和",difficulty:"easy",completed:!0},{id:2,title:"打印三角形图案",difficulty:"easy",completed:!0},{id:3,title:"找出100以内的素数",difficulty:"medium",completed:!1},{id:4,title:"冒泡排序实现",difficulty:"medium",completed:!1},{id:5,title:"猜数字游戏",difficulty:"medium",completed:!1},{id:6,title:"斐波那契数列",difficulty:"hard",completed:!1}],st={4:[{id:1,title:"什么是循环？",type:"explanation",content:`**循环**是编程中最强大的概念之一。它允许我们**重复执行一段代码**，而不需要复制粘贴。
+`)}catch{}return{output:u,error:S,passed:!1,testResults:[]}}},[s]);return e.jsx($e.Provider,{value:{pyodide:s,isLoading:a,error:l,runCode:b,runCodeWithTests:A,retryLoad:N},children:t})}function Ke(){const t=o.useContext($e);return t===void 0?(console.warn("usePyodide called outside PyodideProvider, using default"),Ft):t}const Y=[{id:"first-step",title:"初出茅庐",description:"完成第一个学习步骤",icon:"🌱",category:"learning",rarity:"common",xpReward:20,condition:t=>t.completedLessons>=1,progress:t=>({current:Math.min(t.completedLessons,1),total:1})},{id:"lesson-10",title:"勤学不辍",description:"完成 10 个学习步骤",icon:"📚",category:"learning",rarity:"common",xpReward:50,condition:t=>t.completedLessons>=10,progress:t=>({current:Math.min(t.completedLessons,10),total:10})},{id:"lesson-50",title:"学富五车",description:"完成 50 个学习步骤",icon:"🎓",category:"learning",rarity:"rare",xpReward:200,condition:t=>t.completedLessons>=50,progress:t=>({current:Math.min(t.completedLessons,50),total:50})},{id:"first-challenge",title:"初战告捷",description:"完成第一个编程挑战",icon:"🎯",category:"challenge",rarity:"common",xpReward:30,condition:t=>t.completedChallenges>=1,progress:t=>({current:Math.min(t.completedChallenges,1),total:1})},{id:"challenge-5",title:"小试牛刀",description:"完成 5 个编程挑战",icon:"⚔️",category:"challenge",rarity:"common",xpReward:80,condition:t=>t.completedChallenges>=5,progress:t=>({current:Math.min(t.completedChallenges,5),total:5})},{id:"challenge-15",title:"身经百战",description:"完成 15 个编程挑战",icon:"🛡️",category:"challenge",rarity:"rare",xpReward:200,condition:t=>t.completedChallenges>=15,progress:t=>({current:Math.min(t.completedChallenges,15),total:15})},{id:"level-1",title:"初窥门径",description:"完成第 1 个关卡",icon:"🚪",category:"mastery",rarity:"common",xpReward:50,condition:t=>t.completedLevels>=1,progress:t=>({current:Math.min(t.completedLevels,1),total:1})},{id:"level-half",title:"半程英雄",description:"完成 50% 的关卡",icon:"⭐",category:"mastery",rarity:"rare",xpReward:300,condition:t=>t.completedLevels>=Math.ceil(t.totalLevels/2),progress:t=>({current:Math.min(t.completedLevels,Math.ceil(t.totalLevels/2)),total:Math.ceil(t.totalLevels/2)})},{id:"level-all",title:"登峰造极",description:"完成所有关卡",icon:"👑",category:"mastery",rarity:"legendary",xpReward:1e3,condition:t=>t.completedLevels>=t.totalLevels&&t.totalLevels>0,progress:t=>({current:Math.min(t.completedLevels,t.totalLevels),total:t.totalLevels})},{id:"xp-100",title:"小有所成",description:"累计获得 100 XP",icon:"💫",category:"learning",rarity:"common",xpReward:30,condition:t=>t.totalXP>=100,progress:t=>({current:Math.min(t.totalXP,100),total:100})},{id:"xp-500",title:"中流砥柱",description:"累计获得 500 XP",icon:"✨",category:"learning",rarity:"rare",xpReward:100,condition:t=>t.totalXP>=500,progress:t=>({current:Math.min(t.totalXP,500),total:500})},{id:"xp-1000",title:"登堂入室",description:"累计获得 1000 XP",icon:"🌟",category:"learning",rarity:"epic",xpReward:250,condition:t=>t.totalXP>=1e3,progress:t=>({current:Math.min(t.totalXP,1e3),total:1e3})},{id:"streak-3",title:"坚持不懈",description:"连续学习 3 天",icon:"🔥",category:"streak",rarity:"common",xpReward:50,condition:t=>t.streak>=3,progress:t=>({current:Math.min(t.streak,3),total:3})},{id:"streak-7",title:"周周向上",description:"连续学习 7 天",icon:"🔥",category:"streak",rarity:"rare",xpReward:150,condition:t=>t.streak>=7,progress:t=>({current:Math.min(t.streak,7),total:7})},{id:"streak-30",title:"持之以恒",description:"连续学习 30 天",icon:"🌋",category:"streak",rarity:"epic",xpReward:500,condition:t=>t.streak>=30,progress:t=>({current:Math.min(t.streak,30),total:30})},{id:"all-rounder",title:"全能选手",description:"同时拥有 5 个成就",icon:"🏆",category:"special",rarity:"epic",xpReward:300,condition:t=>t.completedLessons>=5&&t.completedChallenges>=5&&t.completedLevels>=1},{id:"first-day",title:"启航",description:"欢迎来到 Python Quest",icon:"🎉",category:"special",rarity:"common",xpReward:10,condition:()=>!0}],ye=[{id:"all",label:"全部",icon:"🏆"},{id:"learning",label:"学习",icon:"📚"},{id:"challenge",label:"挑战",icon:"⚔️"},{id:"mastery",label:"精通",icon:"👑"},{id:"streak",label:"连续",icon:"🔥"},{id:"special",label:"特殊",icon:"✨"}],qe={common:{label:"普通",color:"#94a3b8",bg:"rgba(148, 163, 184, 0.15)"},rare:{label:"稀有",color:"#3b82f6",bg:"rgba(59, 130, 246, 0.15)"},epic:{label:"史诗",color:"#a855f7",bg:"rgba(168, 85, 247, 0.15)"},legendary:{label:"传说",color:"#f59e0b",bg:"rgba(245, 158, 11, 0.15)"}},Mt=[{rank:1,name:"PythonMaster",avatar:"PM",xp:2850,streak:45,levels:9,color:"#f59e0b"},{rank:2,name:"CodeWizard",avatar:"CW",xp:2340,streak:32,levels:8,color:"#a855f7"},{rank:3,name:"DataDragon",avatar:"DD",xp:1980,streak:28,levels:8,color:"#3b82f6"},{rank:4,name:"LoopLegend",avatar:"LL",xp:1650,streak:21,levels:7,color:"#10b981"},{rank:5,name:"FunctionFox",avatar:"FF",xp:1320,streak:18,levels:6,color:"#ec4899"},{rank:6,name:"SyntaxSage",avatar:"SS",xp:1080,streak:15,levels:5,color:"#06b6d4"},{rank:7,name:"BinaryBard",avatar:"BB",xp:920,streak:12,levels:4,color:"#84cc16"},{rank:8,name:"RecursionR",avatar:"RR",xp:760,streak:10,levels:3,color:"#f97316"},{rank:9,name:"TupleTitan",avatar:"TT",xp:540,streak:8,levels:2,color:"#8b5cf6"},{rank:10,name:"StringSlayer",avatar:"ST",xp:320,streak:5,levels:1,color:"#ef4444"}],Q="v1.2",xe="菜鸟教程完整版",be="44关完整内容 + 6大分类主题体系 + 菜鸟教程对齐",Ye="python-quest-version-registry",He="python-quest-progress",Bt="python-quest-progress-version";function se(t){try{return localStorage.getItem(t)}catch{return null}}function Se(t,s){try{return localStorage.setItem(t,s),!0}catch{return console.warn("localStorage 写入失败:",t),!1}}function me(t){return`python-quest-progress@${t}`}function _e(){const t=se(Ye);if(!t)return[];try{const s=JSON.parse(t);return Array.isArray(s)?s:[]}catch{return[]}}function ve(t){Se(Ye,JSON.stringify(t))}function qt(){let t=_e();if(t.length===0){const i=se(He),l=se(Bt),_={version:Q,label:xe,date:new Date().toISOString(),storageKey:me(Q),frozen:!1,description:be};if(i){const P={version:l||"v1.0",label:"历史版本",date:new Date().toISOString(),storageKey:me(l||"v1.0"),frozen:!0,description:"从旧版迁移的数据"};Se(P.storageKey,i),t=[P,_]}else t=[_];return ve(t),t}const s=t.find(i=>i.version===Q);if(s)return s.label=xe,s.description=be,ve(t),t;t.forEach(i=>{i.frozen=!0});const r=t.find(i=>!i.frozen);if(r){const i=se(r.storageKey)||se(He);i&&Se(r.storageKey,i),r.frozen=!0}const a={version:Q,label:xe,date:new Date().toISOString(),storageKey:me(Q),frozen:!1,description:be};return t.push(a),ve(t),t}function Ze(){return _e().find(s=>s.version===Q&&!s.frozen)||null}function et(t){const r=_e().find(i=>i.version===t);if(!r)return null;const a=se(r.storageKey);if(!a)return null;try{return JSON.parse(a)}catch{return null}}function Ht(){return _e().map(s=>{var P;const r=et(s.version);if(!r)return{version:s.version,totalXP:0,completedLevels:0,completedLessons:0,completedChallenges:0,studyDays:[],activityLogLength:0,snapshotDate:s.date};const a=r.levels||{},i=Object.values(a).filter(p=>p==null?void 0:p.completed).length,l=Object.values(a).reduce((p,N)=>p+Object.values((N==null?void 0:N.lessons)||{}).filter(b=>b==null?void 0:b.completed).length,0),_=Object.values(a).reduce((p,N)=>p+Object.values((N==null?void 0:N.challenges)||{}).filter(b=>b==null?void 0:b.completed).length,0);return{version:s.version,totalXP:r.totalXP||0,completedLevels:i,completedLessons:l,completedChallenges:_,studyDays:r.studyDays||[],activityLogLength:((P=r.activityLog)==null?void 0:P.length)||0,snapshotDate:s.date}})}const Gt=300,zt=qt(),J=me(Q),de=Q,Ge=()=>new Date().toISOString().slice(0,10);function ce(t,s){try{return localStorage.setItem(t,s),!0}catch(r){if(r instanceof DOMException&&(r.name==="QuotaExceededError"||r.name==="NS_ERROR_DOM_QUOTA_REACHED")){console.warn("localStorage 存储空间不足，尝试清理旧数据...");try{const a=localStorage.getItem(J);if(a){const i=JSON.parse(a);if(i.activityLog&&i.activityLog.length>30)return i.activityLog=i.activityLog.slice(0,30),localStorage.setItem(J,JSON.stringify(i)),!0}}catch{}}return console.error("localStorage 写入失败:",r),!1}}function we(t){try{return localStorage.getItem(t)}catch{return null}}const U={xp:50,totalXP:500,streak:7,studyDays:[Ge()],lastStudyDate:Ge(),levels:{1:{unlocked:!0,completed:!1,lessons:{},challenges:{}},2:{unlocked:!0,completed:!1,lessons:{},challenges:{}},3:{unlocked:!0,completed:!1,lessons:{},challenges:{}},4:{unlocked:!0,completed:!1,lessons:{},challenges:{}},5:{unlocked:!0,completed:!1,lessons:{},challenges:{}},6:{unlocked:!0,completed:!1,lessons:{},challenges:{}},7:{unlocked:!0,completed:!1,lessons:{},challenges:{}},8:{unlocked:!0,completed:!1,lessons:{},challenges:{}},9:{unlocked:!0,completed:!1,lessons:{},challenges:{}},10:{unlocked:!0,completed:!1,lessons:{},challenges:{}},11:{unlocked:!0,completed:!1,lessons:{},challenges:{}},12:{unlocked:!0,completed:!1,lessons:{},challenges:{}},13:{unlocked:!0,completed:!1,lessons:{},challenges:{}},14:{unlocked:!0,completed:!1,lessons:{},challenges:{}},15:{unlocked:!0,completed:!1,lessons:{},challenges:{}},16:{unlocked:!0,completed:!1,lessons:{},challenges:{}},17:{unlocked:!0,completed:!1,lessons:{},challenges:{}},18:{unlocked:!0,completed:!1,lessons:{},challenges:{}},19:{unlocked:!0,completed:!1,lessons:{},challenges:{}},20:{unlocked:!0,completed:!1,lessons:{},challenges:{}},21:{unlocked:!0,completed:!1,lessons:{},challenges:{}},22:{unlocked:!0,completed:!1,lessons:{},challenges:{}},23:{unlocked:!0,completed:!1,lessons:{},challenges:{}},24:{unlocked:!0,completed:!1,lessons:{},challenges:{}},25:{unlocked:!0,completed:!1,lessons:{},challenges:{}},26:{unlocked:!0,completed:!1,lessons:{},challenges:{}},27:{unlocked:!0,completed:!1,lessons:{},challenges:{}},28:{unlocked:!0,completed:!1,lessons:{},challenges:{}},29:{unlocked:!0,completed:!1,lessons:{},challenges:{}},30:{unlocked:!0,completed:!1,lessons:{},challenges:{}},31:{unlocked:!0,completed:!1,lessons:{},challenges:{}},32:{unlocked:!0,completed:!1,lessons:{},challenges:{}},33:{unlocked:!0,completed:!1,lessons:{},challenges:{}},34:{unlocked:!0,completed:!1,lessons:{},challenges:{}},35:{unlocked:!0,completed:!1,lessons:{},challenges:{}},36:{unlocked:!0,completed:!1,lessons:{},challenges:{}},37:{unlocked:!0,completed:!1,lessons:{},challenges:{}},38:{unlocked:!0,completed:!1,lessons:{},challenges:{}},39:{unlocked:!0,completed:!1,lessons:{},challenges:{}},40:{unlocked:!0,completed:!1,lessons:{},challenges:{}},41:{unlocked:!0,completed:!1,lessons:{},challenges:{}},42:{unlocked:!0,completed:!1,lessons:{},challenges:{}},43:{unlocked:!0,completed:!1,lessons:{},challenges:{}},44:{unlocked:!0,completed:!1,lessons:{},challenges:{}},45:{unlocked:!0,completed:!1,lessons:{},challenges:{}},46:{unlocked:!0,completed:!1,lessons:{},challenges:{}},47:{unlocked:!0,completed:!1,lessons:{},challenges:{}},48:{unlocked:!0,completed:!1,lessons:{},challenges:{}},49:{unlocked:!0,completed:!1,lessons:{},challenges:{}},50:{unlocked:!0,completed:!1,lessons:{},challenges:{}},51:{unlocked:!0,completed:!1,lessons:{},challenges:{}},52:{unlocked:!0,completed:!1,lessons:{},challenges:{}},53:{unlocked:!0,completed:!1,lessons:{},challenges:{}},54:{unlocked:!0,completed:!1,lessons:{},challenges:{}},55:{unlocked:!0,completed:!1,lessons:{},challenges:{}},56:{unlocked:!0,completed:!1,lessons:{},challenges:{}},57:{unlocked:!0,completed:!1,lessons:{},challenges:{}},58:{unlocked:!0,completed:!1,lessons:{},challenges:{}},59:{unlocked:!0,completed:!1,lessons:{},challenges:{}},60:{unlocked:!0,completed:!1,lessons:{},challenges:{}}},unlockedAchievements:["first-day"],claimedAchievements:[],activityLog:[{id:"welcome",type:"achievement",title:"欢迎来到 Python Quest",description:"开始你的编程冒险之旅",xp:10,timestamp:new Date().toISOString(),icon:"🎉"}]};function ue(t){return!t||typeof t!="object"?{...U}:{...U,...t,levels:t.levels?{...U.levels,...t.levels}:{...U.levels},unlockedAchievements:Array.isArray(t.unlockedAchievements)?t.unlockedAchievements:U.unlockedAchievements,claimedAchievements:Array.isArray(t.claimedAchievements)?t.claimedAchievements:U.claimedAchievements,activityLog:Array.isArray(t.activityLog)&&t.activityLog.length>0?t.activityLog:U.activityLog,studyDays:Array.isArray(t.studyDays)?t.studyDays:U.studyDays}}const tt=o.createContext(void 0);function je(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}function Ut({children:t}){const{auth:s,isLoading:r}=Ie(),[a,i]=o.useState("idle"),[l,_]=o.useState(""),[P,p]=o.useState("saved"),[N,b]=o.useState(null),[A]=o.useState(zt),v=o.useMemo(()=>Ze(),[]),[m,g]=o.useState(()=>{const c=we(J);if(c)try{const C=JSON.parse(c),k=we("python-quest-progress");return k&&!c?ue(JSON.parse(k)):C}catch{}const x=we("python-quest-progress");if(x)try{return ue(JSON.parse(x))}catch{}return ce(J+"-version",de),{...U}}),d=o.useRef(!1),u=o.useRef(null),y=o.useRef(null),S=o.useRef("");o.useEffect(()=>{if(!r){if(!s||!s.gistId){i("idle"),d.current=!1;return}d.current||(i("loading"),It(s.token,s.gistId).then(c=>{c&&c.progress&&g(x=>{const C=ue(c.progress),k=x.totalXP,w=C.totalXP;return k>w?ue({...C,...x}):C}),i("synced"),S.current="",d.current=!0}).catch(c=>{console.error("加载云端进度失败",c);const x=c instanceof Error?c.message:String(c);S.current=x,i("error"),x.includes("超时")||x.includes("网络")||x.includes("Failed to fetch")?d.current=!1:d.current=!0}))}},[s,r]),o.useEffect(()=>{s||(d.current=!1,i("idle"))},[s]),o.useEffect(()=>{p("saving"),y.current&&clearTimeout(y.current),y.current=setTimeout(()=>{ce(J,JSON.stringify(m))?(p("saved"),b(new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))):p("error")},Gt),s&&s.gistId&&d.current&&a!=="loading"&&(u.current&&clearTimeout(u.current),u.current=setTimeout(()=>{i("syncing"),Be(s.token,s.gistId,{progress:m,savedAt:new Date().toISOString(),version:de}).then(()=>{i("synced"),_("")}).catch(c=>{console.error("上传 Gist 失败",c);const x=c instanceof Error?c.message:String(c);_(x),i("error")})},1500))},[m,s,a]);const n=o.useCallback(()=>{p("saving"),y.current&&clearTimeout(y.current),ce(J,JSON.stringify(m))?(p("saved"),b(new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))):p("error")},[m]),E=o.useCallback(c=>{const x=Object.values(c.levels).reduce((q,W)=>q+Object.values(W.lessons).filter(X=>X.completed).length,0),C=Object.values(c.levels).reduce((q,W)=>q+Object.values(W.challenges).filter(X=>X.completed).length,0),k=Object.values(c.levels).filter(q=>q.completed).length,w=Object.keys(c.levels).length,R={totalXP:c.totalXP,streak:c.streak,completedLevels:k,completedLessons:x,completedChallenges:C,perfectChallenges:C,totalLevels:w},F=[];for(const q of Y)c.unlockedAchievements.includes(q.id)||q.condition(R)&&F.push(q.id);return F.length>0?{...c,unlockedAchievements:[...c.unlockedAchievements,...F]}:c},[]),L=o.useCallback((c,x)=>{var C,k;return((k=(C=m.levels[c])==null?void 0:C.lessons[x])==null?void 0:k.completed)||!1},[m]),O=o.useCallback((c,x)=>{var C,k;return((k=(C=m.levels[c])==null?void 0:C.challenges[x])==null?void 0:k.completed)||!1},[m]),f=o.useCallback(c=>{var x;return m.godMode?!0:((x=m.levels[c])==null?void 0:x.unlocked)||!1},[m]),T=o.useCallback(c=>{var x;return((x=m.levels[c])==null?void 0:x.completed)||!1},[m]),h=o.useCallback(c=>m.unlockedAchievements.includes(c),[m]),I=o.useCallback(c=>m.claimedAchievements.includes(c),[m]),j=o.useCallback((c,x,C)=>{g(k=>{const w=k.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},R=w.lessons[x]||{completed:!1};if(R.completed)return k;const F={...w.lessons,[x]:{...R,completed:!0,lastCode:C||R.lastCode,completedAt:new Date().toISOString()}},q=Object.values(F).every(G=>G.completed),W=Object.values(w.challenges).every(G=>G.completed),X=Object.keys(w.challenges).length>0,le=q&&(X?W:!0),$=c+1,ee={...k.levels,[c]:{...w,lessons:F,completed:le||w.completed}};le&&!w.completed&&k.levels[$]&&(ee[$]={...k.levels[$],unlocked:!0});let V={...k,levels:ee};if(le&&!w.completed){const G={id:je(),type:"level",title:`完成第 ${c} 关`,description:"解锁下一关卡",timestamp:new Date().toISOString(),icon:"🎊"};V={...V,activityLog:[G,...V.activityLog].slice(0,100)}}return V=E(V),V})},[E]),B=o.useCallback((c,x,C=10,k)=>{g(w=>{const R=w.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},F=R.challenges[x]||{completed:!1,attempts:0},q=F.completed,W={...R.challenges,[x]:{...F,completed:!0,lastCode:k||F.lastCode,completedAt:new Date().toISOString(),attempts:F.attempts+1}},X=Object.values(W).every(pe=>pe.completed),le=Object.values(R.lessons).every(pe=>pe.completed),$=X&&le,ee=c+1,V={...w.levels,[c]:{...R,challenges:W,completed:$}};$&&w.levels[ee]&&(V[ee]={...w.levels[ee],unlocked:!0});let G={...w,xp:q?w.xp:w.xp+C,totalXP:q?w.totalXP:w.totalXP+C,levels:V};if($){const pe={id:je(),type:"level",title:`完成第 ${c} 关`,description:"解锁下一关卡",timestamp:new Date().toISOString(),icon:"🎊"};G={...G,activityLog:[pe,...G.activityLog].slice(0,100)}}return G=E(G),G})},[E]),z=o.useCallback(c=>{g(x=>{if(!x.unlockedAchievements.includes(c)||x.claimedAchievements.includes(c))return x;const C=Y.find(w=>w.id===c);if(!C)return x;const k={id:je(),type:"achievement",title:`解锁成就：${C.title}`,description:C.description,xp:C.xpReward,timestamp:new Date().toISOString(),icon:C.icon};return{...x,xp:x.xp+C.xpReward,totalXP:x.totalXP+C.xpReward,claimedAchievements:[...x.claimedAchievements,c],activityLog:[k,...x.activityLog].slice(0,100)}})},[]),oe=o.useCallback((c,x)=>{var C,k;return(k=(C=m.levels[c])==null?void 0:C.lessons[x])==null?void 0:k.lastCode},[m]),Z=o.useCallback((c,x)=>{var C,k;return(k=(C=m.levels[c])==null?void 0:C.challenges[x])==null?void 0:k.lastCode},[m]),D=o.useCallback((c,x,C)=>{g(k=>{const w=k.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},R=w.lessons[x]||{completed:!1};return{...k,levels:{...k.levels,[c]:{...w,lessons:{...w.lessons,[x]:{...R,lastCode:C}}}}}})},[]),M=o.useCallback((c,x,C)=>{g(k=>{const w=k.levels[c]||{unlocked:!1,completed:!1,lessons:{},challenges:{}},R=w.challenges[x]||{completed:!1,attempts:0};return{...k,levels:{...k.levels,[c]:{...w,challenges:{...w.challenges,[x]:{...R,lastCode:C}}}}}})},[]),nt=o.useCallback(c=>{const x=m.levels[c];if(!x)return{completed:0,total:0,percent:0};const C=Object.values(x.lessons),k=Object.values(x.challenges),w=C.filter(F=>F.completed).length+k.filter(F=>F.completed).length,R=C.length+k.length;return{completed:w,total:R,percent:R>0?Math.round(w/R*100):0}},[m]),it=o.useCallback(()=>{let c=0,x=0;for(const C of Object.values(m.levels))c+=Object.keys(C.lessons).length+Object.keys(C.challenges).length,x+=Object.values(C.lessons).filter(k=>k.completed).length,x+=Object.values(C.challenges).filter(k=>k.completed).length;return{completed:x,total:c,percent:c>0?Math.round(x/c*100):0}},[m]),rt=o.useCallback((c=10)=>m.activityLog.slice(0,c),[m]),ot=o.useCallback(()=>{g(c=>{var C;if(!c.godMode){const k={};for(let w=1;w<=60;w++)k[w]={...c.levels[w]||{lessons:{},challenges:{}},unlocked:!0,completed:((C=c.levels[w])==null?void 0:C.completed)||!1};return{...c,godMode:!0,levels:k,activityLog:[{id:"godmode-on-"+Date.now(),type:"achievement",title:"无敌模式已开启",description:"所有关卡已解锁，自由探索！",xp:0,timestamp:new Date().toISOString(),icon:"⚡"},...c.activityLog]}}else{const k={};for(let w=1;w<=60;w++){const R=c.levels[w]||{lessons:{},challenges:{}};k[w]={...R,unlocked:w===1||R.completed}}for(let w=1;w<=59;w++)k[w].completed&&(k[w+1].unlocked=!0);return{...c,godMode:!1,levels:k,activityLog:[{id:"godmode-off-"+Date.now(),type:"achievement",title:"无敌模式已关闭",description:"恢复按进度解锁关卡",xp:0,timestamp:new Date().toISOString(),icon:"🔒"},...c.activityLog]}}})},[]),lt=o.useCallback(()=>{g({...U});try{localStorage.removeItem(J),ce(J+"-version",de),p("saved"),b(new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))}catch{}},[]),pt=o.useCallback(async()=>{if(!(!s||!s.gistId)){i("syncing"),_("");try{await Be(s.token,s.gistId,{progress:m,savedAt:new Date().toISOString(),version:de}),i("synced")}catch(c){console.error("手动同步失败",c);const x=c instanceof Error?c.message:String(c);_(x),i("error")}}},[s,m]),dt=o.useMemo(()=>{const c=Object.values(m.levels).reduce((w,R)=>w+Object.values(R.lessons).filter(F=>F.completed).length,0),x=Object.values(m.levels).reduce((w,R)=>w+Object.values(R.challenges).filter(F=>F.completed).length,0),C=Object.values(m.levels).filter(w=>w.completed).length,k=Object.keys(m.levels).length;return{totalXP:m.totalXP,streak:m.streak,completedLevels:C,completedLessons:c,completedChallenges:x,perfectChallenges:x,totalLevels:k}},[m]);return e.jsx(tt.Provider,{value:{progress:m,stats:dt,syncStatus:a,syncError:l,localSaveStatus:P,lastLocalSave:N,isLessonCompleted:L,isChallengeCompleted:O,isLevelUnlocked:f,isLevelCompleted:T,isAchievementUnlocked:h,isAchievementClaimed:I,completeLesson:j,completeChallenge:B,claimAchievement:z,getLessonCode:oe,getChallengeCode:Z,saveLessonCode:D,saveChallengeCode:M,getLevelProgress:nt,getOverallProgress:it,getRecentActivities:rt,resetProgress:lt,manualSync:pt,forceLocalSave:n,currentVersion:v,versionHistory:A,godMode:m.godMode||!1,toggleGodMode:ot},children:t})}function re(){const t=o.useContext(tt);if(t===void 0)throw new Error("useProgress must be used within a ProgressProvider");return t}function Qt({isOpen:t,onClose:s}){const{signInWithToken:r,isLoggingIn:a,loginError:i}=Ie(),[l,_]=o.useState(""),[P,p]=o.useState(!1);if(o.useEffect(()=>{t&&_("")},[t]),o.useEffect(()=>{const b=A=>{A.key==="Escape"&&t&&s()};return window.addEventListener("keydown",b),()=>window.removeEventListener("keydown",b)},[t,s]),!t)return null;const N=async b=>{b.preventDefault(),await r(l)&&s()};return e.jsx("div",{className:"login-modal-backdrop",onClick:s,children:e.jsxs("div",{className:"login-modal",onClick:b=>b.stopPropagation(),children:[e.jsx("button",{className:"lm-close",onClick:s,"aria-label":"关闭",children:"×"}),e.jsxs("div",{className:"lm-header",children:[e.jsx("div",{className:"lm-icon",children:e.jsx("svg",{viewBox:"0 0 24 24",width:"40",height:"40",fill:"currentColor",children:e.jsx("path",{d:"M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"})})}),e.jsx("h2",{className:"lm-title",children:"使用 GitHub 登录"}),e.jsx("p",{className:"lm-subtitle",children:"连接 GitHub 账号，云端保存你的学习进度"})]}),e.jsxs("form",{onSubmit:N,className:"lm-form",children:[e.jsxs("div",{className:"lm-field",children:[e.jsxs("label",{className:"lm-label",children:[e.jsx("span",{children:"Personal Access Token"}),e.jsx("span",{className:"lm-required",children:"必填"})]}),e.jsxs("div",{className:"lm-input-wrap",children:[e.jsx("input",{type:P?"text":"password",className:"lm-input",value:l,onChange:b=>_(b.target.value),placeholder:"ghp_xxxxxxxxxxxxxxxxxxxx",autoComplete:"off",spellCheck:!1}),e.jsx("button",{type:"button",className:"lm-toggle",onClick:()=>p(b=>!b),"aria-label":P?"隐藏":"显示",children:P?"🙈":"👁️"})]}),e.jsx("p",{className:"lm-hint",children:"需要 Gist 权限。Token 仅保存在你的浏览器本地，不会上传到任何服务器。"})]}),i&&e.jsxs("div",{className:"lm-error",children:[e.jsx("span",{children:"⚠️"})," ",i]}),e.jsx("button",{type:"submit",className:"lm-submit",disabled:a||!l.trim(),children:a?"连接中...":"登录"})]}),e.jsx("div",{className:"lm-guide",children:e.jsxs("details",{children:[e.jsx("summary",{children:"📖 如何获取 Token？（点击展开）"}),e.jsxs("ol",{className:"lm-steps",children:[e.jsxs("li",{children:["访问 ",e.jsx("a",{href:"https://github.com/settings/tokens?type=beta",target:"_blank",rel:"noopener noreferrer",children:"github.com/settings/tokens"})]}),e.jsxs("li",{children:["点击 ",e.jsx("strong",{children:"Generate new token"})," → 选择 ",e.jsx("strong",{children:"Fine-grained"})]}),e.jsx("li",{children:'设置 Token 名称（如 "Python Quest"）和过期时间'}),e.jsxs("li",{children:["在 ",e.jsx("strong",{children:"Resource owner"})," 选择你的账号"]}),e.jsxs("li",{children:["在 ",e.jsx("strong",{children:"Repository access"})," 中选择 ",e.jsx("strong",{children:"All repositories"})," 或仅特定仓库"]}),e.jsxs("li",{children:["展开 ",e.jsx("strong",{children:"Account permissions"}),"，找到 ",e.jsx("strong",{children:"Gists"})," 权限，设置为 ",e.jsx("strong",{children:"Read and write"})]}),e.jsxs("li",{children:["点击 ",e.jsx("strong",{children:"Generate token"}),"，复制生成的 token（只显示一次！）"]}),e.jsx("li",{children:"回到这里粘贴 token 并登录"})]}),e.jsxs("div",{className:"lm-warning",children:[e.jsx("strong",{children:"⚠️ 安全提示："}),"请勿将 Token 分享给他人。退出登录或更换设备时，记得在 GitHub 设置中撤销旧 Token。"]})]})})]})})}function Vt({showUserInfo:t}){var u,y;const s=ft(),{progress:r,syncStatus:a,syncError:i,manualSync:l}=re(),{auth:_,signOutUser:P}=Ie(),[p,N]=o.useState(!1),b=s.pathname==="/",A=t!==void 0?t:!b,[v,m]=o.useState(!1),g=((y=(u=_==null?void 0:_.user)==null?void 0:u.login)==null?void 0:y.slice(0,2).toUpperCase())||"LY",d=()=>{if(!_)return e.jsx("span",{className:"sync-badge local",title:"未登录，数据仅本地保存",children:"本地保存"});if(a==="loading")return e.jsx("span",{className:"sync-badge loading",title:"正在从云端加载进度",children:"同步中..."});if(a==="syncing")return e.jsx("span",{className:"sync-badge loading",title:"正在上传进度到云端",children:"上传中..."});if(a==="synced")return e.jsx("span",{className:"sync-badge synced",title:"所有进度已同步到云端",children:"☁️ 已同步"});if(a==="error"){const n=i.includes("超时")||i.includes("网络")||i.includes("Failed to fetch")?"网络不稳定，数据已保存本地，可手动重试":i.includes("401")||i.includes("403")?"Token 无效或权限不足，请重新登录":i||"同步失败";return e.jsxs("span",{className:"sync-badge error clickable",title:n,onClick:()=>l(),onMouseEnter:()=>m(!0),onMouseLeave:()=>m(!1),children:["⚠️ 同步失败",v&&e.jsxs("span",{className:"sync-error-tip",children:[n," · 点击重试"]})]})}return null};return e.jsxs(e.Fragment,{children:[e.jsx("nav",{className:`navbar ${b?"navbar-home":"navbar-inner"}`,children:e.jsxs("div",{className:"navbar-container container",children:[e.jsxs(H,{to:"/",className:"navbar-logo",children:[e.jsx("div",{className:"logo-icon",children:e.jsxs("svg",{viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[e.jsx("path",{d:"M12 2L2 7L12 12L22 7L12 2Z",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 17L12 22L22 17",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 12L12 17L22 12",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"})]})}),e.jsx("span",{className:"logo-text",children:"Python Quest"})]}),e.jsxs("div",{className:"navbar-links",children:[e.jsx(H,{to:"/",className:`nav-link ${s.pathname==="/"?"active":""}`,children:"首页"}),e.jsx(H,{to:"/map",className:`nav-link ${s.pathname==="/map"?"active":""}`,children:"冒险地图"}),e.jsx(H,{to:"/path",className:`nav-link ${s.pathname==="/path"?"active":""}`,children:"学习路径"}),e.jsx(H,{to:"/achievements",className:`nav-link ${s.pathname==="/achievements"?"active":""}`,children:"成就"}),e.jsx(H,{to:"/leaderboard",className:`nav-link ${s.pathname==="/leaderboard"?"active":""}`,children:"排行榜"})]}),e.jsxs("div",{className:"navbar-actions",children:[A&&e.jsxs("div",{className:"user-info",children:[e.jsxs("div",{className:"xp-badge",children:[e.jsx("span",{className:"xp-icon",children:"⭐"}),e.jsxs("span",{className:"xp-text",children:[r.xp," / ",r.totalXP," XP"]})]}),e.jsxs("div",{className:"streak-badge",children:[e.jsx("span",{className:"streak-icon",children:"🔥"}),e.jsxs("span",{className:"streak-text",children:[r.streak,"天"]})]}),d(),_?e.jsx("a",{className:"avatar avatar-online",title:`${_.user.name||_.user.login} (@${_.user.login})`,href:_.user.html_url,target:"_blank",rel:"noopener noreferrer",children:e.jsx("img",{src:_.user.avatar_url,alt:g})}):e.jsx("div",{className:"avatar",children:e.jsx("span",{children:"LY"})})]}),_?e.jsx("button",{className:"btn btn-secondary btn-sm",onClick:P,children:"退出"}):e.jsxs("button",{className:"btn btn-primary btn-sm",onClick:()=>N(!0),children:[e.jsx("span",{className:"btn-icon",children:e.jsx("svg",{viewBox:"0 0 24 24",width:"14",height:"14",fill:"currentColor",children:e.jsx("path",{d:"M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"})})}),"GitHub 登录"]})]})]})}),e.jsx(Qt,{isOpen:p,onClose:()=>N(!1)})]})}function Wt(){return e.jsxs("footer",{className:"footer",children:[e.jsxs("div",{className:"container footer-container",children:[e.jsxs("div",{className:"footer-brand",children:[e.jsxs(H,{to:"/",className:"footer-logo",children:[e.jsx("div",{className:"logo-icon",children:e.jsxs("svg",{viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[e.jsx("path",{d:"M12 2L2 7L12 12L22 7L12 2Z",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 17L12 22L22 17",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"}),e.jsx("path",{d:"M2 12L12 17L22 12",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"})]})}),e.jsx("span",{className:"logo-text",children:"Python Quest"})]}),e.jsx("p",{className:"footer-tagline",children:"通过游戏化学习，从零到英雄掌握Python编程"})]}),e.jsxs("div",{className:"footer-links",children:[e.jsxs("div",{className:"footer-column",children:[e.jsx("h4",{children:"关于我们"}),e.jsxs("ul",{children:[e.jsx("li",{children:e.jsx("a",{href:"#",children:"课程介绍"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"团队成员"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"联系我们"})})]})]}),e.jsxs("div",{className:"footer-column",children:[e.jsx("h4",{children:"学习资源"}),e.jsxs("ul",{children:[e.jsx("li",{children:e.jsx("a",{href:"#",children:"学习路径"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"文档中心"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"常见问题"})})]})]}),e.jsxs("div",{className:"footer-column",children:[e.jsx("h4",{children:"社区"}),e.jsxs("ul",{children:[e.jsx("li",{children:e.jsx("a",{href:"#",children:"排行榜"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"讨论区"})}),e.jsx("li",{children:e.jsx("a",{href:"#",children:"合作伙伴"})})]})]})]})]}),e.jsx("div",{className:"footer-bottom",children:e.jsx("div",{className:"container",children:e.jsx("p",{children:"© 2024 Python Quest. All rights reserved."})})})]})}function Jt({onClose:t}){var P;const[s,r]=o.useState(null),i=[...o.useMemo(()=>Ht(),[])].reverse(),l=s?et(s):null,_=p=>{try{return new Date(p).toLocaleDateString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}catch{return p}};return e.jsx("div",{className:"version-history-overlay",onClick:t,children:e.jsxs("div",{className:"version-history-modal",onClick:p=>p.stopPropagation(),children:[e.jsxs("div",{className:"vh-header",children:[e.jsx("h2",{children:"📦 版本历史"}),e.jsx("button",{className:"vh-close",onClick:t,children:"✕"})]}),e.jsxs("div",{className:"vh-body",children:[e.jsxs("div",{className:"vh-version-list",children:[i.length===0&&e.jsx("p",{className:"vh-empty",children:"暂无版本记录"}),i.map(p=>{const N=p.version===Q,b=s===p.version;return e.jsxs("div",{className:`vh-version-card ${b?"selected":""} ${N?"current":""}`,onClick:()=>r(p.version),children:[e.jsxs("div",{className:"vh-card-header",children:[e.jsx("span",{className:"vh-version-tag",children:p.version}),N?e.jsx("span",{className:"vh-badge vh-badge-current",children:"当前版本"}):e.jsx("span",{className:"vh-badge vh-badge-frozen",children:"🔒 已冻结"})]}),e.jsxs("div",{className:"vh-card-stats",children:[e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.totalXP}),e.jsx("span",{className:"vh-stat-label",children:"总XP"})]}),e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.completedLevels}),e.jsx("span",{className:"vh-stat-label",children:"通关数"})]}),e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.completedLessons}),e.jsx("span",{className:"vh-stat-label",children:"课程"})]}),e.jsxs("div",{className:"vh-stat",children:[e.jsx("span",{className:"vh-stat-value",children:p.completedChallenges}),e.jsx("span",{className:"vh-stat-label",children:"挑战"})]})]}),e.jsx("div",{className:"vh-card-date",children:_(p.snapshotDate)})]},p.version)})]}),l&&s&&e.jsxs("div",{className:"vh-detail-panel",children:[e.jsxs("div",{className:"vh-detail-header",children:[e.jsxs("h3",{children:["版本 ",s," 进度详情"]}),e.jsx("span",{className:"vh-readonly-hint",children:"📋 只读快照"})]}),e.jsxs("div",{className:"vh-detail-stats",children:[e.jsxs("div",{className:"vh-detail-stat",children:[e.jsx("div",{className:"vh-detail-icon",children:"⭐"}),e.jsxs("div",{children:[e.jsx("span",{className:"vh-detail-big",children:l.totalXP||0}),e.jsx("span",{className:"vh-detail-small",children:"经验值"})]})]}),e.jsxs("div",{className:"vh-detail-stat",children:[e.jsx("div",{className:"vh-detail-icon",children:"📅"}),e.jsxs("div",{children:[e.jsx("span",{className:"vh-detail-big",children:((P=l.studyDays)==null?void 0:P.length)||0}),e.jsx("span",{className:"vh-detail-small",children:"学习天数"})]})]}),e.jsxs("div",{className:"vh-detail-stat",children:[e.jsx("div",{className:"vh-detail-icon",children:"🏆"}),e.jsxs("div",{children:[e.jsx("span",{className:"vh-detail-big",children:Object.values(l.levels||{}).filter(p=>p==null?void 0:p.completed).length}),e.jsx("span",{className:"vh-detail-small",children:"完成关卡"})]})]})]}),e.jsxs("div",{className:"vh-detail-section",children:[e.jsx("h4",{children:"关卡完成情况"}),e.jsx("div",{className:"vh-levels-grid",children:Object.entries(l.levels||{}).map(([p,N])=>e.jsxs("div",{className:`vh-level-chip ${N.completed?"completed":N.unlocked?"unlocked":"locked"}`,children:[e.jsxs("span",{className:"vh-level-num",children:["第",p,"关"]}),e.jsx("span",{className:"vh-level-status",children:N.completed?"✓":N.unlocked?"进行中":"🔒"})]},p))})]}),l.activityLog&&l.activityLog.length>0&&e.jsxs("div",{className:"vh-detail-section",children:[e.jsxs("h4",{children:["最近活动 (",l.activityLog.length," 条)"]}),e.jsx("div",{className:"vh-activity-list",children:l.activityLog.slice(0,8).map(p=>e.jsxs("div",{className:"vh-activity-item",children:[e.jsx("span",{className:"vh-activity-icon",children:p.icon}),e.jsxs("div",{className:"vh-activity-info",children:[e.jsx("span",{className:"vh-activity-title",children:p.title}),e.jsx("span",{className:"vh-activity-time",children:_(p.timestamp)})]})]},p.id))})]})]})]})]})})}function Xt(){const[t,s]=o.useState(!1),r=Ze(),a=[{value:"10",label:"大关卡"},{value:"52",label:"编程挑战"},{value:"156+",label:"学习者"},{value:"98%",label:"好评率"}];return e.jsxs("div",{className:"home-page",children:[e.jsxs("section",{className:"hero-section",children:[e.jsxs("div",{className:"hero-bg-decorations",children:[e.jsx("div",{className:"floating-element elem-1"}),e.jsx("div",{className:"floating-element elem-2"}),e.jsx("div",{className:"floating-element elem-3"}),e.jsx("div",{className:"code-symbol code-1",children:"</>"}),e.jsx("div",{className:"code-symbol code-2",children:"{ }"}),e.jsx("div",{className:"code-symbol code-3",children:"🐍"})]}),e.jsxs("div",{className:"container hero-content",children:[e.jsx("div",{className:"hero-badge animate-fade-in",children:e.jsx("span",{children:"🎮 游戏化学习"})}),e.jsx("h1",{className:"hero-title animate-fade-in delay-100",children:e.jsx("span",{className:"title-gradient",children:"Python Quest"})}),e.jsx("p",{className:"hero-subtitle animate-fade-in delay-200",children:"通过 9 大关卡、50+ 编程挑战，从零到英雄独立完成项目"}),e.jsxs("div",{className:"hero-actions animate-fade-in delay-300",children:[e.jsx(H,{to:"/map",className:"btn btn-primary btn-lg",children:"开始冒险"}),e.jsxs(H,{to:"/source",className:"btn btn-secondary btn-lg",children:[e.jsx("span",{className:"btn-icon",children:"🔧"}),"源码探索"]})]}),e.jsx("div",{className:"hero-stats animate-fade-in delay-400",children:a.map((i,l)=>e.jsxs("div",{className:"stat-item",children:[e.jsx("div",{className:"stat-value",children:i.value}),e.jsx("div",{className:"stat-label",children:i.label})]},l))})]})]}),e.jsx("section",{className:"features-section",children:e.jsxs("div",{className:"container",children:[e.jsx("h2",{className:"section-title",children:"为什么选择 Python Quest？"}),e.jsx("p",{className:"section-subtitle",children:"游戏化学习，让编程变得有趣又高效"}),e.jsxs("div",{className:"features-grid",children:[e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"🎯"}),e.jsx("h3",{children:"闯关式学习"}),e.jsx("p",{children:"9大精心设计的关卡，从基础到进阶，每一步都有明确的目标和成就感。"})]}),e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"💻"}),e.jsx("h3",{children:"实战挑战"}),e.jsx("p",{children:"50+编程挑战，边学边练，在实践中真正掌握Python编程技能。"})]}),e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"🏆"}),e.jsx("h3",{children:"成就系统"}),e.jsx("p",{children:"XP经验值、徽章、排行榜，在竞争中激发学习动力，不断进步。"})]}),e.jsxs("div",{className:"feature-card",children:[e.jsx("div",{className:"feature-icon",children:"📊"}),e.jsx("h3",{children:"进度追踪"}),e.jsx("p",{children:"可视化学习地图，清晰展示学习进度，让成长之路一目了然。"})]})]})]})}),e.jsx("section",{className:"cta-section",children:e.jsx("div",{className:"container",children:e.jsxs("div",{className:"cta-card",children:[e.jsx("h2",{children:"准备好开始你的编程冒险了吗？"}),e.jsx("p",{children:"加入 Python Quest，从零开始，成为Python编程高手"}),e.jsx(H,{to:"/map",className:"btn btn-primary btn-lg",children:"立即开始 →"})]})})}),e.jsx("div",{className:"version-badge-footer",children:e.jsxs("button",{className:"version-badge",onClick:()=>s(!0),children:[e.jsx("span",{className:"vb-dot"}),Q," ",r==null?void 0:r.label]})}),t&&e.jsx(Jt,{onClose:()=>s(!1)})]})}const ae=[{id:1,title:"第1关：初见 Python",subtitle:"认识 Python 的世界",description:"了解Python的历史、特点和应用场景，安装开发环境，写出你的第一行代码。",status:"completed",difficulty:1,duration:"约1小时",lessons:5,challenges:3,topics:["Python简介","环境搭建","第一个程序","打印输出"],side:"left",category:"basic"},{id:2,title:"第2关：变量与数据类型",subtitle:"掌握数据的存储与运算",description:"学习变量、基本数据类型、运算符和类型转换，打下编程基础。",status:"completed",difficulty:1,duration:"约1.5小时",lessons:6,challenges:4,topics:["变量","数字类型","字符串","运算符","类型转换"],side:"right",category:"basic"},{id:3,title:"第3关：条件判断",subtitle:"让程序学会思考",description:"学习if-else条件语句、逻辑运算符和比较运算，让程序做出决策。",status:"completed",difficulty:2,duration:"约1.5小时",lessons:5,challenges:5,topics:["if语句","else和elif","比较运算","逻辑运算","嵌套条件"],side:"left",category:"basic"},{id:4,title:"第4关：循环结构",subtitle:"重复的力量",description:"掌握for循环、while循环、循环控制语句，以及循环的嵌套使用。",status:"current",difficulty:2,duration:"约2小时",lessons:7,challenges:6,topics:["for循环","range()函数","while循环","break与continue","循环嵌套"],side:"right",category:"basic"},{id:5,title:"第5关：列表与元组",subtitle:"数据的集合",description:"学习列表和元组的使用，掌握索引、切片、常用方法和列表推导式。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:5,topics:["列表基础","列表操作","元组","切片","列表推导式"],side:"left",category:"basic"},{id:6,title:"第6关：字典与集合",subtitle:"键值的魔法",description:"深入学习字典和集合的使用，理解哈希表原理和应用场景。",status:"locked",difficulty:3,duration:"约2小时",lessons:6,challenges:5,topics:["字典基础","字典操作","集合","字典推导式","常用场景"],side:"right",category:"basic"},{id:7,title:"第7关：函数",subtitle:"代码的封装与复用",description:"学习函数的定义、参数、返回值、作用域，以及递归和高阶函数。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:8,challenges:7,topics:["函数定义","参数类型","返回值","作用域","递归","Lambda函数"],side:"left",category:"basic"},{id:8,title:"第8关：文件操作",subtitle:"与文件系统交互",description:"学习文件的读写、目录操作、异常处理，掌握数据持久化。",status:"locked",difficulty:3,duration:"约2小时",lessons:6,challenges:5,topics:["文件读写","上下文管理器","目录操作","异常处理","JSON处理"],side:"right",category:"basic"},{id:9,title:"第9关：项目实战",subtitle:"综合项目挑战",description:"运用所学知识，完成一个完整的Python项目，检验你的学习成果。",status:"locked",difficulty:4,duration:"约3小时",lessons:4,challenges:3,topics:["项目规划","模块化设计","测试调试","项目部署"],side:"left",category:"basic"},{id:10,title:"第10关：字符串深入",subtitle:"玩转字符串操作",description:"深入学习字符串的索引、切片、常用方法（find、replace、split、join、format等），掌握字符串的进阶处理技巧。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:4,topics:["字符串索引","字符串方法","格式化输出","字符串编码"],side:"right",category:"advanced"},{id:11,title:"第11关：模块与包",subtitle:"代码的组织艺术",description:"学习模块的导入、自定义模块、Python包管理（pip）、常用标准库（sys、os、datetime、re），让代码更易管理。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["import语句","自定义模块","包管理","标准库"],side:"left",category:"advanced"},{id:12,title:"第12关：面向对象基础",subtitle:"类与对象入门",description:"学习面向对象编程思想，理解类、对象、属性、方法、构造函数、self，掌握OOP的核心概念。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["类与对象","属性方法","构造函数","self关键字","封装"],side:"right",category:"advanced"},{id:13,title:"第13关：继承与多态",subtitle:"OOP进阶特性",description:"深入学习类的继承、方法重写、super()函数、多态、抽象类，掌握面向对象的高级特性。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:5,challenges:4,topics:["类的继承","方法重写","super()","多态","抽象类"],side:"left",category:"advanced"},{id:14,title:"第14关：异常处理进阶",subtitle:"优雅地处理错误",description:"学习自定义异常、异常的传递、with语句、断言、调试技巧，编写健壮的Python程序。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:3,topics:["自定义异常","异常链","上下文管理","断言与调试"],side:"right",category:"advanced"},{id:15,title:"第15关：文件与目录",subtitle:"os模块的妙用",description:"深入学习os、os.path、shutil模块，掌握路径处理、目录操作、文件遍历、批量重命名等高级文件操作。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["os模块","路径处理","目录遍历","文件操作"],side:"left",category:"advanced"},{id:16,title:"第16关：高级特性",subtitle:"生成器、装饰器与闭包",description:"学习Python的三大高级特性：生成器（yield）、装饰器（@）、闭包，掌握函数式编程的核心思想。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["生成器","装饰器","闭包","Lambda","map/filter/reduce"],side:"right",category:"advanced"},{id:17,title:"第17关：常用标准库",subtitle:"站在巨人的肩膀上",description:"系统学习Python常用标准库：datetime、re、json、collections、itertools，让代码更优雅高效。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["datetime","正则表达式","json","collections"],side:"left",category:"advanced"},{id:18,title:"第18关：综合实战",subtitle:"完成Python大师之路",description:"综合运用所有知识，完成爬虫、命令行工具、数据处理等实战项目，成为真正的Python大师！",status:"locked",difficulty:5,duration:"约4小时",lessons:5,challenges:4,topics:["项目实战","命令行工具","数据处理","代码优化"],side:"right",category:"advanced"},{id:19,title:"第19关：Requests 网络请求",subtitle:"HTTP 请求的瑞士军刀",description:"学习使用 requests 库进行 HTTP GET/POST 请求、Session 管理、文件上传、Headers/Cookies 处理，掌握与 Web API 交互的核心能力。",status:"locked",difficulty:3,duration:"约2小时",lessons:6,challenges:4,topics:["requests","GET/POST","Session","Headers","JSON 接口"],side:"left",category:"network"},{id:20,title:"第20关：正则表达式 re",subtitle:"文本处理的终极武器",description:"系统学习 Python 标准库 re：元字符、分组、贪婪/非贪婪、match/search/findall/sub，配合菜鸟教程的案例完成手机号、邮箱、HTML 标签等场景实战。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["re 模块","正则语法","分组捕获","查找替换","爬虫文本解析"],side:"right",category:"network"},{id:21,title:"第21关：collections 标准库",subtitle:"更强大的数据结构",description:"学习 collections 中的 Counter/deque/defaultdict/namedtuple/OrderedDict，使用场景覆盖统计计数、双端队列、缺失键默认值等。",status:"locked",difficulty:2,duration:"约2小时",lessons:5,challenges:4,topics:["Counter","deque","defaultdict","namedtuple","OrderedDict"],side:"left",category:"network"},{id:22,title:"第22关：itertools 迭代工具",subtitle:"生成器的军火库",description:"学习 itertools：count/cycle/repeat、chain/islice、product/permutations/combinations、groupby，写出更优雅的流式代码。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["无限迭代器","组合迭代器","groupby","排列组合","排列密码"],side:"right",category:"network"},{id:23,title:"第23关：NumPy 科学计算",subtitle:"告别循环，拥抱向量化",description:"学习 NumPy ndarray：创建数组、切片与广播、矩阵运算、线性代数、随机数，为 Pandas/机器学习打好地基。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["ndarray","广播","矩阵运算","统计方法","随机抽样"],side:"left",category:"data-science"},{id:24,title:"第24关：Pandas 数据分析",subtitle:"Excel 终结者",description:"学习 Pandas Series/DataFrame、读写 CSV/Excel、缺失值处理、分组聚合、透视表、时间序列，完成数据分析实战。",status:"locked",difficulty:4,duration:"约3小时",lessons:7,challenges:4,topics:["DataFrame","读写 CSV","数据清洗","groupby","时间序列"],side:"right",category:"data-science"},{id:25,title:"第25关：Matplotlib 可视化",subtitle:"让数据说话",description:"学习 matplotlib.pyplot：折线图、柱状图、饼图、散点图、子图布局、中文显示、导出 PNG，打造专业图表。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:4,topics:["折线图","柱状图","饼图","子图","样式与导出"],side:"left",category:"data-science"},{id:26,title:"第26关：SciPy 科学计算",subtitle:"数学/物理/工程全能手",description:"学习 SciPy：线性代数、数值积分、优化求根、信号处理、统计分布，解决工程计算问题。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:5,challenges:4,topics:["linalg","optimize","integrate","stats","signal"],side:"right",category:"data-science"},{id:27,title:"第27关：Flask Web 开发",subtitle:"轻量但不简单",description:"学习 Flask：路由、模板 Jinja2、请求表单、Session、蓝图、RESTful API，写出完整博客后端。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["路由","模板","表单","Session","REST API"],side:"left",category:"web"},{id:28,title:"第28关：FastAPI 高性能接口",subtitle:"现代 Python API 新标准",description:"学习 FastAPI：Pydantic 数据校验、路径/查询参数、依赖注入、WebSocket、自动 OpenAPI 文档，快速构建工业级 API。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["路径参数","Pydantic","依赖注入","OAuth2","文档生成"],side:"right",category:"web"},{id:29,title:"第29关：Django 全栈框架",subtitle:"包含一切电池的大而全",description:"学习 Django：MTV 模型、ORM、Admin 后台、表单、Auth 认证、中间件，完成完整 CMS 项目。",status:"locked",difficulty:5,duration:"约4小时",lessons:6,challenges:4,topics:["MTV","ORM","Admin","认证","中间件"],side:"left",category:"web"},{id:30,title:"第30关：Scrapy 爬虫框架",subtitle:"千万级数据的流水线",description:"学习 Scrapy：Spider/Item/Pipeline/Middleware、选择器 XPath/CSS、深度/广度优先，配合反爬策略构建工业级爬虫。",status:"locked",difficulty:5,duration:"约3小时",lessons:6,challenges:4,topics:["Spider","Item Pipeline","Selector","中间件","反爬处理"],side:"right",category:"network"},{id:31,title:"第31关：Dash 可视化仪表盘",subtitle:"用 Python 写 BI 看板",description:"学习 Dash + Plotly：组件、回调 Callback、多页应用、与 Pandas 结合，搭建交互式数据仪表盘。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:5,challenges:4,topics:["组件","Callback","Plotly 图","多页布局","Pandas 联动"],side:"left",category:"tools"},{id:32,title:"第32关：Jupyter 交互计算",subtitle:"数据科学家的工作台",description:"学习 Jupyter Notebook/Lab：Markdown、魔法命令 %timeit、交互式控件 ipywidgets、导出 HTML/PDF，打造可复现研究报告。",status:"locked",difficulty:2,duration:"约2小时",lessons:5,challenges:4,topics:["单元格","魔法命令","ipywidgets","导出","可复现研究"],side:"right",category:"tools"},{id:33,title:"第33关：Pillow 图像处理",subtitle:"Python 版 PS",description:"学习 Pillow：打开/保存图片、像素操作、裁剪缩放旋转、滤镜、合成与水印，完成批量图片处理脚本。",status:"locked",difficulty:2,duration:"约2小时",lessons:5,challenges:4,topics:["IO 操作","像素","变换","滤镜","水印与合成"],side:"left",category:"tools"},{id:34,title:"第34关：量化交易实战",subtitle:"让代码帮你算账",description:"学习量化基础：K 线数据获取、均线策略、回测框架、风险指标、仓位管理，构建第一个可回测策略。",status:"locked",difficulty:5,duration:"约4小时",lessons:7,challenges:4,topics:["均线策略","回测","夏普比率","最大回撤","仓位管理"],side:"right",category:"finance"},{id:35,title:"第35关：R 语言入门",subtitle:"统计分析利器",description:'学习 R 语言基础：向量与数据框、数据清洗、统计分析、可视化绘图，掌握统计学界的"通用语"。',status:"locked",difficulty:3,duration:"约3小时",lessons:6,challenges:3,topics:["向量","数据框","dplyr","ggplot2","统计检验"],side:"left",category:"finance"},{id:36,title:"第36关：Julia 科学计算",subtitle:"高性能计算新贵",description:"学习 Julia 语言基础：类型系统、多维数组、数学计算、微分方程求解，兼顾 Python 效率和 C 性能。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:3,topics:["多重派发","数组运算","微分方程","性能优化","与 Python 对比"],side:"right",category:"finance"},{id:37,title:"第37关：Python 输入输出",subtitle:"格式化输出与用户交互",description:"学习 input()/print() 进阶用法、格式化字符串（%、format、f-string）、文件读写、标准输入输出流。",status:"locked",difficulty:2,duration:"约2小时",lessons:6,challenges:4,topics:["input/print","格式化输出","f-string","stdin/stdout","文件IO"],side:"left",category:"system"},{id:38,title:"第38关：迭代器与生成器",subtitle:"惰性计算的艺术",description:"学习 iter()/next()、自定义迭代器、生成器 yield、列表推导式、生成器表达式，掌握惰性求值与内存优化。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:6,challenges:4,topics:["iter/next","yield","生成器表达式","列表推导","内存优化"],side:"right",category:"system"},{id:39,title:"第39关：JSON 与 XML 处理",subtitle:"数据交换格式",description:"学习 json 模块（序列化/反序列化）、XML 解析（ElementTree）、数据格式转换，掌握主流数据交换格式。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["json","pickle","XML/ElementTree","数据格式转换"],side:"left",category:"system"},{id:40,title:"第40关：Python 数据库编程",subtitle:"SQLite 与 MySQL",description:"学习 SQLite 内置数据库、MySQL 连接、CRUD 操作、事务管理、ORM 基础（SQLAlchemy），掌握 Python 数据库开发。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["sqlite3","MySQL","事务","SQLAlchemy","ORM"],side:"right",category:"system"},{id:41,title:"第41关：多线程与多进程",subtitle:"并发编程入门",description:"学习 threading 模块、GIL 全局解释器锁、multiprocessing 多进程、线程池/进程池、同步互斥，掌握 Python 并发模型。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["threading","GIL","multiprocessing","线程池","锁与条件变量"],side:"left",category:"system"},{id:42,title:"第42关：异步编程 asyncio",subtitle:"协程与事件循环",description:"学习 asyncio 事件循环、async/await、协程、Task、Future、异步IO、aiohttp，掌握现代 Python 异步编程。",status:"locked",difficulty:5,duration:"约3小时",lessons:6,challenges:4,topics:["asyncio","async/await","事件循环","Task","aiohttp"],side:"right",category:"system"},{id:43,title:"第43关：单元测试 pytest",subtitle:"代码质量保障",description:"学习 unittest 标准库、pytest 框架、测试用例组织、fixture、参数化测试、Mock、覆盖率分析，建立测试驱动开发思维。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:4,topics:["unittest","pytest","fixture","Mock","覆盖率"],side:"left",category:"system"},{id:44,title:"第44关：内存与性能优化",subtitle:"写出更快的 Python",description:"学习引用计数与垃圾回收、内存剖析、性能分析（cProfile）、优化技巧、缓存策略（lru_cache）、代码性能调优实战。",status:"locked",difficulty:4,duration:"约2.5小时",lessons:6,challenges:4,topics:["GC机制","cProfile","lru_cache","内存剖析","优化实战"],side:"right",category:"system"},{id:45,title:"第45关：Python 网络编程",subtitle:"Socket 与网络通信",description:"学习 socket 编程、TCP/UDP、urllib 网络请求、SMTP 发送邮件，掌握 Python 网络编程基础。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["socket","TCP/UDP","urllib","SMTP","端口扫描"],side:"left",category:"network"},{id:46,title:"第46关：Python 系统模块",subtitle:"常用标准库实战",description:"学习 sys、subprocess、logging、csv、datetime、queue、StringIO 等常用模块，掌握系统编程。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["sys","subprocess","logging","csv","datetime","queue"],side:"right",category:"system"},{id:47,title:"第47关：PyQt 桌面应用",subtitle:"GUI 编程入门",description:"学习 PyQt5 基础、窗口与控件、布局管理、信号与槽、事件处理、Qt Designer，创建桌面应用。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["QWidget","信号槽","布局","Qt Designer","事件"],side:"left",category:"tools"},{id:48,title:"第48关：FastAPI 核心",subtitle:"现代 API 开发",description:"学习 FastAPI 路由、路径参数、Pydantic 校验、依赖注入、中间件、认证、WebSocket。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["路由","Pydantic","依赖注入","中间件","认证","WebSocket"],side:"right",category:"web"},{id:49,title:"第49关：Django 核心",subtitle:"全栈 Web 框架",description:"学习 Django MVT 模式、视图与 URL、模板系统、模型 ORM、Admin 后台、表单处理、静态文件。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["MVT","URL路由","模板","ORM","Admin","表单"],side:"left",category:"web"},{id:50,title:"第50关：NumPy 核心",subtitle:"数组运算深入",description:"学习 ndarray 详解、高级索引、广播机制、位运算、统计函数、线性代数、傅里叶变换。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["ndarray","索引","广播","统计","线性代数","FFT"],side:"right",category:"data-science"},{id:51,title:"第51关：Pandas 核心",subtitle:"数据分析深入",description:"学习 Series/DataFrame、数据读取、清洗处理、分组聚合、合并连接、时间序列、数据可视化。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["Series","DataFrame","清洗","groupby","merge","时间序列"],side:"left",category:"data-science"},{id:52,title:"第52关：Matplotlib 核心",subtitle:"可视化进阶",description:"学习折线图、柱状图、散点图、饼图、子图、3D 图形、动画、样式定制与导出。",status:"locked",difficulty:3,duration:"约2.5小时",lessons:6,challenges:4,topics:["折线图","柱状图","散点图","子图","3D","动画"],side:"right",category:"data-science"},{id:53,title:"第53关：Jupyter 进阶",subtitle:"交互式计算深入",description:"学习魔法命令、IPython Widget、自定义魔术、Cell 魔术、导出与发布、JupyterLab。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:3,topics:["魔法命令","Widget","Cell魔术","导出","JupyterLab"],side:"left",category:"tools"},{id:54,title:"第54关：Pillow 进阶",subtitle:"图像处理深入",description:"学习像素操作、滤镜增强、图像绘制、水印添加、颜色空间转换、格式转换、批量处理。",status:"locked",difficulty:3,duration:"约2小时",lessons:5,challenges:3,topics:["像素","滤镜","绘制","水印","色彩空间","批处理"],side:"right",category:"tools"},{id:55,title:"第55关：R 语言进阶",subtitle:"统计分析与可视化",description:"学习 R 向量与数据框、dplyr 数据处理、ggplot2 绘图、统计检验、回归分析、数据挖掘。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["向量","数据框","dplyr","ggplot2","统计检验","回归"],side:"left",category:"finance"},{id:56,title:"第56关：内置函数与数学模块",subtitle:"Python 标准库补全",description:"学习 Python 内置函数全集、math/random/statistics/hashlib/operator 模块、类型注解与虚拟环境，补全菜鸟教程标准库章节。",status:"locked",difficulty:3,duration:"约3小时",lessons:7,challenges:4,topics:["内置函数","math","random","statistics","hashlib","operator","类型注解"],side:"right",category:"system"},{id:57,title:"第57关：爬虫与自动化",subtitle:"BeautifulSoup / Selenium / AI",description:"学习 BeautifulSoup HTML 解析、Selenium 浏览器自动化、pyecharts 可视化、OpenAI API 调用、AI 绘画，补全菜鸟教程爬虫与 AI 章节。",status:"locked",difficulty:4,duration:"约3小时",lessons:6,challenges:4,topics:["BeautifulSoup","Selenium","pyecharts","OpenAI","AI绘画"],side:"left",category:"network"},{id:58,title:"第58关：FastAPI 实战项目",subtitle:"从表单到部署上线",description:"学习 FastAPI 表单数据、文件上传、CORS 跨域、静态文件、测试、数据库集成、Jinja2 模板、SQLAlchemy 模型、Alembic 迁移、JWT 认证、部署到 Railway。",status:"locked",difficulty:5,duration:"约4小时",lessons:8,challenges:4,topics:["表单","文件上传","CORS","SQLAlchemy","Alembic","JWT","部署"],side:"right",category:"web"},{id:59,title:"第59关：Django 实战项目",subtitle:"从表单到 Nginx 部署",description:"学习 Django 表单 Form 组件、ORM 多表关联、聚合查询、Auth 认证组件、Cookie/Session、CBV 类视图、中间件、Nginx+uWSGI 部署。",status:"locked",difficulty:5,duration:"约4小时",lessons:8,challenges:4,topics:["Form","ORM多表","聚合查询","Auth","Cookie/Session","CBV","Nginx"],side:"left",category:"web"},{id:60,title:"第60关：R 语言数据 IO 与绘图",subtitle:"文件读写与可视化",description:"学习 R 字符串/列表/数组/因子/数据重塑/包管理/CSV-Excel-XML-JSON 读写/MySQL 连接/绘图系统（饼图/条形图/散点图/函数曲线/中文支持）。",status:"locked",difficulty:4,duration:"约3小时",lessons:7,challenges:3,topics:["字符串","列表","数组","因子","CSV/Excel","绘图","MySQL"],side:"right",category:"finance"}],ke=[{id:1,title:"for 循环基础",duration:"12分钟",completed:!0,type:"video"},{id:2,title:"range() 函数详解",duration:"15分钟",completed:!0,type:"video"},{id:3,title:"遍历列表与字典",duration:"18分钟",completed:!0,type:"video"},{id:4,title:"while 循环",duration:"14分钟",completed:!0,type:"video"},{id:5,title:"break 与 continue",duration:"16分钟",completed:!1,type:"video"},{id:6,title:"循环嵌套",duration:"20分钟",completed:!1,type:"video"},{id:7,title:"实战：打印九九乘法表",duration:"25分钟",completed:!1,type:"interactive"}],$t=[{id:1,title:"计算1到100的和",difficulty:"easy",completed:!0},{id:2,title:"打印三角形图案",difficulty:"easy",completed:!0},{id:3,title:"找出100以内的素数",difficulty:"medium",completed:!1},{id:4,title:"冒泡排序实现",difficulty:"medium",completed:!1},{id:5,title:"猜数字游戏",difficulty:"medium",completed:!1},{id:6,title:"斐波那契数列",difficulty:"hard",completed:!1}],st={4:[{id:1,title:"什么是循环？",type:"explanation",content:`**循环**是编程中最强大的概念之一。它允许我们**重复执行一段代码**，而不需要复制粘贴。
 
 想象一下，如果你要打印 1 到 100 的数字，没有循环的话你需要写 100 行 print 语句！但有了循环，只需要几行代码就能搞定。
 
@@ -10763,7 +10763,2025 @@ print('\\n✅ 数据挖掘流程完成！')
 - C. linear()
 - D. fit()
 
-**答案**：1.B  2.C  3.B`}]},De={4:[{id:1,title:"计算 1 到 100 的和",description:`编写一个程序，使用 for 循环计算 1 到 100 所有整数的和，并打印结果。
+**答案**：1.B  2.C  3.B`}],56:[{id:1,title:"Python 内置函数全集",type:"explanation",content:`Python 内置函数无需 import 即可使用，共约 70 个。
+
+**常用分类**：
+
+| 类别 | 函数 |
+|------|------|
+| 数学 | abs, round, pow, sum, min, max, divmod |
+| 序列 | len, range, enumerate, zip, sorted, reversed, slice |
+| 类型 | int, float, str, bool, list, tuple, dict, set, bytes |
+| 迭代 | iter, next, map, filter, all, any |
+| 属性 | dir, type, isinstance, hasattr, getattr, setattr, delattr |
+| IO | print, input, open, format, repr |
+| 其他 | id, hash, help, callable, eval, exec, compile, globals, locals |
+
+\`\`\`python
+# enumerate：带索引遍历
+for i, v in enumerate(['a','b','c']):
+    print(i, v)
+
+# zip：并行遍历
+for a, b in zip([1,2,3], ['x','y','z']):
+    print(a, b)
+
+# sorted：高级排序
+sorted(students, key=lambda s: s['score'], reverse=True)
+
+# divmod：商和余数
+q, r = divmod(17, 5)  # q=3, r=2
+
+# all / any：条件判断
+all([x > 0 for x in nums])  # 全部为 True
+any(x is None for x in items)  # 任一为 True
+\`\`\``},{id:2,title:"math 与 statistics 模块",type:"example",content:`\`\`\`python
+import math
+import statistics
+
+# math 模块
+math.pi          # 3.141592653589793
+math.e           # 2.718281828459045
+math.sqrt(16)    # 4.0
+math.ceil(3.2)   # 4
+math.floor(3.8)  # 3
+math.factorial(5) # 120
+math.gcd(12, 8)  # 4
+math.log2(1024)  # 10.0
+math.log10(1000) # 3.0
+math.sin(math.pi/2)  # 1.0
+math.degrees(math.pi) # 180.0
+
+# statistics 模块 (Python 3.4+)
+data = [1, 2, 3, 4, 5, 5, 5, 6, 7]
+statistics.mean(data)        # 4.22
+statistics.median(data)      # 5
+statistics.mode(data)        # 5
+statistics.stdev(data)       # 标准差
+statistics.variance(data)    # 方差
+statistics.quantiles(data, n=4)  # 四分位数
+statistics.correlation(x, y)    # 相关系数
+\`\`\``,code:`import math, statistics, random
+
+# 圆面积计算器
+def circle_area(r):
+    return math.pi * r ** 2
+
+# 三角函数应用：计算两点距离
+def distance(x1, y1, x2, y2):
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+# 角度弧度转换
+print(f'180度 = {math.radians(180):.4f} 弧度')
+print(f'π弧度 = {math.degrees(math.pi):.1f} 度')
+
+# 统计分析
+scores = [85, 92, 78, 95, 88, 72, 90, 85, 88, 93]
+print(f'\\n成绩统计:')
+print(f'  均值: {statistics.mean(scores):.2f}')
+print(f'  中位数: {statistics.median(scores)}')
+print(f'  众数: {statistics.mode(scores)}')
+print(f'  标准差: {statistics.stdev(scores):.2f}')
+print(f'  方差: {statistics.variance(scores):.2f}')
+q = statistics.quantiles(scores, n=4)
+print(f'  四分位: Q1={q[0]:.1f}, Q2={q[1]:.1f}, Q3={q[2]:.1f}')
+print(f'  极差: {max(scores)-min(scores)}')
+`},{id:3,title:"random 与 hashlib",type:"explanation",content:`\`\`\`python
+import random
+import hashlib
+
+# random 模块
+random.random()              # 0.0~1.0
+random.randint(1, 100)       # 整数
+random.uniform(1.0, 10.0)    # 浮点数
+random.choice(['A','B','C']) # 随机选择
+random.sample(range(100), 10)# 无重复抽样
+random.shuffle(my_list)      # 原地打乱
+random.seed(42)              # 固定种子
+random.gauss(0, 1)           # 高斯分布
+
+# hashlib 模块
+m = hashlib.md5(b'hello')
+m.hexdigest()  # '5d41402abc4b2a76b9719d911017c592'
+
+sha = hashlib.sha256(b'hello world')
+sha.hexdigest()
+
+# 文件哈希校验
+def file_hash(filepath, algo='sha256'):
+    h = hashlib.new(algo)
+    with open(filepath, 'rb') as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
+
+# 密码加盐
+def hash_password(password, salt=None):
+    if salt is None:
+        salt = os.urandom(16).hex()
+    hashed = hashlib.pbkdf2_hmac('sha256', 
+        password.encode(), salt.encode(), 100000)
+    return salt + hashed.hex()
+\`\`\``},{id:4,title:"operator 模块",type:"explanation",content:`\`\`\`python
+import operator
+
+# 算术运算符函数
+operator.add(3, 5)        # 8
+operator.sub(10, 3)      # 7
+operator.mul(4, 6)       # 24
+operator.truediv(10, 3)  # 3.333...
+operator.floordiv(10, 3) # 3
+operator.mod(10, 3)      # 1
+operator.pow(2, 10)      # 1024
+operator.neg(5)           # -5
+operator.abs(-7)          # 7
+
+# 比较运算符函数
+operator.lt(3, 5)   # True (less than)
+operator.le(3, 3)   # True (less or equal)
+operator.gt(5, 3)   # True (greater than)
+operator.eq(3, 3)   # True (equal)
+operator.ne(3, 5)   # True (not equal)
+
+# 序列操作
+operator.concat([1,2], [3,4])      # [1,2,3,4]
+operator.contains([1,2,3], 2)      # True
+operator.countOf([1,2,2,3], 2)    # 2
+operator.indexOf([1,2,3], 2)       # 1
+
+# itemgetter / attrgetter
+inventory = [{'name':'apple','price':5}, {'name':'banana','price':3}]
+sorted(inventory, key=operator.itemgetter('price'))
+
+from collections import namedtuple
+Person = namedtuple('Person', 'name age')
+p = Person('Alice', 30)
+operator.attrgetter('name')(p)  # 'Alice'
+\`\`\``,code:`import operator
+from functools import reduce
+
+# 用 operator 替代 lambda
+nums = [1, 2, 3, 4, 5]
+
+# 求和：reduce(operator.add, nums) 等价于 reduce(lambda x,y: x+y, nums)
+total = reduce(operator.add, nums)
+print(f'求和: {total}')
+
+# 求积
+product = reduce(operator.mul, nums)
+print(f'求积: {product}')
+
+# 排序：用 itemgetter 替代 lambda
+students = [
+    {'name': 'Alice', 'score': 92, 'age': 20},
+    {'name': 'Bob', 'score': 85, 'age': 22},
+    {'name': 'Charlie', 'score': 95, 'age': 19},
+]
+
+by_score = sorted(students, key=operator.itemgetter('score'), reverse=True)
+print('\\n按分数排序:')
+for s in by_score:
+    print(f'  {s["name"]:8s} 分数:{s["score"]} 年龄:{s["age"]}')
+
+# 多级排序
+by_age_score = sorted(students, key=operator.itemgetter('age', 'score'))
+print('\\n按年龄→分数排序:')
+for s in by_age_score:
+    print(f'  {s["name"]:8s} 年龄:{s["age"]} 分数:{s["score"]}')
+
+# attrgetter 示例
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    def __repr__(self):
+        return f'{self.name}({self.price}元)'
+
+products = [Product('键盘', 299), Product('鼠标', 99), Product('显示器', 1599)]
+sorted_products = sorted(products, key=operator.attrgetter('price'))
+print(f'\\n按价格排序: {sorted_products}')
+`},{id:5,title:"类型注解与虚拟环境",type:"explanation",content:`**类型注解** (Python 3.5+)：
+
+\`\`\`python
+from typing import List, Dict, Optional, Union, Tuple, Any
+
+def greet(name: str) -> str:
+    return f'Hello, {name}'
+
+def process(data: List[int]) -> Dict[str, int]:
+    return {'sum': sum(data), 'len': len(data)}
+
+def find(items: List[str], target: str) -> Optional[int]:
+    return items.index(target) if target in items else None
+
+# 复杂类型
+Config = Dict[str, Union[str, int, bool]]
+Point = Tuple[float, float]
+Result = Union[str, None]
+
+# Python 3.9+ 内置泛型
+def filter_active(users: list[dict]) -> list[dict]:
+    return [u for u in users if u.get('active')]
+
+# Python 3.10+ 联合类型语法
+def parse(value: int | str | None = None) -> str:
+    return str(value) if value is not None else 'empty'
+\`\`\`
+
+**虚拟环境**：
+
+\`\`\`bash
+# venv (Python 内置)
+python -m venv myenv
+# Windows
+myenv\\Scripts\\activate
+# Linux/Mac
+source myenv/bin/activate
+deactivate
+
+# conda
+conda create -n myenv python=3.12
+conda activate myenv
+conda deactivate
+
+# pip 包管理
+pip install package_name
+pip install -r requirements.txt
+pip freeze > requirements.txt
+pip list  # 查看已安装
+\`\`\``},{id:6,title:"练习：密码管理器",type:"exercise",content:"使用 hashlib + random 实现一个安全的密码管理器",code:`import hashlib, os, json, secrets
+
+class PasswordManager:
+    def __init__(self, db_file='passwords.json'):
+        self.db_file = db_file
+        self.data = {}
+        self._load()
+    
+    def _hash(self, password, salt):
+        """PBKDF2 加盐哈希"""
+        return hashlib.pbkdf2_hmac('sha256', 
+            password.encode(), salt.encode(), 100000).hex()
+    
+    def add(self, site, username, password):
+        salt = secrets.token_hex(16)
+        hashed = self._hash(password, salt)
+        self.data[site] = {
+            'username': username,
+            'salt': salt,
+            'hash': hashed
+        }
+        self._save()
+        print(f'✓ {site} 密码已保存')
+    
+    def verify(self, site, password):
+        if site not in self.data:
+            return False
+        entry = self.data[site]
+        hashed = self._hash(password, entry['salt'])
+        return secrets.compare_digest(hashed, entry['hash'])
+    
+    def _save(self):
+        with open(self.db_file, 'w') as f:
+            json.dump(self.data, f, indent=2)
+    
+    def _load(self):
+        if os.path.exists(self.db_file):
+            with open(self.db_file, 'r') as f:
+                self.data = json.load(f)
+    
+    def list_sites(self):
+        return list(self.data.keys())
+
+# 使用示例
+pm = PasswordManager()
+pm.add('github', 'user123', 'MySecurePass!')
+pm.add('gmail', 'user123', 'AnotherPass456')
+
+print(f'已保存的站点: {pm.list_sites()}')
+
+# 验证密码
+print(f'\\ngithub 正确密码: {pm.verify("github", "MySecurePass!")}')
+print(f'github 错误密码: {pm.verify("github", "WrongPass")}')
+
+# 文件哈希校验
+import tempfile
+test_file = tempfile.NamedTemporaryFile(delete=False, suffix='.txt')
+test_file.write(b'Hello World')
+test_file.close()
+
+def file_checksum(filepath):
+    h = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
+
+checksum = file_checksum(test_file.name)
+print(f'\\n文件 SHA256: {checksum[:32]}...')
+os.unlink(test_file.name)
+`},{id:7,title:"第56关测验",type:"quiz",content:`**问题1**：statistics.stdev() 计算什么？
+- A. 总体标准差
+- B. 样本标准差
+- C. 方差
+- D. 均值
+
+**问题2**：hashlib.pbkdf2_hmac 相比直接 md5 的优势？
+- A. 速度更快
+- B. 加盐+迭代次数，更安全
+- C. 输出更短
+- D. 不需要编码
+
+**问题3**：operator.itemgetter('price') 等价于？
+- A. lambda x: x['price']
+- B. lambda x: x.price
+- C. lambda x: x.get('price')
+- D. lambda x, y: x['price']
+
+**答案**：1.B  2.B  3.A`}],57:[{id:1,title:"BeautifulSoup HTML 解析",type:"explanation",content:`**BeautifulSoup** 是 Python 最流行的 HTML/XML 解析库。
+
+\`\`\`python
+# pip install beautifulsoup4 lxml
+from bs4 import BeautifulSoup
+
+html = '''
+<html>
+  <body>
+    <div class="article">
+      <h1 id="title">Python 爬虫</h1>
+      <p class="content">BeautifulSoup 是一个 HTML 解析库</p>
+      <a href="https://example.com" class="link">链接1</a>
+      <a href="https://test.com" class="link">链接2</a>
+      <ul>
+        <li>项目1</li><li>项目2</li><li>项目3</li>
+      </ul>
+    </div>
+  </body>
+</html>
+'''
+
+soup = BeautifulSoup(html, 'lxml')
+
+# 基本查找
+soup.find('h1')                    # 第一个 h1
+soup.find('h1', id='title')        # 带属性
+soup.find_all('a', class_='link')   # 所有匹配
+soup.find_all('a', limit=2)         # 限制数量
+
+# CSS 选择器
+soup.select('div.article > h1')     # 子选择器
+soup.select_one('a.link')           # 第一个匹配
+soup.select('ul > li:nth-child(2)') # 第2个 li
+
+# 获取数据
+tag = soup.find('a', class_='link')
+tag.text              # 文本内容
+tag['href']           # 属性值
+tag.get('href', '')   # 安全获取
+tag.attrs             # 所有属性
+
+# 遍历
+for li in soup.find_all('li'):
+    print(li.string)
+
+# 父子兄弟
+tag.parent            # 父节点
+tag.children          # 直接子节点
+tag.next_sibling      # 下一个兄弟
+\`\`\``},{id:2,title:"Selenium 浏览器自动化",type:"example",content:`\`\`\`python
+# pip install selenium
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# 启动浏览器
+driver = webdriver.Chrome()  # 需要 chromedriver
+driver.get('https://www.baidu.com')
+
+# 查找元素
+search_box = driver.find_element(By.ID, 'kw')
+search_box.send_keys('Python 爬虫')
+search_box.send_keys(Keys.RETURN)
+
+# 等待元素加载
+wait = WebDriverWait(driver, 10)
+results = wait.until(
+    EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.result'))
+)
+
+# 提取数据
+for result in results[:5]:
+    title = result.find_element(By.CSS_SELECTOR, 'h3').text
+    link = result.find_element(By.TAG_NAME, 'a').get_attribute('href')
+    print(f'{title}: {link}')
+
+# 页面交互
+driver.find_element(By.XPATH, '//a[contains(text(),"下一页")]').click()
+driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+driver.save_screenshot('page.png')
+
+# 无头模式
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+driver = webdriver.Chrome(options=options)
+
+driver.quit()
+\`\`\``,code:`# Selenium 自动化示例（模拟，不需浏览器运行）
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+
+# 无头浏览器配置
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+# 实际使用时取消下面注释
+# driver = webdriver.Chrome(options=options)
+
+print('=== Selenium 自动化脚本 ===')
+print('1. 启动 Chrome 无头浏览器')
+print('2. 访问目标网页')
+print('3. 查找元素并交互')
+print('4. 提取数据')
+print('5. 截图保存')
+print('6. 关闭浏览器')
+
+# 模拟数据提取流程
+class MockSeleniumScraper:
+    def __init__(self):
+        self.pages_visited = 0
+        self.data_extracted = []
+    
+    def scrape_demo(self, urls):
+        """模拟爬取多个页面"""
+        for url in urls:
+            self.pages_visited += 1
+            # 模拟 driver.get(url)
+            print(f'\\n[{self.pages_visited}] 访问: {url}')
+            
+            # 模拟提取数据
+            mock_results = [
+                {'title': f'文章 {i}', 'url': f'{url}/post/{i}'}
+                for i in range(1, 4)
+            ]
+            
+            for item in mock_results:
+                print(f'  提取: {item["title"]} -> {item["url"]}')
+                self.data_extracted.append(item)
+            
+            # 模拟翻页
+            print(f'  等待 2 秒...')
+            time.sleep(0.5)  # 实际应为 2 秒
+        
+        return self.data_extracted
+
+scraper = MockSeleniumScraper()
+data = scraper.scrape_demo([
+    'https://blog.example.com/page/1',
+    'https://blog.example.com/page/2',
+    'https://blog.example.com/page/3',
+])
+
+print(f'\\n=== 爬取完成 ===')
+print(f'访问页面数: {scraper.pages_visited}')
+print(f'提取数据量: {len(data)}')
+`},{id:3,title:"pyecharts 可视化",type:"explanation",content:`\`\`\`python
+# pip install pyecharts
+from pyecharts.charts import Bar, Line, Pie, Scatter, HeatMap
+from pyecharts import options as opts
+from pyecharts.globals import ThemeType
+
+# 柱状图
+bar = (
+    Bar(init_opts=opts.InitOpts(theme=ThemeType.LIGHT))
+    .add_xaxis(['周一','周二','周三','周四','周五','周六','周日'])
+    .add_yaxis('商家A', [120, 200, 150, 80, 70, 110, 130])
+    .add_yaxis('商家B', [90, 180, 160, 100, 90, 120, 140])
+    .set_global_opts(
+        title_opts=opts.TitleOpts(title='一周销售额'),
+        toolbox_opts=opts.ToolboxOpts(),
+        datazoom_opts=opts.DataZoomOpts()
+    )
+)
+bar.render('bar_chart.html')
+
+# 折线图
+line = (
+    Line()
+    .add_xaxis(months)
+    .add_yaxis('收入', revenue, is_smooth=True)
+    .add_yaxis('支出', cost, is_smooth=True)
+    .set_series_opts(
+        areastyle_opts=opts.AreaStyleOpts(opacity=0.3),
+        label_opts=opts.LabelOpts(is_show=False)
+    )
+)
+line.render('line_chart.html')
+
+# 饼图
+pie = (
+    Pie()
+    .add('销售额', [list(z) for z in zip(categories, values)])
+    .set_global_opts(title_opts=opts.TitleOpts(title='品类占比'))
+    .set_series_opts(label_opts=opts.LabelOpts(formatter='{b}: {d}%'))
+)
+pie.render('pie_chart.html')
+
+# 组合图（多图叠加）
+from pyecharts.charts import Grid
+grid = Grid()
+grid.add(bar, grid_opts=opts.GridOpts(pos_bottom='60%'))
+grid.add(line, grid_opts=opts.GridOpts(pos_top='60%'))
+grid.render('dashboard.html')
+\`\`\``},{id:4,title:"OpenAI API 与 AI 绘画",type:"explanation",content:`\`\`\`python
+# pip install openai
+from openai import OpenAI
+
+client = OpenAI(api_key='your-api-key')
+
+# 对话补全
+response = client.chat.completions.create(
+    model='gpt-4',
+    messages=[
+        {'role': 'system', 'content': '你是一个 Python 编程助手'},
+        {'role': 'user', 'content': '解释什么是装饰器'}
+    ],
+    temperature=0.7,
+    max_tokens=500
+)
+print(response.choices[0].message.content)
+
+# 流式输出
+stream = client.chat.completions.create(
+    model='gpt-4',
+    messages=[{'role': 'user', 'content': '写一个快速排序'}],
+    stream=True
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end='')
+
+# 图像生成 (AI 绘画)
+response = client.images.generate(
+    model='dall-e-3',
+    prompt='一只在月光下编程的猫，赛博朋克风格',
+    size='1024x1024',
+    quality='hd',
+    n=1
+)
+image_url = response.data[0].url
+
+# 图像编辑
+response = client.images.edit(
+    model='dall-e-2',
+    image=open('original.png', 'rb'),
+    mask=open('mask.png', 'rb'),
+    prompt='把背景改成海滩'
+)
+
+# 嵌入向量
+response = client.embeddings.create(
+    model='text-embedding-3-small',
+    input='Python 是一门优雅的编程语言'
+)
+embedding = response.data[0].embedding  # 1536 维向量
+\`\`\``},{id:5,title:"练习：综合爬虫系统",type:"exercise",content:"使用 BeautifulSoup + requests 构建一个新闻聚合爬虫",code:`import requests
+from bs4 import BeautifulSoup
+import json
+from datetime import datetime
+
+class NewsScraper:
+    def __init__(self):
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+        self.articles = []
+    
+    def parse_page(self, html):
+        """解析 HTML 提取新闻"""
+        soup = BeautifulSoup(html, 'html.parser')
+        results = []
+        
+        # 模拟解析新闻列表页
+        # 实际网站结构会不同
+        for item in soup.find_all('article', class_='news-item'):
+            title_tag = item.find('h2') or item.find('h3')
+            link_tag = item.find('a')
+            time_tag = item.find('time')
+            
+            if title_tag and link_tag:
+                results.append({
+                    'title': title_tag.get_text(strip=True),
+                    'url': link_tag.get('href', ''),
+                    'time': time_tag.get('datetime', '') if time_tag else '',
+                    'summary': title_tag.get_text(strip=True)[:100]
+                })
+        
+        return results
+    
+    def fetch(self, url):
+        """获取页面"""
+        try:
+            resp = requests.get(url, headers=self.headers, timeout=10)
+            resp.raise_for_status()
+            return resp.text
+        except Exception as e:
+            print(f'获取失败: {url} -> {e}')
+            return None
+    
+    def scrape(self, urls):
+        """批量爬取"""
+        for url in urls:
+            html = self.fetch(url)
+            if html:
+                articles = self.parse_page(html)
+                self.articles.extend(articles)
+                print(f'✓ {url}: 提取 {len(articles)} 条')
+        
+        return self.articles
+    
+    def save_json(self, filepath):
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(self.articles, f, ensure_ascii=False, indent=2)
+        print(f'\\n已保存 {len(self.articles)} 条到 {filepath}')
+
+# 模拟 HTML 内容进行测试
+mock_html = '''
+<html><body>
+<article class="news-item">
+  <h2><a href="/news/1">Python 3.12 发布</a></h2>
+  <time datetime="2024-01-01">2024-01-01</time>
+</article>
+<article class="news-item">
+  <h2><a href="/news/2">AI 编程助手对比</a></h2>
+  <time datetime="2024-01-02">2024-01-02</time>
+</article>
+<article class="news-item">
+  <h2><a href="/news/3">数据分析工具盘点</a></h2>
+  <time datetime="2024-01-03">2024-01-03</time>
+</article>
+</body></html>
+'''
+
+scraper = NewsScraper()
+# 直接解析模拟 HTML
+articles = scraper.parse_page(mock_html)
+scraper.articles = articles
+
+print(f'提取到 {len(articles)} 条新闻:')
+for a in articles:
+    print(f'  [{a["time"]}] {a["title"]} -> {a["url"]}')
+
+scraper.save_json('news.json')
+`},{id:6,title:"第57关测验",type:"quiz",content:`**问题1**：BeautifulSoup 中查找所有 a 标签的方法？
+- A. soup.find('a')
+- B. soup.find_all('a')
+- C. soup.select_all('a')
+- D. soup.get_all('a')
+
+**问题2**：Selenium 无头模式需要什么参数？
+- A. --no-browser
+- B. --headless
+- C. --invisible
+- D. --background
+
+**问题3**：OpenAI AI 绘画使用的模型是？
+- A. gpt-4
+- B. dall-e-3
+- C. whisper
+- D. clip
+
+**答案**：1.B  2.B  3.B`}],58:[{id:1,title:"表单数据与文件上传",type:"explanation",content:`\`\`\`python
+from fastapi import FastAPI, Form, UploadFile, File
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+# 表单数据
+@app.post('/login')
+async def login(
+    username: str = Form(...),
+    password: str = Form(...),
+    remember: bool = Form(False)
+):
+    return {'username': username, 'remember': remember}
+
+# 文件上传
+@app.post('/upload')
+async def upload_file(file: UploadFile = File(...)):
+    content = await file.read()
+    return {
+        'filename': file.filename,
+        'size': len(content),
+        'content_type': file.content_type
+    }
+
+# 多文件上传
+@app.post('/uploads')
+async def upload_files(files: list[UploadFile] = File(...)):
+    results = []
+    for f in files:
+        content = await f.read()
+        results.append({
+            'name': f.filename,
+            'size': len(content)
+        })
+    return {'uploaded': results}
+
+# 表单 + 文件混合
+@app.post('/profile')
+async def update_profile(
+    name: str = Form(...),
+    bio: str = Form(''),
+    avatar: UploadFile = File(None)
+):
+    return {'name': name, 'bio': bio, 'has_avatar': avatar is not None}
+\`\`\``},{id:2,title:"CORS 跨域与静态文件",type:"example",content:`\`\`\`python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+
+# CORS 跨域配置
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        'http://localhost:3000',
+        'https://myapp.com'
+    ],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+# 静态文件服务
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
+# HTML 页面返回
+@app.get('/', response_class=HTMLResponse)
+async def home():
+    return '''<!DOCTYPE html>
+<html><body>
+  <h1>FastAPI Web 应用</h1>
+  <img src="/static/logo.png">
+  <script src="/static/app.js"><\/script>
+</body></html>'''
+
+# 自定义中间件
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class TimingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        import time
+        start = time.time()
+        response = await call_next(request)
+        duration = (time.time() - start) * 1000
+        response.headers['X-Response-Time'] = f'{duration:.2f}ms'
+        return response
+
+app.add_middleware(TimingMiddleware)
+\`\`\``,code:`from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
+import time
+
+app = FastAPI(title='博客 API', version='2.0')
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+# 模拟数据库
+posts = []
+next_id = 1
+
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    author: str = '匿名'
+
+class Post(BaseModel):
+    id: int
+    title: str
+    content: str
+    author: str
+    created_at: float
+
+@app.middleware('http')
+async def add_process_time(request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    response.headers['X-Process-Time'] = f'{(time.time()-start)*1000:.2f}ms'
+    return response
+
+@app.get('/api/posts', response_model=list[Post])
+def list_posts(limit: int = 10, offset: int = 0):
+    return posts[offset:offset+limit]
+
+@app.post('/api/posts', response_model=Post, status_code=201)
+def create_post(post: PostCreate):
+    global next_id
+    new_post = Post(id=next_id, created_at=time.time(), **post.dict())
+    posts.append(new_post)
+    next_id += 1
+    return new_post
+
+@app.get('/api/posts/{post_id}', response_model=Post)
+def get_post(post_id: int):
+    for p in posts:
+        if p.id == post_id:
+            return p
+    raise HTTPException(404, '文章不存在')
+
+@app.put('/api/posts/{post_id}', response_model=Post)
+def update_post(post_id: int, post: PostCreate):
+    for i, p in enumerate(posts):
+        if p.id == post_id:
+            posts[i] = Post(id=post_id, created_at=p.created_at, **post.dict())
+            return posts[i]
+    raise HTTPException(404)
+
+@app.delete('/api/posts/{post_id}')
+def delete_post(post_id: int):
+    for i, p in enumerate(posts):
+        if p.id == post_id:
+            posts.pop(i)
+            return {'message': '已删除'}
+    raise HTTPException(404)
+`},{id:3,title:"SQLAlchemy 数据库集成",type:"explanation",content:`\`\`\`python
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
+from sqlalchemy.orm import sessionmaker, declarative_base
+from datetime import datetime
+
+# 数据库连接
+SQLALCHEMY_DB_URL = 'sqlite:///./app.db'
+engine = create_engine(SQLALCHEMY_DB_URL, connect_args={'check_same_thread': False})
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
+
+# 模型定义
+class Article(Base):
+    __tablename__ = 'articles'
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    content = Column(Text)
+    author = Column(String(100))
+    created = Column(DateTime, default=datetime.utcnow)
+    updated = Column(DateTime, onupdate=datetime.utcnow)
+
+Base.metadata.create_all(bind=engine)
+
+# FastAPI 依赖注入
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# CRUD 路由
+@app.get('/articles')
+def list_articles(skip: int = 0, limit: int = 20, db=Depends(get_db)):
+    return db.query(Article).offset(skip).limit(limit).all()
+
+@app.post('/articles')
+def create_article(article: ArticleSchema, db=Depends(get_db)):
+    db_article = Article(**article.dict())
+    db.add(db_article)
+    db.commit()
+    db.refresh(db_article)
+    return db_article
+
+@app.get('/articles/{article_id}')
+def get_article(article_id: int, db=Depends(get_db)):
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(404)
+    return article
+\`\`\`
+
+**Alembic 数据库迁移**：
+\`\`\`bash
+pip install alembic
+alembic init alembic
+# 修改 alembic.ini 和 alembic/env.py
+alembic revision --autogenerate -m 'create articles table'
+alembic upgrade head
+alembic downgrade -1
+\`\`\``},{id:4,title:"Jinja2 模板与前端集成",type:"explanation",content:`\`\`\`python
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+app.mount('/static', StaticFiles(directory='static'), name='static')
+templates = Jinja2Templates(directory='templates')
+
+# 渲染模板
+@app.get('/')
+async def home(request: Request):
+    return templates.TemplateResponse('index.html', {
+        'request': request,
+        'title': '我的博客',
+        'posts': get_all_posts()
+    })
+
+# templates/index.html
+'''
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ title }}</title>
+  <link rel='stylesheet' href='/static/style.css'>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  {% for post in posts %}
+  <article>
+    <h2><a href='/posts/{{ post.id }}'>{{ post.title }}</a></h2>
+    <p>{{ post.content[:100] }}...</p>
+    <small>{{ post.created_at }}</small>
+  </article>
+  {% endfor %}
+</body>
+</html>
+'''
+
+# 搜索 + 分页
+@app.get('/search')
+async def search(request: Request, q: str = '', page: int = 1):
+    posts = search_posts(q, page=page, per_page=10)
+    return templates.TemplateResponse('search.html', {
+        'request': request,
+        'query': q,
+        'posts': posts,
+        'page': page,
+        'has_next': len(posts) == 10
+    })
+\`\`\``},{id:5,title:"JWT 认证与用户系统",type:"explanation",content:`\`\`\`python
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt, JWTError
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
+
+SECRET = 'your-secret-key'
+ALGORITHM = 'HS256'
+ACCESS_TOKEN_EXPIRE = timedelta(hours=24)
+
+pwd_ctx = CryptContext(schemes=['bcrypt'], deprecated='auto')
+oauth2 = OAuth2PasswordBearer(tokenUrl='/auth/login')
+
+def hash_password(password): return pwd_ctx.hash(password)
+def verify_password(plain, hashed): return pwd_ctx.verify(plain, hashed)
+
+def create_token(data: dict):
+    to_encode = data.copy()
+    to_encode['exp'] = datetime.utcnow() + ACCESS_TOKEN_EXPIRE
+    return jwt.encode(to_encode, SECRET, ALGORITHM)
+
+async def get_current_user(token=Depends(oauth2), db=Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET, [ALGORITHM])
+        user_id = payload.get('sub')
+        user = db.query(User).get(int(user_id))
+        if not user:
+            raise HTTPException(401)
+        return user
+    except JWTError:
+        raise HTTPException(401, '无效令牌')
+
+@app.post('/auth/register')
+def register(user: UserCreate, db=Depends(get_db)):
+    if db.query(User).filter(User.username == user.username).first():
+        raise HTTPException(400, '用户名已存在')
+    db_user = User(username=user.username, password=hash_password(user.password))
+    db.add(db_user)
+    db.commit()
+    return {'id': db_user.id, 'username': db_user.username}
+
+@app.post('/auth/login')
+def login(form: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
+    user = db.query(User).filter(User.username == form.username).first()
+    if not user or not verify_password(form.password, user.password):
+        raise HTTPException(401, '用户名或密码错误')
+    token = create_token({'sub': str(user.id)})
+    return {'access_token': token, 'token_type': 'bearer'}
+
+@app.get('/auth/me')
+def me(user=Depends(get_current_user)):
+    return {'id': user.id, 'username': user.username}
+
+@app.post('/articles/{id}/favorite')
+def favorite(id: int, user=Depends(get_current_user), db=Depends(get_db)):
+    # 需登录才能收藏
+    ...
+\`\`\``},{id:6,title:"FastAPI 测试",type:"explanation",content:`\`\`\`python
+from fastapi.testclient import TestClient
+import pytest
+
+client = TestClient(app)
+
+def test_list_posts():
+    response = client.get('/api/posts')
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+def test_create_post():
+    response = client.post('/api/posts', json={
+        'title': '测试文章',
+        'content': '这是内容',
+        'author': 'tester'
+    })
+    assert response.status_code == 201
+    assert response.json()['title'] == '测试文章'
+
+def test_get_post_not_found():
+    response = client.get('/api/posts/9999')
+    assert response.status_code == 404
+
+def test_auth_flow():
+    # 注册
+    r = client.post('/auth/register', json={
+        'username': 'testuser', 'password': 'test123'
+    })
+    assert r.status_code == 201
+    
+    # 登录
+    r = client.post('/auth/login', data={
+        'username': 'testuser', 'password': 'test123'
+    })
+    assert r.status_code == 200
+    token = r.json()['access_token']
+    
+    # 访问受保护路由
+    r = client.get('/auth/me', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert r.status_code == 200
+    assert r.json()['username'] == 'testuser'
+
+# 运行：pytest test_app.py -v --cov=app
+\`\`\``},{id:7,title:"部署到 Railway",type:"explanation",content:`**部署 FastAPI 到 Railway/Render/Fly.io**：
+
+\`\`\`python
+# main.py - 入口文件
+import uvicorn
+from app import app
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8000)))
+
+# requirements.txt
+'''
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+alembic==1.13.0
+pydantic==2.5.2
+python-jose==3.3.0
+passlib[bcrypt]==1.7.4
+jinja2==3.1.2
+python-multipart==0.0.6
+'''
+
+# Dockerfile
+'''
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+'''
+
+# railway.json 或 Procfile
+# web: uvicorn main:app --host 0.0.0.0 --port $PORT
+\`\`\`
+
+**部署步骤**：
+1. GitHub 仓库连接 Railway
+2. 设置环境变量（DATABASE_URL, SECRET_KEY）
+3. 自动构建部署
+4. 域名绑定 HTTPS`},{id:8,title:"第58关测验",type:"quiz",content:`**问题1**：FastAPI 处理表单数据需要哪个装饰器参数？
+- A. Form(...)
+- B. Body(...)
+- C. Field(...)
+- D. Param(...)
+
+**问题2**：Alembic 的作用是？
+- A. API 测试
+- B. 数据库迁移
+- C. 模板渲染
+- D. 用户认证
+
+**问题3**：FastAPI 测试使用的客户端是？
+- A. requests
+- B. httpx
+- C. TestClient
+- D. aiohttp
+
+**答案**：1.A  2.B  3.C`}],59:[{id:1,title:"Django Form 组件",type:"explanation",content:`**Django Form** 提供表单验证和渲染：
+
+\`\`\`python
+# forms.py
+from django import forms
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField()
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}))
+    rating = forms.IntegerField(min_value=1, max_value=5, required=False)
+    
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email.endswith('@example.com'):
+            raise forms.ValidationError('请使用公司邮箱')
+        return email
+
+# ModelForm：直接从模型生成表单
+class ArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = ['title', 'content', 'author']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 5}),
+        }
+
+# views.py
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            # 处理逻辑
+            return redirect('success')
+    else:
+        form = ContactForm()
+    return render(request, 'contact.html', {'form': form})
+
+# template
+'''{{ form.as_p }}
+{{ form.name.label_tag }} {{ form.name }}
+{% if form.name.errors %}{{ form.name.errors }}{% endif %}'''
+\`\`\``},{id:2,title:"ORM 多表关联",type:"example",content:`\`\`\`python
+# models.py
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='articles')
+    categories = models.ManyToManyField(Category)
+    tags = models.CharField(max_length=200, blank=True)
+    published = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-published']
+
+# 查询：跨表关联
+# 1. 正向查询
+article = Article.objects.get(pk=1)
+print(article.author.name)  # 文章作者名
+print(article.categories.all())  # 文章所有分类
+
+# 2. 反向查询
+author = Author.objects.get(pk=1)
+print(author.articles.all())  # 作者的所有文章
+print(author.articles.filter(title__icontains='Python'))
+
+# 3. select_related (ForeignKey 一对一，JOIN查询)
+articles = Article.objects.select_related('author').all()
+# 避免 N+1 查询问题
+
+# 4. prefetch_related (ManyToMany，分两次查询)
+articles = Article.objects.prefetch_related('categories').all()
+
+# 5. 聚合与注解
+from django.db.models import Count, Avg, Sum, Q
+
+# 每个作者的文章数
+authors = Author.objects.annotate(article_count=Count('articles'))
+for a in authors:
+    print(f'{a.name}: {a.article_count} 篇')
+
+# 分类下平均阅读量
+Category.objects.annotate(avg_articles=Count('article'))
+
+# 复杂条件
+Article.objects.filter(
+    Q(author__name='张三') | Q(categories__name='Python'),
+    published__year=2024
+).distinct()
+\`\`\``,code:`# Django ORM 多表查询示例 (Python 模拟)
+# 等价的 Django 代码可在 Django 项目中直接运行
+import sqlite3
+
+# 创建内存数据库模拟
+conn = sqlite3.connect(':memory:')
+c = conn.cursor()
+
+c.executescript('''
+CREATE TABLE author (id INTEGER PRIMARY KEY, name TEXT, email TEXT);
+CREATE TABLE category (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE article (id INTEGER PRIMARY KEY, title TEXT, content TEXT,
+    author_id INTEGER, published TEXT,
+    FOREIGN KEY (author_id) REFERENCES author(id));
+CREATE TABLE article_categories (article_id INTEGER, category_id INTEGER,
+    FOREIGN KEY (article_id) REFERENCES article(id),
+    FOREIGN KEY (category_id) REFERENCES category(id));
+''')
+
+# 插入数据
+authors = [(1,'张三','zs@qq.com'), (2,'李四','ls@qq.com'), (3,'王五','ww@qq.com')]
+c.executemany('INSERT INTO author VALUES (?,?,?)', authors)
+
+categories = [(1,'Python'), (2,'Web'), (3,'数据科学')]
+c.executemany('INSERT INTO category VALUES (?,?,?)', categories)
+
+articles = [
+    (1,'Django入门','内容...','2024-01-15',1),
+    (2,'FastAPI指南','内容...','2024-02-20',1),
+    (3,'Pandas教程','内容...','2024-03-10',2),
+    (4,'NumPy进阶','内容...','2024-03-15',2),
+    (5,'R语言基础','内容...','2024-04-01',3),
+]
+c.executemany('INSERT INTO article VALUES (?,?,?,?,?)', articles)
+
+m2m = [(1,1),(1,2),(2,2),(3,1),(3,3),(4,1),(5,3)]
+c.executemany('INSERT INTO article_categories VALUES (?,?)', m2m)
+conn.commit()
+
+print('=== Django ORM 多表查询等价 SQL ===')
+
+# select_related 等价：JOIN 查询
+print('\\n1. 文章 + 作者 (JOIN):')
+c.execute('''SELECT a.title, au.name, a.published
+             FROM article a JOIN author au ON a.author_id = au.id
+             ORDER BY a.published''')
+for row in c.fetchall():
+    print(f'  {row[2][:10]} | {row[1]:4s} | {row[0]}')
+
+# 聚合：每作者文章数
+print('\\n2. 每个作者文章数 (annotate + Count):')
+c.execute('''SELECT au.name, COUNT(a.id) as cnt
+             FROM author au LEFT JOIN article a ON a.author_id = au.id
+             GROUP BY au.name ORDER BY cnt DESC''')
+for row in c.fetchall():
+    print(f'  {row[0]}: {row[1]} 篇')
+
+# 多对多查询
+print('\\n3. 各分类的文章 (M2M):')
+c.execute('''SELECT cat.name, GROUP_CONCAT(a.title, ' | ')
+             FROM category cat
+             JOIN article_categories ac ON ac.category_id = cat.id
+             JOIN article a ON a.id = ac.article_id
+             GROUP BY cat.name''')
+for row in c.fetchall():
+    print(f'  [{row[0]}] {row[1]}')
+
+# Q 对象等价：复杂条件
+print('\\n4. 张三或Python分类的文章 (Q | Q):')
+c.execute('''SELECT DISTINCT a.title, au.name
+             FROM article a
+             JOIN author au ON a.author_id = au.id
+             LEFT JOIN article_categories ac ON ac.article_id = a.id
+             LEFT JOIN category cat ON cat.id = ac.category_id
+             WHERE au.name = '张三' OR cat.name = 'Python' ''')
+for row in c.fetchall():
+    print(f'  {row[1]} - {row[0]}')
+
+conn.close()
+`},{id:3,title:"聚合查询与 Auth 组件",type:"explanation",content:`\`\`\`python
+from django.db.models import Count, Sum, Avg, Max, Min, Q, F
+
+# 聚合查询
+stats = Article.objects.aggregate(
+    total=Count('id'),
+    avg_content=Avg('length'),
+    max_date=Max('published')
+)
+
+# 分组聚合
+by_author = Article.objects.values('author__name').annotate(
+    count=Count('id'),
+    latest=Max('published')
+).order_by('-count')
+
+# 条件聚合
+popular = Article.objects.filter(
+    published__year=2024
+).annotate(
+    view_count=Count('views')
+).filter(view_count__gte=100)
+
+# F 表达式：字段间运算
+Product.objects.filter(stock__lt=F('min_stock'))
+Employee.objects.update(salary=F('salary') * 1.1)
+
+# Django Auth 用户认证
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+# 注册
+user = User.objects.create_user('alice', 'alice@example.com', 'pass123')
+
+# 登录
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('home')
+    return render(request, 'login.html')
+
+# 登出
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+# 需要登录才能访问
+@login_required
+def profile(request):
+    return render(request, 'profile.html', {'user': request.user})
+
+# 权限检查
+@user_passes_test(lambda u: u.is_staff)
+def admin_panel(request):
+    ...
+\`\`\``},{id:4,title:"Cookie/Session 与中间件",type:"explanation",content:`\`\`\`python
+# Cookie 操作
+def set_cookie(request):
+    resp = HttpResponse('Cookie 已设置')
+    resp.set_cookie('username', 'alice', max_age=3600)
+    resp.set_cookie('theme', 'dark', httponly=True, secure=True)
+    return resp
+
+def get_cookie(request):
+    username = request.COOKIES.get('username', '游客')
+    theme = request.COOKIES.get('theme', 'light')
+    return HttpResponse(f'用户: {username}, 主题: {theme}')
+
+# Session 操作
+def set_session(request):
+    request.session['user_id'] = 42
+    request.session['cart'] = {'apple': 3, 'banana': 5}
+    request.session.set_expiry(1800)  # 30分钟过期
+    return HttpResponse('Session 已设置')
+
+def get_session(request):
+    cart = request.session.get('cart', {})
+    total = sum(cart.values())
+    return HttpResponse(f'购物车: {total} 件商品')
+
+# 自定义中间件
+class SimpleMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+    
+    def __call__(self, request):
+        # 请求前处理
+        request.start_time = time.time()
+        
+        response = self.get_response(request)
+        
+        # 响应后处理
+        duration = time.time() - request.start_time
+        response['X-Process-Time'] = f'{duration:.4f}s'
+        return response
+
+# settings.py
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myapp.middleware.SimpleMiddleware',  # 自定义
+]
+\`\`\``},{id:5,title:"CBV 类视图",type:"explanation",content:`\`\`\`python
+from django.views import View
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+)
+
+# 基础 CBV
+class HelloView(View):
+    def get(self, request):
+        return HttpResponse('Hello!')
+    
+    def post(self, request):
+        return HttpResponse('POST received')
+
+# ListView：列表页
+class ArticleListView(ListView):
+    model = Article
+    template_name = 'article/list.html'
+    context_object_name = 'articles'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        cat = self.kwargs.get('category')
+        if cat:
+            qs = qs.filter(categories__name=cat)
+        return qs
+
+# DetailView：详情页
+class ArticleDetailView(DetailView):
+    model = Article
+    template_name = 'article/detail.html'
+
+# CreateView：创建
+class ArticleCreateView(LoginRequiredMixin, CreateView):
+    model = Article
+    fields = ['title', 'content', 'categories']
+    template_name = 'article/form.html'
+    
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+# UpdateView / DeleteView
+class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+    model = Article
+    fields = ['title', 'content']
+    template_name = 'article/form.html'
+
+class ArticleDeleteView(LoginRequiredMixin, DeleteView):
+    model = Article
+    success_url = reverse_lazy('article-list')
+
+# Mixin：功能复用
+class AjaxResponseMixin:
+    def render_to_json(self, context):
+        return JsonResponse(context)
+
+class AjaxListView(AjaxResponseMixin, ListView):
+    def render_to_response(self, context):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return self.render_to_json(context)
+        return super().render_to_response(context)
+\`\`\``},{id:6,title:"Nginx + uWSGI 部署",type:"explanation",content:`\`\`\`bash
+# uWSGI 配置 (mysite.ini)
+'''
+[uwsgi]
+chdir = /path/to/project
+module = myproject.wsgi:application
+master = true
+processes = 4
+socket = /tmp/uwsgi.sock
+chmod-socket = 666
+vacuum = true
+die-on-term = true
+'''
+
+# Nginx 配置 (/etc/nginx/sites-available/mysite)
+'''
+server {
+    listen 80;
+    server_name mysite.com;
+    
+    location /static/ {
+        alias /path/to/project/static/;
+        expires 30d;
+    }
+    
+    location /media/ {
+        alias /path/to/project/media/;
+    }
+    
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/tmp/uwsgi.sock;
+    }
+}
+'''
+
+# 启动
+# uwsgi --ini mysite.ini --daemonize /var/log/uwsgi.log
+# nginx -t && systemctl restart nginx
+
+# Gunicorn 替代方案
+# gunicorn myproject.wsgi:application --bind 0.0.0.0:8000 --workers 4
+\`\`\`
+
+**部署检查清单**：
+- [ ] DEBUG = False
+- [ ] ALLOWED_HOSTS 配置
+- [ ] STATIC_ROOT 设置并 collectstatic
+- [ ] 数据库迁移完成
+- [ ] HTTPS 证书配置
+- [ ] 日志和监控`},{id:7,title:"练习：博客项目实战",type:"exercise",content:"构建完整的 Django 博客系统：模型/视图/模板/表单/认证",code:`# === Django 博客项目核心代码 ===
+
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+    
+    def __str__(self):
+        return self.name
+
+class Post(models.Model):
+    STATUS_CHOICES = [('draft','草稿'), ('published','已发布')]
+    
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    content = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created']
+    
+    def __str__(self):
+        return self.title
+    
+    def get_absolute_url(self):
+        return reverse('post-detail', args=[self.slug])
+
+# forms.py
+from django import forms
+from .models import Post
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'category', 'status']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 8, 'class': 'editor'}),
+        }
+
+# views.py (CBV)
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from .models import Post
+from .forms import PostForm
+
+class PostListView(ListView):
+    model = Post
+    paginate_by = 10
+    context_object_name = 'posts'
+    
+    def get_queryset(self):
+        qs = Post.objects.filter(status='published')
+        cat = self.request.GET.get('cat')
+        if cat:
+            qs = qs.filter(category__slug=cat)
+        q = self.request.GET.get('q')
+        if q:
+            qs = qs.filter(title__icontains=q)
+        return qs
+
+class PostDetailView(DetailView):
+    model = Post
+    context_object_name = 'post'
+    
+    def get_queryset(self):
+        return Post.objects.filter(status='published')
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    success_url = '/'
+    
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    success_url = '/'
+
+# urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.PostListView.as_view(), name='post-list'),
+    path('post/<slug:slug>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('post/new/', views.PostCreateView.as_view(), name='post-create'),
+    path('post/<slug:slug>/edit/', views.PostUpdateView.as_view(), name='post-edit'),
+]
+
+print('博客项目核心代码已定义完毕')
+print('包含: 模型(Post/Category) + 表单(PostForm) + 视图(ListView/DetailView/CreateView/UpdateView)')
+print('需在 Django 项目中创建模板文件和运行迁移命令')
+`},{id:8,title:"第59关测验",type:"quiz",content:`**问题1**：Django ORM 避免 N+1 查询的方法？
+- A. select_related() 和 prefetch_related()
+- B. only() 和 defer()
+- C. values() 和 values_list()
+- D. distinct() 和 order_by()
+
+**问题2**：CBV 中处理 GET 请求的方法名？
+- A. handle_get
+- B. get
+- C. on_get
+- D. do_get
+
+**问题3**：Django 部署时收集静态文件的命令？
+- A. python manage.py collectstatic
+- B. python manage.py static
+- C. python manage.py gather_static
+- D. python manage.py compilestatic
+
+**答案**：1.A  2.B  3.A`}],60:[{id:1,title:"R 字符串与列表",type:"explanation",content:`\`\`\`r
+# 字符串
+s <- 'Hello, R!'
+nchar(s)                  # 长度
+toupper(s); tolower(s)    # 大小写
+substr(s, 1, 5)           # 子串
+paste('A', 'B', sep='-')  # 'A-B'
+paste0('x', 1:3)          # 'x1' 'x2' 'x3'
+gsub('l', 'L', s)         # 替换
+strsplit('a,b,c', ',')[[1]]  # 分割
+sprintf('值: %.2f', 3.14159)  # 格式化
+
+# 列表 (list)
+lst <- list(name='Alice', age=25, scores=c(90,85,88))
+lst$name      # 'Alice'
+lst[['age']]  # 25
+lst[1]        # 子列表
+lst[[1]]      # 元素值
+
+# 添加/修改
+lst$city <- 'Beijing'
+lst$age <- 26
+
+# lapply/sapply：列表遍历
+lapply(lst, class)
+sapply(lst, length)
+\`\`\``},{id:2,title:"R 数组与因子",type:"example",content:`\`\`\`r
+# 数组 (array) - 多维
+arr <- array(1:24, dim=c(4, 3, 2))
+arr[1, 1, 1]  # 第1个元素
+arr[, , 1]     # 第1个矩阵
+arr[, , 2]     # 第2个矩阵
+dim(arr)       # 4 3 2
+apply(arr, c(1,2), mean)  # 按行列求均值
+
+# 因子 (factor) - 分类变量
+gender <- factor(c('M','F','F','M','M'))
+levels(gender)  # 'F' 'M'
+table(gender)   # F:2 M:3
+
+# 有序因子
+grade <- factor(c('B','A','C','B','A'),
+    levels=c('C','B','A'), ordered=TRUE)
+grade[1] > grade[2]  # FALSE (B < A)
+
+# 因子与数值
+scores <- cut(c(45, 67, 89, 23, 78, 56),
+    breaks=c(0, 60, 80, 100),
+    labels=c('不及格','及格','优秀'))
+table(scores)  # 统计各等级人数
+\`\`\``,code:`# R 数组与因子 (Python 等价实现)
+import numpy as np
+import pandas as pd
+
+print('=== R 数组与因子 ===')
+
+# R: arr <- array(1:24, dim=c(4,3,2))
+arr = np.arange(1, 25).reshape(2, 4, 3)  # 注意 R 是列优先
+print(f'数组形状: {arr.shape} (等价 R dim=c(4,3,2))')
+print(f'第1层:\\n{arr[0]}')
+print(f'第2层:\\n{arr[1]}')
+
+# apply(arr, c(1,2), mean)
+print(f'\\napply 行均值: {arr.mean(axis=0).round(1)}')
+
+# R: factor
+print('\\n=== R 因子 (等价 pandas.Categorical) ===')
+gender = pd.Categorical(['M','F','F','M','M'], categories=['F','M'])
+print(f'因子: {list(gender)}')
+print(f'levels: {gender.categories.tolist()}')
+print(f'table: {dict(zip(*np.unique(gender, return_counts=True)))}')
+
+# 有序因子
+grade = pd.Categorical(
+    ['B','A','C','B','A'],
+    categories=['C','B','A'],
+    ordered=True
+)
+print(f'\\n有序因子: {list(grade)}')
+print(f'B > A: {grade[0] > grade[1]}')  # B > A = True
+
+# cut 分箱
+scores = [45, 67, 89, 23, 78, 56]
+bins = pd.cut(scores, bins=[0, 60, 80, 100], labels=['不及格','及格','优秀'])
+print(f'\\ncut 分箱: {list(bins)}')
+print(f'table: {dict(zip(*np.unique(bins, return_counts=True)))}')
+`},{id:3,title:"R 数据重塑与包管理",type:"explanation",content:`\`\`\`r
+# 数据重塑
+library(tidyr)
+library(dplyr)
+
+df <- data.frame(
+    id = 1:4,
+    Q1 = c(10, 20, 30, 40),
+    Q2 = c(15, 25, 35, 45),
+    Q3 = c(20, 30, 40, 50)
+)
+
+# 宽表转长表 (pivot_longer)
+long <- pivot_longer(df, cols=Q1:Q3, names_to='quarter', values_to='score')
+
+# 长表转宽表 (pivot_wider)
+wide <- pivot_wider(long, names_from=quarter, values_from=score)
+
+# dplyr 数据处理管道
+result <- df %>%
+    mutate(total = Q1 + Q2 + Q3) %>%
+    filter(total > 60) %>%
+    arrange(desc(total)) %>%
+    select(id, total)
+
+# R 包管理
+install.packages('dplyr')     # CRAN 安装
+library(dplyr)               # 加载
+installed.packages()         # 查看已安装
+remove.packages('dplyr')     # 卸载
+
+# 开发者工具
+install.packages('devtools')
+devtools::install_github('rstudio/shiny')
+
+# 包的命名空间
+dplyr::filter(df, Q1 > 15)  # 显式调用
+\`\`\``},{id:4,title:"R 文件读写",type:"explanation",content:`\`\`\`r
+# CSV 读写
+df <- read.csv('data.csv', header=TRUE, sep=',', stringsAsFactors=FALSE)
+write.csv(df, 'output.csv', row.names=FALSE, fileEncoding='UTF-8')
+
+# Excel (需 readxl/writexl 包)
+library(readxl)
+df <- read_excel('data.xlsx', sheet=1, skip=0)
+library(writexl)
+write_xlsx(df, 'output.xlsx')
+
+# JSON (需 jsonlite 包)
+library(jsonlite)
+data <- fromJSON('data.json')
+toJSON(df, pretty=TRUE, dataframe='rows')
+
+# XML (需 xml2 包)
+library(xml2)
+doc <- read_xml('data.xml')
+xml_name(doc)
+xml_text(xml_find_all(doc, '//item'))
+
+# MySQL 连接 (需 RMySQL/DBI 包)
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+    dbname='mydb', host='localhost',
+    user='root', password='pass')
+df <- dbGetQuery(con, 'SELECT * FROM users')
+dbDisconnect(con)
+
+# RDS (R 原生格式)
+saveRDS(df, 'data.rds')
+df <- readRDS('data.rds')
+\`\`\``,code:`# R 文件读写 (Python 等价实现)
+import pandas as pd
+import json
+import sqlite3
+import os
+
+print('=== R 文件读写 (Python 等价) ===')
+
+# 创建测试数据
+df = pd.DataFrame({
+    'name': ['Alice','Bob','Charlie','David'],
+    'age': [25, 30, 35, 28],
+    'score': [85, 92, 78, 95]
+})
+
+# R: read.csv / write.csv
+df.to_csv('test_data.csv', index=False)
+df_read = pd.read_csv('test_data.csv')
+print(f'CSV 读写: {len(df_read)} 行')
+
+# R: write_xlsx / read_excel
+try:
+    df.to_excel('test_data.xlsx', index=False)
+    df_xlsx = pd.read_excel('test_data.xlsx')
+    print(f'Excel 读写: {len(df_xlsx)} 行')
+except:
+    print('Excel 读写: 需 openpyxl 库')
+
+# R: toJSON / fromJSON
+json_str = df.to_json(orient='records', force_ascii=False, indent=2)
+df_json = pd.read_json(json_str)
+print(f'JSON 读写: {len(df_json)} 行')
+
+# R: saveRDS / readRDS (等价 pickle)
+import pickle
+with open('data.pkl', 'wb') as f:
+    pickle.dump(df, f)
+with open('data.pkl', 'rb') as f:
+    df_pkl = pickle.load(f)
+print(f'Pickle 读写: {len(df_pkl)} 行')
+
+# R: dbConnect (MySQL 等价 SQLite)
+conn = sqlite3.connect(':memory:')
+df.to_sql('users', conn, index=False, if_exists='replace')
+result = pd.read_sql('SELECT * FROM users WHERE score > 80', conn)
+print(f'\\nSQL 查询 (score > 80):')
+print(result.to_string(index=False))
+
+# JSON 文件输出
+with open('output.json', 'w', encoding='utf-8') as f:
+    json.dump(df.to_dict('records'), f, ensure_ascii=False, indent=2)
+print(f'\\n已输出: output.json')
+
+# 清理
+for f in ['test_data.csv', 'data.pkl', 'output.json']:
+    if os.path.exists(f):
+        os.remove(f)
+conn.close()
+print('清理完成')
+`},{id:5,title:"R 绘图系统",type:"explanation",content:`\`\`\`r
+# 基础绘图系统
+# 饼图
+slices <- c(40, 25, 20, 15)
+labels <- c('电子','服装','食品','其他')
+pie(slices, labels=labels, main='销售占比',
+    col=rainbow(length(slices)))
+legend('topright', labels, fill=rainbow(length(slices)))
+
+# 条形图
+counts <- c(150, 200, 120, 80)
+barplot(counts, names.arg=c('Q1','Q2','Q3','Q4'),
+    col='steelblue', main='季度销量',
+    xlab='季度', ylab='销量')
+
+# 散点图
+plot(x, y, main='散点图', xlab='X轴', ylab='Y轴',
+    pch=19, col='blue')
+abline(lm(y ~ x), col='red', lwd=2)
+
+# 函数曲线图
+curve(x^2, from=-5, to=5, main='y = x²',
+    xlab='x', ylab='y', col='purple', lwd=2)
+curve(sin(x), add=TRUE, col='blue')
+
+# 中文支持
+# Windows: par(family='STKaiti')
+# Mac: par(family='STHeiti')
+# Linux: 需安装中文字体
+
+# ggplot2 绘图
+library(ggplot2)
+ggplot(df, aes(x=quarter, y=sales, fill=region)) +
+    geom_bar(stat='identity') +
+    facet_wrap(~region, ncol=2) +
+    labs(title='季度销售') +
+    theme_minimal() +
+    theme(text=element_text(family='STKaiti'))
+\`\`\``},{id:6,title:"练习：R 完整数据分析",type:"exercise",content:"R 风格的完整数据分析流程：数据导入 → 清洗 → 分析 → 可视化",code:`# R 数据分析完整流程 (Python 等价实现)
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from scipy import stats
+
+matplotlib.rcParams['font.family'] = ['Microsoft YaHei', 'SimHei']
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+print('=' * 50)
+print('  R 数据分析流程 - 电商用户分析')
+print('=' * 50)
+
+# 1. 数据导入 (R: read.csv)
+np.random.seed(42)
+N = 500
+df = pd.DataFrame({
+    'user_id': range(1, N+1),
+    'age': np.random.normal(32, 10, N).clip(18, 65).astype(int),
+    'gender': np.random.choice(['M','F'], N),
+    'city': np.random.choice(['北京','上海','广州','深圳','成都'], N),
+    'reg_days': np.random.randint(1, 1000, N),
+    'total_spent': np.random.exponential(500, N).clip(0, 5000).round(2),
+    'orders': np.random.poisson(5, N),
+    'last_active': pd.date_range('2024-01-01', periods=N, freq='1H')
+})
+print(f'\\n1. 数据导入: {len(df)} 条记录, {len(df.columns)} 个字段')
+
+# 2. 数据清洗 (R: dplyr::mutate/filter)
+df['avg_order'] = (df['total_spent'] / df['orders']).round(2)
+df['segment'] = pd.cut(df['total_spent'],
+    bins=[0, 100, 500, 2000, float('inf')],
+    labels=['低消费','中消费','高消费','VIP'])
+print(f'\\n2. 数据清洗: 新增 avg_order, segment 字段')
+
+# 3. 描述统计 (R: summary)
+print(f'\\n3. 描述统计:')
+print(f'   年龄: {df.age.mean():.1f} ± {df.age.std():.1f}')
+print(f'   总消费: {df.total_spent.sum():,.0f} 元')
+print(f'   平均订单: {df.orders.mean():.1f}')
+
+# 4. 分组分析 (R: group_by + summarize)
+print(f'\\n4. 分组分析:')
+city_stats = df.groupby('city').agg(
+    用户数=('user_id','count'),
+    总消费=('total_spent','sum'),
+    平均消费=('total_spent','mean'),
+    订单数=('orders','sum')
+).round(2).sort_values('总消费', ascending=False)
+print(city_stats.to_string())
+
+# 5. 假设检验 (R: t.test)
+male_spent = df[df.gender=='M']['total_spent']
+female_spent = df[df.gender=='F']['total_spent']
+t_stat, p_val = stats.ttest_ind(male_spent, female_spent)
+print(f'\\n5. 假设检验 (男女消费差异):')
+print(f'   t = {t_stat:.3f}, p = {p_val:.4f}')
+print(f'   结论: {"显著差异" if p_val < 0.05 else "无显著差异"} (α=0.05)')
+
+# 6. 相关性分析 (R: cor.test)
+r_age, p_age = stats.pearsonr(df['age'], df['total_spent'])
+r_days, p_days = stats.pearsonr(df['reg_days'], df['orders'])
+print(f'\\n6. 相关性:')
+print(f'   年龄 vs 消费: r={r_age:.3f} (p={p_age:.4f})')
+print(f'   注册天数 vs 订单: r={r_days:.3f} (p={p_days:.4f})')
+
+# 7. 可视化 (R: ggplot2 / base plot)
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# 条形图: 城市分布
+city_counts = df['city'].value_counts()
+axes[0,0].bar(city_counts.index, city_counts.values, color='#3498db')
+axes[0,0].set_title('用户城市分布')
+
+# 饼图: 消费分层
+seg_counts = df['segment'].value_counts()
+axes[0,1].pie(seg_counts.values, labels=seg_counts.index, autopct='%1.1f%%')
+axes[0,1].set_title('消费分层占比')
+
+# 散点图: 年龄 vs 消费
+axes[1,0].scatter(df['age'], df['total_spent'], alpha=0.3, c='#e74c3c')
+z = np.polyfit(df['age'], df['total_spent'], 1)
+axes[1,0].plot(df['age'], np.polyval(z, df['age']), 'b-', linewidth=2)
+axes[1,0].set_xlabel('年龄'); axes[1,0].set_ylabel('总消费')
+axes[1,0].set_title('年龄 vs 消费')
+
+# 直方图: 订单数分布
+axes[1,1].hist(df['orders'], bins=20, color='#2ecc71', edgecolor='white')
+axes[1,1].set_title('订单数分布')
+
+plt.tight_layout()
+plt.savefig('r_analysis.png', dpi=120)
+print(f'\\n7. 可视化完成: r_analysis.png')
+print(f'\\n✅ R 数据分析流程完成！')
+`},{id:7,title:"第60关测验",type:"quiz",content:`**问题1**：R 中宽表转长表的函数是？
+- A. pivot_longer
+- B. melt
+- C. gather
+- D. reshape_long
+
+**问题2**：R 的因子(factor)对应 Python 的什么类型？
+- A. list
+- B. Categorical
+- C. tuple
+- D. Series
+
+**问题3**：R 中读取 Excel 文件的包是？
+- A. xlsx
+- B. readxl
+- C. openxlsx
+- D. 以上均可
+
+**答案**：1.A  2.B  3.D`}]},Oe={4:[{id:1,title:"计算 1 到 100 的和",description:`编写一个程序，使用 for 循环计算 1 到 100 所有整数的和，并打印结果。
 
 提示：
 - 使用一个变量来累加和
@@ -14721,8 +16739,8 @@ _test_results.append({
     "passed": "误差" in output or "error" in output.lower(),
     "message": "应对比数值解和解析解的误差"
 })
-`,testCases:[{name:"基础测试",input:"无",expected:"ODE 求解"}],xpReward:50}]},He={basic:{label:"Python 基础",icon:"🐍",color:"#10b981",desc:"语法、变量、循环、函数、数据结构入门"},advanced:{label:"Python 进阶",icon:"🚀",color:"#f97316",desc:"OOP、装饰器、异常、标准库、综合实战"},network:{label:"网络与爬虫",icon:"🌐",color:"#3b82f6",desc:"Requests、正则表达式、Scrapy 爬虫框架"},"data-science":{label:"数据科学",icon:"📊",color:"#8b5cf6",desc:"NumPy、Pandas、Matplotlib、SciPy"},web:{label:"Web 开发",icon:"⚡",color:"#06b6d4",desc:"Flask、FastAPI、Django 全栈框架"},tools:{label:"工具与可视化",icon:"🛠️",color:"#f59e0b",desc:"Dash 仪表盘、Jupyter、Pillow 图像"},finance:{label:"金融与其他语言",icon:"💹",color:"#ef4444",desc:"量化交易、R 语言、Julia 科学计算"},system:{label:"系统编程",icon:"⚙️",color:"#6366f1",desc:"IO、迭代器、JSON、数据库、并发、测试、性能"}},Qe=["basic","advanced","network","data-science","web","tools","finance","system"];function Kt(){const t=Te(),[s,r]=o.useState("basic"),{progress:a,isLevelUnlocked:i,isLevelCompleted:l,isChallengeCompleted:_,getLevelProgress:P,godMode:p,toggleGodMode:N}=re(),b=o.useMemo(()=>ae.map(f=>{const T=i(f.id),h=l(f.id),R=P(f.id);let j="locked";return h?j="completed":T&&(j="current"),{...f,status:j,levelProgress:R}}),[i,l,P]),A=o.useMemo(()=>b.filter(f=>f.category===s),[b,s]),v=b.filter(f=>f.status==="completed").length,m=Math.round(v/ae.length*100),g=A.filter(f=>f.status==="completed").length,d=A.length>0?Math.round(g/A.length*100):0,u=f=>Array(5).fill(0).map((T,h)=>e.jsx("span",{className:`star ${h<f?"filled":""}`,children:"★"},h)),y=b.find(f=>f.status==="current")||b.find(f=>f.status!=="locked")||b[0],S=(y==null?void 0:y.id)||4,n=De[S]||[],I=ke.filter(f=>f.completed).length,F=f=>{f.status!=="locked"&&t(`/level/${f.id}`)},D=He[s];return e.jsxs("div",{className:"level-map-page",children:[e.jsxs("div",{className:"map-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"}),e.jsx("div",{className:"deco-code",children:"</>"}),e.jsx("div",{className:"deco-code deco-code-2",children:"{ }"})]}),e.jsxs("div",{className:"container map-container",children:[e.jsxs("div",{className:"map-header",children:[e.jsxs("div",{className:"path-info",children:[e.jsxs("div",{className:"path-badge",children:[e.jsx("span",{className:"path-icon",children:"🐍"}),e.jsx("span",{children:"Python 全景地图"})]}),e.jsx("h1",{className:"map-title",children:"冒险地图"}),e.jsxs("p",{className:"map-subtitle",children:[v," / ",ae.length," 关已完成 · ",Qe.length," 个主题地图"]})]}),e.jsxs("div",{className:"map-controls",children:[e.jsxs("div",{className:"progress-bar-section",children:[e.jsxs("div",{className:"progress-info",children:[e.jsx("span",{className:"progress-label",children:"总进度"}),e.jsxs("span",{className:"progress-percent",children:[m,"%"]})]}),e.jsx("div",{className:"progress-bar",children:e.jsx("div",{className:"progress-fill",style:{width:`${m}%`}})})]}),e.jsxs("button",{className:`god-mode-btn ${p?"active":""}`,onClick:N,title:p?"无敌模式已开启：所有关卡解锁":"点击开启无敌模式：解锁所有关卡",children:[e.jsx("span",{className:"god-mode-icon",children:p?"⚡":"🔒"}),e.jsx("span",{className:"god-mode-text",children:p?"无敌模式":"按进度解锁"}),e.jsx("span",{className:"god-mode-toggle",children:e.jsx("span",{className:`toggle-slider ${p?"on":""}`})})]})]})]}),e.jsx("div",{className:"category-tabs",children:Qe.map(f=>{const T=He[f],h=b.filter(M=>M.category===f),R=h.filter(M=>M.status==="completed").length,j=f===s;return e.jsxs("button",{className:`category-tab ${j?"active":""}`,style:{"--cat-color":T.color,borderColor:j?T.color:void 0},onClick:()=>r(f),children:[e.jsx("span",{className:"cat-icon",children:T.icon}),e.jsx("span",{className:"cat-label",children:T.label}),e.jsxs("span",{className:"cat-count",style:{background:T.color+"22",color:T.color},children:[R,"/",h.length]})]},f)})}),e.jsxs("div",{className:"category-info-bar",style:{borderColor:D.color+"44"},children:[e.jsxs("div",{className:"cat-info-left",children:[e.jsx("span",{className:"cat-info-icon",style:{background:D.color+"22"},children:D.icon}),e.jsxs("div",{children:[e.jsx("h2",{className:"cat-info-title",style:{color:D.color},children:D.label}),e.jsx("p",{className:"cat-info-desc",children:D.desc})]})]}),e.jsxs("div",{className:"cat-info-right",children:[e.jsxs("div",{className:"cat-progress-mini",children:[e.jsx("span",{className:"cat-progress-label",children:"本分类进度"}),e.jsxs("span",{className:"cat-progress-num",style:{color:D.color},children:[d,"%"]})]}),e.jsx("div",{className:"cat-progress-bar",children:e.jsx("div",{className:"cat-progress-fill",style:{width:`${d}%`,background:D.color}})})]})]}),e.jsx("div",{className:"level-map-wrapper",children:e.jsxs("div",{className:"level-map",children:[e.jsx("div",{className:"map-line",style:{"--line-color":D.color}}),A.map((f,T)=>e.jsxs("div",{className:`map-node node-${f.side} status-${f.status}`,style:{animationDelay:`${T*.08}s`},onClick:()=>F(f),children:[e.jsxs("div",{className:"node-dot",children:[f.status==="completed"&&e.jsx("span",{className:"dot-check",children:"✓"}),f.status==="current"&&e.jsx("div",{className:"dot-pulse"}),f.status==="locked"&&e.jsx("span",{className:"dot-lock",children:"🔒"})]}),e.jsx("div",{className:"node-card",children:f.status!=="locked"?e.jsxs(e.Fragment,{children:[e.jsxs("div",{className:"card-header",children:[e.jsx("span",{className:"level-number",children:f.title}),e.jsx("div",{className:"level-stars",children:u(f.difficulty)})]}),e.jsx("h3",{className:"card-title",children:f.subtitle}),e.jsx("p",{className:"card-desc",children:f.description}),e.jsxs("div",{className:"card-meta",children:[e.jsxs("span",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"📚"}),f.lessons," 节课"]}),e.jsxs("span",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⚡"}),f.challenges," 个挑战"]}),e.jsxs("span",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⏱"}),f.duration]})]}),e.jsx("div",{className:"card-topics",children:f.topics.map((h,R)=>e.jsx("span",{className:"topic-tag",children:h},R))}),f.status==="current"&&e.jsxs(e.Fragment,{children:[e.jsxs("div",{className:"current-badge",children:[e.jsx("span",{className:"pulse-dot"}),"进行中"]}),f.levelProgress.total>0&&e.jsxs("div",{className:"level-progress-mini",children:[e.jsx("div",{className:"level-progress-bar",children:e.jsx("div",{className:"level-progress-fill",style:{width:`${f.levelProgress.percent}%`}})}),e.jsxs("span",{className:"level-progress-text",children:[f.levelProgress.completed,"/",f.levelProgress.total]})]})]}),f.status==="completed"&&e.jsx("div",{className:"completed-badge-card",children:"✓ 已完成"})]}):e.jsxs("div",{className:"locked-content",children:[e.jsx("div",{className:"lock-icon",children:"🔒"}),e.jsx("h3",{className:"lock-title",children:"未解锁"}),e.jsx("p",{className:"lock-desc",children:f.title})]})})]},f.id))]})}),y&&e.jsxs("div",{className:"current-level-detail",children:[e.jsxs("div",{className:"detail-header",children:[e.jsxs("div",{children:[e.jsx("h2",{children:y.title}),e.jsx("p",{className:"detail-subtitle",children:y.subtitle})]}),e.jsx(z,{to:`/level/${y.id}`,className:"btn btn-primary",children:"进入学习 →"})]}),e.jsxs("div",{className:"lessons-list",children:[e.jsx("h3",{className:"list-title",children:"📖 课程列表"}),ke.map((f,T)=>e.jsxs("div",{className:`lesson-item ${f.completed?"completed":""}`,onClick:()=>t(`/level/${y.id}`),children:[e.jsx("div",{className:"lesson-index",children:String(T+1).padStart(2,"0")}),e.jsxs("div",{className:"lesson-icon",children:[f.type==="video"&&"🎬",f.type==="reading"&&"📖",f.type==="interactive"&&"💻"]}),e.jsxs("div",{className:"lesson-info",children:[e.jsx("h4",{className:"lesson-title",children:f.title}),e.jsx("span",{className:"lesson-duration",children:f.duration})]}),e.jsx("div",{className:"lesson-status",children:f.completed?e.jsx("span",{className:"status-completed",children:"✓ 已完成"}):e.jsx("span",{className:"status-current",children:"继续学习"})})]},f.id))]}),e.jsxs("div",{className:"challenges-section",children:[e.jsx("h3",{className:"list-title",children:"⚡ 编程挑战"}),e.jsx("div",{className:"challenges-grid",children:n.length>0?n.map(f=>{const T=_(S,f.id);return e.jsxs("div",{className:`challenge-card ${T?"completed":""}`,onClick:()=>t(`/level/${y.id}`),children:[e.jsxs("div",{className:"challenge-header",children:[e.jsxs("span",{className:`challenge-difficulty difficulty-${f.difficulty}`,children:[f.difficulty==="easy"&&"简单",f.difficulty==="medium"&&"中等",f.difficulty==="hard"&&"困难"]}),T&&e.jsx("span",{className:"challenge-check",children:"✓"})]}),e.jsx("h4",{className:"challenge-title",children:f.title})]},f.id)}):$t.map(f=>e.jsxs("div",{className:`challenge-card ${f.completed?"completed":""}`,onClick:()=>t(`/level/${y.id}`),children:[e.jsxs("div",{className:"challenge-header",children:[e.jsxs("span",{className:`challenge-difficulty difficulty-${f.difficulty}`,children:[f.difficulty==="easy"&&"简单",f.difficulty==="medium"&&"中等",f.difficulty==="hard"&&"困难"]}),f.completed&&e.jsx("span",{className:"challenge-check",children:"✓"})]}),e.jsx("h4",{className:"challenge-title",children:f.title})]},f.id))})]}),e.jsxs("div",{className:"stats-row",children:[e.jsxs("div",{className:"stat-card",children:[e.jsx("div",{className:"stat-icon",children:"📚"}),e.jsxs("div",{className:"stat-content",children:[e.jsxs("span",{className:"stat-big",children:[I,"/",ke.length]}),e.jsx("span",{className:"stat-small",children:"已完成课时"})]})]}),e.jsxs("div",{className:"stat-card",children:[e.jsx("div",{className:"stat-icon",children:"⭐"}),e.jsxs("div",{className:"stat-content",children:[e.jsxs("span",{className:"stat-big",children:[a.xp,"/",a.totalXP]}),e.jsx("span",{className:"stat-small",children:"经验值 XP"})]})]}),e.jsxs("div",{className:"stat-card",children:[e.jsx("div",{className:"stat-icon",children:"⏱"}),e.jsxs("div",{className:"stat-content",children:[e.jsxs("span",{className:"stat-big",children:[">","30 分钟"]}),e.jsx("span",{className:"stat-small",children:"预计学习时间"})]})]})]})]})]})]})}function Ae({initialCode:t="",onRun:s,readOnly:r=!1,height:a="300px",showOutput:i=!0,testCode:l,onTestResult:_,placeholder:P="# 在这里编写你的 Python 代码"}){const[p,N]=o.useState(t),[b,A]=o.useState(""),[v,m]=o.useState(null),[g,d]=o.useState(!1),[u,y]=o.useState([]),S=o.useRef(null),{isLoading:n,runCode:I,runCodeWithTests:F}=Ke();o.useEffect(()=>{N(t)},[t]);const D=async()=>{if(!(n||g)){d(!0),A(""),m(null),y([]);try{if(l){const j=await F(p,l);A(j.output),m(j.error),y(j.testResults),_==null||_(j.passed,j.testResults),s==null||s(j.output,j.error)}else{const j=await I(p);A(j.output),m(j.error),s==null||s(j.output,j.error)}}catch(j){m(j instanceof Error?j.message:"执行出错")}finally{d(!1)}}},f=j=>{if(j.key==="Tab"){j.preventDefault();const M=j.target,H=M.selectionStart,oe=M.selectionEnd,Z=p.substring(0,H)+"    "+p.substring(oe);N(Z),setTimeout(()=>{M.selectionStart=M.selectionEnd=H+4},0)}(j.ctrlKey||j.metaKey)&&j.key==="Enter"&&(j.preventDefault(),D())},T=()=>{navigator.clipboard.writeText(p)},h=()=>{N(t),A(""),m(null),y([])},R=()=>{const j=p.split(`
-`).length;return Array(j).fill(0).map((M,H)=>e.jsx("div",{className:"line-number",children:H+1},H))};return e.jsxs("div",{className:"code-editor-container",children:[e.jsxs("div",{className:"editor-header",children:[e.jsx("div",{className:"editor-tabs",children:e.jsx("span",{className:"tab active",children:"main.py"})}),e.jsxs("div",{className:"editor-actions",children:[e.jsx("button",{className:"action-btn",onClick:T,title:"复制代码",children:"📋"}),e.jsx("button",{className:"action-btn",onClick:h,title:"重置代码",children:"🔄"}),e.jsx("button",{className:`run-btn ${g?"running":""}`,onClick:D,disabled:n||g||r,children:n?e.jsx(e.Fragment,{children:"⏳ 加载中..."}):g?e.jsx(e.Fragment,{children:"⏳ 运行中..."}):e.jsx(e.Fragment,{children:"▶ 运行代码"})})]})]}),e.jsxs("div",{className:"editor-body",style:{height:a},children:[e.jsx("div",{className:"line-numbers",children:R()}),e.jsx("textarea",{ref:S,className:"code-textarea",value:p,onChange:j=>N(j.target.value),onKeyDown:f,readOnly:r,placeholder:P,spellCheck:!1})]}),i&&e.jsxs("div",{className:"output-section",children:[e.jsxs("div",{className:"output-header",children:[e.jsx("span",{className:"output-title",children:"📤 输出结果"}),u.length>0&&e.jsxs("span",{className:`test-summary ${u.every(j=>j.passed)?"all-passed":"has-failed"}`,children:[u.filter(j=>j.passed).length,"/",u.length," 测试通过"]})]}),e.jsx("div",{className:`output-content ${v?"has-error":""}`,children:v?e.jsx("pre",{className:"error-text",children:v}):b?e.jsx("pre",{children:b}):e.jsx("span",{className:"output-placeholder",children:'点击"运行代码"查看输出结果'})}),u.length>0&&e.jsx("div",{className:"test-results",children:u.map((j,M)=>e.jsxs("div",{className:`test-item ${j.passed?"passed":"failed"}`,children:[e.jsx("span",{className:"test-icon",children:j.passed?"✓":"✗"}),e.jsx("span",{className:"test-name",children:j.name}),!j.passed&&e.jsx("span",{className:"test-message",children:j.message})]},M))})]})]})}function Yt({title:t,steps:s,onComplete:r}){var Z;const[a,i]=o.useState(0),[l,_]=o.useState(new Set),[P,p]=o.useState(null),[N,b]=o.useState(!1),[A,v]=o.useState(!1),[m,g]=o.useState(!1),[d,u]=o.useState(!1),[y,S]=o.useState(!1),n=s[a],I=s.length>0?(a+(l.has(a)?1:0))/s.length*100:0,F=a===s.length-1;if(!s||s.length===0||!n||!n.title||!n.type)return e.jsx("div",{className:"interactive-lesson",children:e.jsxs("div",{className:"lesson-content",children:[e.jsx("div",{className:"step-header",children:e.jsx("h2",{className:"step-title",children:"加载中..."})}),e.jsx("div",{className:"step-body",children:e.jsx("p",{children:"课程内容加载中，请稍候..."})})]})});const D=()=>{if(F){T(),r==null||r();return}i(a+1),p(null),b(!1),v(!1),g(!1),u(!1),S(!1)},f=()=>{a>0&&(i(a-1),p(null),b(!1),v(!1),g(!1),u(!1),S(!1))},T=()=>{_(O=>new Set([...O,a]))},h=O=>{N||p(O)},R=()=>{P!==null&&(b(!0),P===n.correctAnswer&&T())},j=O=>{v(O),O&&T()},M=()=>{g(!0),T()},H=()=>{u(O=>!O)},oe=async()=>{if(n.answer)try{await navigator.clipboard.writeText(n.answer),S(!0),setTimeout(()=>S(!1),1800)}catch(O){console.error("复制失败",O)}};return e.jsxs("div",{className:"interactive-lesson",children:[e.jsx("div",{className:"lesson-progress-bar",children:e.jsx("div",{className:"progress-fill",style:{width:`${I}%`}})}),e.jsx("div",{className:"lesson-steps-indicator",children:s.map((O,B)=>e.jsxs("div",{className:`step-dot ${B<a||l.has(B)?"completed":""} ${B===a?"current":""}`,onClick:()=>i(B),children:[e.jsx("span",{className:"dot-number",children:B+1}),e.jsx("span",{className:"dot-title",children:(O==null?void 0:O.title)||"步骤"})]},(O==null?void 0:O.id)||B))}),e.jsxs("div",{className:"lesson-content",children:[e.jsxs("div",{className:"step-header",children:[e.jsxs("span",{className:"step-badge",children:["第 ",a+1," 步 / 共 ",s.length," 步"]}),e.jsx("h2",{className:"step-title",children:(n==null?void 0:n.title)||"加载中..."})]}),e.jsxs("div",{className:"step-body",children:[(n==null?void 0:n.type)==="explanation"&&e.jsxs("div",{className:"explanation-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),D()},children:F?"完成学习 🎉":"我明白了，继续 →"})]}),(n==null?void 0:n.type)==="example"&&e.jsxs("div",{className:"example-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),(n==null?void 0:n.code)&&e.jsxs("div",{className:"code-example-wrapper",children:[e.jsx("div",{className:"example-label",children:"💡 点击运行试试："}),e.jsx(Ae,{initialCode:(n==null?void 0:n.code)||"",height:"250px"})]}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),D()},children:F?"完成学习 🎉":"继续下一步 →"})]}),(n==null?void 0:n.type)==="practice"&&e.jsxs("div",{className:"practice-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),(n==null?void 0:n.hint)&&e.jsxs("div",{className:"hint-box",children:[e.jsx("span",{className:"hint-icon",children:"💡 提示："}),n==null?void 0:n.hint]}),(n==null?void 0:n.code)&&e.jsx("div",{className:"practice-editor",children:e.jsx(Ae,{initialCode:(n==null?void 0:n.code)||"",height:"300px",testCode:n==null?void 0:n.testCode,onTestResult:j})}),(n==null?void 0:n.answer)&&e.jsxs("div",{className:"answer-section",children:[e.jsxs("div",{className:"answer-toolbar",children:[e.jsx("button",{type:"button",className:"btn-answer-toggle",onClick:H,"aria-expanded":d,children:d?"🙈 隐藏答案":"💡 查看答案"}),d&&e.jsx("button",{type:"button",className:"btn-copy-answer",onClick:oe,children:y?"✓ 已复制":"📋 复制答案"})]}),d&&e.jsxs("div",{className:"answer-box",children:[e.jsx("div",{className:"answer-box-header",children:e.jsx("span",{className:"answer-box-title",children:"📝 参考答案"})}),e.jsx("pre",{className:"answer-code",children:e.jsx("code",{children:n==null?void 0:n.answer})}),(n==null?void 0:n.explanation)&&e.jsxs("div",{className:"answer-explanation",children:[e.jsx("span",{className:"explanation-icon",children:"🔎"}),e.jsx("div",{dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.explanation)||"")}})]})]})]}),e.jsxs("div",{className:"practice-actions",children:[e.jsx("button",{className:"btn btn-secondary",onClick:f,disabled:a===0,children:"← 上一步"}),!m&&!A&&e.jsx("button",{className:"btn btn-secondary",onClick:M,children:"跳过此步"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),D()},children:A||m?F?"完成学习 🎉":"继续下一步 →":"跳过练习继续 →"})]}),A&&e.jsx("div",{className:"success-message",children:"✅ 太棒了！你成功完成了这个练习！"})]}),(n==null?void 0:n.type)==="quiz"&&e.jsxs("div",{className:"quiz-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),e.jsx("div",{className:"quiz-options",children:(Z=n==null?void 0:n.options)==null?void 0:Z.map((O,B)=>e.jsxs("div",{className:`quiz-option ${P===B?"selected":""} ${N&&B===(n==null?void 0:n.correctAnswer)?"correct":""} ${N&&P===B&&B!==(n==null?void 0:n.correctAnswer)?"wrong":""}`,onClick:()=>h(B),children:[e.jsx("span",{className:"option-letter",children:String.fromCharCode(65+B)}),e.jsx("span",{className:"option-text",children:O})]},B))}),N?e.jsxs("div",{className:"quiz-result",children:[P===(n==null?void 0:n.correctAnswer)?e.jsx("div",{className:"result-success",children:"✅ 回答正确！"}):e.jsxs("div",{className:"result-failure",children:["❌ 回答错误，正确答案是 ",String.fromCharCode(65+((n==null?void 0:n.correctAnswer)||0))]}),(d||(n==null?void 0:n.explanation))&&e.jsxs("div",{className:"answer-box quiz-explain-box",children:[e.jsx("div",{className:"answer-box-header",children:e.jsx("span",{className:"answer-box-title",children:"🔎 答案解析"})}),(n==null?void 0:n.answer)&&e.jsx("pre",{className:"answer-code",children:e.jsx("code",{children:n==null?void 0:n.answer})}),(n==null?void 0:n.explanation)&&e.jsxs("div",{className:"answer-explanation",children:[e.jsx("span",{className:"explanation-icon",children:"📖"}),e.jsx("div",{dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.explanation)||"")}})]})]}),e.jsxs("div",{className:"result-actions",children:[e.jsx("button",{className:"btn btn-secondary",onClick:()=>{b(!1),p(null)},children:"重新答题"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),D()},children:F?"完成学习 🎉":"继续下一步 →"})]})]}):e.jsxs("div",{className:"quiz-actions",children:[e.jsx("button",{className:"btn btn-primary",onClick:R,disabled:P===null,children:"提交答案"}),(n==null?void 0:n.answer)&&e.jsx("button",{type:"button",className:"btn-answer-toggle",onClick:H,children:d?"🙈 隐藏解析":"💡 查看解析"})]})]})]})]})]})}function te(t){return t.replace(/\n\n/g,"</p><p>").replace(/^/g,"<p>").replace(/$/g,"</p>").replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")}function Zt({title:t,description:s,difficulty:r,initialCode:a,testCode:i,testCases:l,onComplete:_,xpReward:P=10}){const[p,N]=o.useState(!1),[b,A]=o.useState(!1),[v,m]=o.useState("description"),g=y=>{y&&!p&&(N(!0),_==null||_())},u={easy:{label:"简单",color:"green",icon:"🟢"},medium:{label:"中等",color:"yellow",icon:"🟡"},hard:{label:"困难",color:"red",icon:"🔴"}}[r];return e.jsxs("div",{className:"challenge-arena",children:[e.jsxs("div",{className:"challenge-header",children:[e.jsxs("div",{className:"challenge-info",children:[e.jsxs("div",{className:"challenge-title-row",children:[e.jsxs("span",{className:`difficulty-badge difficulty-${r}`,children:[u.icon," ",u.label]}),e.jsxs("span",{className:"xp-reward",children:["⭐ +",P," XP"]})]}),e.jsx("h2",{className:"challenge-title",children:t})]}),p&&e.jsxs("div",{className:"completion-badge",children:[e.jsx("span",{className:"badge-icon",children:"✅"}),e.jsx("span",{children:"已完成"})]})]}),e.jsxs("div",{className:"challenge-layout",children:[e.jsxs("div",{className:"challenge-sidebar",children:[e.jsxs("div",{className:"sidebar-tabs",children:[e.jsx("button",{className:`sidebar-tab ${v==="description"?"active":""}`,onClick:()=>m("description"),children:"📝 题目描述"}),e.jsxs("button",{className:`sidebar-tab ${v==="testcases"?"active":""}`,onClick:()=>m("testcases"),children:["🧪 测试用例 (",l.length,")"]})]}),e.jsxs("div",{className:"sidebar-content",children:[v==="description"&&e.jsxs("div",{className:"description-content",children:[e.jsx("p",{className:"challenge-desc",children:s}),e.jsxs("div",{className:"hint-section",children:[e.jsx("button",{className:"hint-toggle",onClick:()=>A(!b),children:b?"隐藏提示":"💡 查看提示"}),b&&e.jsx("div",{className:"hint-content",children:e.jsx("p",{children:"提示：使用 Python 的循环结构和条件判断来解决问题。"})})]})]}),v==="testcases"&&e.jsx("div",{className:"testcases-content",children:l.map((y,S)=>e.jsxs("div",{className:"testcase-item",children:[e.jsx("div",{className:"testcase-header",children:e.jsxs("span",{className:"testcase-name",children:["测试用例 ",S+1,": ",y.name]})}),e.jsxs("div",{className:"testcase-body",children:[e.jsxs("div",{className:"testcase-row",children:[e.jsx("span",{className:"testcase-label",children:"输入："}),e.jsx("code",{children:y.input})]}),e.jsxs("div",{className:"testcase-row",children:[e.jsx("span",{className:"testcase-label",children:"预期："}),e.jsx("code",{children:y.expected})]})]})]},S))})]})]}),e.jsx("div",{className:"challenge-editor",children:e.jsx(Ae,{initialCode:a,height:"400px",testCode:i,onTestResult:g})})]}),p&&e.jsx("div",{className:"completion-modal-overlay",children:e.jsxs("div",{className:"completion-modal",children:[e.jsx("div",{className:"modal-confetti",children:"🎉"}),e.jsx("h3",{children:"恭喜完成挑战！"}),e.jsxs("p",{className:"modal-reward",children:["获得 ",e.jsxs("span",{className:"reward-xp",children:["+",P," XP"]})," 经验值"]}),e.jsx("p",{className:"modal-message",children:"你成功通过了所有测试用例，继续加油！"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>N(!1),children:"继续编码"})]})})]})}const es=[{id:"python3",name:"学习 Python 3",description:"Python3 是当前主流 Python 版本。",icon:"🐍",category:"language",difficulty:1,unlocked:!0,href:"#/level/1"},{id:"python2",name:"学习 Python 2.x",description:"Python 经典版本（已停止维护）。",icon:"🐍",category:"language",difficulty:2,unlocked:!0},{id:"python-io",name:"输入输出",description:"格式化输出、文件读写、标准流。",icon:"📝",category:"language",difficulty:2,unlocked:!0,href:"#/level/37"},{id:"python-basic-syntax",name:"基础语法",description:"注释、缩进、标识符、关键字。",icon:"📖",category:"language",difficulty:1,unlocked:!0,href:"#/level/1"},{id:"python-data-types",name:"数据类型",description:"数字、字符串、布尔值、类型转换。",icon:"🔤",category:"language",difficulty:1,unlocked:!0,href:"#/level/2"},{id:"python-operators",name:"运算符",description:"算术、比较、逻辑、赋值、成员运算符。",icon:"➗",category:"language",difficulty:1,unlocked:!0,href:"#/level/2"},{id:"python-list",name:"列表 List",description:"有序可变序列，索引、切片、常用方法。",icon:"📋",category:"data",difficulty:2,unlocked:!0,href:"#/level/5"},{id:"python-tuple",name:"元组 Tuple",description:"有序不可变序列，解包、遍历。",icon:"📐",category:"data",difficulty:2,unlocked:!0,href:"#/level/5"},{id:"python-dict",name:"字典 Dict",description:"键值对集合，增删改查、遍历、推导式。",icon:"📖",category:"data",difficulty:2,unlocked:!0,href:"#/level/6"},{id:"python-set",name:"集合 Set",description:"无序不重复集合，交并差运算。",icon:"🔵",category:"data",difficulty:2,unlocked:!0,href:"#/level/6"},{id:"python-string",name:"字符串深入",description:"索引切片、常用方法、格式化、编码。",icon:"🔤",category:"data",difficulty:2,unlocked:!0,href:"#/level/10"},{id:"python-control-flow",name:"条件与循环",description:"if/elif/else、for、while、break/continue。",icon:"🔀",category:"data",difficulty:2,unlocked:!0,href:"#/level/3"},{id:"python-function",name:"函数",description:"定义、参数、返回值、作用域、Lambda。",icon:"⚙️",category:"data",difficulty:3,unlocked:!0,href:"#/level/7"},{id:"collections",name:"collections 库",description:"Counter/deque/defaultdict/namedtuple。",icon:"📦",category:"data",difficulty:2,unlocked:!0,href:"#/level/21"},{id:"itertools",name:"itertools 模块",description:"count/cycle/permutations/combinations。",icon:"🔄",category:"data",difficulty:3,unlocked:!0,href:"#/level/22"},{id:"python-iterator-generator",name:"迭代器与生成器",description:"iter/next、yield、生成器表达式。",icon:"⚡",category:"data",difficulty:4,unlocked:!0,href:"#/level/38"},{id:"python-oop",name:"面向对象",description:"类与对象、属性方法、封装、继承。",icon:"🏛️",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/12"},{id:"python-inheritance",name:"继承与多态",description:"方法重写、super()、抽象类、多态。",icon:"🌳",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/13"},{id:"python-decorator",name:"装饰器与闭包",description:"@装饰器、闭包、函数式编程。",icon:"🎨",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/16"},{id:"python-exception",name:"异常处理",description:"try/except/finally、自定义异常、with。",icon:"⚠️",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/14"},{id:"python-module",name:"模块与包",description:"import、自定义模块、包管理、__name__。",icon:"📦",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/11"},{id:"python-stdlib",name:"常用标准库",description:"datetime、re、json、collections、itertools。",icon:"📚",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/17"},{id:"regex",name:"正则表达式",description:"元字符、分组、贪婪/非贪婪、match/search。",icon:"🔍",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/20"},{id:"python-file-io",name:"文件与目录",description:"open/read/write、os/os.path、shutil。",icon:"📁",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/15"},{id:"python-json-xml",name:"JSON 与 XML",description:"json 模块、XML ElementTree、pickle。",icon:"🔄",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/39"},{id:"python-multithreading",name:"多线程与多进程",description:"threading、GIL、multiprocessing、线程池。",icon:"🧵",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/41"},{id:"python-async",name:"异步编程 asyncio",description:"async/await、事件循环、Task、aiohttp。",icon:"⚡",category:"advanced",difficulty:5,unlocked:!0,href:"#/level/42"},{id:"python-testing",name:"单元测试 pytest",description:"unittest、pytest、fixture、Mock、覆盖率。",icon:"✅",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/43"},{id:"python-performance",name:"内存与性能优化",description:"GC 机制、cProfile、lru_cache、优化实战。",icon:"🚀",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/44"},{id:"python-socket",name:"Python 网络编程",description:"Socket、TCP/UDP、urllib、SMTP 邮件、端口扫描。",icon:"🔌",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/45"},{id:"python-system",name:"系统模块进阶",description:"sys/subprocess/logging/csv/datetime/queue/StringIO。",icon:"⚙️",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/46"},{id:"requests",name:"Requests 网络请求",description:"HTTP GET/POST、Session、Headers、文件上传。",icon:"🌐",category:"web",difficulty:2,unlocked:!0,href:"#/level/19"},{id:"flask",name:"Flask",description:"轻量级 Python Web 框架，路由、模板、蓝图。",icon:"🌶️",category:"web",difficulty:3,unlocked:!0,href:"#/level/27"},{id:"fastapi",name:"FastAPI",description:"现代高性能 Python API 框架，Pydantic、依赖注入。",icon:"⚡",category:"web",difficulty:4,unlocked:!0,href:"#/level/28"},{id:"fastapi-adv",name:"FastAPI 进阶",description:"Pydantic 校验、依赖注入、JWT 认证、中间件、CRUD API。",icon:"🔱",category:"web",difficulty:5,unlocked:!0,href:"#/level/48"},{id:"django",name:"Django",description:"全功能 Python Web 框架，MTV、ORM、Admin。",icon:"🎸",category:"web",difficulty:4,unlocked:!0,href:"#/level/29"},{id:"django-adv",name:"Django 进阶",description:"MVT 路由、模板系统、ORM 查询、Admin 后台、模型迁移。",icon:"🏗️",category:"web",difficulty:5,unlocked:!0,href:"#/level/49"},{id:"scrapy",name:"Scrapy 爬虫",description:"Spider/Item/Pipeline、XPath/CSS 选择器。",icon:"🕷️",category:"web",difficulty:5,unlocked:!0,href:"#/level/30"},{id:"numpy",name:"NumPy",description:"ndarray、广播、矩阵运算、线性代数。",icon:"🔢",category:"data",difficulty:3,unlocked:!0,href:"#/level/23"},{id:"numpy-adv",name:"NumPy 进阶",description:"花式索引、广播、线性代数分解、统计分布、卷积、文件IO。",icon:"🧮",category:"data",difficulty:4,unlocked:!0,href:"#/level/50"},{id:"pandas",name:"Pandas",description:"DataFrame、CSV/Excel、数据清洗、groupby。",icon:"🐼",category:"data",difficulty:4,unlocked:!0,href:"#/level/24"},{id:"pandas-adv",name:"Pandas 进阶",description:"MultiIndex、merge/pivot、时间序列、重采样、性能优化、完整分析。",icon:"💼",category:"data",difficulty:5,unlocked:!0,href:"#/level/51"},{id:"matplotlib",name:"Matplotlib",description:"折线图、柱状图、饼图、子图、样式导出。",icon:"📊",category:"data",difficulty:2,unlocked:!0,href:"#/level/25"},{id:"matplotlib-adv",name:"Matplotlib 进阶",description:"GridSpec 复杂布局、3D 图形、样式主题、Animation 动画、完整仪表盘。",icon:"🎨",category:"data",difficulty:4,unlocked:!0,href:"#/level/52"},{id:"scipy",name:"SciPy",description:"线性代数、优化求根、信号处理、统计分布。",icon:"🧪",category:"data",difficulty:4,unlocked:!0,href:"#/level/26"},{id:"dash",name:"Dash",description:"Plotly 组件、Callback、多页仪表盘。",icon:"📈",category:"data",difficulty:3,unlocked:!0,href:"#/level/31"},{id:"sqlite",name:"Python SQLite",description:"内置 sqlite3、CRUD、事务、with 语句。",icon:"💾",category:"tool",difficulty:2,unlocked:!0,href:"#/level/40"},{id:"mysql",name:"Python MySQL",description:"pymysql 连接、CRUD、事务管理。",icon:"🗄️",category:"tool",difficulty:3,unlocked:!0,href:"#/level/40"},{id:"redis",name:"Python Redis",description:"Redis 缓存与 Python 交互、发布订阅。",icon:"⚡",category:"tool",difficulty:3,unlocked:!0},{id:"jupyter",name:"Jupyter Notebook",description:"Markdown、魔法命令、ipywidgets、导出。",icon:"📓",category:"tool",difficulty:2,unlocked:!0,href:"#/level/32"},{id:"jupyter-adv",name:"Jupyter 进阶",description:"%%魔法命令、富显示系统、ipywidgets 交互、并行/内核、nbconvert/参数化。",icon:"📒",category:"tool",difficulty:4,unlocked:!0,href:"#/level/53"},{id:"pillow",name:"Pillow 图像处理",description:"打开保存、像素操作、变换、滤镜、水印。",icon:"🖼️",category:"tool",difficulty:2,unlocked:!0,href:"#/level/33"},{id:"pillow-adv",name:"Pillow 进阶",description:"几何变换、色彩增强/EXIF、ImageDraw 绘制、批量水印、海报生成。",icon:"🎞️",category:"tool",difficulty:4,unlocked:!0,href:"#/level/54"},{id:"pyqt",name:"Python Qt (PyQt5)",description:"Qt GUI 开发：QWidget、布局管理、信号槽、QThread、多控件应用。",icon:"🪟",category:"tool",difficulty:4,unlocked:!0,href:"#/level/47"},{id:"git",name:"Git 版本控制",description:"版本控制基础、分支、合并、远程仓库。",icon:"🔧",category:"tool",difficulty:2,unlocked:!0},{id:"r",name:"R 语言入门",description:"向量、数据框、dplyr、ggplot2、统计检验。",icon:"📐",category:"language",difficulty:3,unlocked:!0,href:"#/level/35"},{id:"julia",name:"Julia 科学计算",description:"多重派发、数组运算、微分方程、性能优化。",icon:"🔬",category:"language",difficulty:4,unlocked:!0,href:"#/level/36"},{id:"sklearn",name:"scikit-learn",description:"分类、回归、聚类、交叉验证、Pipeline。",icon:"🤖",category:"data",difficulty:4,unlocked:!0},{id:"tensorflow",name:"TensorFlow",description:"计算图、神经网络、Keras、模型部署。",icon:"🧠",category:"data",difficulty:5,unlocked:!0},{id:"pytorch",name:"PyTorch",description:"张量、自动微分、神经网络、GPU 加速。",icon:"🔥",category:"data",difficulty:5,unlocked:!0},{id:"quant",name:"量化交易",description:"K线数据、均线策略、回测、夏普比率。",icon:"💹",category:"finance",difficulty:5,unlocked:!0,href:"#/level/34"},{id:"r-adv",name:"R 语言进阶",description:"向量/数据框、dplyr 处理、ggplot2 绘图、假设检验、回归分析、数据挖掘全流程。",icon:"📊",category:"finance",difficulty:4,unlocked:!0,href:"#/level/55"}],ts={language:"语言基础",web:"Web 开发",data:"数据科学",advanced:"进阶编程",tool:"工具与数据库",finance:"金融实战"},Ne={language:"#10b981",web:"#3b82f6",data:"#8b5cf6",advanced:"#f97316",tool:"#f59e0b",finance:"#ef4444"};function ss(){const{id:t}=gt(),s=Te(),[r,a]=o.useState("learn"),[i,l]=o.useState(null),{isLoading:_,error:P,retryLoad:p}=Ke(),{progress:N,isChallengeCompleted:b,isLevelUnlocked:A,completeLesson:v,completeChallenge:m,getLevelProgress:g}=re(),d=parseInt(t||"4"),u=ae.find(h=>h.id===d)||ae[3],y=A(d),S=g(d),n=st[d]||[],I=De[d]||[],F=I.filter(h=>b(d,h.id)).length,D=h=>Array(5).fill(0).map((R,j)=>e.jsx("span",{className:`star ${j<h?"filled":""}`,children:"★"},j)),f=()=>{v(d,n.length)},T=(h,R)=>{m(d,h,R),l(null)};return y?e.jsxs("div",{className:"level-detail-page",children:[P&&e.jsxs("div",{className:"pyodide-error",children:[e.jsx("span",{className:"error-icon",children:"⚠️"}),e.jsx("span",{children:"Python运行环境加载失败，代码执行功能暂不可用"}),e.jsx("button",{className:"retry-btn",onClick:p,children:"重试"})]}),_&&!P&&e.jsxs("div",{className:"pyodide-loading-banner",children:[e.jsx("div",{className:"loading-spinner-small"}),e.jsx("span",{children:"正在加载Python运行环境..."})]}),e.jsxs("div",{className:"container detail-container",children:[e.jsxs("button",{className:"back-btn",onClick:()=>s("/map"),children:[e.jsx("span",{children:"←"})," 返回地图"]}),e.jsxs("div",{className:"level-header",children:[e.jsxs("div",{className:"level-info",children:[e.jsxs("div",{className:"level-badge",children:[e.jsx("span",{className:"badge-icon",children:"🐍"}),e.jsxs("span",{children:["Python 进阶 · 第 ",u.id," 关"]})]}),e.jsx("h1",{className:"level-title",children:u.title}),e.jsx("p",{className:"level-desc",children:u.description}),e.jsxs("div",{className:"level-meta",children:[e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"📚"}),e.jsxs("span",{children:[n.length," 个学习步骤"]})]}),e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⚡"}),e.jsxs("span",{children:[I.length," 个挑战"]})]}),e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⏱"}),e.jsx("span",{children:u.duration})]}),e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⭐"}),e.jsxs("span",{children:["难度 ",D(u.difficulty)]})]})]}),e.jsxs("div",{className:"level-progress",children:[e.jsxs("div",{className:"progress-info",children:[e.jsx("span",{children:"本关进度"}),e.jsxs("span",{className:"progress-text",children:[S.completed,"/",S.total," 完成 · ",S.percent,"%"]})]}),e.jsx("div",{className:"progress-bar",children:e.jsx("div",{className:"progress-fill",style:{width:`${S.percent}%`}})})]})]}),e.jsxs("div",{className:"level-actions",children:[e.jsx("button",{className:"btn btn-primary btn-lg continue-btn",onClick:()=>a("learn"),children:"▶ 开始学习"}),e.jsxs("div",{className:"xp-display",children:[e.jsx("span",{className:"xp-icon",children:"⭐"}),e.jsxs("span",{className:"xp-value",children:[N.xp," XP"]})]})]})]}),e.jsxs("div",{className:"topics-section",children:[e.jsx("h3",{className:"section-title-sm",children:"📋 本关知识点"}),e.jsx("div",{className:"topics-tags",children:u.topics.map((h,R)=>e.jsx("span",{className:"topic-chip",children:h},R))})]}),e.jsxs("div",{className:"runoob-section",children:[e.jsxs("div",{className:"runoob-header",children:[e.jsxs("h3",{className:"section-title-sm",children:[e.jsx("span",{className:"runoob-logo",children:"📚"}),"Python / 数据科学 · 拓展学习路径"]}),e.jsx("span",{className:"runoob-source",children:"风格借鉴自菜鸟教程"})]}),e.jsx("p",{className:"runoob-intro",children:"完成当前关卡后，可以挑战更多 Python 生态方向。本页展示的扩展主题按难度递进，建议先打通主线关卡再探索。"}),e.jsx("div",{className:"runoob-grid",children:es.map(h=>e.jsxs("div",{className:`runoob-card ${h.unlocked?"unlocked":"locked"} ${h.unlocked&&!h.href?"no-nav":""}`,style:{"--topic-color":Ne[h.category],cursor:!h.href&&h.unlocked?"default":void 0},onClick:()=>{if(h.unlocked)if(h.href){const R=h.href.match(/#\/level\/(\d+)/);R&&s(`/level/${R[1]}`)}else console.info(`Topic "${h.name}" 暂无对应关卡，将作为拓展阅读内容`)},role:h.unlocked&&h.href?"button":void 0,children:[e.jsx("div",{className:"runoob-card-icon",children:e.jsx("span",{className:"runoob-icon-emoji",children:h.icon})}),e.jsxs("div",{className:"runoob-card-body",children:[e.jsxs("div",{className:"runoob-card-header",children:[e.jsxs("h4",{className:"runoob-card-title",children:["【",h.name.replace("学习 ",""),"】"]}),e.jsx("span",{className:"runoob-card-category",style:{background:Ne[h.category]+"22",color:Ne[h.category]},children:ts[h.category]})]}),e.jsx("p",{className:"runoob-card-desc",children:h.description}),e.jsxs("div",{className:"runoob-card-footer",children:[e.jsx("span",{className:"runoob-difficulty",children:Array(5).fill(0).map((R,j)=>e.jsx("span",{className:`runoob-dot ${j<h.difficulty?"filled":""}`,children:"●"},j))}),!h.unlocked&&e.jsx("span",{className:"runoob-lock-badge",children:"🔒 待解锁"}),h.unlocked&&h.href&&e.jsx("span",{className:"runoob-go-badge",children:"进入学习 →"}),h.unlocked&&!h.href&&e.jsx("span",{className:"runoob-read-badge",children:"📚 拓展阅读"})]})]})]},h.id))})]}),e.jsxs("div",{className:"content-tabs",children:[e.jsxs("button",{className:`tab-btn ${r==="learn"?"active":""}`,onClick:()=>{a("learn"),l(null)},children:["📖 互动学习",e.jsx("span",{className:"tab-count",children:n.length})]}),e.jsxs("button",{className:`tab-btn ${r==="challenges"?"active":""}`,onClick:()=>{a("challenges"),l(null)},children:["⚡ 编程挑战",e.jsxs("span",{className:"tab-count",children:[F,"/",I.length]})]}),e.jsx("button",{className:`tab-btn ${r==="notes"?"active":""}`,onClick:()=>{a("notes"),l(null)},children:"📝 学习笔记"})]}),e.jsxs("div",{className:"tab-content",children:[r==="learn"&&e.jsx("div",{className:"learn-tab-content",children:n.length>0?e.jsx(Yt,{title:u.title,steps:n,onComplete:f}):e.jsx("div",{className:"empty-state",children:e.jsx("p",{children:"暂无学习内容"})})}),r==="challenges"&&e.jsx("div",{className:"challenges-tab-content",children:i?e.jsxs("div",{children:[e.jsx("button",{className:"back-to-challenges",onClick:()=>l(null),children:"← 返回挑战列表"}),(()=>{const h=I.find(R=>R.id===i);return h?e.jsx(Zt,{title:h.title,description:h.description,difficulty:h.difficulty,initialCode:h.initialCode,testCode:h.testCode,testCases:h.testCases,xpReward:h.xpReward,onComplete:()=>T(h.id,h.xpReward)}):null})()]}):e.jsxs("div",{className:"challenges-list",children:[e.jsxs("div",{className:"challenges-header",children:[e.jsx("h3",{children:"编程挑战"}),e.jsx("p",{children:"完成以下挑战来巩固所学知识，获得经验值奖励"})]}),e.jsx("div",{className:"challenges-grid",children:I.map((h,R)=>{const j=b(d,h.id);return e.jsxs("div",{className:`challenge-card ${j?"completed":""}`,onClick:()=>l(h.id),children:[e.jsxs("div",{className:"challenge-card-header",children:[e.jsxs("span",{className:"challenge-number",children:["挑战 ",R+1]}),e.jsxs("span",{className:`challenge-diff diff-${h.difficulty}`,children:[h.difficulty==="easy"&&"🟢 简单",h.difficulty==="medium"&&"🟡 中等",h.difficulty==="hard"&&"🔴 困难"]})]}),e.jsx("h4",{className:"challenge-card-title",children:h.title}),e.jsxs("p",{className:"challenge-card-desc",children:[h.description.substring(0,80),"..."]}),e.jsxs("div",{className:"challenge-card-footer",children:[e.jsxs("span",{className:"xp-reward-badge",children:["⭐ +",h.xpReward," XP"]}),j&&e.jsx("span",{className:"completed-check",children:"✓ 已完成"})]})]},h.id)})})]})}),r==="notes"&&e.jsx("div",{className:"notes-content",children:e.jsxs("div",{className:"notes-placeholder",children:[e.jsx("div",{className:"notes-icon",children:"📝"}),e.jsx("h3",{children:"学习笔记"}),e.jsx("p",{children:"记录你的学习心得和重要知识点"}),e.jsx("textarea",{className:"notes-textarea",placeholder:"在这里记录你的笔记...",rows:10}),e.jsx("button",{className:"btn btn-primary",children:"保存笔记"})]})})]})]})]}):e.jsx("div",{className:"level-detail-page",children:e.jsxs("div",{className:"container detail-container",children:[e.jsxs("button",{className:"back-btn",onClick:()=>s("/map"),children:[e.jsx("span",{children:"←"})," 返回地图"]}),e.jsxs("div",{className:"locked-page",children:[e.jsx("div",{className:"lock-icon-big",children:"🔒"}),e.jsx("h2",{children:"关卡未解锁"}),e.jsx("p",{children:"完成前一关的所有课程和挑战后即可解锁此关卡"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>s("/map"),children:"返回地图"})]})]})})}function as(t){const s=Date.now()-new Date(t).getTime(),r=Math.floor(s/6e4);if(r<1)return"刚刚";if(r<60)return`${r}分钟前`;const a=Math.floor(r/60);if(a<24)return`${a}小时前`;const i=Math.floor(a/24);return i<7?`${i}天前`:new Date(t).toLocaleDateString("zh-CN")}function ns(){const t=Te(),{progress:s,stats:r,getLevelProgress:a,getOverallProgress:i,getRecentActivities:l}=re(),_=i(),P=l(20),p=Array.from({length:7}).map((u,y)=>{const S=new Date;return S.setDate(S.getDate()-(6-y)),S.toISOString().slice(0,10)}),N=ae.map(u=>{var I,F;const y=a(u.id),S=((I=st[u.id])==null?void 0:I.length)||0,n=((F=De[u.id])==null?void 0:F.length)||0;return{...u,...y,lessonCount:S,challengeCount:n,total:S+n}}),b=500,A=Math.floor(s.totalXP/b)+1,v=s.totalXP%b,m=Math.round(v/b*100),g=["编程小白","初学者","进阶学徒","熟练开发者","资深工程师","Python 大师","传奇程序员"],d=g[Math.min(A-1,g.length-1)];return e.jsxs("div",{className:"learning-path-page",children:[e.jsxs("div",{className:"path-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"})]}),e.jsxs("div",{className:"container path-container",children:[e.jsx("div",{className:"path-header",children:e.jsxs("div",{className:"header-info",children:[e.jsxs("div",{className:"badge",children:[e.jsx("span",{className:"badge-icon",children:"📈"}),e.jsx("span",{children:"学习路径"})]}),e.jsx("h1",{className:"page-title",children:"我的学习进度"}),e.jsx("p",{className:"page-subtitle",children:"追踪每一次成长，赢取每一个徽章"})]})}),e.jsxs("div",{className:"user-level-card",children:[e.jsxs("div",{className:"user-avatar-lg",children:[e.jsx("span",{children:"LY"}),e.jsx("div",{className:"avatar-ring"})]}),e.jsxs("div",{className:"user-info-block",children:[e.jsxs("div",{className:"user-title-row",children:[e.jsx("h2",{className:"user-name",children:"冒险者 LY"}),e.jsxs("span",{className:"user-level-badge",children:["Lv.",A," ",d]})]}),e.jsxs("div",{className:"level-progress-block",children:[e.jsxs("div",{className:"level-progress-info",children:[e.jsxs("span",{children:[v," / ",b," XP"]}),e.jsxs("span",{children:["距下一级还需 ",b-v," XP"]})]}),e.jsx("div",{className:"level-progress-bar",children:e.jsx("div",{className:"level-progress-fill",style:{width:`${m}%`}})})]}),e.jsxs("div",{className:"user-tags",children:[e.jsx("span",{className:"user-tag",children:"⚡ 速度学习者"}),e.jsx("span",{className:"user-tag",children:"🎯 挑战爱好者"})]})]})]}),e.jsxs("div",{className:"overview-grid",children:[e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(245, 158, 11, 0.15)",color:"#f59e0b"},children:"⭐"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:s.totalXP}),e.jsx("div",{className:"ov-label",children:"累计经验值"}),e.jsxs("div",{className:"ov-hint",children:["+",s.xp," 可用"]})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(239, 68, 68, 0.15)",color:"#ef4444"},children:"🔥"}),e.jsxs("div",{className:"ov-info",children:[e.jsxs("div",{className:"ov-value",children:[s.streak," 天"]}),e.jsx("div",{className:"ov-label",children:"连续学习"}),e.jsx("div",{className:"ov-hint",children:"保持节奏"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(59, 130, 246, 0.15)",color:"#3b82f6"},children:"📚"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:r.completedLessons}),e.jsx("div",{className:"ov-label",children:"完成学习"}),e.jsx("div",{className:"ov-hint",children:"课时统计"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(168, 85, 247, 0.15)",color:"#a855f7"},children:"⚔️"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:r.completedChallenges}),e.jsx("div",{className:"ov-label",children:"完成挑战"}),e.jsx("div",{className:"ov-hint",children:"挑战统计"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(16, 185, 129, 0.15)",color:"#10b981"},children:"🚪"}),e.jsxs("div",{className:"ov-info",children:[e.jsxs("div",{className:"ov-value",children:[r.completedLevels," / ",r.totalLevels]}),e.jsx("div",{className:"ov-label",children:"通关进度"}),e.jsxs("div",{className:"ov-hint",children:[_.percent,"% 完成"]})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(245, 158, 11, 0.15)",color:"#f59e0b"},children:"🏆"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:s.unlockedAchievements.length}),e.jsx("div",{className:"ov-label",children:"解锁成就"}),e.jsx("div",{className:"ov-hint",children:"查看全部 →"})]})]})]}),e.jsxs("div",{className:"path-main",children:[e.jsxs("div",{className:"path-card calendar-card",children:[e.jsx("h3",{className:"card-title",children:"📅 最近 7 天学习"}),e.jsx("div",{className:"calendar-week",children:p.map(u=>{var I;const y=(I=s.studyDays)==null?void 0:I.includes(u),S=u===new Date().toISOString().slice(0,10),n=new Date(u).toLocaleDateString("zh-CN",{weekday:"short"});return e.jsxs("div",{className:`cal-day ${y?"studied":""} ${S?"today":""}`,title:u,children:[e.jsx("div",{className:"cal-day-label",children:n}),e.jsx("div",{className:"cal-day-cell",children:y&&e.jsx("span",{className:"cal-check",children:"✓"})})]},u)})}),e.jsx("div",{className:"calendar-foot",children:e.jsxs("span",{children:["已连续学习 ",e.jsx("strong",{children:s.streak})," 天"]})})]}),e.jsxs("div",{className:"path-card levels-card",children:[e.jsx("h3",{className:"card-title",children:"🗺️ 学习路径"}),e.jsx("div",{className:"levels-progress",children:N.map((u,y)=>{const S=y===N.length-1;return e.jsxs("div",{className:`path-level ${u.completed?"completed":""} ${u.unlocked?"unlocked":"locked"}`,onClick:()=>u.unlocked&&t(`/level/${u.id}`),children:[e.jsx("div",{className:"pl-node",children:u.completed?e.jsx("span",{children:"✓"}):e.jsx("span",{children:u.id})}),e.jsxs("div",{className:"pl-content",children:[e.jsx("div",{className:"pl-title",children:u.subtitle}),e.jsxs("div",{className:"pl-meta",children:[e.jsxs("span",{children:[u.completed,"/",u.total]}),e.jsxs("span",{children:[u.percent,"%"]})]}),e.jsx("div",{className:"pl-bar",children:e.jsx("div",{className:"pl-fill",style:{width:`${u.percent}%`}})})]}),!S&&e.jsx("div",{className:`pl-line ${u.completed?"completed":""}`})]},u.id)})})]}),e.jsxs("div",{className:"path-card activity-card",children:[e.jsx("h3",{className:"card-title",children:"🕐 最近活动"}),P.length>0?e.jsx("div",{className:"activity-list",children:P.map(u=>e.jsxs("div",{className:"activity-item",children:[e.jsx("div",{className:"act-icon",children:u.icon}),e.jsxs("div",{className:"act-body",children:[e.jsx("div",{className:"act-title",children:u.title}),e.jsx("div",{className:"act-desc",children:u.description})]}),e.jsxs("div",{className:"act-meta",children:[u.xp&&e.jsxs("span",{className:"act-xp",children:["+",u.xp," XP"]}),e.jsx("span",{className:"act-time",children:as(u.timestamp)})]})]},u.id))}):e.jsx("div",{className:"empty-state",children:e.jsx("p",{children:"还没有活动记录，开始学习吧 🚀"})})]})]})]})]})}function is(){var m,g;const{progress:t,stats:s,isAchievementUnlocked:r,isAchievementClaimed:a,claimAchievement:i}=re(),[l,_]=o.useState("all"),P=t.unlockedAchievements.length,p=Y.length,N=Math.round(P/p*100),b=o.useMemo(()=>l==="all"?Y:Y.filter(d=>d.category===l),[l]),A=Y.filter(d=>r(d.id)),v=Y.filter(d=>!r(d.id));return e.jsxs("div",{className:"achievements-page",children:[e.jsxs("div",{className:"achievements-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"}),e.jsx("div",{className:"deco-circle deco-3"})]}),e.jsxs("div",{className:"container achievements-container",children:[e.jsxs("div",{className:"achievements-header",children:[e.jsxs("div",{className:"header-info",children:[e.jsxs("div",{className:"badge",children:[e.jsx("span",{className:"badge-icon",children:"🏆"}),e.jsx("span",{children:"成就系统"})]}),e.jsx("h1",{className:"page-title",children:"成就殿堂"}),e.jsx("p",{className:"page-subtitle",children:"解锁成就，赢得荣耀徽章，赢取经验值奖励"})]}),e.jsxs("div",{className:"header-stats",children:[e.jsxs("div",{className:"h-stat-card",children:[e.jsx("div",{className:"h-stat-icon",children:"🎖️"}),e.jsxs("div",{className:"h-stat-info",children:[e.jsxs("div",{className:"h-stat-value",children:[P," / ",p]}),e.jsx("div",{className:"h-stat-label",children:"已解锁成就"})]})]}),e.jsxs("div",{className:"h-stat-card",children:[e.jsx("div",{className:"h-stat-icon",children:"⭐"}),e.jsxs("div",{className:"h-stat-info",children:[e.jsx("div",{className:"h-stat-value",children:t.totalXP}),e.jsx("div",{className:"h-stat-label",children:"累计 XP"})]})]}),e.jsxs("div",{className:"h-stat-card",children:[e.jsx("div",{className:"h-stat-icon",children:"🔥"}),e.jsxs("div",{className:"h-stat-info",children:[e.jsxs("div",{className:"h-stat-value",children:[t.streak," 天"]}),e.jsx("div",{className:"h-stat-label",children:"连续学习"})]})]})]})]}),e.jsxs("div",{className:"overall-progress-card",children:[e.jsxs("div",{className:"overall-info",children:[e.jsx("span",{className:"overall-label",children:"成就解锁进度"}),e.jsxs("span",{className:"overall-percent",children:[N,"%"]})]}),e.jsx("div",{className:"overall-bar",children:e.jsx("div",{className:"overall-fill",style:{width:`${N}%`}})})]}),e.jsx("div",{className:"category-tabs",children:ye.map(d=>e.jsxs("button",{className:`cat-tab ${l===d.id?"active":""}`,onClick:()=>_(d.id),children:[e.jsx("span",{className:"cat-icon",children:d.icon}),e.jsx("span",{children:d.label})]},d.id))}),A.length>0&&l==="all"&&e.jsxs("div",{className:"achievements-section",children:[e.jsxs("h2",{className:"section-title",children:["✨ 已解锁 (",A.length,")"]}),e.jsx("div",{className:"achievements-grid",children:A.map(d=>{const u=a(d.id),y=qe[d.rarity],S=d.progress?d.progress(s):null;return e.jsxs("div",{className:`achievement-card unlocked rarity-${d.rarity} ${u?"claimed":""}`,style:{borderColor:y.color,background:y.bg},children:[e.jsx("div",{className:"ach-glow",style:{background:y.color}}),e.jsx("div",{className:"ach-icon",style:{color:y.color},children:d.icon}),e.jsxs("div",{className:"ach-content",children:[e.jsxs("div",{className:"ach-header",children:[e.jsx("h3",{className:"ach-title",children:d.title}),e.jsx("span",{className:"ach-rarity",style:{background:y.color},children:y.label})]}),e.jsx("p",{className:"ach-desc",children:d.description}),S&&S.total>1&&e.jsxs("div",{className:"ach-progress",children:[e.jsx("div",{className:"ach-progress-bar",children:e.jsx("div",{className:"ach-progress-fill",style:{width:`${S.current/S.total*100}%`,background:y.color}})}),e.jsxs("span",{className:"ach-progress-text",children:[S.current," / ",S.total]})]}),e.jsxs("div",{className:"ach-footer",children:[e.jsxs("span",{className:"ach-xp",children:["+",d.xpReward," XP"]}),u?e.jsx("span",{className:"ach-claimed",children:"✓ 已领取"}):e.jsx("button",{className:"ach-claim-btn",style:{background:y.color},onClick:()=>i(d.id),children:"领取奖励"})]})]})]},d.id)})})]}),e.jsxs("div",{className:"achievements-section",children:[e.jsx("h2",{className:"section-title",children:l==="all"?"🔒 待解锁":`${(m=ye.find(d=>d.id===l))==null?void 0:m.icon} ${(g=ye.find(d=>d.id===l))==null?void 0:g.label}类成就`}),e.jsx("div",{className:"achievements-grid",children:(l==="all"?v:b).map(d=>{const u=qe[d.rarity],y=d.progress?d.progress(s):null;return e.jsxs("div",{className:`achievement-card locked rarity-${d.rarity}`,style:{borderColor:u.color,background:u.bg},children:[e.jsx("div",{className:"ach-icon",style:{color:u.color,filter:"grayscale(50%) opacity(0.6)"},children:d.icon}),e.jsxs("div",{className:"ach-content",children:[e.jsxs("div",{className:"ach-header",children:[e.jsx("h3",{className:"ach-title",children:d.title}),e.jsx("span",{className:"ach-rarity",style:{background:u.color},children:u.label})]}),e.jsx("p",{className:"ach-desc",children:d.description}),y&&e.jsxs("div",{className:"ach-progress",children:[e.jsx("div",{className:"ach-progress-bar",children:e.jsx("div",{className:"ach-progress-fill",style:{width:`${y.current/y.total*100}%`,background:u.color}})}),e.jsxs("span",{className:"ach-progress-text",children:[y.current," / ",y.total]})]}),e.jsxs("div",{className:"ach-footer",children:[e.jsxs("span",{className:"ach-xp",children:["+",d.xpReward," XP"]}),e.jsx("span",{className:"ach-locked-label",children:"🔒 未解锁"})]})]})]},d.id)})}),b.length===0&&e.jsx("div",{className:"empty-state",children:e.jsx("p",{children:"该分类暂无成就"})})]})]})]})}function rs(){const{progress:t,stats:s}=re(),[r,a]=o.useState("xp"),[i,l]=o.useState("all"),_={rank:0,name:"我 (LY)",avatar:"LY",xp:t.totalXP,streak:t.streak,levels:s.completedLevels,color:"#10b981",isMe:!0},P=o.useMemo(()=>{const g=[...Bt];return g.sort((d,u)=>u[r]-d[r]),g},[r]),p=P.findIndex(g=>g[r]>t.totalXP)+1;_.rank=p>0?p:P.length+1;const N=o.useMemo(()=>[...P,_].sort((d,u)=>u[r]-d[r]).map((d,u)=>({...d,rank:u+1})),[P,r,t.totalXP]),b=N.slice(0,3),A=N.slice(3),v=N.find(g=>g.isMe),m={xp:"经验值 XP",streak:"连续天数",levels:"通关数"};return e.jsxs("div",{className:"leaderboard-page",children:[e.jsxs("div",{className:"lb-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"})]}),e.jsxs("div",{className:"container lb-container",children:[e.jsxs("div",{className:"lb-header",children:[e.jsxs("div",{className:"badge",children:[e.jsx("span",{className:"badge-icon",children:"🏅"}),e.jsx("span",{children:"排行榜"})]}),e.jsx("h1",{className:"page-title",children:"学习风云榜"}),e.jsx("p",{className:"page-subtitle",children:"看看你在 Python Quest 社区中的位置"})]}),e.jsxs("div",{className:"lb-stats-row",children:[e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"我的排名"}),e.jsxs("span",{className:"lb-stat-value",children:["#",v.rank]})]}),e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"我的经验"}),e.jsx("span",{className:"lb-stat-value",children:t.totalXP})]}),e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"我的连续"}),e.jsxs("span",{className:"lb-stat-value",children:[t.streak," 天"]})]}),e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"通关数"}),e.jsx("span",{className:"lb-stat-value",children:s.completedLevels})]})]}),e.jsxs("div",{className:"lb-filters",children:[e.jsxs("div",{className:"filter-group",children:[e.jsx("span",{className:"filter-label",children:"时间:"}),[{v:"all",l:"总榜"},{v:"month",l:"本月"},{v:"week",l:"本周"}].map(g=>e.jsx("button",{className:`filter-btn ${i===g.v?"active":""}`,onClick:()=>l(g.v),children:g.l},g.v))]}),e.jsxs("div",{className:"filter-group",children:[e.jsx("span",{className:"filter-label",children:"排序:"}),Object.keys(m).map(g=>e.jsx("button",{className:`filter-btn ${r===g?"active":""}`,onClick:()=>a(g),children:m[g]},g))]})]}),e.jsx("div",{className:"podium",children:b.map((g,d)=>{const y=[1,0,2].indexOf(d),S=[180,220,150][y],n=["#fbbf24","#94a3b8","#f97316"];return e.jsxs("div",{className:`podium-item rank-${g.rank}`,style:{order:y+1},children:[e.jsxs("div",{className:"podium-avatar",style:{background:g.color},children:[e.jsx("span",{children:g.avatar}),g.isMe&&e.jsx("span",{className:"me-flag",children:"我"})]}),e.jsx("div",{className:"podium-name",children:g.name}),e.jsxs("div",{className:"podium-stats",children:[e.jsxs("span",{children:["⭐ ",g.xp]}),e.jsxs("span",{children:["🔥 ",g.streak]})]}),e.jsxs("div",{className:"podium-rank",style:{background:n[d]},children:[e.jsx("span",{className:"rank-medal",children:g.rank===1?"🥇":g.rank===2?"🥈":"🥉"}),e.jsxs("span",{children:["#",g.rank]})]}),e.jsx("div",{className:"podium-stand",style:{height:`${S}px`,background:n[d]},children:e.jsx("span",{className:"stand-text",children:g.rank===1?"冠军":g.rank===2?"亚军":"季军"})})]},g.rank)})}),e.jsxs("div",{className:"lb-list",children:[e.jsxs("div",{className:"lb-list-header",children:[e.jsx("span",{children:"排名"}),e.jsx("span",{children:"玩家"}),e.jsx("span",{children:"经验"}),e.jsx("span",{children:"连续"}),e.jsx("span",{children:"通关"})]}),A.map(g=>e.jsxs("div",{className:`lb-list-row ${g.isMe?"is-me":""}`,children:[e.jsxs("span",{className:"lb-rank",children:["#",g.rank]}),e.jsxs("div",{className:"lb-player",children:[e.jsx("div",{className:"lb-avatar",style:{background:g.color},children:e.jsx("span",{children:g.avatar})}),e.jsx("span",{className:"lb-name",children:g.name})]}),e.jsxs("span",{className:"lb-xp",children:["⭐ ",g.xp]}),e.jsxs("span",{className:"lb-streak",children:["🔥 ",g.streak]}),e.jsxs("span",{className:"lb-levels",children:["🚪 ",g.levels]})]},g.rank)),v.rank>3&&e.jsxs(e.Fragment,{children:[e.jsx("div",{className:"lb-divider",children:"... 你的位置 ..."}),e.jsxs("div",{className:"lb-list-row is-me",children:[e.jsxs("span",{className:"lb-rank",children:["#",v.rank]}),e.jsxs("div",{className:"lb-player",children:[e.jsx("div",{className:"lb-avatar",style:{background:v.color},children:e.jsx("span",{children:v.avatar})}),e.jsx("span",{className:"lb-name",children:v.name})]}),e.jsxs("span",{className:"lb-xp",children:["⭐ ",v.xp]}),e.jsxs("span",{className:"lb-streak",children:["🔥 ",v.streak]}),e.jsxs("span",{className:"lb-levels",children:["🚪 ",v.levels]})]})]})]})]})]})}const os="v1.2",ls="2026-07-29",ps=["扩展至44关：新增输入输出、迭代器生成器、JSON/XML、数据库、多线程、异步编程、单元测试、性能优化","重构拓展卡片体系：6大分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战）","对齐菜鸟教程完整章节结构，补充所有核心主题","无敌模式覆盖全部44关","版本化存储 key 自动升级，旧版本数据冻结保留"],ds=[{name:"React 18",icon:"⚛️",desc:"UI 框架，使用 Hooks + Context API"},{name:"TypeScript 5",icon:"📘",desc:"类型安全，所有组件均使用 TSX"},{name:"Vite 5",icon:"⚡",desc:"构建工具，支持代码分割和 HMR"},{name:"React Router 6",icon:"🧭",desc:"HashRouter 路由，适配 GitHub Pages"},{name:"Pyodide 0.26",icon:"🐍",desc:"浏览器中运行 Python，WASM 技术"},{name:"GitHub API",icon:"🐙",desc:"PAT 认证 + Gist 存储云同步"},{name:"localStorage",icon:"💾",desc:"本地进度持久化，防抖写入"},{name:"CSS Variables",icon:"🎨",desc:"主题色系统，无 UI 库依赖"}],cs=[{name:"src",type:"folder",path:"src",desc:"源码根目录",children:[{name:"components",type:"folder",path:"src/components",desc:"可复用组件",children:[{name:"Navbar",type:"file",path:"src/components/Navbar",desc:"顶部导航栏（Logo + 菜单 + 登录状态 + 同步指示器）"},{name:"Footer",type:"file",path:"src/components/Footer",desc:"底部信息栏"},{name:"CodeEditor",type:"file",path:"src/components/CodeEditor",desc:"代码编辑器（textarea + 语法高亮 + Pyodide 执行）"},{name:"InteractiveLesson",type:"file",path:"src/components/InteractiveLesson",desc:"交互式课程（4种步骤类型 + 答案展示 + 进度条）"},{name:"ChallengeArena",type:"file",path:"src/components/ChallengeArena",desc:"挑战竞技场（代码提交 + 测试验证）"},{name:"LoginModal",type:"file",path:"src/components/LoginModal",desc:"GitHub PAT 登录弹窗（含 Token 获取指南）"},{name:"VersionHistory",type:"file",path:"src/components/VersionHistory",desc:"版本历史查看（只读快照 + 关卡进度）"},{name:"Button",type:"file",path:"src/components/Button",desc:"通用按钮组件"}]},{name:"config",type:"folder",path:"src/config",desc:"配置模块",children:[{name:"github.ts",type:"file",path:"src/config/github.ts",desc:"GitHub API 集成（PAT认证 + Gist读写 + 超时重试）"},{name:"versionManager.ts",type:"file",path:"src/config/versionManager.ts",desc:"版本管理系统（注册表 + 数据冻结 + 快照）"}]},{name:"context",type:"folder",path:"src/context",desc:"React Context 全局状态",children:[{name:"AuthContext.tsx",type:"file",path:"src/context/AuthContext.tsx",desc:"认证状态（登录/登出 + Token 校验）"},{name:"ProgressContext.tsx",type:"file",path:"src/context/ProgressContext.tsx",desc:"进度状态（关卡/课程/挑战/成就 + 本地存储 + 云同步）"},{name:"PyodideContext.tsx",type:"file",path:"src/context/PyodideContext.tsx",desc:"Pyodide 环境（WASM 加载 + Python 执行）"}]},{name:"data",type:"folder",path:"src/data",desc:"静态数据",children:[{name:"mockData.ts",type:"file",path:"src/data/mockData.ts",desc:"44关卡元数据（标题/难度/图标/分类/主题）"},{name:"lessonContent.ts",type:"file",path:"src/data/lessonContent.ts",desc:"课程内容（8000+行，44关×6步，含讲解/示例/练习/测验）"},{name:"achievements.ts",type:"file",path:"src/data/achievements.ts",desc:"成就系统定义（XP/徽章/解锁条件）"},{name:"runoobTopics.ts",type:"file",path:"src/data/runoobTopics.ts",desc:"菜鸟教程拓展学习路径"},{name:"projectDocs.ts",type:"file",path:"src/data/projectDocs.ts",desc:"项目文档数据（本文件）"}]},{name:"pages",type:"folder",path:"src/pages",desc:"页面组件",children:[{name:"Home",type:"file",path:"src/pages/Home",desc:"首页（Hero + 功能介绍 + 版本入口）"},{name:"LevelMap",type:"file",path:"src/pages/LevelMap",desc:"关卡地图（34关蛇形布局 + 进度条）"},{name:"LevelDetail",type:"file",path:"src/pages/LevelDetail",desc:"关卡详情（课程 + 挑战 + 拓展阅读）"},{name:"Achievements",type:"file",path:"src/pages/Achievements",desc:"成就页面"},{name:"Leaderboard",type:"file",path:"src/pages/Leaderboard",desc:"排行榜页面"},{name:"LearningPath",type:"file",path:"src/pages/LearningPath",desc:"学习路径页面"},{name:"SourceExplorer",type:"file",path:"src/pages/SourceExplorer",desc:"源码探索页面（本页面）"}]},{name:"App.tsx",type:"file",path:"src/App.tsx",desc:"根组件（路由表 + Navbar + Footer）"},{name:"main.tsx",type:"file",path:"src/main.tsx",desc:"入口文件（Provider 嵌套 + HashRouter）"},{name:"types/index.ts",type:"file",path:"src/types/index.ts",desc:"类型定义（Level/Lesson/Challenge）"}]},{name:"config files",type:"folder",path:".",desc:"配置文件",children:[{name:"vite.config.ts",type:"file",path:"vite.config.ts",desc:"Vite 配置（base路径 + 代码分割 + 端口）"},{name:"package.json",type:"file",path:"package.json",desc:"依赖管理（4运行时 + 5开发依赖）"},{name:"tsconfig.json",type:"file",path:"tsconfig.json",desc:"TypeScript 编译配置"},{name:".github/workflows/deploy.yml",type:"file",path:".github/workflows/deploy.yml",desc:"GitHub Actions 自动部署到 Pages"}]}],us=[{icon:"🎮",title:"游戏化关卡系统",desc:"44个关卡覆盖Python基础到性能优化，蛇形地图布局，6大主题分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战），支持关卡解锁/完成状态/进度百分比显示",files:["src/data/mockData.ts","src/pages/LevelMap/LevelMap.tsx","src/context/ProgressContext.tsx"]},{icon:"🐍",title:"浏览器内 Python 执行",desc:"基于 Pyodide (WebAssembly) 在浏览器中直接运行 Python 代码，无需后端服务器",files:["src/context/PyodideContext.tsx","src/components/CodeEditor/CodeEditor.tsx"]},{icon:"📚",title:"交互式课程",desc:"4种步骤类型（讲解/示例/练习/测验），支持查看答案、复制代码、步骤跳转",files:["src/components/InteractiveLesson/InteractiveLesson.tsx","src/data/lessonContent.ts"]},{icon:"🔐",title:"GitHub PAT 认证",desc:"使用 GitHub Personal Access Token 登录，无需 Firebase，适配国内网络",files:["src/config/github.ts","src/context/AuthContext.tsx","src/components/LoginModal/LoginModal.tsx"]},{icon:"☁️",title:"Gist 云端同步",desc:"进度数据存储在 GitHub Gist 中，支持超时重试（15s + 指数退避）和网络错误降级",files:["src/config/github.ts","src/context/ProgressContext.tsx"]},{icon:"💾",title:"版本化进度管理",desc:"每次迭代版本独立存储，旧版本数据冻结保留，可查看历史进度快照",files:["src/config/versionManager.ts","src/components/VersionHistory/VersionHistory.tsx"]},{icon:"🏆",title:"成就系统",desc:"XP经验值、徽章解锁、活动日志，激励用户持续学习",files:["src/data/achievements.ts","src/context/ProgressContext.tsx","src/pages/Achievements/Achievements.tsx"]},{icon:"📱",title:"响应式设计",desc:"CSS 变量主题系统，移动端适配，无第三方 UI 库依赖",files:["src/index.css","src/App.css","各组件CSS文件"]}],ms=[{icon:"🏛️",title:"Provider 三层嵌套架构",desc:"AuthProvider → ProgressProvider → PyodideProvider，由外到内依次初始化。Auth最外层因为Progress依赖用户身份进行云同步，Pyodide最内层因为只在代码执行时才需要。",code:`<AuthProvider>
+`,testCases:[{name:"基础测试",input:"无",expected:"ODE 求解"}],xpReward:50}]},ze={basic:{label:"Python 基础",icon:"🐍",color:"#10b981",desc:"语法、变量、循环、函数、数据结构入门"},advanced:{label:"Python 进阶",icon:"🚀",color:"#f97316",desc:"OOP、装饰器、异常、标准库、综合实战"},network:{label:"网络与爬虫",icon:"🌐",color:"#3b82f6",desc:"Requests、正则表达式、Scrapy 爬虫框架"},"data-science":{label:"数据科学",icon:"📊",color:"#8b5cf6",desc:"NumPy、Pandas、Matplotlib、SciPy"},web:{label:"Web 开发",icon:"⚡",color:"#06b6d4",desc:"Flask、FastAPI、Django 全栈框架"},tools:{label:"工具与可视化",icon:"🛠️",color:"#f59e0b",desc:"Dash 仪表盘、Jupyter、Pillow 图像"},finance:{label:"金融与其他语言",icon:"💹",color:"#ef4444",desc:"量化交易、R 语言、Julia 科学计算"},system:{label:"系统编程",icon:"⚙️",color:"#6366f1",desc:"IO、迭代器、JSON、数据库、并发、测试、性能"}},Ue=["basic","advanced","network","data-science","web","tools","finance","system"];function Kt(){const t=Te(),[s,r]=o.useState("basic"),{progress:a,isLevelUnlocked:i,isLevelCompleted:l,isChallengeCompleted:_,getLevelProgress:P,godMode:p,toggleGodMode:N}=re(),b=o.useMemo(()=>ae.map(f=>{const T=i(f.id),h=l(f.id),I=P(f.id);let j="locked";return h?j="completed":T&&(j="current"),{...f,status:j,levelProgress:I}}),[i,l,P]),A=o.useMemo(()=>b.filter(f=>f.category===s),[b,s]),v=b.filter(f=>f.status==="completed").length,m=Math.round(v/ae.length*100),g=A.filter(f=>f.status==="completed").length,d=A.length>0?Math.round(g/A.length*100):0,u=f=>Array(5).fill(0).map((T,h)=>e.jsx("span",{className:`star ${h<f?"filled":""}`,children:"★"},h)),y=b.find(f=>f.status==="current")||b.find(f=>f.status!=="locked")||b[0],S=(y==null?void 0:y.id)||4,n=Oe[S]||[],E=ke.filter(f=>f.completed).length,L=f=>{f.status!=="locked"&&t(`/level/${f.id}`)},O=ze[s];return e.jsxs("div",{className:"level-map-page",children:[e.jsxs("div",{className:"map-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"}),e.jsx("div",{className:"deco-code",children:"</>"}),e.jsx("div",{className:"deco-code deco-code-2",children:"{ }"})]}),e.jsxs("div",{className:"container map-container",children:[e.jsxs("div",{className:"map-header",children:[e.jsxs("div",{className:"path-info",children:[e.jsxs("div",{className:"path-badge",children:[e.jsx("span",{className:"path-icon",children:"🐍"}),e.jsx("span",{children:"Python 全景地图"})]}),e.jsx("h1",{className:"map-title",children:"冒险地图"}),e.jsxs("p",{className:"map-subtitle",children:[v," / ",ae.length," 关已完成 · ",Ue.length," 个主题地图"]})]}),e.jsxs("div",{className:"map-controls",children:[e.jsxs("div",{className:"progress-bar-section",children:[e.jsxs("div",{className:"progress-info",children:[e.jsx("span",{className:"progress-label",children:"总进度"}),e.jsxs("span",{className:"progress-percent",children:[m,"%"]})]}),e.jsx("div",{className:"progress-bar",children:e.jsx("div",{className:"progress-fill",style:{width:`${m}%`}})})]}),e.jsxs("button",{className:`god-mode-btn ${p?"active":""}`,onClick:N,title:p?"无敌模式已开启：所有关卡解锁":"点击开启无敌模式：解锁所有关卡",children:[e.jsx("span",{className:"god-mode-icon",children:p?"⚡":"🔒"}),e.jsx("span",{className:"god-mode-text",children:p?"无敌模式":"按进度解锁"}),e.jsx("span",{className:"god-mode-toggle",children:e.jsx("span",{className:`toggle-slider ${p?"on":""}`})})]})]})]}),e.jsx("div",{className:"category-tabs",children:Ue.map(f=>{const T=ze[f],h=b.filter(B=>B.category===f),I=h.filter(B=>B.status==="completed").length,j=f===s;return e.jsxs("button",{className:`category-tab ${j?"active":""}`,style:{"--cat-color":T.color,borderColor:j?T.color:void 0},onClick:()=>r(f),children:[e.jsx("span",{className:"cat-icon",children:T.icon}),e.jsx("span",{className:"cat-label",children:T.label}),e.jsxs("span",{className:"cat-count",style:{background:T.color+"22",color:T.color},children:[I,"/",h.length]})]},f)})}),e.jsxs("div",{className:"category-info-bar",style:{borderColor:O.color+"44"},children:[e.jsxs("div",{className:"cat-info-left",children:[e.jsx("span",{className:"cat-info-icon",style:{background:O.color+"22"},children:O.icon}),e.jsxs("div",{children:[e.jsx("h2",{className:"cat-info-title",style:{color:O.color},children:O.label}),e.jsx("p",{className:"cat-info-desc",children:O.desc})]})]}),e.jsxs("div",{className:"cat-info-right",children:[e.jsxs("div",{className:"cat-progress-mini",children:[e.jsx("span",{className:"cat-progress-label",children:"本分类进度"}),e.jsxs("span",{className:"cat-progress-num",style:{color:O.color},children:[d,"%"]})]}),e.jsx("div",{className:"cat-progress-bar",children:e.jsx("div",{className:"cat-progress-fill",style:{width:`${d}%`,background:O.color}})})]})]}),e.jsx("div",{className:"level-map-wrapper",children:e.jsxs("div",{className:"level-map",children:[e.jsx("div",{className:"map-line",style:{"--line-color":O.color}}),A.map((f,T)=>e.jsxs("div",{className:`map-node node-${f.side} status-${f.status}`,style:{animationDelay:`${T*.08}s`},onClick:()=>L(f),children:[e.jsxs("div",{className:"node-dot",children:[f.status==="completed"&&e.jsx("span",{className:"dot-check",children:"✓"}),f.status==="current"&&e.jsx("div",{className:"dot-pulse"}),f.status==="locked"&&e.jsx("span",{className:"dot-lock",children:"🔒"})]}),e.jsx("div",{className:"node-card",children:f.status!=="locked"?e.jsxs(e.Fragment,{children:[e.jsxs("div",{className:"card-header",children:[e.jsx("span",{className:"level-number",children:f.title}),e.jsx("div",{className:"level-stars",children:u(f.difficulty)})]}),e.jsx("h3",{className:"card-title",children:f.subtitle}),e.jsx("p",{className:"card-desc",children:f.description}),e.jsxs("div",{className:"card-meta",children:[e.jsxs("span",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"📚"}),f.lessons," 节课"]}),e.jsxs("span",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⚡"}),f.challenges," 个挑战"]}),e.jsxs("span",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⏱"}),f.duration]})]}),e.jsx("div",{className:"card-topics",children:f.topics.map((h,I)=>e.jsx("span",{className:"topic-tag",children:h},I))}),f.status==="current"&&e.jsxs(e.Fragment,{children:[e.jsxs("div",{className:"current-badge",children:[e.jsx("span",{className:"pulse-dot"}),"进行中"]}),f.levelProgress.total>0&&e.jsxs("div",{className:"level-progress-mini",children:[e.jsx("div",{className:"level-progress-bar",children:e.jsx("div",{className:"level-progress-fill",style:{width:`${f.levelProgress.percent}%`}})}),e.jsxs("span",{className:"level-progress-text",children:[f.levelProgress.completed,"/",f.levelProgress.total]})]})]}),f.status==="completed"&&e.jsx("div",{className:"completed-badge-card",children:"✓ 已完成"})]}):e.jsxs("div",{className:"locked-content",children:[e.jsx("div",{className:"lock-icon",children:"🔒"}),e.jsx("h3",{className:"lock-title",children:"未解锁"}),e.jsx("p",{className:"lock-desc",children:f.title})]})})]},f.id))]})}),y&&e.jsxs("div",{className:"current-level-detail",children:[e.jsxs("div",{className:"detail-header",children:[e.jsxs("div",{children:[e.jsx("h2",{children:y.title}),e.jsx("p",{className:"detail-subtitle",children:y.subtitle})]}),e.jsx(H,{to:`/level/${y.id}`,className:"btn btn-primary",children:"进入学习 →"})]}),e.jsxs("div",{className:"lessons-list",children:[e.jsx("h3",{className:"list-title",children:"📖 课程列表"}),ke.map((f,T)=>e.jsxs("div",{className:`lesson-item ${f.completed?"completed":""}`,onClick:()=>t(`/level/${y.id}`),children:[e.jsx("div",{className:"lesson-index",children:String(T+1).padStart(2,"0")}),e.jsxs("div",{className:"lesson-icon",children:[f.type==="video"&&"🎬",f.type==="reading"&&"📖",f.type==="interactive"&&"💻"]}),e.jsxs("div",{className:"lesson-info",children:[e.jsx("h4",{className:"lesson-title",children:f.title}),e.jsx("span",{className:"lesson-duration",children:f.duration})]}),e.jsx("div",{className:"lesson-status",children:f.completed?e.jsx("span",{className:"status-completed",children:"✓ 已完成"}):e.jsx("span",{className:"status-current",children:"继续学习"})})]},f.id))]}),e.jsxs("div",{className:"challenges-section",children:[e.jsx("h3",{className:"list-title",children:"⚡ 编程挑战"}),e.jsx("div",{className:"challenges-grid",children:n.length>0?n.map(f=>{const T=_(S,f.id);return e.jsxs("div",{className:`challenge-card ${T?"completed":""}`,onClick:()=>t(`/level/${y.id}`),children:[e.jsxs("div",{className:"challenge-header",children:[e.jsxs("span",{className:`challenge-difficulty difficulty-${f.difficulty}`,children:[f.difficulty==="easy"&&"简单",f.difficulty==="medium"&&"中等",f.difficulty==="hard"&&"困难"]}),T&&e.jsx("span",{className:"challenge-check",children:"✓"})]}),e.jsx("h4",{className:"challenge-title",children:f.title})]},f.id)}):$t.map(f=>e.jsxs("div",{className:`challenge-card ${f.completed?"completed":""}`,onClick:()=>t(`/level/${y.id}`),children:[e.jsxs("div",{className:"challenge-header",children:[e.jsxs("span",{className:`challenge-difficulty difficulty-${f.difficulty}`,children:[f.difficulty==="easy"&&"简单",f.difficulty==="medium"&&"中等",f.difficulty==="hard"&&"困难"]}),f.completed&&e.jsx("span",{className:"challenge-check",children:"✓"})]}),e.jsx("h4",{className:"challenge-title",children:f.title})]},f.id))})]}),e.jsxs("div",{className:"stats-row",children:[e.jsxs("div",{className:"stat-card",children:[e.jsx("div",{className:"stat-icon",children:"📚"}),e.jsxs("div",{className:"stat-content",children:[e.jsxs("span",{className:"stat-big",children:[E,"/",ke.length]}),e.jsx("span",{className:"stat-small",children:"已完成课时"})]})]}),e.jsxs("div",{className:"stat-card",children:[e.jsx("div",{className:"stat-icon",children:"⭐"}),e.jsxs("div",{className:"stat-content",children:[e.jsxs("span",{className:"stat-big",children:[a.xp,"/",a.totalXP]}),e.jsx("span",{className:"stat-small",children:"经验值 XP"})]})]}),e.jsxs("div",{className:"stat-card",children:[e.jsx("div",{className:"stat-icon",children:"⏱"}),e.jsxs("div",{className:"stat-content",children:[e.jsxs("span",{className:"stat-big",children:[">","30 分钟"]}),e.jsx("span",{className:"stat-small",children:"预计学习时间"})]})]})]})]})]})]})}function Ae({initialCode:t="",onRun:s,readOnly:r=!1,height:a="300px",showOutput:i=!0,testCode:l,onTestResult:_,placeholder:P="# 在这里编写你的 Python 代码"}){const[p,N]=o.useState(t),[b,A]=o.useState(""),[v,m]=o.useState(null),[g,d]=o.useState(!1),[u,y]=o.useState([]),S=o.useRef(null),{isLoading:n,runCode:E,runCodeWithTests:L}=Ke();o.useEffect(()=>{N(t)},[t]);const O=async()=>{if(!(n||g)){d(!0),A(""),m(null),y([]);try{if(l){const j=await L(p,l);A(j.output),m(j.error),y(j.testResults),_==null||_(j.passed,j.testResults),s==null||s(j.output,j.error)}else{const j=await E(p);A(j.output),m(j.error),s==null||s(j.output,j.error)}}catch(j){m(j instanceof Error?j.message:"执行出错")}finally{d(!1)}}},f=j=>{if(j.key==="Tab"){j.preventDefault();const B=j.target,z=B.selectionStart,oe=B.selectionEnd,Z=p.substring(0,z)+"    "+p.substring(oe);N(Z),setTimeout(()=>{B.selectionStart=B.selectionEnd=z+4},0)}(j.ctrlKey||j.metaKey)&&j.key==="Enter"&&(j.preventDefault(),O())},T=()=>{navigator.clipboard.writeText(p)},h=()=>{N(t),A(""),m(null),y([])},I=()=>{const j=p.split(`
+`).length;return Array(j).fill(0).map((B,z)=>e.jsx("div",{className:"line-number",children:z+1},z))};return e.jsxs("div",{className:"code-editor-container",children:[e.jsxs("div",{className:"editor-header",children:[e.jsx("div",{className:"editor-tabs",children:e.jsx("span",{className:"tab active",children:"main.py"})}),e.jsxs("div",{className:"editor-actions",children:[e.jsx("button",{className:"action-btn",onClick:T,title:"复制代码",children:"📋"}),e.jsx("button",{className:"action-btn",onClick:h,title:"重置代码",children:"🔄"}),e.jsx("button",{className:`run-btn ${g?"running":""}`,onClick:O,disabled:n||g||r,children:n?e.jsx(e.Fragment,{children:"⏳ 加载中..."}):g?e.jsx(e.Fragment,{children:"⏳ 运行中..."}):e.jsx(e.Fragment,{children:"▶ 运行代码"})})]})]}),e.jsxs("div",{className:"editor-body",style:{height:a},children:[e.jsx("div",{className:"line-numbers",children:I()}),e.jsx("textarea",{ref:S,className:"code-textarea",value:p,onChange:j=>N(j.target.value),onKeyDown:f,readOnly:r,placeholder:P,spellCheck:!1})]}),i&&e.jsxs("div",{className:"output-section",children:[e.jsxs("div",{className:"output-header",children:[e.jsx("span",{className:"output-title",children:"📤 输出结果"}),u.length>0&&e.jsxs("span",{className:`test-summary ${u.every(j=>j.passed)?"all-passed":"has-failed"}`,children:[u.filter(j=>j.passed).length,"/",u.length," 测试通过"]})]}),e.jsx("div",{className:`output-content ${v?"has-error":""}`,children:v?e.jsx("pre",{className:"error-text",children:v}):b?e.jsx("pre",{children:b}):e.jsx("span",{className:"output-placeholder",children:'点击"运行代码"查看输出结果'})}),u.length>0&&e.jsx("div",{className:"test-results",children:u.map((j,B)=>e.jsxs("div",{className:`test-item ${j.passed?"passed":"failed"}`,children:[e.jsx("span",{className:"test-icon",children:j.passed?"✓":"✗"}),e.jsx("span",{className:"test-name",children:j.name}),!j.passed&&e.jsx("span",{className:"test-message",children:j.message})]},B))})]})]})}function Yt({title:t,steps:s,onComplete:r}){var Z;const[a,i]=o.useState(0),[l,_]=o.useState(new Set),[P,p]=o.useState(null),[N,b]=o.useState(!1),[A,v]=o.useState(!1),[m,g]=o.useState(!1),[d,u]=o.useState(!1),[y,S]=o.useState(!1),n=s[a],E=s.length>0?(a+(l.has(a)?1:0))/s.length*100:0,L=a===s.length-1;if(!s||s.length===0||!n||!n.title||!n.type)return e.jsx("div",{className:"interactive-lesson",children:e.jsxs("div",{className:"lesson-content",children:[e.jsx("div",{className:"step-header",children:e.jsx("h2",{className:"step-title",children:"加载中..."})}),e.jsx("div",{className:"step-body",children:e.jsx("p",{children:"课程内容加载中，请稍候..."})})]})});const O=()=>{if(L){T(),r==null||r();return}i(a+1),p(null),b(!1),v(!1),g(!1),u(!1),S(!1)},f=()=>{a>0&&(i(a-1),p(null),b(!1),v(!1),g(!1),u(!1),S(!1))},T=()=>{_(D=>new Set([...D,a]))},h=D=>{N||p(D)},I=()=>{P!==null&&(b(!0),P===n.correctAnswer&&T())},j=D=>{v(D),D&&T()},B=()=>{g(!0),T()},z=()=>{u(D=>!D)},oe=async()=>{if(n.answer)try{await navigator.clipboard.writeText(n.answer),S(!0),setTimeout(()=>S(!1),1800)}catch(D){console.error("复制失败",D)}};return e.jsxs("div",{className:"interactive-lesson",children:[e.jsx("div",{className:"lesson-progress-bar",children:e.jsx("div",{className:"progress-fill",style:{width:`${E}%`}})}),e.jsx("div",{className:"lesson-steps-indicator",children:s.map((D,M)=>e.jsxs("div",{className:`step-dot ${M<a||l.has(M)?"completed":""} ${M===a?"current":""}`,onClick:()=>i(M),children:[e.jsx("span",{className:"dot-number",children:M+1}),e.jsx("span",{className:"dot-title",children:(D==null?void 0:D.title)||"步骤"})]},(D==null?void 0:D.id)||M))}),e.jsxs("div",{className:"lesson-content",children:[e.jsxs("div",{className:"step-header",children:[e.jsxs("span",{className:"step-badge",children:["第 ",a+1," 步 / 共 ",s.length," 步"]}),e.jsx("h2",{className:"step-title",children:(n==null?void 0:n.title)||"加载中..."})]}),e.jsxs("div",{className:"step-body",children:[(n==null?void 0:n.type)==="explanation"&&e.jsxs("div",{className:"explanation-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),O()},children:L?"完成学习 🎉":"我明白了，继续 →"})]}),(n==null?void 0:n.type)==="example"&&e.jsxs("div",{className:"example-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),(n==null?void 0:n.code)&&e.jsxs("div",{className:"code-example-wrapper",children:[e.jsx("div",{className:"example-label",children:"💡 点击运行试试："}),e.jsx(Ae,{initialCode:(n==null?void 0:n.code)||"",height:"250px"})]}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),O()},children:L?"完成学习 🎉":"继续下一步 →"})]}),(n==null?void 0:n.type)==="practice"&&e.jsxs("div",{className:"practice-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),(n==null?void 0:n.hint)&&e.jsxs("div",{className:"hint-box",children:[e.jsx("span",{className:"hint-icon",children:"💡 提示："}),n==null?void 0:n.hint]}),(n==null?void 0:n.code)&&e.jsx("div",{className:"practice-editor",children:e.jsx(Ae,{initialCode:(n==null?void 0:n.code)||"",height:"300px",testCode:n==null?void 0:n.testCode,onTestResult:j})}),(n==null?void 0:n.answer)&&e.jsxs("div",{className:"answer-section",children:[e.jsxs("div",{className:"answer-toolbar",children:[e.jsx("button",{type:"button",className:"btn-answer-toggle",onClick:z,"aria-expanded":d,children:d?"🙈 隐藏答案":"💡 查看答案"}),d&&e.jsx("button",{type:"button",className:"btn-copy-answer",onClick:oe,children:y?"✓ 已复制":"📋 复制答案"})]}),d&&e.jsxs("div",{className:"answer-box",children:[e.jsx("div",{className:"answer-box-header",children:e.jsx("span",{className:"answer-box-title",children:"📝 参考答案"})}),e.jsx("pre",{className:"answer-code",children:e.jsx("code",{children:n==null?void 0:n.answer})}),(n==null?void 0:n.explanation)&&e.jsxs("div",{className:"answer-explanation",children:[e.jsx("span",{className:"explanation-icon",children:"🔎"}),e.jsx("div",{dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.explanation)||"")}})]})]})]}),e.jsxs("div",{className:"practice-actions",children:[e.jsx("button",{className:"btn btn-secondary",onClick:f,disabled:a===0,children:"← 上一步"}),!m&&!A&&e.jsx("button",{className:"btn btn-secondary",onClick:B,children:"跳过此步"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),O()},children:A||m?L?"完成学习 🎉":"继续下一步 →":"跳过练习继续 →"})]}),A&&e.jsx("div",{className:"success-message",children:"✅ 太棒了！你成功完成了这个练习！"})]}),(n==null?void 0:n.type)==="quiz"&&e.jsxs("div",{className:"quiz-content",children:[e.jsx("div",{className:"markdown-content",dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.content)||"")}}),e.jsx("div",{className:"quiz-options",children:(Z=n==null?void 0:n.options)==null?void 0:Z.map((D,M)=>e.jsxs("div",{className:`quiz-option ${P===M?"selected":""} ${N&&M===(n==null?void 0:n.correctAnswer)?"correct":""} ${N&&P===M&&M!==(n==null?void 0:n.correctAnswer)?"wrong":""}`,onClick:()=>h(M),children:[e.jsx("span",{className:"option-letter",children:String.fromCharCode(65+M)}),e.jsx("span",{className:"option-text",children:D})]},M))}),N?e.jsxs("div",{className:"quiz-result",children:[P===(n==null?void 0:n.correctAnswer)?e.jsx("div",{className:"result-success",children:"✅ 回答正确！"}):e.jsxs("div",{className:"result-failure",children:["❌ 回答错误，正确答案是 ",String.fromCharCode(65+((n==null?void 0:n.correctAnswer)||0))]}),(d||(n==null?void 0:n.explanation))&&e.jsxs("div",{className:"answer-box quiz-explain-box",children:[e.jsx("div",{className:"answer-box-header",children:e.jsx("span",{className:"answer-box-title",children:"🔎 答案解析"})}),(n==null?void 0:n.answer)&&e.jsx("pre",{className:"answer-code",children:e.jsx("code",{children:n==null?void 0:n.answer})}),(n==null?void 0:n.explanation)&&e.jsxs("div",{className:"answer-explanation",children:[e.jsx("span",{className:"explanation-icon",children:"📖"}),e.jsx("div",{dangerouslySetInnerHTML:{__html:te((n==null?void 0:n.explanation)||"")}})]})]}),e.jsxs("div",{className:"result-actions",children:[e.jsx("button",{className:"btn btn-secondary",onClick:()=>{b(!1),p(null)},children:"重新答题"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>{T(),O()},children:L?"完成学习 🎉":"继续下一步 →"})]})]}):e.jsxs("div",{className:"quiz-actions",children:[e.jsx("button",{className:"btn btn-primary",onClick:I,disabled:P===null,children:"提交答案"}),(n==null?void 0:n.answer)&&e.jsx("button",{type:"button",className:"btn-answer-toggle",onClick:z,children:d?"🙈 隐藏解析":"💡 查看解析"})]})]})]})]})]})}function te(t){return t.replace(/\n\n/g,"</p><p>").replace(/^/g,"<p>").replace(/$/g,"</p>").replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")}function Zt({title:t,description:s,difficulty:r,initialCode:a,testCode:i,testCases:l,onComplete:_,xpReward:P=10}){const[p,N]=o.useState(!1),[b,A]=o.useState(!1),[v,m]=o.useState("description"),g=y=>{y&&!p&&(N(!0),_==null||_())},u={easy:{label:"简单",color:"green",icon:"🟢"},medium:{label:"中等",color:"yellow",icon:"🟡"},hard:{label:"困难",color:"red",icon:"🔴"}}[r];return e.jsxs("div",{className:"challenge-arena",children:[e.jsxs("div",{className:"challenge-header",children:[e.jsxs("div",{className:"challenge-info",children:[e.jsxs("div",{className:"challenge-title-row",children:[e.jsxs("span",{className:`difficulty-badge difficulty-${r}`,children:[u.icon," ",u.label]}),e.jsxs("span",{className:"xp-reward",children:["⭐ +",P," XP"]})]}),e.jsx("h2",{className:"challenge-title",children:t})]}),p&&e.jsxs("div",{className:"completion-badge",children:[e.jsx("span",{className:"badge-icon",children:"✅"}),e.jsx("span",{children:"已完成"})]})]}),e.jsxs("div",{className:"challenge-layout",children:[e.jsxs("div",{className:"challenge-sidebar",children:[e.jsxs("div",{className:"sidebar-tabs",children:[e.jsx("button",{className:`sidebar-tab ${v==="description"?"active":""}`,onClick:()=>m("description"),children:"📝 题目描述"}),e.jsxs("button",{className:`sidebar-tab ${v==="testcases"?"active":""}`,onClick:()=>m("testcases"),children:["🧪 测试用例 (",l.length,")"]})]}),e.jsxs("div",{className:"sidebar-content",children:[v==="description"&&e.jsxs("div",{className:"description-content",children:[e.jsx("p",{className:"challenge-desc",children:s}),e.jsxs("div",{className:"hint-section",children:[e.jsx("button",{className:"hint-toggle",onClick:()=>A(!b),children:b?"隐藏提示":"💡 查看提示"}),b&&e.jsx("div",{className:"hint-content",children:e.jsx("p",{children:"提示：使用 Python 的循环结构和条件判断来解决问题。"})})]})]}),v==="testcases"&&e.jsx("div",{className:"testcases-content",children:l.map((y,S)=>e.jsxs("div",{className:"testcase-item",children:[e.jsx("div",{className:"testcase-header",children:e.jsxs("span",{className:"testcase-name",children:["测试用例 ",S+1,": ",y.name]})}),e.jsxs("div",{className:"testcase-body",children:[e.jsxs("div",{className:"testcase-row",children:[e.jsx("span",{className:"testcase-label",children:"输入："}),e.jsx("code",{children:y.input})]}),e.jsxs("div",{className:"testcase-row",children:[e.jsx("span",{className:"testcase-label",children:"预期："}),e.jsx("code",{children:y.expected})]})]})]},S))})]})]}),e.jsx("div",{className:"challenge-editor",children:e.jsx(Ae,{initialCode:a,height:"400px",testCode:i,onTestResult:g})})]}),p&&e.jsx("div",{className:"completion-modal-overlay",children:e.jsxs("div",{className:"completion-modal",children:[e.jsx("div",{className:"modal-confetti",children:"🎉"}),e.jsx("h3",{children:"恭喜完成挑战！"}),e.jsxs("p",{className:"modal-reward",children:["获得 ",e.jsxs("span",{className:"reward-xp",children:["+",P," XP"]})," 经验值"]}),e.jsx("p",{className:"modal-message",children:"你成功通过了所有测试用例，继续加油！"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>N(!1),children:"继续编码"})]})})]})}const es=[{id:"python3",name:"学习 Python 3",description:"Python3 是当前主流 Python 版本。",icon:"🐍",category:"language",difficulty:1,unlocked:!0,href:"#/level/1"},{id:"python2",name:"学习 Python 2.x",description:"Python 经典版本（已停止维护）。",icon:"🐍",category:"language",difficulty:2,unlocked:!0},{id:"python-io",name:"输入输出",description:"格式化输出、文件读写、标准流。",icon:"📝",category:"language",difficulty:2,unlocked:!0,href:"#/level/37"},{id:"python-basic-syntax",name:"基础语法",description:"注释、缩进、标识符、关键字。",icon:"📖",category:"language",difficulty:1,unlocked:!0,href:"#/level/1"},{id:"python-data-types",name:"数据类型",description:"数字、字符串、布尔值、类型转换。",icon:"🔤",category:"language",difficulty:1,unlocked:!0,href:"#/level/2"},{id:"python-operators",name:"运算符",description:"算术、比较、逻辑、赋值、成员运算符。",icon:"➗",category:"language",difficulty:1,unlocked:!0,href:"#/level/2"},{id:"python-list",name:"列表 List",description:"有序可变序列，索引、切片、常用方法。",icon:"📋",category:"data",difficulty:2,unlocked:!0,href:"#/level/5"},{id:"python-tuple",name:"元组 Tuple",description:"有序不可变序列，解包、遍历。",icon:"📐",category:"data",difficulty:2,unlocked:!0,href:"#/level/5"},{id:"python-dict",name:"字典 Dict",description:"键值对集合，增删改查、遍历、推导式。",icon:"📖",category:"data",difficulty:2,unlocked:!0,href:"#/level/6"},{id:"python-set",name:"集合 Set",description:"无序不重复集合，交并差运算。",icon:"🔵",category:"data",difficulty:2,unlocked:!0,href:"#/level/6"},{id:"python-string",name:"字符串深入",description:"索引切片、常用方法、格式化、编码。",icon:"🔤",category:"data",difficulty:2,unlocked:!0,href:"#/level/10"},{id:"python-control-flow",name:"条件与循环",description:"if/elif/else、for、while、break/continue。",icon:"🔀",category:"data",difficulty:2,unlocked:!0,href:"#/level/3"},{id:"python-function",name:"函数",description:"定义、参数、返回值、作用域、Lambda。",icon:"⚙️",category:"data",difficulty:3,unlocked:!0,href:"#/level/7"},{id:"collections",name:"collections 库",description:"Counter/deque/defaultdict/namedtuple。",icon:"📦",category:"data",difficulty:2,unlocked:!0,href:"#/level/21"},{id:"itertools",name:"itertools 模块",description:"count/cycle/permutations/combinations。",icon:"🔄",category:"data",difficulty:3,unlocked:!0,href:"#/level/22"},{id:"python-iterator-generator",name:"迭代器与生成器",description:"iter/next、yield、生成器表达式。",icon:"⚡",category:"data",difficulty:4,unlocked:!0,href:"#/level/38"},{id:"python-oop",name:"面向对象",description:"类与对象、属性方法、封装、继承。",icon:"🏛️",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/12"},{id:"python-inheritance",name:"继承与多态",description:"方法重写、super()、抽象类、多态。",icon:"🌳",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/13"},{id:"python-decorator",name:"装饰器与闭包",description:"@装饰器、闭包、函数式编程。",icon:"🎨",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/16"},{id:"python-exception",name:"异常处理",description:"try/except/finally、自定义异常、with。",icon:"⚠️",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/14"},{id:"python-module",name:"模块与包",description:"import、自定义模块、包管理、__name__。",icon:"📦",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/11"},{id:"python-stdlib",name:"常用标准库",description:"datetime、re、json、collections、itertools。",icon:"📚",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/17"},{id:"regex",name:"正则表达式",description:"元字符、分组、贪婪/非贪婪、match/search。",icon:"🔍",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/20"},{id:"python-file-io",name:"文件与目录",description:"open/read/write、os/os.path、shutil。",icon:"📁",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/15"},{id:"python-json-xml",name:"JSON 与 XML",description:"json 模块、XML ElementTree、pickle。",icon:"🔄",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/39"},{id:"python-multithreading",name:"多线程与多进程",description:"threading、GIL、multiprocessing、线程池。",icon:"🧵",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/41"},{id:"python-async",name:"异步编程 asyncio",description:"async/await、事件循环、Task、aiohttp。",icon:"⚡",category:"advanced",difficulty:5,unlocked:!0,href:"#/level/42"},{id:"python-testing",name:"单元测试 pytest",description:"unittest、pytest、fixture、Mock、覆盖率。",icon:"✅",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/43"},{id:"python-performance",name:"内存与性能优化",description:"GC 机制、cProfile、lru_cache、优化实战。",icon:"🚀",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/44"},{id:"python-socket",name:"Python 网络编程",description:"Socket、TCP/UDP、urllib、SMTP 邮件、端口扫描。",icon:"🔌",category:"advanced",difficulty:4,unlocked:!0,href:"#/level/45"},{id:"python-system",name:"系统模块进阶",description:"sys/subprocess/logging/csv/datetime/queue/StringIO。",icon:"⚙️",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/46"},{id:"requests",name:"Requests 网络请求",description:"HTTP GET/POST、Session、Headers、文件上传。",icon:"🌐",category:"web",difficulty:2,unlocked:!0,href:"#/level/19"},{id:"flask",name:"Flask",description:"轻量级 Python Web 框架，路由、模板、蓝图。",icon:"🌶️",category:"web",difficulty:3,unlocked:!0,href:"#/level/27"},{id:"fastapi",name:"FastAPI",description:"现代高性能 Python API 框架，Pydantic、依赖注入。",icon:"⚡",category:"web",difficulty:4,unlocked:!0,href:"#/level/28"},{id:"fastapi-adv",name:"FastAPI 进阶",description:"Pydantic 校验、依赖注入、JWT 认证、中间件、CRUD API。",icon:"🔱",category:"web",difficulty:5,unlocked:!0,href:"#/level/48"},{id:"django",name:"Django",description:"全功能 Python Web 框架，MTV、ORM、Admin。",icon:"🎸",category:"web",difficulty:4,unlocked:!0,href:"#/level/29"},{id:"django-adv",name:"Django 进阶",description:"MVT 路由、模板系统、ORM 查询、Admin 后台、模型迁移。",icon:"🏗️",category:"web",difficulty:5,unlocked:!0,href:"#/level/49"},{id:"scrapy",name:"Scrapy 爬虫",description:"Spider/Item/Pipeline、XPath/CSS 选择器。",icon:"🕷️",category:"web",difficulty:5,unlocked:!0,href:"#/level/30"},{id:"numpy",name:"NumPy",description:"ndarray、广播、矩阵运算、线性代数。",icon:"🔢",category:"data",difficulty:3,unlocked:!0,href:"#/level/23"},{id:"numpy-adv",name:"NumPy 进阶",description:"花式索引、广播、线性代数分解、统计分布、卷积、文件IO。",icon:"🧮",category:"data",difficulty:4,unlocked:!0,href:"#/level/50"},{id:"pandas",name:"Pandas",description:"DataFrame、CSV/Excel、数据清洗、groupby。",icon:"🐼",category:"data",difficulty:4,unlocked:!0,href:"#/level/24"},{id:"pandas-adv",name:"Pandas 进阶",description:"MultiIndex、merge/pivot、时间序列、重采样、性能优化、完整分析。",icon:"💼",category:"data",difficulty:5,unlocked:!0,href:"#/level/51"},{id:"matplotlib",name:"Matplotlib",description:"折线图、柱状图、饼图、子图、样式导出。",icon:"📊",category:"data",difficulty:2,unlocked:!0,href:"#/level/25"},{id:"matplotlib-adv",name:"Matplotlib 进阶",description:"GridSpec 复杂布局、3D 图形、样式主题、Animation 动画、完整仪表盘。",icon:"🎨",category:"data",difficulty:4,unlocked:!0,href:"#/level/52"},{id:"scipy",name:"SciPy",description:"线性代数、优化求根、信号处理、统计分布。",icon:"🧪",category:"data",difficulty:4,unlocked:!0,href:"#/level/26"},{id:"dash",name:"Dash",description:"Plotly 组件、Callback、多页仪表盘。",icon:"📈",category:"data",difficulty:3,unlocked:!0,href:"#/level/31"},{id:"sqlite",name:"Python SQLite",description:"内置 sqlite3、CRUD、事务、with 语句。",icon:"💾",category:"tool",difficulty:2,unlocked:!0,href:"#/level/40"},{id:"mysql",name:"Python MySQL",description:"pymysql 连接、CRUD、事务管理。",icon:"🗄️",category:"tool",difficulty:3,unlocked:!0,href:"#/level/40"},{id:"redis",name:"Python Redis",description:"Redis 缓存与 Python 交互、发布订阅。",icon:"⚡",category:"tool",difficulty:3,unlocked:!0},{id:"jupyter",name:"Jupyter Notebook",description:"Markdown、魔法命令、ipywidgets、导出。",icon:"📓",category:"tool",difficulty:2,unlocked:!0,href:"#/level/32"},{id:"jupyter-adv",name:"Jupyter 进阶",description:"%%魔法命令、富显示系统、ipywidgets 交互、并行/内核、nbconvert/参数化。",icon:"📒",category:"tool",difficulty:4,unlocked:!0,href:"#/level/53"},{id:"pillow",name:"Pillow 图像处理",description:"打开保存、像素操作、变换、滤镜、水印。",icon:"🖼️",category:"tool",difficulty:2,unlocked:!0,href:"#/level/33"},{id:"pillow-adv",name:"Pillow 进阶",description:"几何变换、色彩增强/EXIF、ImageDraw 绘制、批量水印、海报生成。",icon:"🎞️",category:"tool",difficulty:4,unlocked:!0,href:"#/level/54"},{id:"pyqt",name:"Python Qt (PyQt5)",description:"Qt GUI 开发：QWidget、布局管理、信号槽、QThread、多控件应用。",icon:"🪟",category:"tool",difficulty:4,unlocked:!0,href:"#/level/47"},{id:"git",name:"Git 版本控制",description:"版本控制基础、分支、合并、远程仓库。",icon:"🔧",category:"tool",difficulty:2,unlocked:!0},{id:"r",name:"R 语言入门",description:"向量、数据框、dplyr、ggplot2、统计检验。",icon:"📐",category:"language",difficulty:3,unlocked:!0,href:"#/level/35"},{id:"julia",name:"Julia 科学计算",description:"多重派发、数组运算、微分方程、性能优化。",icon:"🔬",category:"language",difficulty:4,unlocked:!0,href:"#/level/36"},{id:"sklearn",name:"scikit-learn",description:"分类、回归、聚类、交叉验证、Pipeline。",icon:"🤖",category:"data",difficulty:4,unlocked:!0},{id:"tensorflow",name:"TensorFlow",description:"计算图、神经网络、Keras、模型部署。",icon:"🧠",category:"data",difficulty:5,unlocked:!0},{id:"pytorch",name:"PyTorch",description:"张量、自动微分、神经网络、GPU 加速。",icon:"🔥",category:"data",difficulty:5,unlocked:!0},{id:"quant",name:"量化交易",description:"K线数据、均线策略、回测、夏普比率。",icon:"💹",category:"finance",difficulty:5,unlocked:!0,href:"#/level/34"},{id:"r-adv",name:"R 语言进阶",description:"向量/数据框、dplyr 处理、ggplot2 绘图、假设检验、回归分析、数据挖掘全流程。",icon:"📊",category:"finance",difficulty:4,unlocked:!0,href:"#/level/55"},{id:"python-builtin",name:"内置函数与数学模块",description:"内置函数全集、math/random/statistics/hashlib/operator、类型注解、虚拟环境。",icon:"🧩",category:"advanced",difficulty:3,unlocked:!0,href:"#/level/56"},{id:"python-crawler",name:"爬虫与自动化",description:"BeautifulSoup HTML 解析、Selenium 浏览器自动化、pyecharts、OpenAI API、AI 绘画。",icon:"🕷️",category:"web",difficulty:4,unlocked:!0,href:"#/level/57"},{id:"fastapi-project",name:"FastAPI 实战项目",description:"表单/文件上传/CORS/SQLAlchemy/Alembic/JWT 认证/Jinja2/测试/部署 Railway。",icon:"🚀",category:"web",difficulty:5,unlocked:!0,href:"#/level/58"},{id:"django-project",name:"Django 实战项目",description:"Form 组件/ORM 多表/聚合查询/Auth/Cookie-Session/CBV/Nginx+uWSGI 部署。",icon:"🏛️",category:"web",difficulty:5,unlocked:!0,href:"#/level/59"},{id:"r-io-plot",name:"R 数据 IO 与绘图",description:"字符串/列表/数组/因子/数据重塑/包管理/CSV-Excel-XML-JSON/MySQL/绘图系统。",icon:"📈",category:"finance",difficulty:4,unlocked:!0,href:"#/level/60"}],ts={language:"语言基础",web:"Web 开发",data:"数据科学",advanced:"进阶编程",tool:"工具与数据库",finance:"金融实战"},Ne={language:"#10b981",web:"#3b82f6",data:"#8b5cf6",advanced:"#f97316",tool:"#f59e0b",finance:"#ef4444"};function ss(){const{id:t}=gt(),s=Te(),[r,a]=o.useState("learn"),[i,l]=o.useState(null),{isLoading:_,error:P,retryLoad:p}=Ke(),{progress:N,isChallengeCompleted:b,isLevelUnlocked:A,completeLesson:v,completeChallenge:m,getLevelProgress:g}=re(),d=parseInt(t||"4"),u=ae.find(h=>h.id===d)||ae[3],y=A(d),S=g(d),n=st[d]||[],E=Oe[d]||[],L=E.filter(h=>b(d,h.id)).length,O=h=>Array(5).fill(0).map((I,j)=>e.jsx("span",{className:`star ${j<h?"filled":""}`,children:"★"},j)),f=()=>{v(d,n.length)},T=(h,I)=>{m(d,h,I),l(null)};return y?e.jsxs("div",{className:"level-detail-page",children:[P&&e.jsxs("div",{className:"pyodide-error",children:[e.jsx("span",{className:"error-icon",children:"⚠️"}),e.jsx("span",{children:"Python运行环境加载失败，代码执行功能暂不可用"}),e.jsx("button",{className:"retry-btn",onClick:p,children:"重试"})]}),_&&!P&&e.jsxs("div",{className:"pyodide-loading-banner",children:[e.jsx("div",{className:"loading-spinner-small"}),e.jsx("span",{children:"正在加载Python运行环境..."})]}),e.jsxs("div",{className:"container detail-container",children:[e.jsxs("button",{className:"back-btn",onClick:()=>s("/map"),children:[e.jsx("span",{children:"←"})," 返回地图"]}),e.jsxs("div",{className:"level-header",children:[e.jsxs("div",{className:"level-info",children:[e.jsxs("div",{className:"level-badge",children:[e.jsx("span",{className:"badge-icon",children:"🐍"}),e.jsxs("span",{children:["Python 进阶 · 第 ",u.id," 关"]})]}),e.jsx("h1",{className:"level-title",children:u.title}),e.jsx("p",{className:"level-desc",children:u.description}),e.jsxs("div",{className:"level-meta",children:[e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"📚"}),e.jsxs("span",{children:[n.length," 个学习步骤"]})]}),e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⚡"}),e.jsxs("span",{children:[E.length," 个挑战"]})]}),e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⏱"}),e.jsx("span",{children:u.duration})]}),e.jsxs("div",{className:"meta-item",children:[e.jsx("span",{className:"meta-icon",children:"⭐"}),e.jsxs("span",{children:["难度 ",O(u.difficulty)]})]})]}),e.jsxs("div",{className:"level-progress",children:[e.jsxs("div",{className:"progress-info",children:[e.jsx("span",{children:"本关进度"}),e.jsxs("span",{className:"progress-text",children:[S.completed,"/",S.total," 完成 · ",S.percent,"%"]})]}),e.jsx("div",{className:"progress-bar",children:e.jsx("div",{className:"progress-fill",style:{width:`${S.percent}%`}})})]})]}),e.jsxs("div",{className:"level-actions",children:[e.jsx("button",{className:"btn btn-primary btn-lg continue-btn",onClick:()=>a("learn"),children:"▶ 开始学习"}),e.jsxs("div",{className:"xp-display",children:[e.jsx("span",{className:"xp-icon",children:"⭐"}),e.jsxs("span",{className:"xp-value",children:[N.xp," XP"]})]})]})]}),e.jsxs("div",{className:"topics-section",children:[e.jsx("h3",{className:"section-title-sm",children:"📋 本关知识点"}),e.jsx("div",{className:"topics-tags",children:u.topics.map((h,I)=>e.jsx("span",{className:"topic-chip",children:h},I))})]}),e.jsxs("div",{className:"runoob-section",children:[e.jsxs("div",{className:"runoob-header",children:[e.jsxs("h3",{className:"section-title-sm",children:[e.jsx("span",{className:"runoob-logo",children:"📚"}),"Python / 数据科学 · 拓展学习路径"]}),e.jsx("span",{className:"runoob-source",children:"风格借鉴自菜鸟教程"})]}),e.jsx("p",{className:"runoob-intro",children:"完成当前关卡后，可以挑战更多 Python 生态方向。本页展示的扩展主题按难度递进，建议先打通主线关卡再探索。"}),e.jsx("div",{className:"runoob-grid",children:es.map(h=>e.jsxs("div",{className:`runoob-card ${h.unlocked?"unlocked":"locked"} ${h.unlocked&&!h.href?"no-nav":""}`,style:{"--topic-color":Ne[h.category],cursor:!h.href&&h.unlocked?"default":void 0},onClick:()=>{if(h.unlocked)if(h.href){const I=h.href.match(/#\/level\/(\d+)/);I&&s(`/level/${I[1]}`)}else console.info(`Topic "${h.name}" 暂无对应关卡，将作为拓展阅读内容`)},role:h.unlocked&&h.href?"button":void 0,children:[e.jsx("div",{className:"runoob-card-icon",children:e.jsx("span",{className:"runoob-icon-emoji",children:h.icon})}),e.jsxs("div",{className:"runoob-card-body",children:[e.jsxs("div",{className:"runoob-card-header",children:[e.jsxs("h4",{className:"runoob-card-title",children:["【",h.name.replace("学习 ",""),"】"]}),e.jsx("span",{className:"runoob-card-category",style:{background:Ne[h.category]+"22",color:Ne[h.category]},children:ts[h.category]})]}),e.jsx("p",{className:"runoob-card-desc",children:h.description}),e.jsxs("div",{className:"runoob-card-footer",children:[e.jsx("span",{className:"runoob-difficulty",children:Array(5).fill(0).map((I,j)=>e.jsx("span",{className:`runoob-dot ${j<h.difficulty?"filled":""}`,children:"●"},j))}),!h.unlocked&&e.jsx("span",{className:"runoob-lock-badge",children:"🔒 待解锁"}),h.unlocked&&h.href&&e.jsx("span",{className:"runoob-go-badge",children:"进入学习 →"}),h.unlocked&&!h.href&&e.jsx("span",{className:"runoob-read-badge",children:"📚 拓展阅读"})]})]})]},h.id))})]}),e.jsxs("div",{className:"content-tabs",children:[e.jsxs("button",{className:`tab-btn ${r==="learn"?"active":""}`,onClick:()=>{a("learn"),l(null)},children:["📖 互动学习",e.jsx("span",{className:"tab-count",children:n.length})]}),e.jsxs("button",{className:`tab-btn ${r==="challenges"?"active":""}`,onClick:()=>{a("challenges"),l(null)},children:["⚡ 编程挑战",e.jsxs("span",{className:"tab-count",children:[L,"/",E.length]})]}),e.jsx("button",{className:`tab-btn ${r==="notes"?"active":""}`,onClick:()=>{a("notes"),l(null)},children:"📝 学习笔记"})]}),e.jsxs("div",{className:"tab-content",children:[r==="learn"&&e.jsx("div",{className:"learn-tab-content",children:n.length>0?e.jsx(Yt,{title:u.title,steps:n,onComplete:f}):e.jsx("div",{className:"empty-state",children:e.jsx("p",{children:"暂无学习内容"})})}),r==="challenges"&&e.jsx("div",{className:"challenges-tab-content",children:i?e.jsxs("div",{children:[e.jsx("button",{className:"back-to-challenges",onClick:()=>l(null),children:"← 返回挑战列表"}),(()=>{const h=E.find(I=>I.id===i);return h?e.jsx(Zt,{title:h.title,description:h.description,difficulty:h.difficulty,initialCode:h.initialCode,testCode:h.testCode,testCases:h.testCases,xpReward:h.xpReward,onComplete:()=>T(h.id,h.xpReward)}):null})()]}):e.jsxs("div",{className:"challenges-list",children:[e.jsxs("div",{className:"challenges-header",children:[e.jsx("h3",{children:"编程挑战"}),e.jsx("p",{children:"完成以下挑战来巩固所学知识，获得经验值奖励"})]}),e.jsx("div",{className:"challenges-grid",children:E.map((h,I)=>{const j=b(d,h.id);return e.jsxs("div",{className:`challenge-card ${j?"completed":""}`,onClick:()=>l(h.id),children:[e.jsxs("div",{className:"challenge-card-header",children:[e.jsxs("span",{className:"challenge-number",children:["挑战 ",I+1]}),e.jsxs("span",{className:`challenge-diff diff-${h.difficulty}`,children:[h.difficulty==="easy"&&"🟢 简单",h.difficulty==="medium"&&"🟡 中等",h.difficulty==="hard"&&"🔴 困难"]})]}),e.jsx("h4",{className:"challenge-card-title",children:h.title}),e.jsxs("p",{className:"challenge-card-desc",children:[h.description.substring(0,80),"..."]}),e.jsxs("div",{className:"challenge-card-footer",children:[e.jsxs("span",{className:"xp-reward-badge",children:["⭐ +",h.xpReward," XP"]}),j&&e.jsx("span",{className:"completed-check",children:"✓ 已完成"})]})]},h.id)})})]})}),r==="notes"&&e.jsx("div",{className:"notes-content",children:e.jsxs("div",{className:"notes-placeholder",children:[e.jsx("div",{className:"notes-icon",children:"📝"}),e.jsx("h3",{children:"学习笔记"}),e.jsx("p",{children:"记录你的学习心得和重要知识点"}),e.jsx("textarea",{className:"notes-textarea",placeholder:"在这里记录你的笔记...",rows:10}),e.jsx("button",{className:"btn btn-primary",children:"保存笔记"})]})})]})]})]}):e.jsx("div",{className:"level-detail-page",children:e.jsxs("div",{className:"container detail-container",children:[e.jsxs("button",{className:"back-btn",onClick:()=>s("/map"),children:[e.jsx("span",{children:"←"})," 返回地图"]}),e.jsxs("div",{className:"locked-page",children:[e.jsx("div",{className:"lock-icon-big",children:"🔒"}),e.jsx("h2",{children:"关卡未解锁"}),e.jsx("p",{children:"完成前一关的所有课程和挑战后即可解锁此关卡"}),e.jsx("button",{className:"btn btn-primary",onClick:()=>s("/map"),children:"返回地图"})]})]})})}function as(t){const s=Date.now()-new Date(t).getTime(),r=Math.floor(s/6e4);if(r<1)return"刚刚";if(r<60)return`${r}分钟前`;const a=Math.floor(r/60);if(a<24)return`${a}小时前`;const i=Math.floor(a/24);return i<7?`${i}天前`:new Date(t).toLocaleDateString("zh-CN")}function ns(){const t=Te(),{progress:s,stats:r,getLevelProgress:a,getOverallProgress:i,getRecentActivities:l}=re(),_=i(),P=l(20),p=Array.from({length:7}).map((u,y)=>{const S=new Date;return S.setDate(S.getDate()-(6-y)),S.toISOString().slice(0,10)}),N=ae.map(u=>{var E,L;const y=a(u.id),S=((E=st[u.id])==null?void 0:E.length)||0,n=((L=Oe[u.id])==null?void 0:L.length)||0;return{...u,...y,lessonCount:S,challengeCount:n,total:S+n}}),b=500,A=Math.floor(s.totalXP/b)+1,v=s.totalXP%b,m=Math.round(v/b*100),g=["编程小白","初学者","进阶学徒","熟练开发者","资深工程师","Python 大师","传奇程序员"],d=g[Math.min(A-1,g.length-1)];return e.jsxs("div",{className:"learning-path-page",children:[e.jsxs("div",{className:"path-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"})]}),e.jsxs("div",{className:"container path-container",children:[e.jsx("div",{className:"path-header",children:e.jsxs("div",{className:"header-info",children:[e.jsxs("div",{className:"badge",children:[e.jsx("span",{className:"badge-icon",children:"📈"}),e.jsx("span",{children:"学习路径"})]}),e.jsx("h1",{className:"page-title",children:"我的学习进度"}),e.jsx("p",{className:"page-subtitle",children:"追踪每一次成长，赢取每一个徽章"})]})}),e.jsxs("div",{className:"user-level-card",children:[e.jsxs("div",{className:"user-avatar-lg",children:[e.jsx("span",{children:"LY"}),e.jsx("div",{className:"avatar-ring"})]}),e.jsxs("div",{className:"user-info-block",children:[e.jsxs("div",{className:"user-title-row",children:[e.jsx("h2",{className:"user-name",children:"冒险者 LY"}),e.jsxs("span",{className:"user-level-badge",children:["Lv.",A," ",d]})]}),e.jsxs("div",{className:"level-progress-block",children:[e.jsxs("div",{className:"level-progress-info",children:[e.jsxs("span",{children:[v," / ",b," XP"]}),e.jsxs("span",{children:["距下一级还需 ",b-v," XP"]})]}),e.jsx("div",{className:"level-progress-bar",children:e.jsx("div",{className:"level-progress-fill",style:{width:`${m}%`}})})]}),e.jsxs("div",{className:"user-tags",children:[e.jsx("span",{className:"user-tag",children:"⚡ 速度学习者"}),e.jsx("span",{className:"user-tag",children:"🎯 挑战爱好者"})]})]})]}),e.jsxs("div",{className:"overview-grid",children:[e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(245, 158, 11, 0.15)",color:"#f59e0b"},children:"⭐"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:s.totalXP}),e.jsx("div",{className:"ov-label",children:"累计经验值"}),e.jsxs("div",{className:"ov-hint",children:["+",s.xp," 可用"]})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(239, 68, 68, 0.15)",color:"#ef4444"},children:"🔥"}),e.jsxs("div",{className:"ov-info",children:[e.jsxs("div",{className:"ov-value",children:[s.streak," 天"]}),e.jsx("div",{className:"ov-label",children:"连续学习"}),e.jsx("div",{className:"ov-hint",children:"保持节奏"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(59, 130, 246, 0.15)",color:"#3b82f6"},children:"📚"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:r.completedLessons}),e.jsx("div",{className:"ov-label",children:"完成学习"}),e.jsx("div",{className:"ov-hint",children:"课时统计"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(168, 85, 247, 0.15)",color:"#a855f7"},children:"⚔️"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:r.completedChallenges}),e.jsx("div",{className:"ov-label",children:"完成挑战"}),e.jsx("div",{className:"ov-hint",children:"挑战统计"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(16, 185, 129, 0.15)",color:"#10b981"},children:"🚪"}),e.jsxs("div",{className:"ov-info",children:[e.jsxs("div",{className:"ov-value",children:[r.completedLevels," / ",r.totalLevels]}),e.jsx("div",{className:"ov-label",children:"通关进度"}),e.jsxs("div",{className:"ov-hint",children:[_.percent,"% 完成"]})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"ov-icon",style:{background:"rgba(245, 158, 11, 0.15)",color:"#f59e0b"},children:"🏆"}),e.jsxs("div",{className:"ov-info",children:[e.jsx("div",{className:"ov-value",children:s.unlockedAchievements.length}),e.jsx("div",{className:"ov-label",children:"解锁成就"}),e.jsx("div",{className:"ov-hint",children:"查看全部 →"})]})]})]}),e.jsxs("div",{className:"path-main",children:[e.jsxs("div",{className:"path-card calendar-card",children:[e.jsx("h3",{className:"card-title",children:"📅 最近 7 天学习"}),e.jsx("div",{className:"calendar-week",children:p.map(u=>{var E;const y=(E=s.studyDays)==null?void 0:E.includes(u),S=u===new Date().toISOString().slice(0,10),n=new Date(u).toLocaleDateString("zh-CN",{weekday:"short"});return e.jsxs("div",{className:`cal-day ${y?"studied":""} ${S?"today":""}`,title:u,children:[e.jsx("div",{className:"cal-day-label",children:n}),e.jsx("div",{className:"cal-day-cell",children:y&&e.jsx("span",{className:"cal-check",children:"✓"})})]},u)})}),e.jsx("div",{className:"calendar-foot",children:e.jsxs("span",{children:["已连续学习 ",e.jsx("strong",{children:s.streak})," 天"]})})]}),e.jsxs("div",{className:"path-card levels-card",children:[e.jsx("h3",{className:"card-title",children:"🗺️ 学习路径"}),e.jsx("div",{className:"levels-progress",children:N.map((u,y)=>{const S=y===N.length-1;return e.jsxs("div",{className:`path-level ${u.completed?"completed":""} ${u.unlocked?"unlocked":"locked"}`,onClick:()=>u.unlocked&&t(`/level/${u.id}`),children:[e.jsx("div",{className:"pl-node",children:u.completed?e.jsx("span",{children:"✓"}):e.jsx("span",{children:u.id})}),e.jsxs("div",{className:"pl-content",children:[e.jsx("div",{className:"pl-title",children:u.subtitle}),e.jsxs("div",{className:"pl-meta",children:[e.jsxs("span",{children:[u.completed,"/",u.total]}),e.jsxs("span",{children:[u.percent,"%"]})]}),e.jsx("div",{className:"pl-bar",children:e.jsx("div",{className:"pl-fill",style:{width:`${u.percent}%`}})})]}),!S&&e.jsx("div",{className:`pl-line ${u.completed?"completed":""}`})]},u.id)})})]}),e.jsxs("div",{className:"path-card activity-card",children:[e.jsx("h3",{className:"card-title",children:"🕐 最近活动"}),P.length>0?e.jsx("div",{className:"activity-list",children:P.map(u=>e.jsxs("div",{className:"activity-item",children:[e.jsx("div",{className:"act-icon",children:u.icon}),e.jsxs("div",{className:"act-body",children:[e.jsx("div",{className:"act-title",children:u.title}),e.jsx("div",{className:"act-desc",children:u.description})]}),e.jsxs("div",{className:"act-meta",children:[u.xp&&e.jsxs("span",{className:"act-xp",children:["+",u.xp," XP"]}),e.jsx("span",{className:"act-time",children:as(u.timestamp)})]})]},u.id))}):e.jsx("div",{className:"empty-state",children:e.jsx("p",{children:"还没有活动记录，开始学习吧 🚀"})})]})]})]})]})}function is(){var m,g;const{progress:t,stats:s,isAchievementUnlocked:r,isAchievementClaimed:a,claimAchievement:i}=re(),[l,_]=o.useState("all"),P=t.unlockedAchievements.length,p=Y.length,N=Math.round(P/p*100),b=o.useMemo(()=>l==="all"?Y:Y.filter(d=>d.category===l),[l]),A=Y.filter(d=>r(d.id)),v=Y.filter(d=>!r(d.id));return e.jsxs("div",{className:"achievements-page",children:[e.jsxs("div",{className:"achievements-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"}),e.jsx("div",{className:"deco-circle deco-3"})]}),e.jsxs("div",{className:"container achievements-container",children:[e.jsxs("div",{className:"achievements-header",children:[e.jsxs("div",{className:"header-info",children:[e.jsxs("div",{className:"badge",children:[e.jsx("span",{className:"badge-icon",children:"🏆"}),e.jsx("span",{children:"成就系统"})]}),e.jsx("h1",{className:"page-title",children:"成就殿堂"}),e.jsx("p",{className:"page-subtitle",children:"解锁成就，赢得荣耀徽章，赢取经验值奖励"})]}),e.jsxs("div",{className:"header-stats",children:[e.jsxs("div",{className:"h-stat-card",children:[e.jsx("div",{className:"h-stat-icon",children:"🎖️"}),e.jsxs("div",{className:"h-stat-info",children:[e.jsxs("div",{className:"h-stat-value",children:[P," / ",p]}),e.jsx("div",{className:"h-stat-label",children:"已解锁成就"})]})]}),e.jsxs("div",{className:"h-stat-card",children:[e.jsx("div",{className:"h-stat-icon",children:"⭐"}),e.jsxs("div",{className:"h-stat-info",children:[e.jsx("div",{className:"h-stat-value",children:t.totalXP}),e.jsx("div",{className:"h-stat-label",children:"累计 XP"})]})]}),e.jsxs("div",{className:"h-stat-card",children:[e.jsx("div",{className:"h-stat-icon",children:"🔥"}),e.jsxs("div",{className:"h-stat-info",children:[e.jsxs("div",{className:"h-stat-value",children:[t.streak," 天"]}),e.jsx("div",{className:"h-stat-label",children:"连续学习"})]})]})]})]}),e.jsxs("div",{className:"overall-progress-card",children:[e.jsxs("div",{className:"overall-info",children:[e.jsx("span",{className:"overall-label",children:"成就解锁进度"}),e.jsxs("span",{className:"overall-percent",children:[N,"%"]})]}),e.jsx("div",{className:"overall-bar",children:e.jsx("div",{className:"overall-fill",style:{width:`${N}%`}})})]}),e.jsx("div",{className:"category-tabs",children:ye.map(d=>e.jsxs("button",{className:`cat-tab ${l===d.id?"active":""}`,onClick:()=>_(d.id),children:[e.jsx("span",{className:"cat-icon",children:d.icon}),e.jsx("span",{children:d.label})]},d.id))}),A.length>0&&l==="all"&&e.jsxs("div",{className:"achievements-section",children:[e.jsxs("h2",{className:"section-title",children:["✨ 已解锁 (",A.length,")"]}),e.jsx("div",{className:"achievements-grid",children:A.map(d=>{const u=a(d.id),y=qe[d.rarity],S=d.progress?d.progress(s):null;return e.jsxs("div",{className:`achievement-card unlocked rarity-${d.rarity} ${u?"claimed":""}`,style:{borderColor:y.color,background:y.bg},children:[e.jsx("div",{className:"ach-glow",style:{background:y.color}}),e.jsx("div",{className:"ach-icon",style:{color:y.color},children:d.icon}),e.jsxs("div",{className:"ach-content",children:[e.jsxs("div",{className:"ach-header",children:[e.jsx("h3",{className:"ach-title",children:d.title}),e.jsx("span",{className:"ach-rarity",style:{background:y.color},children:y.label})]}),e.jsx("p",{className:"ach-desc",children:d.description}),S&&S.total>1&&e.jsxs("div",{className:"ach-progress",children:[e.jsx("div",{className:"ach-progress-bar",children:e.jsx("div",{className:"ach-progress-fill",style:{width:`${S.current/S.total*100}%`,background:y.color}})}),e.jsxs("span",{className:"ach-progress-text",children:[S.current," / ",S.total]})]}),e.jsxs("div",{className:"ach-footer",children:[e.jsxs("span",{className:"ach-xp",children:["+",d.xpReward," XP"]}),u?e.jsx("span",{className:"ach-claimed",children:"✓ 已领取"}):e.jsx("button",{className:"ach-claim-btn",style:{background:y.color},onClick:()=>i(d.id),children:"领取奖励"})]})]})]},d.id)})})]}),e.jsxs("div",{className:"achievements-section",children:[e.jsx("h2",{className:"section-title",children:l==="all"?"🔒 待解锁":`${(m=ye.find(d=>d.id===l))==null?void 0:m.icon} ${(g=ye.find(d=>d.id===l))==null?void 0:g.label}类成就`}),e.jsx("div",{className:"achievements-grid",children:(l==="all"?v:b).map(d=>{const u=qe[d.rarity],y=d.progress?d.progress(s):null;return e.jsxs("div",{className:`achievement-card locked rarity-${d.rarity}`,style:{borderColor:u.color,background:u.bg},children:[e.jsx("div",{className:"ach-icon",style:{color:u.color,filter:"grayscale(50%) opacity(0.6)"},children:d.icon}),e.jsxs("div",{className:"ach-content",children:[e.jsxs("div",{className:"ach-header",children:[e.jsx("h3",{className:"ach-title",children:d.title}),e.jsx("span",{className:"ach-rarity",style:{background:u.color},children:u.label})]}),e.jsx("p",{className:"ach-desc",children:d.description}),y&&e.jsxs("div",{className:"ach-progress",children:[e.jsx("div",{className:"ach-progress-bar",children:e.jsx("div",{className:"ach-progress-fill",style:{width:`${y.current/y.total*100}%`,background:u.color}})}),e.jsxs("span",{className:"ach-progress-text",children:[y.current," / ",y.total]})]}),e.jsxs("div",{className:"ach-footer",children:[e.jsxs("span",{className:"ach-xp",children:["+",d.xpReward," XP"]}),e.jsx("span",{className:"ach-locked-label",children:"🔒 未解锁"})]})]})]},d.id)})}),b.length===0&&e.jsx("div",{className:"empty-state",children:e.jsx("p",{children:"该分类暂无成就"})})]})]})]})}function rs(){const{progress:t,stats:s}=re(),[r,a]=o.useState("xp"),[i,l]=o.useState("all"),_={rank:0,name:"我 (LY)",avatar:"LY",xp:t.totalXP,streak:t.streak,levels:s.completedLevels,color:"#10b981",isMe:!0},P=o.useMemo(()=>{const g=[...Mt];return g.sort((d,u)=>u[r]-d[r]),g},[r]),p=P.findIndex(g=>g[r]>t.totalXP)+1;_.rank=p>0?p:P.length+1;const N=o.useMemo(()=>[...P,_].sort((d,u)=>u[r]-d[r]).map((d,u)=>({...d,rank:u+1})),[P,r,t.totalXP]),b=N.slice(0,3),A=N.slice(3),v=N.find(g=>g.isMe),m={xp:"经验值 XP",streak:"连续天数",levels:"通关数"};return e.jsxs("div",{className:"leaderboard-page",children:[e.jsxs("div",{className:"lb-decoration",children:[e.jsx("div",{className:"deco-circle deco-1"}),e.jsx("div",{className:"deco-circle deco-2"})]}),e.jsxs("div",{className:"container lb-container",children:[e.jsxs("div",{className:"lb-header",children:[e.jsxs("div",{className:"badge",children:[e.jsx("span",{className:"badge-icon",children:"🏅"}),e.jsx("span",{children:"排行榜"})]}),e.jsx("h1",{className:"page-title",children:"学习风云榜"}),e.jsx("p",{className:"page-subtitle",children:"看看你在 Python Quest 社区中的位置"})]}),e.jsxs("div",{className:"lb-stats-row",children:[e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"我的排名"}),e.jsxs("span",{className:"lb-stat-value",children:["#",v.rank]})]}),e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"我的经验"}),e.jsx("span",{className:"lb-stat-value",children:t.totalXP})]}),e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"我的连续"}),e.jsxs("span",{className:"lb-stat-value",children:[t.streak," 天"]})]}),e.jsxs("div",{className:"lb-stat",children:[e.jsx("span",{className:"lb-stat-label",children:"通关数"}),e.jsx("span",{className:"lb-stat-value",children:s.completedLevels})]})]}),e.jsxs("div",{className:"lb-filters",children:[e.jsxs("div",{className:"filter-group",children:[e.jsx("span",{className:"filter-label",children:"时间:"}),[{v:"all",l:"总榜"},{v:"month",l:"本月"},{v:"week",l:"本周"}].map(g=>e.jsx("button",{className:`filter-btn ${i===g.v?"active":""}`,onClick:()=>l(g.v),children:g.l},g.v))]}),e.jsxs("div",{className:"filter-group",children:[e.jsx("span",{className:"filter-label",children:"排序:"}),Object.keys(m).map(g=>e.jsx("button",{className:`filter-btn ${r===g?"active":""}`,onClick:()=>a(g),children:m[g]},g))]})]}),e.jsx("div",{className:"podium",children:b.map((g,d)=>{const y=[1,0,2].indexOf(d),S=[180,220,150][y],n=["#fbbf24","#94a3b8","#f97316"];return e.jsxs("div",{className:`podium-item rank-${g.rank}`,style:{order:y+1},children:[e.jsxs("div",{className:"podium-avatar",style:{background:g.color},children:[e.jsx("span",{children:g.avatar}),g.isMe&&e.jsx("span",{className:"me-flag",children:"我"})]}),e.jsx("div",{className:"podium-name",children:g.name}),e.jsxs("div",{className:"podium-stats",children:[e.jsxs("span",{children:["⭐ ",g.xp]}),e.jsxs("span",{children:["🔥 ",g.streak]})]}),e.jsxs("div",{className:"podium-rank",style:{background:n[d]},children:[e.jsx("span",{className:"rank-medal",children:g.rank===1?"🥇":g.rank===2?"🥈":"🥉"}),e.jsxs("span",{children:["#",g.rank]})]}),e.jsx("div",{className:"podium-stand",style:{height:`${S}px`,background:n[d]},children:e.jsx("span",{className:"stand-text",children:g.rank===1?"冠军":g.rank===2?"亚军":"季军"})})]},g.rank)})}),e.jsxs("div",{className:"lb-list",children:[e.jsxs("div",{className:"lb-list-header",children:[e.jsx("span",{children:"排名"}),e.jsx("span",{children:"玩家"}),e.jsx("span",{children:"经验"}),e.jsx("span",{children:"连续"}),e.jsx("span",{children:"通关"})]}),A.map(g=>e.jsxs("div",{className:`lb-list-row ${g.isMe?"is-me":""}`,children:[e.jsxs("span",{className:"lb-rank",children:["#",g.rank]}),e.jsxs("div",{className:"lb-player",children:[e.jsx("div",{className:"lb-avatar",style:{background:g.color},children:e.jsx("span",{children:g.avatar})}),e.jsx("span",{className:"lb-name",children:g.name})]}),e.jsxs("span",{className:"lb-xp",children:["⭐ ",g.xp]}),e.jsxs("span",{className:"lb-streak",children:["🔥 ",g.streak]}),e.jsxs("span",{className:"lb-levels",children:["🚪 ",g.levels]})]},g.rank)),v.rank>3&&e.jsxs(e.Fragment,{children:[e.jsx("div",{className:"lb-divider",children:"... 你的位置 ..."}),e.jsxs("div",{className:"lb-list-row is-me",children:[e.jsxs("span",{className:"lb-rank",children:["#",v.rank]}),e.jsxs("div",{className:"lb-player",children:[e.jsx("div",{className:"lb-avatar",style:{background:v.color},children:e.jsx("span",{children:v.avatar})}),e.jsx("span",{className:"lb-name",children:v.name})]}),e.jsxs("span",{className:"lb-xp",children:["⭐ ",v.xp]}),e.jsxs("span",{className:"lb-streak",children:["🔥 ",v.streak]}),e.jsxs("span",{className:"lb-levels",children:["🚪 ",v.levels]})]})]})]})]})]})}const os="v1.2",ls="2026-07-29",ps=["扩展至44关：新增输入输出、迭代器生成器、JSON/XML、数据库、多线程、异步编程、单元测试、性能优化","重构拓展卡片体系：6大分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战）","对齐菜鸟教程完整章节结构，补充所有核心主题","无敌模式覆盖全部44关","版本化存储 key 自动升级，旧版本数据冻结保留"],ds=[{name:"React 18",icon:"⚛️",desc:"UI 框架，使用 Hooks + Context API"},{name:"TypeScript 5",icon:"📘",desc:"类型安全，所有组件均使用 TSX"},{name:"Vite 5",icon:"⚡",desc:"构建工具，支持代码分割和 HMR"},{name:"React Router 6",icon:"🧭",desc:"HashRouter 路由，适配 GitHub Pages"},{name:"Pyodide 0.26",icon:"🐍",desc:"浏览器中运行 Python，WASM 技术"},{name:"GitHub API",icon:"🐙",desc:"PAT 认证 + Gist 存储云同步"},{name:"localStorage",icon:"💾",desc:"本地进度持久化，防抖写入"},{name:"CSS Variables",icon:"🎨",desc:"主题色系统，无 UI 库依赖"}],cs=[{name:"src",type:"folder",path:"src",desc:"源码根目录",children:[{name:"components",type:"folder",path:"src/components",desc:"可复用组件",children:[{name:"Navbar",type:"file",path:"src/components/Navbar",desc:"顶部导航栏（Logo + 菜单 + 登录状态 + 同步指示器）"},{name:"Footer",type:"file",path:"src/components/Footer",desc:"底部信息栏"},{name:"CodeEditor",type:"file",path:"src/components/CodeEditor",desc:"代码编辑器（textarea + 语法高亮 + Pyodide 执行）"},{name:"InteractiveLesson",type:"file",path:"src/components/InteractiveLesson",desc:"交互式课程（4种步骤类型 + 答案展示 + 进度条）"},{name:"ChallengeArena",type:"file",path:"src/components/ChallengeArena",desc:"挑战竞技场（代码提交 + 测试验证）"},{name:"LoginModal",type:"file",path:"src/components/LoginModal",desc:"GitHub PAT 登录弹窗（含 Token 获取指南）"},{name:"VersionHistory",type:"file",path:"src/components/VersionHistory",desc:"版本历史查看（只读快照 + 关卡进度）"},{name:"Button",type:"file",path:"src/components/Button",desc:"通用按钮组件"}]},{name:"config",type:"folder",path:"src/config",desc:"配置模块",children:[{name:"github.ts",type:"file",path:"src/config/github.ts",desc:"GitHub API 集成（PAT认证 + Gist读写 + 超时重试）"},{name:"versionManager.ts",type:"file",path:"src/config/versionManager.ts",desc:"版本管理系统（注册表 + 数据冻结 + 快照）"}]},{name:"context",type:"folder",path:"src/context",desc:"React Context 全局状态",children:[{name:"AuthContext.tsx",type:"file",path:"src/context/AuthContext.tsx",desc:"认证状态（登录/登出 + Token 校验）"},{name:"ProgressContext.tsx",type:"file",path:"src/context/ProgressContext.tsx",desc:"进度状态（关卡/课程/挑战/成就 + 本地存储 + 云同步）"},{name:"PyodideContext.tsx",type:"file",path:"src/context/PyodideContext.tsx",desc:"Pyodide 环境（WASM 加载 + Python 执行）"}]},{name:"data",type:"folder",path:"src/data",desc:"静态数据",children:[{name:"mockData.ts",type:"file",path:"src/data/mockData.ts",desc:"44关卡元数据（标题/难度/图标/分类/主题）"},{name:"lessonContent.ts",type:"file",path:"src/data/lessonContent.ts",desc:"课程内容（8000+行，44关×6步，含讲解/示例/练习/测验）"},{name:"achievements.ts",type:"file",path:"src/data/achievements.ts",desc:"成就系统定义（XP/徽章/解锁条件）"},{name:"runoobTopics.ts",type:"file",path:"src/data/runoobTopics.ts",desc:"菜鸟教程拓展学习路径"},{name:"projectDocs.ts",type:"file",path:"src/data/projectDocs.ts",desc:"项目文档数据（本文件）"}]},{name:"pages",type:"folder",path:"src/pages",desc:"页面组件",children:[{name:"Home",type:"file",path:"src/pages/Home",desc:"首页（Hero + 功能介绍 + 版本入口）"},{name:"LevelMap",type:"file",path:"src/pages/LevelMap",desc:"关卡地图（34关蛇形布局 + 进度条）"},{name:"LevelDetail",type:"file",path:"src/pages/LevelDetail",desc:"关卡详情（课程 + 挑战 + 拓展阅读）"},{name:"Achievements",type:"file",path:"src/pages/Achievements",desc:"成就页面"},{name:"Leaderboard",type:"file",path:"src/pages/Leaderboard",desc:"排行榜页面"},{name:"LearningPath",type:"file",path:"src/pages/LearningPath",desc:"学习路径页面"},{name:"SourceExplorer",type:"file",path:"src/pages/SourceExplorer",desc:"源码探索页面（本页面）"}]},{name:"App.tsx",type:"file",path:"src/App.tsx",desc:"根组件（路由表 + Navbar + Footer）"},{name:"main.tsx",type:"file",path:"src/main.tsx",desc:"入口文件（Provider 嵌套 + HashRouter）"},{name:"types/index.ts",type:"file",path:"src/types/index.ts",desc:"类型定义（Level/Lesson/Challenge）"}]},{name:"config files",type:"folder",path:".",desc:"配置文件",children:[{name:"vite.config.ts",type:"file",path:"vite.config.ts",desc:"Vite 配置（base路径 + 代码分割 + 端口）"},{name:"package.json",type:"file",path:"package.json",desc:"依赖管理（4运行时 + 5开发依赖）"},{name:"tsconfig.json",type:"file",path:"tsconfig.json",desc:"TypeScript 编译配置"},{name:".github/workflows/deploy.yml",type:"file",path:".github/workflows/deploy.yml",desc:"GitHub Actions 自动部署到 Pages"}]}],us=[{icon:"🎮",title:"游戏化关卡系统",desc:"44个关卡覆盖Python基础到性能优化，蛇形地图布局，6大主题分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战），支持关卡解锁/完成状态/进度百分比显示",files:["src/data/mockData.ts","src/pages/LevelMap/LevelMap.tsx","src/context/ProgressContext.tsx"]},{icon:"🐍",title:"浏览器内 Python 执行",desc:"基于 Pyodide (WebAssembly) 在浏览器中直接运行 Python 代码，无需后端服务器",files:["src/context/PyodideContext.tsx","src/components/CodeEditor/CodeEditor.tsx"]},{icon:"📚",title:"交互式课程",desc:"4种步骤类型（讲解/示例/练习/测验），支持查看答案、复制代码、步骤跳转",files:["src/components/InteractiveLesson/InteractiveLesson.tsx","src/data/lessonContent.ts"]},{icon:"🔐",title:"GitHub PAT 认证",desc:"使用 GitHub Personal Access Token 登录，无需 Firebase，适配国内网络",files:["src/config/github.ts","src/context/AuthContext.tsx","src/components/LoginModal/LoginModal.tsx"]},{icon:"☁️",title:"Gist 云端同步",desc:"进度数据存储在 GitHub Gist 中，支持超时重试（15s + 指数退避）和网络错误降级",files:["src/config/github.ts","src/context/ProgressContext.tsx"]},{icon:"💾",title:"版本化进度管理",desc:"每次迭代版本独立存储，旧版本数据冻结保留，可查看历史进度快照",files:["src/config/versionManager.ts","src/components/VersionHistory/VersionHistory.tsx"]},{icon:"🏆",title:"成就系统",desc:"XP经验值、徽章解锁、活动日志，激励用户持续学习",files:["src/data/achievements.ts","src/context/ProgressContext.tsx","src/pages/Achievements/Achievements.tsx"]},{icon:"📱",title:"响应式设计",desc:"CSS 变量主题系统，移动端适配，无第三方 UI 库依赖",files:["src/index.css","src/App.css","各组件CSS文件"]}],ms=[{icon:"🏛️",title:"Provider 三层嵌套架构",desc:"AuthProvider → ProgressProvider → PyodideProvider，由外到内依次初始化。Auth最外层因为Progress依赖用户身份进行云同步，Pyodide最内层因为只在代码执行时才需要。",code:`<AuthProvider>
   <ProgressProvider>
     <PyodideProvider>
       <HashRouter>
@@ -14770,7 +16788,7 @@ build: {
       }
     }
   }
-}`}],Ue=[{step:1,title:"克隆项目并安装依赖",desc:"将项目克隆到本地，安装 npm 依赖包",code:`git clone https://github.com/5zdz5/python-web-try.git
+}`}],Qe=[{step:1,title:"克隆项目并安装依赖",desc:"将项目克隆到本地，安装 npm 依赖包",code:`git clone https://github.com/5zdz5/python-web-try.git
 cd python-web-try
 npm install`},{step:2,title:"修改项目基本信息",desc:"修改 package.json 中的项目名称和 vite.config.ts 中的 base 路径。如果你部署到 GitHub Pages 的 /your-repo-name/ 路径下，需要修改 base。",code:`// vite.config.ts
 export default defineConfig({
@@ -14802,4 +16820,4 @@ export const CURRENT_VERSION_DESC = '描述本次更新内容'
 
 // 同时更新 projectDocs.ts 中的文档
 export const DOC_VERSION = 'v2.0'
-export const DOC_CHANGES = ['新功能1', '修复问题2']`}];function at({node:t,depth:s}){const[r,a]=o.useState(s<2),i=t.type==="folder";return e.jsxs("div",{className:"file-node",children:[e.jsxs("div",{className:`file-row ${i?"folder":"file"}`,style:{paddingLeft:`${s*20+12}px`},onClick:()=>i&&a(!r),children:[e.jsx("span",{className:"file-icon",children:i?r?"📂":"📁":fs(t.name)}),e.jsx("span",{className:"file-name",children:t.name}),e.jsx("span",{className:"file-desc",children:t.desc})]}),i&&r&&t.children&&e.jsx("div",{className:"file-children",children:t.children.map(l=>e.jsx(at,{node:l,depth:s+1},l.path))})]})}function fs(t){return t.endsWith(".tsx")||t.endsWith(".ts")?"📘":t.endsWith(".css")?"🎨":t.endsWith(".json")?"📋":t.endsWith(".yml")||t.endsWith(".yaml")?"⚙️":t.endsWith(".md")?"📝":"📄"}function gs(){const[t,s]=o.useState("overview"),r=[{id:"overview",label:"总览",icon:"🏠"},{id:"files",label:"源码结构",icon:"📂"},{id:"features",label:"功能清单",icon:"✨"},{id:"principles",label:"核心原理",icon:"🔬"},{id:"migration",label:"迁移指南",icon:"🚀"}];return e.jsxs("div",{className:"source-explorer-page",children:[e.jsx("section",{className:"se-hero",children:e.jsxs("div",{className:"se-hero-content",children:[e.jsxs("div",{className:"se-badge",children:[e.jsx("span",{className:"se-version",children:os}),e.jsxs("span",{className:"se-date",children:["更新于 ",ls]})]}),e.jsxs("h1",{className:"se-title",children:[e.jsx("span",{className:"se-icon",children:"🔧"}),"源码探索中心"]}),e.jsx("p",{className:"se-subtitle",children:"了解项目架构、功能原理，学习如何迁移源码进行二次开发"}),e.jsx("div",{className:"se-tech-pills",children:ds.map(a=>e.jsxs("span",{className:"tech-pill",title:a.desc,children:[e.jsx("span",{className:"tech-icon",children:a.icon}),a.name]},a.name))})]})}),e.jsx("section",{className:"se-changelog",children:e.jsxs("div",{className:"container",children:[e.jsx("h3",{className:"changelog-title",children:"📢 本次更新内容"}),e.jsx("div",{className:"changelog-list",children:ps.map((a,i)=>e.jsxs("div",{className:"changelog-item",children:[e.jsx("span",{className:"changelog-dot",children:"✦"}),e.jsx("span",{children:a})]},i))})]})}),e.jsx("div",{className:"se-tabs-bar",children:e.jsx("div",{className:"container",children:e.jsx("div",{className:"se-tabs",children:r.map(a=>e.jsxs("button",{className:`se-tab ${t===a.id?"active":""}`,onClick:()=>s(a.id),children:[e.jsx("span",{className:"tab-icon",children:a.icon}),e.jsx("span",{children:a.label})]},a.id))})})}),e.jsxs("div",{className:"se-content container",children:[t==="overview"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsxs("div",{className:"overview-grid",children:[e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"overview-icon",children:"📦"}),e.jsx("h3",{children:"项目规模"}),e.jsxs("div",{className:"overview-stats",children:[e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"组件"}),e.jsx("span",{className:"os-val",children:"8 个"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"页面"}),e.jsx("span",{className:"os-val",children:"7 个"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"关卡"}),e.jsx("span",{className:"os-val",children:"34 关"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"课程步骤"}),e.jsx("span",{className:"os-val",children:"6800+ 行"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"依赖"}),e.jsx("span",{className:"os-val",children:"4 运行时 + 5 开发"})]})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"overview-icon",children:"🏗️"}),e.jsx("h3",{children:"架构特点"}),e.jsxs("ul",{className:"overview-list",children:[e.jsx("li",{children:"Context API 全局状态管理（无 Redux）"}),e.jsx("li",{children:"HashRouter 路由（适配静态部署）"}),e.jsx("li",{children:"Pyodide WASM 浏览器内 Python"}),e.jsx("li",{children:"GitHub Gist 云端进度同步"}),e.jsx("li",{children:"localStorage 防抖本地持久化"}),e.jsx("li",{children:"CSS 变量主题系统（无 UI 库）"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"overview-icon",children:"🎯"}),e.jsx("h3",{children:"设计理念"}),e.jsxs("ul",{className:"overview-list",children:[e.jsx("li",{children:"游戏化学习体验"}),e.jsx("li",{children:"国内网络友好（无 Firebase）"}),e.jsx("li",{children:"零后端服务器成本"}),e.jsx("li",{children:"渐进式进度保存"}),e.jsx("li",{children:"版本化数据管理"}),e.jsx("li",{children:"易于迁移和二次开发"})]})]})]}),e.jsxs("div",{className:"overview-cta",children:[e.jsx("h3",{children:"快速导航"}),e.jsxs("div",{className:"cta-buttons",children:[e.jsx("button",{className:"cta-btn",onClick:()=>s("files"),children:"📂 查看源码结构"}),e.jsx("button",{className:"cta-btn",onClick:()=>s("features"),children:"✨ 功能清单"}),e.jsx("button",{className:"cta-btn",onClick:()=>s("principles"),children:"🔬 核心原理"}),e.jsx("button",{className:"cta-btn",onClick:()=>s("migration"),children:"🚀 迁移指南"})]})]})]}),t==="files"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"📂 项目文件结构"}),e.jsx("p",{className:"panel-desc",children:"点击文件夹展开/折叠，每个文件附带功能说明"}),e.jsx("div",{className:"file-tree-container",children:cs.map(a=>e.jsx(at,{node:a,depth:0},a.path))})]}),t==="features"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"✨ 功能清单"}),e.jsx("p",{className:"panel-desc",children:"每个功能列出涉及的源码文件"}),e.jsx("div",{className:"features-grid",children:us.map(a=>e.jsxs("div",{className:"feature-doc-card",children:[e.jsxs("div",{className:"fdc-header",children:[e.jsx("span",{className:"fdc-icon",children:a.icon}),e.jsx("h3",{children:a.title})]}),e.jsx("p",{className:"fdc-desc",children:a.desc}),e.jsx("div",{className:"fdc-files",children:a.files.map(i=>e.jsx("code",{className:"fdc-file-tag",children:i},i))})]},a.title))})]}),t==="principles"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"🔬 核心原理"}),e.jsx("p",{className:"panel-desc",children:"深入理解项目的关键技术决策和设计模式"}),e.jsx("div",{className:"principles-list",children:ms.map(a=>e.jsxs("div",{className:"principle-card",children:[e.jsxs("div",{className:"pc-header",children:[e.jsx("span",{className:"pc-icon",children:a.icon}),e.jsx("h3",{children:a.title})]}),e.jsx("p",{className:"pc-desc",children:a.desc}),a.code&&e.jsxs("div",{className:"pc-code-block",children:[e.jsxs("div",{className:"pc-code-header",children:[e.jsxs("span",{className:"pc-code-dots",children:[e.jsx("span",{className:"dot red"}),e.jsx("span",{className:"dot yellow"}),e.jsx("span",{className:"dot green"})]}),e.jsx("span",{className:"pc-code-lang",children:"Code"})]}),e.jsx("pre",{className:"pc-code",children:e.jsx("code",{children:a.code})})]})]},a.title))})]}),t==="migration"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"🚀 迁移指南"}),e.jsx("p",{className:"panel-desc",children:"按照步骤将本项目迁移为你的 own 项目"}),e.jsx("div",{className:"migration-timeline",children:Ue.map(a=>e.jsxs("div",{className:"migration-step",children:[e.jsxs("div",{className:"ms-marker",children:[e.jsx("div",{className:"ms-circle",children:a.step}),a.step<Ue.length&&e.jsx("div",{className:"ms-line"})]}),e.jsxs("div",{className:"ms-content",children:[e.jsx("h3",{className:"ms-title",children:a.title}),e.jsx("p",{className:"ms-desc",children:a.desc}),a.code&&e.jsx("div",{className:"ms-code-block",children:e.jsx("pre",{className:"ms-code",children:e.jsx("code",{children:a.code})})})]})]},a.step))})]})]}),e.jsxs("div",{className:"se-footer",children:[e.jsx(z,{to:"/",className:"se-back-btn",children:"← 返回首页"}),e.jsx(z,{to:"/map",className:"se-back-btn",children:"前往关卡地图 →"})]})]})}function hs(){return e.jsxs("div",{className:"app",children:[e.jsx(Wt,{}),e.jsx("main",{className:"main-content",children:e.jsxs(ht,{children:[e.jsx(K,{path:"/",element:e.jsx(Xt,{})}),e.jsx(K,{path:"/map",element:e.jsx(Kt,{})}),e.jsx(K,{path:"/level/:id",element:e.jsx(ss,{})}),e.jsx(K,{path:"/path",element:e.jsx(ns,{})}),e.jsx(K,{path:"/achievements",element:e.jsx(is,{})}),e.jsx(K,{path:"/leaderboard",element:e.jsx(rs,{})}),e.jsx(K,{path:"/source",element:e.jsx(gs,{})})]})}),e.jsx(Jt,{})]})}Pe.createRoot(document.getElementById("root")).render(e.jsx(_t.StrictMode,{children:e.jsx(Ot,{children:e.jsx(Qt,{children:e.jsx(Ft,{children:e.jsx(yt,{children:e.jsx(hs,{})})})})})}));
+export const DOC_CHANGES = ['新功能1', '修复问题2']`}];function at({node:t,depth:s}){const[r,a]=o.useState(s<2),i=t.type==="folder";return e.jsxs("div",{className:"file-node",children:[e.jsxs("div",{className:`file-row ${i?"folder":"file"}`,style:{paddingLeft:`${s*20+12}px`},onClick:()=>i&&a(!r),children:[e.jsx("span",{className:"file-icon",children:i?r?"📂":"📁":fs(t.name)}),e.jsx("span",{className:"file-name",children:t.name}),e.jsx("span",{className:"file-desc",children:t.desc})]}),i&&r&&t.children&&e.jsx("div",{className:"file-children",children:t.children.map(l=>e.jsx(at,{node:l,depth:s+1},l.path))})]})}function fs(t){return t.endsWith(".tsx")||t.endsWith(".ts")?"📘":t.endsWith(".css")?"🎨":t.endsWith(".json")?"📋":t.endsWith(".yml")||t.endsWith(".yaml")?"⚙️":t.endsWith(".md")?"📝":"📄"}function gs(){const[t,s]=o.useState("overview"),r=[{id:"overview",label:"总览",icon:"🏠"},{id:"files",label:"源码结构",icon:"📂"},{id:"features",label:"功能清单",icon:"✨"},{id:"principles",label:"核心原理",icon:"🔬"},{id:"migration",label:"迁移指南",icon:"🚀"}];return e.jsxs("div",{className:"source-explorer-page",children:[e.jsx("section",{className:"se-hero",children:e.jsxs("div",{className:"se-hero-content",children:[e.jsxs("div",{className:"se-badge",children:[e.jsx("span",{className:"se-version",children:os}),e.jsxs("span",{className:"se-date",children:["更新于 ",ls]})]}),e.jsxs("h1",{className:"se-title",children:[e.jsx("span",{className:"se-icon",children:"🔧"}),"源码探索中心"]}),e.jsx("p",{className:"se-subtitle",children:"了解项目架构、功能原理，学习如何迁移源码进行二次开发"}),e.jsx("div",{className:"se-tech-pills",children:ds.map(a=>e.jsxs("span",{className:"tech-pill",title:a.desc,children:[e.jsx("span",{className:"tech-icon",children:a.icon}),a.name]},a.name))})]})}),e.jsx("section",{className:"se-changelog",children:e.jsxs("div",{className:"container",children:[e.jsx("h3",{className:"changelog-title",children:"📢 本次更新内容"}),e.jsx("div",{className:"changelog-list",children:ps.map((a,i)=>e.jsxs("div",{className:"changelog-item",children:[e.jsx("span",{className:"changelog-dot",children:"✦"}),e.jsx("span",{children:a})]},i))})]})}),e.jsx("div",{className:"se-tabs-bar",children:e.jsx("div",{className:"container",children:e.jsx("div",{className:"se-tabs",children:r.map(a=>e.jsxs("button",{className:`se-tab ${t===a.id?"active":""}`,onClick:()=>s(a.id),children:[e.jsx("span",{className:"tab-icon",children:a.icon}),e.jsx("span",{children:a.label})]},a.id))})})}),e.jsxs("div",{className:"se-content container",children:[t==="overview"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsxs("div",{className:"overview-grid",children:[e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"overview-icon",children:"📦"}),e.jsx("h3",{children:"项目规模"}),e.jsxs("div",{className:"overview-stats",children:[e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"组件"}),e.jsx("span",{className:"os-val",children:"8 个"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"页面"}),e.jsx("span",{className:"os-val",children:"7 个"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"关卡"}),e.jsx("span",{className:"os-val",children:"34 关"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"课程步骤"}),e.jsx("span",{className:"os-val",children:"6800+ 行"})]}),e.jsxs("div",{className:"os-row",children:[e.jsx("span",{className:"os-label",children:"依赖"}),e.jsx("span",{className:"os-val",children:"4 运行时 + 5 开发"})]})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"overview-icon",children:"🏗️"}),e.jsx("h3",{children:"架构特点"}),e.jsxs("ul",{className:"overview-list",children:[e.jsx("li",{children:"Context API 全局状态管理（无 Redux）"}),e.jsx("li",{children:"HashRouter 路由（适配静态部署）"}),e.jsx("li",{children:"Pyodide WASM 浏览器内 Python"}),e.jsx("li",{children:"GitHub Gist 云端进度同步"}),e.jsx("li",{children:"localStorage 防抖本地持久化"}),e.jsx("li",{children:"CSS 变量主题系统（无 UI 库）"})]})]}),e.jsxs("div",{className:"overview-card",children:[e.jsx("div",{className:"overview-icon",children:"🎯"}),e.jsx("h3",{children:"设计理念"}),e.jsxs("ul",{className:"overview-list",children:[e.jsx("li",{children:"游戏化学习体验"}),e.jsx("li",{children:"国内网络友好（无 Firebase）"}),e.jsx("li",{children:"零后端服务器成本"}),e.jsx("li",{children:"渐进式进度保存"}),e.jsx("li",{children:"版本化数据管理"}),e.jsx("li",{children:"易于迁移和二次开发"})]})]})]}),e.jsxs("div",{className:"overview-cta",children:[e.jsx("h3",{children:"快速导航"}),e.jsxs("div",{className:"cta-buttons",children:[e.jsx("button",{className:"cta-btn",onClick:()=>s("files"),children:"📂 查看源码结构"}),e.jsx("button",{className:"cta-btn",onClick:()=>s("features"),children:"✨ 功能清单"}),e.jsx("button",{className:"cta-btn",onClick:()=>s("principles"),children:"🔬 核心原理"}),e.jsx("button",{className:"cta-btn",onClick:()=>s("migration"),children:"🚀 迁移指南"})]})]})]}),t==="files"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"📂 项目文件结构"}),e.jsx("p",{className:"panel-desc",children:"点击文件夹展开/折叠，每个文件附带功能说明"}),e.jsx("div",{className:"file-tree-container",children:cs.map(a=>e.jsx(at,{node:a,depth:0},a.path))})]}),t==="features"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"✨ 功能清单"}),e.jsx("p",{className:"panel-desc",children:"每个功能列出涉及的源码文件"}),e.jsx("div",{className:"features-grid",children:us.map(a=>e.jsxs("div",{className:"feature-doc-card",children:[e.jsxs("div",{className:"fdc-header",children:[e.jsx("span",{className:"fdc-icon",children:a.icon}),e.jsx("h3",{children:a.title})]}),e.jsx("p",{className:"fdc-desc",children:a.desc}),e.jsx("div",{className:"fdc-files",children:a.files.map(i=>e.jsx("code",{className:"fdc-file-tag",children:i},i))})]},a.title))})]}),t==="principles"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"🔬 核心原理"}),e.jsx("p",{className:"panel-desc",children:"深入理解项目的关键技术决策和设计模式"}),e.jsx("div",{className:"principles-list",children:ms.map(a=>e.jsxs("div",{className:"principle-card",children:[e.jsxs("div",{className:"pc-header",children:[e.jsx("span",{className:"pc-icon",children:a.icon}),e.jsx("h3",{children:a.title})]}),e.jsx("p",{className:"pc-desc",children:a.desc}),a.code&&e.jsxs("div",{className:"pc-code-block",children:[e.jsxs("div",{className:"pc-code-header",children:[e.jsxs("span",{className:"pc-code-dots",children:[e.jsx("span",{className:"dot red"}),e.jsx("span",{className:"dot yellow"}),e.jsx("span",{className:"dot green"})]}),e.jsx("span",{className:"pc-code-lang",children:"Code"})]}),e.jsx("pre",{className:"pc-code",children:e.jsx("code",{children:a.code})})]})]},a.title))})]}),t==="migration"&&e.jsxs("div",{className:"tab-panel animate-fade-in",children:[e.jsx("h2",{className:"panel-title",children:"🚀 迁移指南"}),e.jsx("p",{className:"panel-desc",children:"按照步骤将本项目迁移为你的 own 项目"}),e.jsx("div",{className:"migration-timeline",children:Qe.map(a=>e.jsxs("div",{className:"migration-step",children:[e.jsxs("div",{className:"ms-marker",children:[e.jsx("div",{className:"ms-circle",children:a.step}),a.step<Qe.length&&e.jsx("div",{className:"ms-line"})]}),e.jsxs("div",{className:"ms-content",children:[e.jsx("h3",{className:"ms-title",children:a.title}),e.jsx("p",{className:"ms-desc",children:a.desc}),a.code&&e.jsx("div",{className:"ms-code-block",children:e.jsx("pre",{className:"ms-code",children:e.jsx("code",{children:a.code})})})]})]},a.step))})]})]}),e.jsxs("div",{className:"se-footer",children:[e.jsx(H,{to:"/",className:"se-back-btn",children:"← 返回首页"}),e.jsx(H,{to:"/map",className:"se-back-btn",children:"前往关卡地图 →"})]})]})}function hs(){return e.jsxs("div",{className:"app",children:[e.jsx(Vt,{}),e.jsx("main",{className:"main-content",children:e.jsxs(ht,{children:[e.jsx(K,{path:"/",element:e.jsx(Xt,{})}),e.jsx(K,{path:"/map",element:e.jsx(Kt,{})}),e.jsx(K,{path:"/level/:id",element:e.jsx(ss,{})}),e.jsx(K,{path:"/path",element:e.jsx(ns,{})}),e.jsx(K,{path:"/achievements",element:e.jsx(is,{})}),e.jsx(K,{path:"/leaderboard",element:e.jsx(rs,{})}),e.jsx(K,{path:"/source",element:e.jsx(gs,{})})]})}),e.jsx(Wt,{})]})}Pe.createRoot(document.getElementById("root")).render(e.jsx(_t.StrictMode,{children:e.jsx(Dt,{children:e.jsx(Ut,{children:e.jsx(Lt,{children:e.jsx(yt,{children:e.jsx(hs,{})})})})})}));
