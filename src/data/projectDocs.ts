@@ -33,13 +33,14 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v1.2'
+export const DOC_VERSION = 'v1.3'
 export const DOC_LAST_UPDATE = '2026-07-29'
 export const DOC_CHANGES = [
-  '扩展至44关：新增输入输出、迭代器生成器、JSON/XML、数据库、多线程、异步编程、单元测试、性能优化',
-  '重构拓展卡片体系：6大分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战）',
-  '对齐菜鸟教程完整章节结构，补充所有核心主题',
-  '无敌模式覆盖全部44关',
+  '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
+  '对齐菜鸟教程10大教程全目录：Python3、FastAPI、Django、NumPy、Pandas、Matplotlib、Jupyter Notebook、Pillow、Python Qt、R 语言',
+  '引入8大分类地图系统：基础、进阶、网络爬虫、数据科学、Web开发、工具、金融、系统编程，每类独立主题色',
+  '新增17张菜鸟教程主题卡片，覆盖 Requests、Scrapy、正则表达式、MySQL、SQLite、Redis、Git、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 等',
+  '无敌模式覆盖全部60关，分类地图切换支持主题色动态变化',
   '版本化存储 key 自动升级，旧版本数据冻结保留'
 ]
 
@@ -106,10 +107,10 @@ export const FILE_TREE: FileNode[] = [
         path: 'src/data',
         desc: '静态数据',
         children: [
-          { name: 'mockData.ts', type: 'file', path: 'src/data/mockData.ts', desc: '44关卡元数据（标题/难度/图标/分类/主题）' },
-          { name: 'lessonContent.ts', type: 'file', path: 'src/data/lessonContent.ts', desc: '课程内容（8000+行，44关×6步，含讲解/示例/练习/测验）' },
+          { name: 'mockData.ts', type: 'file', path: 'src/data/mockData.ts', desc: '60关卡元数据（标题/难度/图标/分类/主题，8大分类地图）' },
+          { name: 'lessonContent.ts', type: 'file', path: 'src/data/lessonContent.ts', desc: '课程内容（10000+行，60关×多步，含讲解/示例/练习/测验）' },
           { name: 'achievements.ts', type: 'file', path: 'src/data/achievements.ts', desc: '成就系统定义（XP/徽章/解锁条件）' },
-          { name: 'runoobTopics.ts', type: 'file', path: 'src/data/runoobTopics.ts', desc: '菜鸟教程拓展学习路径' },
+          { name: 'runoobTopics.ts', type: 'file', path: 'src/data/runoobTopics.ts', desc: '菜鸟教程17张拓展主题卡片' },
           { name: 'projectDocs.ts', type: 'file', path: 'src/data/projectDocs.ts', desc: '项目文档数据（本文件）' }
         ]
       },
@@ -120,7 +121,7 @@ export const FILE_TREE: FileNode[] = [
         desc: '页面组件',
         children: [
           { name: 'Home', type: 'file', path: 'src/pages/Home', desc: '首页（Hero + 功能介绍 + 版本入口）' },
-          { name: 'LevelMap', type: 'file', path: 'src/pages/LevelMap', desc: '关卡地图（34关蛇形布局 + 进度条）' },
+          { name: 'LevelMap', type: 'file', path: 'src/pages/LevelMap', desc: '关卡地图（60关蛇形布局 + 8大分类切换 + 进度条）' },
           { name: 'LevelDetail', type: 'file', path: 'src/pages/LevelDetail', desc: '关卡详情（课程 + 挑战 + 拓展阅读）' },
           { name: 'Achievements', type: 'file', path: 'src/pages/Achievements', desc: '成就页面' },
           { name: 'Leaderboard', type: 'file', path: 'src/pages/Leaderboard', desc: '排行榜页面' },
@@ -152,7 +153,7 @@ export const FEATURES: FeatureItem[] = [
   {
     icon: '🎮',
     title: '游戏化关卡系统',
-    desc: '44个关卡覆盖Python基础到性能优化，蛇形地图布局，6大主题分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战），支持关卡解锁/完成状态/进度百分比显示',
+    desc: '60个关卡覆盖Python基础到R语言进阶，蛇形地图布局，8大主题分类地图（基础/进阶/网络爬虫/数据科学/Web开发/工具/金融/系统编程），支持关卡解锁/完成状态/进度百分比显示，分类切换时主题色动态变化',
     files: ['src/data/mockData.ts', 'src/pages/LevelMap/LevelMap.tsx', 'src/context/ProgressContext.tsx']
   },
   {
@@ -164,8 +165,14 @@ export const FEATURES: FeatureItem[] = [
   {
     icon: '📚',
     title: '交互式课程',
-    desc: '4种步骤类型（讲解/示例/练习/测验），支持查看答案、复制代码、步骤跳转',
+    desc: '4种步骤类型（讲解/示例/练习/测验），10000+行课程内容覆盖60关，支持查看答案、复制代码、步骤跳转，对齐菜鸟教程10大教程全目录',
     files: ['src/components/InteractiveLesson/InteractiveLesson.tsx', 'src/data/lessonContent.ts']
+  },
+  {
+    icon: '🗂️',
+    title: '菜鸟教程主题卡片',
+    desc: '17张拓展主题卡片对齐菜鸟教程，覆盖 Requests、Scrapy、正则表达式、MySQL、SQLite、Redis、Git、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 等，带分类标识和难度等级',
+    files: ['src/data/runoobTopics.ts', 'src/pages/LevelDetail/LevelDetail.tsx']
   },
   {
     icon: '🔐',

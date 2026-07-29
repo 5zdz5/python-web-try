@@ -127,10 +127,12 @@ function SourceExplorer() {
                 <div className="overview-icon">📦</div>
                 <h3>项目规模</h3>
                 <div className="overview-stats">
-                  <div className="os-row"><span className="os-label">组件</span><span className="os-val">8 个</span></div>
+                  <div className="os-row"><span className="os-label">组件</span><span className="os-val">9 个</span></div>
                   <div className="os-row"><span className="os-label">页面</span><span className="os-val">7 个</span></div>
-                  <div className="os-row"><span className="os-label">关卡</span><span className="os-val">34 关</span></div>
-                  <div className="os-row"><span className="os-label">课程步骤</span><span className="os-val">6800+ 行</span></div>
+                  <div className="os-row"><span className="os-label">关卡</span><span className="os-val">60 关</span></div>
+                  <div className="os-row"><span className="os-label">分类地图</span><span className="os-val">8 大主题</span></div>
+                  <div className="os-row"><span className="os-label">主题卡片</span><span className="os-val">17 张</span></div>
+                  <div className="os-row"><span className="os-label">课程步骤</span><span className="os-val">10000+ 行</span></div>
                   <div className="os-row"><span className="os-label">依赖</span><span className="os-val">4 运行时 + 5 开发</span></div>
                 </div>
               </div>
@@ -145,6 +147,7 @@ function SourceExplorer() {
                   <li>GitHub Gist 云端进度同步</li>
                   <li>localStorage 防抖本地持久化</li>
                   <li>CSS 变量主题系统（无 UI 库）</li>
+                  <li>分类地图系统（8 大主题色动态切换）</li>
                 </ul>
               </div>
 
@@ -158,6 +161,7 @@ function SourceExplorer() {
                   <li>渐进式进度保存</li>
                   <li>版本化数据管理</li>
                   <li>易于迁移和二次开发</li>
+                  <li>对齐菜鸟教程10大教程全目录</li>
                 </ul>
               </div>
             </div>

@@ -26,9 +26,9 @@ export interface VersionSnapshot {
 }
 
 // 当前活跃版本（每次迭代更新此值）
-export const CURRENT_VERSION = 'v1.2'
-export const CURRENT_VERSION_LABEL = '菜鸟教程完整版'
-export const CURRENT_VERSION_DESC = '44关完整内容 + 6大分类主题体系 + 菜鸟教程对齐'
+export const CURRENT_VERSION = 'v1.3'
+export const CURRENT_VERSION_LABEL = '菜鸟教程全量对齐版'
+export const CURRENT_VERSION_DESC = '60关完整内容 + 10大教程全目录对齐 + 8大分类地图 + 17张主题卡片'
 
 // 版本注册表 key（全局唯一，不随版本变化）
 const REGISTRY_KEY = 'python-quest-version-registry'
