@@ -1,8 +1,21 @@
+/* ZZZ Footer — 赛博朋克底栏 */
 .footer {
   background: var(--color-bg-secondary);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-accent);
   padding: var(--spacing-3xl) 0 0;
   margin-top: auto;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent-primary), transparent);
+  opacity: 0.5;
 }
 
 .footer-container {
@@ -22,8 +35,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-weight: 700;
-  font-size: 20px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .footer-logo .logo-icon {
@@ -33,6 +49,7 @@
   align-items: center;
   justify-content: center;
   color: var(--color-accent-primary);
+  filter: drop-shadow(0 0 6px var(--color-accent-glow));
 }
 
 .footer-logo .logo-icon svg {
@@ -41,16 +58,15 @@
 }
 
 .footer-logo .logo-text {
-  background: linear-gradient(135deg, var(--color-accent-primary), #34d399);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent-primary);
+  text-shadow: 0 0 6px var(--color-accent-glow);
 }
 
 .footer-tagline {
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 13px;
   max-width: 280px;
+  line-height: 1.6;
 }
 
 .footer-links {
@@ -60,9 +76,12 @@
 }
 
 .footer-column h4 {
-  color: var(--color-text-primary);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--color-accent-secondary);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   margin-bottom: var(--spacing-md);
 }
 
@@ -74,7 +93,7 @@
 
 .footer-column a {
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 13px;
   transition: color var(--transition-fast);
 }
 
@@ -89,23 +108,17 @@
 
 .footer-bottom p {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   text-align: center;
+  letter-spacing: 0.05em;
 }
 
 @media (max-width: 768px) {
-  .footer-container {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-xl);
-  }
-
-  .footer-links {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .footer-container { grid-template-columns: 1fr; gap: var(--spacing-xl); }
+  .footer-links { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 480px) {
-  .footer-links {
-    grid-template-columns: 1fr;
-  }
+  .footer-links { grid-template-columns: 1fr; }
 }

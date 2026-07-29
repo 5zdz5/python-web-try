@@ -1,24 +1,42 @@
+/* ZZZ App 容器 */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--color-bg-primary);
-  position: relative;
   overflow-x: hidden;
+  position: relative;
 }
 
+/* ZZZ 背景光晕 — 荧光黄绿 + 青色 */
 .app::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 20% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
-  pointer-events: none;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 60vh;
+  background: radial-gradient(ellipse at center, var(--color-accent-glow) 0%, transparent 60%);
+  filter: blur(60px);
+  opacity: 0.4;
   z-index: 0;
+  pointer-events: none;
+}
+
+/* ZZZ 背景右侧青色光晕 */
+.app::after {
+  content: '';
+  position: fixed;
+  bottom: -10%;
+  right: -5%;
+  width: 50vw;
+  height: 50vh;
+  background: radial-gradient(ellipse at center, var(--color-accent-glow-cyan) 0%, transparent 60%);
+  filter: blur(80px);
+  opacity: 0.25;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .main-content {
