@@ -8307,6 +8307,2448 @@ _test_results.append({
 
 **Python Quest 全体导师祝你前程似锦！💫**`
     }
+  ],
+  35: [
+    {
+      id: 1,
+      title: 'R 语言简介',
+      type: 'explanation',
+      content: `**R** 是一门专为**统计计算和图形**设计的语言，由新西兰奥克兰大学的 Ross Ihaka 和 Robert Gentleman 于 1995 年发布。
+
+**R 的核心特点**：
+- 📊 **统计分析首选**：CRAN 有超过 20,000 个统计包
+- 🖼️ **强大可视化**：ggplot2 被誉为" Grammar of Graphics "的标杆实现
+- 🔄 **向量语言**：原生支持向量化操作，代码简洁高效
+- 🧪 **学术界标准**：统计学、生物信息学、社会科学论文的主流工具
+
+**应用场景**：
+- 统计建模与假设检验
+- 数据挖掘与机器学习（caret、randomForest）
+- 生物信息学（Bioconductor 2000+ 包）
+- 金融分析与风险管理
+- 交互式报告（R Markdown、Shiny）
+
+本关用 **Python 模拟 R 的核心语法和数据操作思想**，帮你快速建立 R 思维 🚀`
+    },
+    {
+      id: 2,
+      title: '向量与基本运算',
+      type: 'example',
+      content: `R 中最基础的数据结构是**向量（vector）**——一组同类型数据的有序集合。
+R 的向量化操作可以避免写循环，让代码更简洁。`,
+      code: `import numpy_ as np
+
+# R 的 c() 函数 = Python 的 np.array
+# R: x <- c(1, 2, 3, 4, 5)
+x = np.array([1, 2, 3, 4, 5])
+print("向量 x:", x)
+
+# R 向量化运算：无需循环，逐元素操作
+# R: y <- x * 2 + 1
+y = x * 2 + 1
+print("x * 2 + 1 =", y)
+
+# R 的 cbind/rbind = 按列/行合并
+# R: m <- cbind(x, y)
+m = np.column_stack((x, y))
+print("合并矩阵:\\n", m)
+
+# R 的 summary() = 统计摘要
+# R: summary(x)
+print("均值:", np.mean(x))
+print("标准差:", np.std(x))
+print("最小值:", np.min(x))
+print("最大值:", np.max(x))
+print("中位数:", np.median(x))
+
+# R 的 seq() = 生成序列
+# R: s <- seq(0, 10, by=2)
+s = np.arange(0, 11, 2)
+print("序列 seq:", s)
+
+# R 的 rep() = 重复
+# R: r <- rep(1:3, times=2, each=1)
+r = np.tile(np.array([1, 2, 3]), 2)
+print("重复 rep:", r)`,
+      hint: 'R 的向量操作对应 NumPy 数组操作：c() → np.array，seq() → np.arange，rep() → np.tile'
+    },
+    {
+      id: 3,
+      title: '数据框 (data.frame)',
+      type: 'practice',
+      content: `**数据框（data.frame）** 是 R 中最常用的数据结构，相当于 Python 的 DataFrame——
+每列是一个变量，每行是一条观测记录。`,
+      code: `import pandas_ as pd
+import numpy_ as np
+
+# R: df <- data.frame(...)
+# 创建学生成绩数据框
+df = pd.DataFrame({
+    "name":   ["张三", "李四", "王五", "赵六", "钱七"],
+    "age":    [20, 21, 19, 22, 20],
+    "score":  [88, 95, 72, 90, 83],
+    "gender": ["M", "F", "M", "F", "M"]
+})
+
+print("数据框预览：")
+print(df)
+print()
+
+# R: head(df, 3) 查看前几行
+print("前 3 行:")
+print(df.head(3))
+print()
+
+# R: df$score 访问列
+print("成绩列:", df["score"].values)
+print()
+
+# R: subset(df, score > 80) 筛选
+# 筛选成绩 > 80 的学生
+high_score = df[df["score"] > 80]
+print("高分学生（>80）:")
+print(high_score)
+print()
+
+# R: df$grade <- ifelse(df$score >= 90, "A", ...) 添加新列
+# 添加等级列
+df["grade"] = df["score"].apply(lambda s: "A" if s >= 90 else ("B" if s >= 80 else "C"))
+print("添加等级后：")
+print(df)`,
+      hint: 'R 的 $ 取列 → pandas 的 df["col"]；R 的 subset() → pandas 的布尔索引；R 的 ifelse() → np.where 或 apply',
+      answer: '运行代码后，数据框包含 5 名学生的姓名、年龄、成绩、性别和等级（A/B/C）。筛选出 3 名成绩>80 的学生。'
+    },
+    {
+      id: 4,
+      title: 'dplyr 数据处理',
+      type: 'example',
+      content: `**dplyr** 是 R 中最流行的数据处理包，提供了"动词"式的数据操作语法。
+核心函数：**filter**（筛选）、**mutate**（变形）、**summarise**（汇总）、**group_by**（分组）。
+
+通过 **管道操作符 %>%** 串联操作，代码可读性极高。`,
+      code: `import pandas_ as pd
+import numpy_ as np
+
+# 模拟销售数据
+np.random.seed(42)
+sales = pd.DataFrame({
+    "product": np.random.choice(["A", "B", "C"], 100),
+    "region":  np.random.choice(["East", "West", "South", "North"], 100),
+    "sales":   np.random.randint(50, 500, 100),
+    "profit":  np.random.randint(10, 100, 100)
+})
+
+print("原始数据（前 5 行）:")
+print(sales.head())
+print()
+
+# dplyr 管道 %>% 示例（用 pandas 链式操作模拟）
+# R: sales %>% filter(region == "East") %>% mutate(profit_rate = profit/sales) %>% summarise(total=sum(sales))
+result = (sales
+    .query("region == 'East'")           # filter(region == "East")
+    .assign(profit_rate=lambda d: d["profit"] / d["sales"])  # mutate(profit_rate = profit/sales)
+    .groupby("product")                   # group_by(product)
+    .agg(total_sales=("sales", "sum"),     # summarise(total_sales = sum(sales))
+         avg_profit=("profit_rate", "mean"),
+         count=("sales", "count"))
+    .reset_index()
+    .sort_values("total_sales", ascending=False)
+)
+
+print("dplyr 管道操作结果：")
+print(result)
+print()
+
+# dplyr::arrange() 排序 + top_n()
+top3 = sales.nlargest(3, "sales")[["product", "region", "sales"]]
+print("销量 Top 3：")
+print(top3)`,
+      hint: 'R 的 %>% 管道 → pandas 的方法链式调用；filter() → query() 或布尔索引；mutate() → assign()；summarise() → agg()'
+    },
+    {
+      id: 5,
+      title: 'ggplot2 可视化',
+      type: 'practice',
+      content: `**ggplot2** 基于"图形语法（Grammar of Graphics）"，通过图层组合构建可视化：
+数据 → 映射 → 几何对象 → 统计变换 → 坐标系统 → 主题。
+
+本练习用 matplotlib 模拟 ggplot2 的绘图思路。`,
+      code: `import pandas_ as pd
+import numpy_ as np
+from matplotlib_ import plt
+
+# 准备数据：不同地区不同产品的销售均值
+np.random.seed(42)
+data = pd.DataFrame({
+    "region":  np.repeat(["East", "West", "South", "North"], 3),
+    "product": np.tile(["A", "B", "C"], 4),
+    "sales":   np.random.randint(100, 500, 12)
+})
+
+# 按 region 和 product 分组计算平均销售额
+grouped = data.groupby(["region", "product"])["sales"].mean().reset_index()
+print("分组统计数据：")
+print(grouped)
+print()
+
+# 模拟 ggplot2 的绘图思路
+# ggplot(data, aes(x=region, y=sales, fill=product)) + geom_bar(stat="identity", position="dodge")
+fig, ax = plt.subplots(figsize=(10, 6))
+
+regions = data["region"].unique()
+products = data["product"].unique()
+x = np.arange(len(regions))
+width = 0.25
+
+for i, prod in enumerate(products):
+    vals = grouped[grouped["product"] == prod]["sales"].values
+    ax.bar(x + i * width, vals, width, label=f"Product {prod}")
+
+ax.set_xlabel("Region")
+ax.set_ylabel("Average Sales")
+ax.set_title("Sales by Region and Product (ggplot2 style)")
+ax.set_xticks(x + width)
+ax.set_xticklabels(regions)
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+# ggplot2 的 geom_point() + geom_smooth() 散点+拟合
+fig2, ax2 = plt.subplots(figsize=(8, 5))
+x_data = np.linspace(0, 10, 50)
+y_data = 2 * x_data + np.random.randn(50) * 3
+ax2.scatter(x_data, y_data, alpha=0.6, label="data points")
+# 线性拟合（geom_smooth method="lm"）
+z = np.polyfit(x_data, y_data, 1)
+p = np.poly1d(z)
+ax2.plot(x_data, p(x_data), "r--", linewidth=2, label="lm fit")
+ax2.set_title("Scatter + Linear Smooth (geom_smooth)")
+ax2.legend()
+plt.tight_layout()
+plt.show()
+
+print("两个图表已生成 ✅")`,
+      hint: 'ggplot2 的 aes() → 设置 x/y 映射；geom_bar()/geom_point() → plt.bar()/plt.scatter()；geom_smooth() → np.polyfit 线性拟合'
+    },
+    {
+      id: 6,
+      title: '统计假设检验',
+      type: 'explanation',
+      content: `**统计假设检验** 是 R 语言的核心应用之一，用于判断样本数据是否支持某个假设。
+
+**主要概念**：
+- **零假设 H₀**：我们默认的假设（如"两组均值无差异"）
+- **备择假设 H₁**：与 H₀ 对立的假设
+- **p 值**：在 H₀ 成立下观察到当前结果的概率，p < 0.05 通常表示统计显著
+- **置信区间**：真实参数可能取值的范围
+
+**常见检验**：
+| 检验方法 | 用途 | Python 对应 |
+|---------|------|------------|
+| t.test() | 两组均值差异 | scipy.stats.ttest_ind |
+| wilcox.test() | 非参数检验 | scipy.stats.wilcoxon |
+| chisq.test() | 卡方独立性检验 | scipy.stats.chi2_contingency |
+| anova() | 多组均值比较 | scipy.stats.f_oneway |
+| cor.test() | 相关性检验 | scipy.stats.pearsonr |
+
+**决策流程**：计算检验统计量 → 求 p 值 → 若 p < α(0.05) 则拒绝 H₀ → 报告效应量和置信区间。
+
+R 在假设检验方面提供了最全面的函数库，是科学研究的标准工具 🔬`
+    }
+  ],
+  36: [
+    {
+      id: 1,
+      title: 'Julia 语言简介',
+      type: 'explanation',
+      content: `**Julia** 是一门专为**科学计算、数值分析和高性能计算**设计的动态编程语言，
+由 MIT 的 Jeff Bezanson、Stefan Karpinski 和 Viral Shah 于 2012 年发起。
+
+**Julia 的核心特性**：
+- ⚡ **JIT 编译**：通过 LLVM 即时编译，性能接近 C/C++
+- 🔀 **多重派发（Multiple Dispatch）**：根据函数参数的类型选择不同方法
+- 🔢 **一流的类型系统**：类型可以作为参数传递，支持类型稳定编程
+- 🧮 **内置数学库**：线性代数、随机数、FFT 等开箱即用
+- 🔄 **可调用 C/Fortran/Python**：通过 ccall、PyCall 无缝对接
+- 🎯 **专为数值优化**：循环速度接近 C，数组索引从 1 开始（兼容 MATLAB 习惯）
+
+**典型应用**：
+- 科学计算与工程仿真（DifferentialEquations.jl）
+- 机器学习（Flux.jl、DifferentiableProgramming.jl）
+- 量子计算（Yao.jl）
+- 气象气候模型（ClimateMachine.jl）
+- 金融建模
+
+本关用 **Python 模拟 Julia 的核心编程范式**，帮你快速上手 Julia 思维 🚀`
+    },
+    {
+      id: 2,
+      title: '变量与类型',
+      type: 'example',
+      content: `Julia 是**强类型**语言，但类型推断让你几乎不用手动标注。
+理解类型系统是写出高性能 Julia 代码的关键。`,
+      code: `import numpy_ as np
+
+# Julia 的变量绑定（动态类型，但有类型推断）
+# x = 42          # Int64
+# y = 3.14        # Float64
+# z = "hello"     # String
+x, y, z = 42, 3.14, "hello"
+print(f"x={x} (type: {type(x).__name__})")
+print(f"y={y} (type: {type(y).__name__})")
+print(f"z={z} (type: {type(z).__name__})")
+
+# Julia 的类型注解（:type 运算符）
+# typeof(x) → Int64
+print()
+print("类型检查:")
+print(f"  is_integer(x): {isinstance(x, int)}")
+print(f"  is_float(y): {isinstance(y, float)}")
+print(f"  is_string(z): {isinstance(z, str)}")
+
+# Julia 的抽象类型（用于多重派发）
+# abstract type Number end
+# abstract type Real <: Number end
+# Int <: Real <: Number
+print()
+print("类型层次 (Julia 风格):")
+print("  Number (抽象类型)")
+print("  ├── Real (抽象类型)")
+print("  │   ├── Integer (抽象类型)")
+print("  │   │   └── Int64 (具体类型)")
+print("  │   └── AbstractFloat (抽象类型)")
+print("  │       └── Float64 (具体类型)")
+print("  └── Complex (抽象类型)")
+
+# Julia 的数组类型（类型稳定很重要）
+# Vector{Int} = Array{Int, 1}
+# Matrix{Float64} = Array{Float64, 2}
+int_vec = np.array([1, 2, 3, 4, 5], dtype=np.int64)
+float_vec = np.array([1.0, 2.0, 3.0], dtype=np.float64)
+print()
+print(f"Int 向量: {int_vec}, dtype: {int_vec.dtype}")
+print(f"Float 向量: {float_vec}, dtype: {float_vec.dtype}")
+
+# Julia 的 Union 类型（Union{Int, Float64}）
+# 等价于 Python 的 Union[int, float]
+from typing import Union
+mixed: Union[int, float] = 42
+print(f"Union 类型变量: {mixed} (接受 Int 或 Float)")`,
+      hint: 'Julia 的 typeof() → Python 的 type()；Julia 的 ::类型注解 → Python 的类型提示；Julia 的 Vector{Int} → NumPy 的 dtype 数组'
+    },
+    {
+      id: 3,
+      title: '数组与矩阵运算',
+      type: 'practice',
+      content: `Julia 的数组是一等公民，**多维数组操作**是科学计算的核心。
+Julia 数组索引从 **1 开始**（类似 MATLAB），支持切片、广播和向量化操作。`,
+      code: `import numpy_ as np
+
+# Julia 的一维数组（Vector）
+# v = [1, 2, 3, 4, 5]
+v = np.array([1, 2, 3, 4, 5])
+print("一维数组 v:", v)
+
+# Julia 的二维矩阵（Matrix）
+# M = [1 2 3; 4 5 6; 7 8 9]
+M = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
+print("二维矩阵 M:")
+print(M)
+print()
+
+# Julia 的切片（1-based）
+# v[2:4] → [2, 3, 4]
+# M[1:2, 2:3] → 前两行前两列
+print("切片操作:")
+print(f"  v[1:4] (Python 0-based): {v[0:4]}")  # Julia v[1:4]
+print(f"  M[0:2, 0:2]:\\n{M[0:2, 0:2]}")
+print()
+
+# Julia 的矩阵运算
+# A * B 矩阵乘法
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+C = A @ B  # 矩阵乘法
+print("矩阵乘法 A @ B:")
+print(C)
+print()
+
+# Julia 的广播（broadcasting）
+# v .+ 1  → 每个元素加 1
+# M .* 2  → 每个元素乘 2
+print("广播操作:")
+print(f"  v + 1 = {v + 1}")
+print(f"  M * 2 =\\n{M * 2}")
+print()
+
+# Julia 的线性代数
+# det(M)、inv(M)、eigen(M)
+print("线性代数运算:")
+print(f"  det(A) = {np.linalg.det(A):.1f}")
+print(f"  inv(A) =\\n{np.linalg.inv(A)}")
+
+eigenvalues, eigenvectors = np.linalg.eig(A)
+print(f"  eigenvalues: {eigenvalues}")
+print(f"  eigenvectors:\\n{eigenvectors}")
+
+# Julia 的多维数组
+# T = rand(2, 3, 4) → 2×3×4 三维张量
+T = np.random.rand(2, 3, 4)
+print(f"三维张量 shape: {T.shape}")
+print(f"切片 T[1, :, :] shape: {T[0].shape}")`,
+      hint: 'Julia 的矩阵乘法用 * 号（非元素乘），元素乘用 .*。Python/NumPy 中 @ 是矩阵乘，* 是元素乘。Julia 索引从 1 开始，Python 从 0 开始'
+    },
+    {
+      id: 4,
+      title: '函数与多重派发',
+      type: 'example',
+      content: `**多重派发（Multiple Dispatch）** 是 Julia 的灵魂特性：
+同一个函数名可以定义多个**方法**（method），Julia 根据参数类型自动选择最优实现。
+
+这比传统 OOP 的单派发（只能对 self 类型分派）更灵活，
+让通用库和专用优化可以无缝共存。`,
+      code: `import numpy_ as np
+from functools import singledispatch
+from typing import Union
+
+# 使用 functools.singledispatch 模拟 Julia 的多重派发
+# 注意：Python 只有单派发，Julia 支持多参数派发
+
+@singledispatch
+def describe(x):
+    """通用函数 - 根据参数类型选择实现"""
+    return f"未知类型: {type(x).__name__}"
+
+@describe.register(int)
+def _(x: int):
+    """整数方法"""
+    if x % 2 == 0:
+        return f"{x} 是偶数"
+    else:
+        return f"{x} 是奇数"
+
+@describe.register(float)
+def _(x: float):
+    """浮点数方法"""
+    return f"{x:.2f} 是浮点数，绝对值 = {abs(x):.2f}"
+
+@describe.register(str)
+def _(x: str):
+    """字符串方法"""
+    return f"字符串 '{x}' 长度={len(x)}, 大写='{x.upper()}'"
+
+@describe.register(np.ndarray)
+def _(x: np.ndarray):
+    """NumPy 数组方法"""
+    return f"数组 shape={x.shape}, dtype={x.dtype}, sum={x.sum():.2f}, mean={x.mean():.2f}"
+
+# 测试多重派发
+print("多重派发演示：")
+print(f"  describe(42) → {describe(42)}")
+print(f"  describe(3.14) → {describe(3.14)}")
+print(f"  describe('hello') → {describe('hello')}")
+print(f"  describe(np.array([1,2,3])) → {describe(np.array([1,2,3]))}")
+print()
+
+# Julia 的参数化类型 + 多重派发的威力
+# 同一算法针对 Float32 和 Float64 有不同优化实现
+# 模拟：对不同精度的浮点数使用不同的求和策略
+def smart_sum(arr):
+    """根据数据类型选择不同的求和策略"""
+    if arr.dtype == np.float32:
+        # Float32：补偿求和（Kahan summation）
+        s = np.float32(0.0)
+        c = np.float32(0.0)
+        for x in arr:
+            y = x - c
+            t = s + y
+            c = (t - s) - y
+            s = t
+        return float(s)
+    elif arr.dtype == np.float64:
+        # Float64：直接向量化求和
+        return float(np.sum(arr))
+    else:
+        return float(np.sum(arr))
+
+# Float32 精度求和
+arr32 = np.random.randn(100000).astype(np.float32)
+result32 = smart_sum(arr32)
+print(f"Float32 求和 (Kahan): {result32:.6f}")
+
+# Float64 精度求和
+arr64 = arr32.astype(np.float64)
+result64 = smart_sum(arr64)
+print(f"Float64 求和 (向量化): {result64:.6f}")
+print(f"差异: {abs(result32 - result64):.6e}")`,
+      hint: 'Julia 的多重派发比 Python 更强大——支持多参数类型分派。Python 的 singledispatch 只支持单参数派发。Julia 对 Float32/Float64 有专门的优化实现'
+    },
+    {
+      id: 5,
+      title: '微分方程求解',
+      type: 'practice',
+      content: `Julia 在**微分方程求解**方面是业界标杆，DifferentialEquations.jl 提供了
+丰富的求解器和优秀的性能。
+
+本练习用 Python 模拟求解**常微分方程（ODE）**的过程，
+感受数值求解的基本思想。`,
+      code: `import numpy_ as np
+from scipy_ import integrate
+
+# 示例 1：指数增长模型
+# dy/dt = r*y, y(0) = y0
+# 解析解：y(t) = y0 * exp(r*t)
+r = 0.5
+y0 = 1.0
+
+def exp_growth(t, y):
+    return r * y
+
+t_span = (0, 5)
+t_eval = np.linspace(0, 5, 100)
+
+# RK45 求解（类似于 Julia 的 Tsit5 求解器）
+sol = integrate.solve_ivp(exp_growth, t_span, [y0], method='RK45', t_eval=t_eval)
+
+print("指数增长模型 dy/dt = 0.5*y")
+print(f"  t=0: y={sol.y[0][0]:.4f} (expected: 1.0000)")
+print(f"  t=5: y={sol.y[0][-1]:.4f} (expected: {y0 * np.exp(r * 5):.4f})")
+print()
+
+# 示例 2：Logistic 增长模型
+# dy/dt = r*y*(1 - y/K), y(0) = 0.1, K=10
+r_log = 1.0
+K = 10.0
+
+def logistic(t, y):
+    return r_log * y * (1 - y / K)
+
+sol_log = integrate.solve_ivp(logistic, (0, 15), [0.1], method='RK45', t_eval=np.linspace(0, 15, 200))
+
+print("Logistic 增长模型 dy/dt = y*(1-y/10)")
+print(f"  t=0:  y={sol_log.y[0][0]:.4f}")
+print(f"  t=5:  y={sol_log.y[0][np.searchsorted(sol_log.t, 5)]:.4f}")
+print(f"  t=15: y={sol_log.y[0][-1]:.4f} (趋近于 K=10)")
+print()
+
+# 示例 3：二阶 ODE - 简谐振动
+# d²x/dt² + ω²*x = 0 → 写成一阶方程组
+ω = 2.0
+
+def harmonic(t, state):
+    x, v = state
+    return [v, -ω**2 * x]
+
+sol_harm = integrate.solve_ivp(harmonic, (0, 20), [1.0, 0.0], method='RK45', t_eval=np.linspace(0, 20, 500))
+
+print("简谐振动 d²x/dt² + 4*x = 0")
+print(f"  t=0:  x={sol_harm.y[0][0]:.4f}, v={sol_harm.y[1][0]:.4f}")
+print(f"  t=π/4:  x≈cos(π/2)={np.cos(np.pi/2):.4f} (数值: {sol_harm.y[0][np.searchsorted(sol_harm.t, np.pi/4)]:.4f})")
+print(f"  t=π/2:  x≈cos(π)={np.cos(np.pi):.4f} (数值: {sol_harm.y[0][np.searchsorted(sol_harm.t, np.pi/2)]:.4f})")
+print()
+print("✅ 三个 ODE 模型都已成功求解！")
+print("Julia 的 DifferentialEquations.jl 在更复杂的系统（如偏微分方程、随机微分方程）上性能更优。")`,
+      hint: 'ODE 求解需要将高阶方程化为一阶方程组。Julia 的 DifferentialEquations.jl 有更多专业求解器（Tsit5、Vern7、Rodas4 等）和自动微分支持'
+    },
+    {
+      id: 6,
+      title: '性能对比',
+      type: 'explanation',
+      content: `Julia 的设计哲学是 **"像 Python 一样简单，像 C 一样快"**。
+
+**典型性能对比**（以 C 为基准 1.0，数值越小越快）：
+
+| 任务 | C | Julia | Python | MATLAB |
+|------|---|-------|--------|--------|
+| 递归斐波那契 | 1.0 | 1.5 | ~50 | ~30 |
+| 矩阵乘法 | 1.0 | 1.2 | ~3 | ~2 |
+| 数值积分 | 1.0 | 1.1 | ~10 | ~5 |
+| 图像处理 | 1.0 | 1.3 | ~20 | ~8 |
+| 机器学习训练 | 1.0 | 1.5 | ~2-5(GPU) | ~10 |
+
+**关键因素**：
+1. **JIT 编译**：Julia 代码编译成原生机器码，无解释执行开销
+2. **类型稳定**：当所有变量类型在编译时已知，编译器可生成最优代码
+3. **数组按列优先**：Fortran 顺序，对科学计算更友好
+4. **无全局解释器锁（GIL）**：多线程真正并行
+
+**何时选 Julia**：
+- 🔥 大规模数值计算（百万级变量、复杂网格）
+- 🔬 需要写自己的数值算法（有限元、谱方法）
+- ⚡ 实时仿真（金融、物理、生物）
+- 🤖 科学机器学习（Differentiable Programming）
+
+**何时仍选 Python**：
+- 🌐 Web 开发、爬虫、自动化
+- 📊 快速数据分析（pandas 生态更成熟）
+- 🎨 深度学习（PyTorch/TensorFlow 生态）
+- 🧪 原型验证（快速迭代）
+
+两种语言在科学计算领域各有优势，很多研究者**同时使用**——
+用 Python 做数据处理和可视化，用 Julia 做核心算法计算 🤝`
+    }
+  ],
+  37: [
+    {
+      id: 1,
+      title: '输入输出基础',
+      type: 'explanation',
+      content: `**Python 输入输出** 是与用户交互的基础。
+
+**input() 函数**：从控制台读取用户输入，返回字符串类型。
+
+**print() 函数**：向控制台输出信息，支持多个参数。
+
+\`\`\`python
+# 基本输入
+name = input("请输入你的名字: ")
+print("你好,", name)
+
+# 多参数输出
+print("年龄:", 20, "身高:", 1.75)
+\`\`\`
+
+**注意**：input() 返回的永远是字符串，需要用 int()/float() 转换类型。`
+    },
+    {
+      id: 2,
+      title: '格式化输出',
+      type: 'explanation',
+      content: `Python 提供了三种格式化字符串的方式：
+
+**1. % 格式化**（老式写法）
+\`\`\`python
+name, age = "小明", 18
+print("我叫%s，今年%d岁" % (name, age))
+\`\`\`
+
+**2. str.format() 方法**
+\`\`\`python
+print("我叫{0}，今年{1}岁".format(name, age))
+print("我叫{name}，今年{age}岁".format(name=name, age=age))
+\`\`\`
+
+**3. f-string（推荐，Python 3.6+）**
+\`\`\`python
+print(f"我叫{name}，今年{age}岁")
+print(f"明年我{age + 1}岁")
+\`\`\`
+
+f-string 是最简洁高效的方式，支持在字符串中直接嵌入表达式。`
+    },
+    {
+      id: 3,
+      title: 'f-string 进阶用法',
+      type: 'example',
+      content: `f-string 支持格式说明符：
+
+\`\`\`python
+# 数字格式化
+pi = 3.14159265
+print(f"π ≈ {pi:.4f}")           # π ≈ 3.1416
+print(f"{42:08d}")                # 00000042
+print(f"{0.9567:.2%}")            # 95.67%
+
+# 对齐
+print(f"{'左对齐':<10}|{'右对齐':>10}|{'居中':^10}")
+
+# 调试（Python 3.8+）
+x = 42
+print(f"{x = }")                  # x = 42
+print(f"{x = :08b}")              # x = 00101010
+
+# 日期时间
+from datetime import datetime
+now = datetime.now()
+print(f"{now:%Y-%m-%d %H:%M}")
+\`\`\`
+`,
+      code: `name = input("请输入姓名: ")
+score = float(input("请输入分数: "))
+print(f"{name}，你的分数是 {score:.1f}，等级: {'优秀' if score >= 90 else '及格'}")`
+    },
+    {
+      id: 4,
+      title: '文件读写',
+      type: 'explanation',
+      content: `Python 使用 open() 函数进行文件操作：
+
+\`\`\`python
+# 写入文件
+with open("data.txt", "w", encoding="utf-8") as f:
+    f.write("第一行\\n")
+    f.write("第二行\\n")
+
+# 读取文件
+with open("data.txt", "r", encoding="utf-8") as f:
+    content = f.read()          # 读取全部
+    # lines = f.readlines()    # 读取所有行为列表
+    # line = f.readline()      # 读取一行
+
+# 追加写入
+with open("data.txt", "a", encoding="utf-8") as f:
+    f.write("新的一行\\n")
+\`\`\`
+
+**文件模式**：r（读）、w（写，覆盖）、a（追加）、rb/wb（二进制）
+
+**with 语句**：自动关闭文件，推荐使用。`
+    },
+    {
+      id: 5,
+      title: '练习：成绩统计器',
+      type: 'exercise',
+      content: `编写一个成绩统计器：
+1. 从用户输入读取5个成绩
+2. 计算总分、平均分、最高分、最低分
+3. 用格式化输出展示结果
+
+\`\`\`python
+# 在这里编写代码
+
+\`\`\`
+`,
+      code: `scores = []
+for i in range(5):
+    s = float(input(f"请输入第{i+1}个成绩: "))
+    scores.append(s)
+
+total = sum(scores)
+avg = total / len(scores)
+mx, mn = max(scores), min(scores)
+
+print("=" * 30)
+print(f"成绩统计报告")
+print("=" * 30)
+print(f"总分:   {total:.1f}")
+print(f"平均分: {avg:.2f}")
+print(f"最高:   {mx:.1f}")
+print(f"最低:   {mn:.1f}")
+print(f"极差:   {mx - mn:.1f}")
+`
+    },
+    {
+      id: 6,
+      title: '第37关测验',
+      type: 'quiz',
+      content: `**问题1**：input() 函数返回值的类型是什么？
+- A. int
+- B. float  
+- C. str
+- D. 取决于输入内容
+
+**问题2**：以下哪个是 Python 3.6+ 推荐的字符串格式化方式？
+- A. % 格式化
+- B. str.format()
+- C. f-string
+- D. string.Template
+
+**问题3**：with 语句的主要作用是什么？
+- A. 加密文件
+- B. 自动管理资源（如自动关闭文件）
+- C. 提高文件读取速度
+- D. 创建临时文件
+
+**答案**：1.C  2.C  3.B`
+    }
+  ],
+  // 第38关
+  38: [
+    {
+      id: 1,
+      title: '迭代器基础',
+      type: 'explanation',
+      content: `**迭代器（Iterator）** 是 Python 中用于遍历可迭代对象的机制。
+
+**两个核心概念**：
+- **可迭代对象（Iterable）**：可以用 for 循环遍历的对象（list、dict、str 等）
+- **迭代器（Iterator）**：实现了 __iter__() 和 __next__() 方法的对象
+
+\`\`\`python
+# 创建迭代器
+my_list = [1, 2, 3]
+it = iter(my_list)    # 调用 __iter__()
+
+next(it)  # 1  调用 __next__()
+next(it)  # 2
+next(it)  # 3
+next(it)  # StopIteration 异常
+\`\`\`
+
+for 循环本质上就是通过迭代器实现的。`
+    },
+    {
+      id: 2,
+      title: '自定义迭代器',
+      type: 'example',
+      content: `可以通过实现 __iter__ 和 __next__ 方法创建自定义迭代器：
+
+\`\`\`python
+class MyRange:
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+        self.current = start
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current >= self.end:
+            raise StopIteration
+        val = self.current
+        self.current += 1
+        return val
+
+# 使用
+for x in MyRange(0, 5):
+    print(x)  # 0, 1, 2, 3, 4
+\`\`\`
+`,
+      code: `class Fibonacci:
+    def __init__(self, n):
+        self.n = n
+        self.a, self.b = 0, 1
+        self.count = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.count >= self.n:
+            raise StopIteration
+        self.a, self.b = self.b, self.a + self.b
+        self.count += 1
+        return self.a
+
+for num in Fibonacci(10):
+    print(num, end=' ')
+`
+    },
+    {
+      id: 3,
+      title: '生成器 yield',
+      type: 'explanation',
+      content: `**生成器（Generator）** 是一种特殊的迭代器，通过 yield 关键字实现。
+
+\`\`\`python
+# 普通函数 vs 生成器
+def normal_func():
+    return [1, 2, 3, 4, 5]  # 一次性生成所有数据
+
+def generator():
+    yield 1
+    yield 2
+    yield 3
+    yield 4
+    yield 5
+
+# 使用生成器
+g = generator()
+next(g)  # 1
+next(g)  # 2
+
+# for 循环自动迭代
+for val in generator():
+    print(val)
+\`\`\`
+
+**优势**：节省内存，惰性求值，适合处理大数据流。`
+    },
+    {
+      id: 4,
+      title: '列表推导式 vs 生成器',
+      type: 'explanation',
+      content: `\`\`\`python
+# 列表推导式：一次性生成所有结果
+squares_list = [x**2 for x in range(1000000)]  # 占用大量内存
+
+# 生成器表达式：惰性求值，节省内存
+squares_gen = (x**2 for x in range(1000000))  # 几乎不占内存
+
+# 生成器在 for 循环中自动迭代
+for sq in squares_gen:
+    if sq > 100:
+        break
+    print(sq)
+\`\`\`
+
+**语法区别**：列表推导式用 \`[]\`，生成器表达式用 \`()\`
+
+**适用场景**：
+- 数据量大时用生成器
+- 需要多次遍历用列表（生成器只能遍历一次）
+- 需要索引访问用列表`
+    },
+    {
+      id: 5,
+      title: '练习：素数生成器',
+      type: 'exercise',
+      content: `编写一个生成器，生成指定范围内的所有素数：
+
+\`\`\`python
+def prime_generator(start, end):
+    # 在这里编写代码
+    pass
+
+# 测试
+for p in prime_generator(1, 50):
+    print(p, end=' ')
+\`\`\`
+`,
+      code: `def prime_generator(start, end):
+    for num in range(start, end + 1):
+        if num < 2:
+            continue
+        is_prime = True
+        for i in range(2, int(num**0.5) + 1):
+            if num % i == 0:
+                is_prime = False
+                break
+        if is_prime:
+            yield num
+
+for p in prime_generator(1, 50):
+    print(p, end=' ')
+`
+    },
+    {
+      id: 6,
+      title: '第38关测验',
+      type: 'quiz',
+      content: `**问题1**：迭代器的两个核心方法是什么？
+- A. init() 和 next()
+- B. __iter__() 和 __next__()
+- C. start() 和 stop()
+- D. first() 和 last()
+
+**问题2**：生成器与普通函数的主要区别？
+- A. 生成器更快
+- B. 生成器使用 return 而非 yield
+- C. 生成器使用 yield 惰性生成值
+- D. 没有区别
+
+**问题3**：生成器表达式和列表推导式的主要区别？
+- A. 语法完全相同
+- B. 生成器用圆括号，惰性求值
+- C. 列表推导式更省内存
+- D. 生成器不能被迭代
+
+**答案**：1.B  2.C  3.B`
+    }
+  ],
+  // 第39关
+  39: [
+    {
+      id: 1,
+      title: 'JSON 处理',
+      type: 'explanation',
+      content: `**JSON（JavaScript Object Notation）** 是跨平台数据交换的主流格式。
+
+\`\`\`python
+import json
+
+# Python 对象 → JSON 字符串
+data = {"name": "小明", "age": 18, "hobbies": ["编程", "阅读"]}
+json_str = json.dumps(data, ensure_ascii=False, indent=2)
+
+# JSON 字符串 → Python 对象
+parsed = json.loads(json_str)
+
+# Python 对象 → JSON 文件
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+# JSON 文件 → Python 对象
+with open("data.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+\`\`\`
+
+**常用参数**：ensure_ascii=False（支持中文）、indent=2（格式化缩进）`
+    },
+    {
+      id: 2,
+      title: 'JSON 进阶',
+      type: 'example',
+      content: `\`\`\`python
+from datetime import datetime
+
+# 处理自定义对象序列化
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+data = {"name": "小明", "created_at": datetime.now()}
+json_str = json.dumps(data, cls=CustomEncoder, ensure_ascii=False)
+
+# 反序列化时的类型转换
+def decoder_hook(d):
+    if 'created_at' in d:
+        d['created_at'] = datetime.fromisoformat(d['created_at'])
+    return d
+
+parsed = json.loads(json_str, object_hook=decoder_hook)
+\`\`\`
+`,
+      code: `import json
+
+students = [
+    {"name": "张三", "score": 95},
+    {"name": "李四", "score": 87},
+    {"name": "王五", "score": 92}
+]
+
+# 保存到文件
+with open("students.json", "w", encoding="utf-8") as f:
+    json.dump(students, f, ensure_ascii=False, indent=2)
+
+# 读取并统计
+with open("students.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+avg = sum(s["score"] for s in data) / len(data)
+print(f"平均分: {avg:.1f}")
+for s in sorted(data, key=lambda x: x["score"], reverse=True):
+    print(f"  {s['name']}: {s['score']}")
+`
+    },
+    {
+      id: 3,
+      title: 'XML 解析',
+      type: 'explanation',
+      content: `**XML** 是另一种常见的数据交换格式。Python 使用 xml.etree.ElementTree 解析。
+
+\`\`\`python
+import xml.etree.ElementTree as ET
+
+xml_str = """
+<courses>
+    <course name="Python" duration="40">
+        <instructor>张老师</instructor>
+    </course>
+    <course name="Java" duration="60">
+        <instructor>李老师</instructor>
+    </course>
+</courses>
+"""
+
+# 解析 XML
+root = ET.fromstring(xml_str)
+
+# 遍历元素
+for course in root.findall('course'):
+    name = course.get('name')
+    duration = course.get('duration')
+    instructor = course.find('instructor').text
+    print(f"{name}({duration}h): {instructor}")
+\`\`\`
+`,
+      code: `import xml.etree.ElementTree as ET
+
+xml_data = """
+<library>
+    <book category="编程">
+        <title>Python 入门</title>
+        <author>菜鸟</author>
+        <year>2024</year>
+    </book>
+    <book category="科学">
+        <title>时间简史</title>
+        <author>霍金</author>
+        <year>1988</year>
+    </book>
+</library>
+"""
+
+root = ET.fromstring(xml_data)
+for book in root.findall('book'):
+    cat = book.get('category')
+    title = book.find('title').text
+    author = book.find('author').text
+    print(f"[{cat}] 《{title}》 - {author}")
+`
+    },
+    {
+      id: 4,
+      title: 'pickle 序列化',
+      type: 'explanation',
+      content: `**pickle** 模块可以序列化任意 Python 对象（仅限 Python 使用）。
+
+\`\`\`python
+import pickle
+
+# 序列化
+data = {"name": "小明", "scores": [90, 85, 92]}
+with open("data.pkl", "wb") as f:
+    pickle.dump(data, f)
+
+# 反序列化
+with open("data.pkl", "rb") as f:
+    loaded = pickle.load(f)
+
+# 注意：pickle 只能在 Python 之间使用，不安全！
+# 不要加载不信任来源的 .pkl 文件
+\`\`\`
+
+**JSON vs Pickle 对比**：
+- JSON：通用格式，跨语言，可读，安全
+- Pickle：Python 专用，不可读，可序列化任意对象，**不安全**`
+    },
+    {
+      id: 5,
+      title: '练习：学生数据管理器',
+      type: 'exercise',
+      content: `实现一个学生数据管理器：
+1. 将学生列表保存为 JSON 文件
+2. 支持添加、删除、查询学生
+3. 读取 JSON 文件并展示统计信息
+
+\`\`\`python
+# 在这里编写代码
+\`\`\`
+`,
+      code: `import json
+import os
+
+FILE = "students.json"
+
+def load():
+    if os.path.exists(FILE):
+        with open(FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+def save(data):
+    with open(FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def add_student(name, age, score):
+    data = load()
+    data.append({"name": name, "age": age, "score": score})
+    save(data)
+
+def search(keyword):
+    return [s for s in load() if keyword in s["name"]]
+
+# 演示
+add_student("小明", 20, 95)
+add_student("小红", 19, 88)
+print(search("小"))
+print(f"共 {len(load())} 名学生")
+`
+    },
+    {
+      id: 6,
+      title: '第39关测验',
+      type: 'quiz',
+      content: `**问题1**：json.dumps() 的 ensure_ascii=False 参数作用？
+- A. 压缩输出
+- B. 允许中文正常显示
+- C. 加密数据
+- D. 格式化缩进
+
+**问题2**：pickle 模块的主要风险是什么？
+- A. 序列化速度慢
+- B. 文件太大
+- C. 加载不信任文件可能执行恶意代码
+- D. 不支持中文
+
+**问题3**：XML 中获取元素属性的方法？
+- A. element.attribute
+- B. element.get('attr_name')
+- C. element['attr_name']
+- D. element.attr()
+
+**答案**：1.B  2.C  3.B`
+    }
+  ],
+  // 第40关
+  40: [
+    {
+      id: 1,
+      title: 'SQLite 数据库',
+      type: 'explanation',
+      content: `**SQLite** 是 Python 内置的轻量级数据库，无需安装配置。
+
+\`\`\`python
+import sqlite3
+
+# 连接数据库（自动创建）
+conn = sqlite3.connect('example.db')
+cursor = conn.cursor()
+
+# 创建表
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        age INTEGER
+    )
+''')
+
+# 插入数据
+cursor.execute('INSERT INTO users (name, age) VALUES (?, ?)', ('小明', 20))
+conn.commit()
+
+# 查询
+cursor.execute('SELECT * FROM users')
+rows = cursor.fetchall()
+for row in rows:
+    print(row)
+
+conn.close()
+\`\`\`
+`,
+      code: `import sqlite3
+
+conn = sqlite3.connect('school.db')
+c = conn.cursor()
+
+c.execute('''CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    score REAL
+)''')
+
+# 插入
+c.execute("INSERT INTO students (name, score) VALUES (?, ?)", ("小明", 95.5))
+c.execute("INSERT INTO students (name, score) VALUES (?, ?)", ("小红", 88.0))
+conn.commit()
+
+# 查询统计
+c.execute("SELECT name, score FROM students WHERE score > ?", (90,))
+for row in c.fetchall():
+    print(f"{row[0]}: {row[1]}")
+
+c.execute("SELECT AVG(score) FROM students")
+print(f"平均分: {c.fetchone()[0]:.1f}")
+
+conn.close()
+`
+    },
+    {
+      id: 2,
+      title: 'SQL 操作进阶',
+      type: 'explanation',
+      content: `\`\`\`python
+# 更新数据
+cursor.execute('UPDATE users SET age = ? WHERE name = ?', (21, '小明'))
+conn.commit()
+
+# 删除数据
+cursor.execute('DELETE FROM users WHERE name = ?', ('小红',))
+conn.commit()
+
+# 事务处理
+try:
+    cursor.execute('BEGIN')
+    cursor.execute('INSERT INTO users (name) VALUES (?)', ('甲',))
+    cursor.execute('INSERT INTO users (name) VALUES (?)', ('乙',))
+    conn.commit()  # 提交事务
+except:
+    conn.rollback()  # 回滚事务
+
+# 使用 with 语句（自动提交/回滚）
+with conn:
+    cursor.execute('INSERT INTO users (name) VALUES (?)', ('丙',))
+\`\`\`
+`,
+      code: `import sqlite3
+
+conn = sqlite3.connect('shop.db')
+c = conn.cursor()
+
+c.execute('''CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    price REAL,
+    stock INTEGER
+)''')
+
+# 批量插入
+products = [("手机", 3999, 50), ("电脑", 5999, 20), ("耳机", 299, 100)]
+c.executemany("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", products)
+conn.commit()
+
+# 综合查询
+c.execute("""
+    SELECT name, price, stock,
+           CASE WHEN price < 1000 THEN '低价'
+                WHEN price < 5000 THEN '中价'
+                ELSE '高价' END as category
+    FROM products
+    ORDER BY price DESC
+""")
+for row in c.fetchall():
+    print(f"{row[0]}: ¥{row[1]} ({row[2]}件) - {row[3]}")
+
+conn.close()
+`
+    },
+    {
+      id: 3,
+      title: 'MySQL 数据库',
+      type: 'explanation',
+      content: `连接 MySQL 需要安装 pymysql 或 mysql-connector-python：
+
+\`\`\`python
+# pip install pymysql
+import pymysql
+
+conn = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='123456',
+    database='test',
+    charset='utf8mb4'
+)
+
+cursor = conn.cursor()
+
+# 与 SQLite 操作类似
+cursor.execute('SELECT * FROM users')
+rows = cursor.fetchall()
+
+conn.close()
+\`\`\`
+
+**SQLite vs MySQL**：
+- SQLite：文件数据库，零配置，适合小型应用
+- MySQL：服务器数据库，支持多用户并发，适合生产环境`
+    },
+    {
+      id: 4,
+      title: 'SQLAlchemy ORM',
+      type: 'explanation',
+      content: `**SQLAlchemy** 是 Python 最流行的 ORM 框架：
+
+\`\`\`python
+# pip install sqlalchemy
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+Base = declarative_base()
+
+class User(Base):
+    __tabname__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+    age = Column(Integer)
+
+# 创建引擎
+engine = create_engine('sqlite:///example.db')
+Base.metadata.create_all(engine)
+
+# 使用 Session
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# 添加
+session.add(User(name='小明', age=20))
+session.commit()
+
+# 查询
+users = session.query(User).filter(User.age > 18).all()
+for u in users:
+    print(u.name, u.age)
+\`\`\`
+`,
+      code: `from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+Base = declarative_base()
+
+class Student(Base):
+    __tabname__ = 'students'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+    score = Column(Float)
+
+engine = create_engine('sqlite:///school2.db')
+Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# CRUD
+session.add_all([
+    Student(name="小明", score=95),
+    Student(name="小红", score=88)
+])
+session.commit()
+
+# 查询
+top = session.query(Student).filter(Student.score > 90).all()
+for s in top:
+    print(f"{s.name}: {s.score}")
+
+session.close()
+`
+    },
+    {
+      id: 5,
+      title: '练习：图书管理系统',
+      type: 'exercise',
+      content: `实现一个简单的图书管理系统：
+1. 创建 books 表（id, title, author, is_borrowed）
+2. 添加图书
+3. 借阅/归还图书
+4. 查询所有图书状态
+
+\`\`\`python
+import sqlite3
+# 在这里编写代码
+\`\`\`
+`,
+      code: `import sqlite3
+
+conn = sqlite3.connect('library.db')
+c = conn.cursor()
+
+c.execute('''CREATE TABLE IF NOT EXISTS books (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    author TEXT,
+    is_borrowed INTEGER DEFAULT 0
+)''')
+
+def add_book(title, author):
+    c.execute("INSERT INTO books (title, author) VALUES (?, ?)", (title, author))
+    conn.commit()
+
+def borrow(book_id):
+    c.execute("UPDATE books SET is_borrowed = 1 WHERE id = ?", (book_id,))
+    conn.commit()
+
+def return_book(book_id):
+    c.execute("UPDATE books SET is_borrowed = 0 WHERE id = ?", (book_id,))
+    conn.commit()
+
+def list_books():
+    c.execute("SELECT * FROM books")
+    for b in c.fetchall():
+        status = "已借出" if b[3] else "在架"
+        print(f"[{b[0]}] {b[1]} - {b[2]} ({status})")
+
+add_book("Python 入门", "菜鸟")
+add_book("算法导论", "CLRS")
+borrow(1)
+list_books()
+return_book(1)
+list_books()
+conn.close()
+`
+    },
+    {
+      id: 6,
+      title: '第40关测验',
+      type: 'quiz',
+      content: `**问题1**：SQLite 创建数据库的方式？
+- A. 需要单独安装服务
+- B. 连接时自动创建为文件
+- C. 使用 Docker
+- D. 需要配置环境变量
+
+**问题2**：SQL 注入的防护方式？
+- A. 字符串拼接 SQL
+- B. 使用参数化查询（占位符 ?）
+- C. 加密 SQL
+- D. 限制访问 IP
+
+**问题3**：SQLAlchemy 中 Session 的作用？
+- A. 数据库连接
+- B. ORM 会话，管理对象生命周期和事务
+- C. 表结构定义
+- D. 执行 SQL
+
+**答案**：1.B  2.B  3.B`
+    }
+  ],
+  // 第41关
+  41: [
+    {
+      id: 1,
+      title: '线程基础',
+      type: 'explanation',
+      content: `**线程（Thread）** 是 CPU 调度的基本单位，Python 使用 threading 模块。
+
+\`\`\`python
+import threading
+import time
+
+def task(name, duration):
+    print(f"任务 {name} 开始")
+    time.sleep(duration)
+    print(f"任务 {name} 完成")
+
+# 创建线程
+t1 = threading.Thread(target=task, args=('A', 2))
+t2 = threading.Thread(target=task, args=('B', 1))
+
+# 启动
+t1.start()
+t2.start()
+
+# 等待完成
+t1.join()
+t2.join()
+print("所有任务完成")
+\`\`\`
+`,
+      code: `import threading
+import time
+
+def countdown(name, n):
+    for i in range(n, 0, -1):
+        print(f"[{name}] {i}")
+        time.sleep(0.5)
+    print(f"[{name}] 完成!")
+
+# 创建多个线程
+threads = [
+    threading.Thread(target=countdown, args=("Timer-A", 5)),
+    threading.Thread(target=countdown, args=("Timer-B", 3)),
+]
+
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print("倒计时结束!")
+`
+    },
+    {
+      id: 2,
+      title: 'GIL 全局解释器锁',
+      type: 'explanation',
+      content: `**GIL（Global Interpreter Lock）** 是 CPython 的全局锁，确保同一时刻只有一个线程执行 Python 字节码。
+
+**影响**：
+- CPU 密集型任务：多线程**不能**加速（GIL 锁竞争）
+- IO 密集型任务：多线程**可以**加速（IO 时释放 GIL）
+- 需要真正并行：使用 multiprocessing（多进程）
+
+\`\`\`python
+# CPU 密集型：用多进程
+from multiprocessing import Process
+
+def cpu_intensive():
+    total = sum(range(10000000))
+
+# IO 密集型：用多线程
+import threading
+def io_intensive():
+    # 网络请求、文件读写等
+    pass
+\`\`\`
+`,
+      code: `import threading
+import time
+
+# CPU 密集型任务
+def cpu_work():
+    total = 0
+    for i in range(10_000_000):
+        total += i
+
+# 单线程
+start = time.time()
+cpu_work()
+cpu_work()
+print(f"单线程: {time.time() - start:.2f}s")
+
+# 多线程（CPU 密集型，GIL 导致几乎无加速）
+start = time.time()
+t1 = threading.Thread(target=cpu_work)
+t2 = threading.Thread(target=cpu_work)
+t1.start(); t2.start()
+t1.join(); t2.join()
+print(f"多线程: {time.time() - start:.2f}s")
+`
+    },
+    {
+      id: 3,
+      title: '线程同步',
+      type: 'explanation',
+      content: `多个线程访问共享数据时需要同步机制：
+
+\`\`\`python
+import threading
+
+counter = 0
+lock = threading.Lock()
+
+def increment():
+    global counter
+    for _ in range(100000):
+        with lock:  # 获取锁
+            counter += 1
+
+threads = [threading.Thread(target=increment) for _ in range(10)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"预期: 1000000, 实际: {counter}")
+\`\`\`
+
+**其他同步机制**：
+- Lock：互斥锁，最常用
+- RLock：可重入锁
+- Condition：条件变量
+- Event：事件通知
+- Semaphore：信号量`
+    },
+    {
+      id: 4,
+      title: '多进程编程',
+      type: 'explanation',
+      content: `multiprocessing 模块绕过 GIL，实现真正的并行计算：
+
+\`\`\`python
+from multiprocessing import Process, Pool
+
+def worker(n):
+    return n * n
+
+# 多进程
+if __name__ == '__main__':
+    # 方式1：Process
+    p1 = Process(target=worker, args=(5,))
+    p1.start()
+    p1.join()
+    
+    # 方式2：进程池
+    with Pool(4) as pool:
+        results = pool.map(worker, [1, 2, 3, 4, 5])
+        print(results)  # [1, 4, 9, 16, 25]
+\`\`\`
+
+**选择指南**：
+- IO 密集 → 多线程（threading）
+- CPU 密集 → 多进程（multiprocessing）
+- 简单并发 → asyncio（第42关）`
+    },
+    {
+      id: 5,
+      title: '练习：并行下载器',
+      type: 'exercise',
+      content: `使用多线程实现一个并行下载器框架（模拟）：
+1. 创建多个线程模拟下载任务
+2. 使用 Lock 保护共享的进度计数器
+3. 显示每个任务的完成状态
+
+\`\`\`python
+# 在这里编写代码
+\`\`\`
+`,
+      code: `import threading
+import time
+import random
+
+progress = 0
+lock = threading.Lock()
+results = []
+
+def download(name, size):
+    global progress
+    elapsed = random.uniform(0.5, 2.0)
+    time.sleep(elapsed)
+    with lock:
+        progress += size
+        results.append(f"{name}: {elapsed:.1f}s")
+    print(f"[完成] {name} ({size}MB)")
+
+tasks = [("文件A", 50), ("文件B", 30), ("文件C", 80), ("文件D", 20)]
+threads = [threading.Thread(target=download, args=t) for t in tasks]
+
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"\\n总进度: {progress}MB")
+for r in results:
+    print(f"  {r}")
+`
+    },
+    {
+      id: 6,
+      title: '第41关测验',
+      type: 'quiz',
+      content: `**问题1**：GIL 对 Python 多线程的影响？
+- A. 完全不允许多线程
+- B. CPU 密集型任务无法真正并行
+- C. 线程执行更快
+- D. 自动同步所有线程
+
+**问题2**：IO 密集型任务适合用什么？
+- A. 多进程
+- B. 多线程或异步
+- C. 单线程
+- D. 递归
+
+**问题3**：threading.Lock 的作用？
+- A. 加速线程执行
+- B. 防止多线程竞争共享资源
+- C. 创建新线程
+- D. 结束线程
+
+**答案**：1.B  2.B  3.B`
+    }
+  ],
+  // 第42关
+  42: [
+    {
+      id: 1,
+      title: '异步编程概念',
+      type: 'explanation',
+      content: `**异步编程** 是一种非阻塞的并发模型，Python 使用 asyncio 模块。
+
+\`\`\`python
+import asyncio
+
+async def hello():
+    print("Hello")
+    await asyncio.sleep(1)  # 非阻塞等待
+    print("World")
+
+# 运行异步函数
+asyncio.run(hello())
+\`\`\`
+
+**核心概念**：
+- async def：定义协程（coroutine）
+- await：等待异步操作完成
+- Task：包装协程以便并发执行
+- Event Loop：事件循环，调度所有 Task`
+    },
+    {
+      id: 2,
+      title: '并发执行多个任务',
+      type: 'example',
+      content: `\`\`\`python
+import asyncio
+
+async def fetch_data(name, delay):
+    print(f"开始获取 {name}...")
+    await asyncio.sleep(delay)
+    print(f"{name} 获取完成")
+    return f"{name}-data"
+
+async def main():
+    # 并发执行
+    task1 = asyncio.create_task(fetch_data("API-A", 2))
+    task2 = asyncio.create_task(fetch_data("API-B", 1))
+    
+    # 等待所有任务完成
+    results = await asyncio.gather(task1, task2)
+    print(f"结果: {results}")
+
+asyncio.run(main())
+\`\`\`
+`,
+      code: `import asyncio
+
+async def producer(name, count):
+    for i in range(count):
+        print(f"[{name}] 生产 item-{i}")
+        await asyncio.sleep(0.3)
+    return f"{name} 完成"
+
+async def main():
+    # gather 并发执行
+    results = await asyncio.gather(
+        producer("Worker-A", 3),
+        producer("Worker-B", 4),
+        producer("Worker-C", 2),
+    )
+    print(f"所有任务完成: {results}")
+
+asyncio.run(main())
+`
+    },
+    {
+      id: 3,
+      title: 'asyncio 实际应用',
+      type: 'explanation',
+      content: `异步编程常用于网络请求、定时任务等场景：
+
+\`\`\`python
+# 异步 HTTP 请求（需 aiohttp 库）
+import aiohttp
+
+async def fetch_url(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            return await resp.text()
+
+# 定时任务
+async def periodic():
+    while True:
+        print("执行定时任务")
+        await asyncio.sleep(60)  # 每60秒执行
+
+# 异步文件 IO（aiofiles）
+import aiofiles
+
+async def read_file(path):
+    async with aiofiles.open(path) as f:
+        return await f.read()
+\`\`\`
+
+**异步 vs 多线程**：
+- 异步：单线程，协作式调度，无锁竞争
+- 多线程：多线程，抢占式调度，需要锁同步`
+    },
+    {
+      id: 4,
+      title: '练习：异步计时器',
+      type: 'exercise',
+      content: `实现一个异步计时器，可以同时启动多个倒计时任务：
+
+\`\`\`python
+import asyncio
+
+async def timer(name, seconds):
+    # 在这里编写代码
+    pass
+
+async def main():
+    # 同时启动3个计时器
+    pass
+
+asyncio.run(main())
+\`\`\`
+`,
+      code: `import asyncio
+
+async def timer(name, seconds):
+    for i in range(seconds, 0, -1):
+        print(f"[{name}] {i}s")
+        await asyncio.sleep(1)
+    print(f"[{name}] 时间到!")
+
+async def main():
+    task1 = asyncio.create_task(timer("A", 3))
+    task2 = asyncio.create_task(timer("B", 5))
+    task3 = asyncio.create_task(timer("C", 4))
+    
+    await asyncio.gather(task1, task2, task3)
+    print("所有计时器完成!")
+
+asyncio.run(main())
+`
+    },
+    {
+      id: 5,
+      title: '异步 vs 同步对比',
+      type: 'explanation',
+      content: `\`\`\`python
+import time
+import asyncio
+
+# 同步版本
+def sync_fetch():
+    time.sleep(1)  # 模拟 IO
+    return "data"
+
+def sync_main():
+    start = time.time()
+    sync_fetch()
+    sync_fetch()
+    sync_fetch()
+    print(f"同步: {time.time() - start:.2f}s")  # ~3s
+
+# 异步版本
+async def async_fetch():
+    await asyncio.sleep(1)  # 模拟异步 IO
+    return "data"
+
+async def async_main():
+    start = time.time()
+    await asyncio.gather(async_fetch(), async_fetch(), async_fetch())
+    print(f"异步: {time.time() - start:.2f}s")  # ~1s
+
+sync_main()
+asyncio.run(async_main())
+\`\`\`
+`,
+      code: `import asyncio
+import time
+
+async def simulated_io(name, delay):
+    print(f"[{name}] 开始 ({delay}s)")
+    await asyncio.sleep(delay)
+    print(f"[{name}] 完成")
+    return name
+
+async def main():
+    # 串行：总耗时 = 所有延迟之和
+    print("=== 串行执行 ===")
+    t0 = time.time()
+    await simulated_io("A", 2)
+    await simulated_io("B", 2)
+    print(f"串行耗时: {time.time() - t0:.1f}s")
+    
+    # 并行：总耗时 = 最大延迟
+    print("\\n=== 并行执行 ===")
+    t0 = time.time()
+    await asyncio.gather(
+        simulated_io("A", 2),
+        simulated_io("B", 2)
+    )
+    print(f"并行耗时: {time.time() - t0:.1f}s")
+
+asyncio.run(main())
+`
+    },
+    {
+      id: 6,
+      title: '第42关测验',
+      type: 'quiz',
+      content: `**问题1**：async def 定义的函数返回的是什么？
+- A. 普通函数
+- B. 协程对象
+- C. 线程
+- D. 生成器
+
+**问题2**：asyncio.gather() 的作用？
+- A. 启动事件循环
+- B. 并发执行多个协程并等待全部完成
+- C. 创建新线程
+- D. 取消任务
+
+**问题3**：异步编程适合的场景？
+- A. CPU 密集型计算
+- B. 大量 IO 操作（网络、文件）
+- C. 图形渲染
+- D. 科学计算
+
+**答案**：1.B  2.B  3.B`
+    }
+  ],
+  // 第43关
+  43: [
+    {
+      id: 1,
+      title: '单元测试基础',
+      type: 'explanation',
+      content: `**单元测试** 是对代码中最小可测试单元进行验证。
+
+\`\`\`python
+# 使用 unittest 标准库
+import unittest
+
+def add(a, b):
+    return a + b
+
+class TestCalculator(unittest.TestCase):
+    def test_add(self):
+        self.assertEqual(add(2, 3), 5)
+    
+    def test_add_negative(self):
+        self.assertEqual(add(-1, 1), 0)
+
+if __name__ == '__main__':
+    unittest.main()
+\`\`\`
+
+**断言方法**：assertEqual、assertTrue、assertFalse、assertRaises 等`
+    },
+    {
+      id: 2,
+      title: 'pytest 框架',
+      type: 'explanation',
+      content: `**pytest** 是更强大的测试框架（需安装：pip install pytest）。
+
+\`\`\`python
+# test_calc.py
+import pytest
+
+def add(a, b):
+    return a + b
+
+# 测试函数（无需类）
+def test_add():
+    assert add(2, 3) == 5
+
+def test_add_negative():
+    assert add(-1, 1) == 0
+
+# 异常测试
+def test_divide_by_zero():
+    with pytest.raises(ZeroDivisionError):
+        1 / 0
+
+# 参数化测试
+@pytest.mark.parametrize("a,b,expected", [
+    (2, 3, 5),
+    (0, 0, 0),
+    (-1, 1, 0),
+])
+def test_add_param(a, b, expected):
+    assert add(a, b) == expected
+\`\`\`
+`,
+      code: `import pytest
+
+def validate_email(email):
+    import re
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
+
+# 参数化测试
+@pytest.mark.parametrize("email,expected", [
+    ("user@example.com", True),
+    ("invalid", False),
+    ("@domain.com", False),
+    ("user@sub.domain.com", True),
+    ("user@domain", False),
+])
+def test_email_validation(email, expected):
+    assert validate_email(email) == expected
+
+# 边界测试
+def test_empty_email():
+    assert validate_email("") == False
+
+def test_special_chars():
+    assert validate_email("user+tag@example.com") == True
+`
+    },
+    {
+      id: 3,
+      title: 'Fixture 与 Setup',
+      type: 'explanation',
+      content: `**Fixture** 是 pytest 中管理测试前/后操作的机制：
+
+\`\`\`python
+import pytest
+
+@pytest.fixture
+def db_connection():
+    # 前置：创建连接
+    conn = create_connection()
+    yield conn  # 提供给测试使用
+    # 后置：关闭连接
+    conn.close()
+
+def test_query(db_connection):
+    result = db_connection.query("SELECT 1")
+    assert result is not None
+
+# 作用域
+@pytest.fixture(scope='module')  # 整个模块共享
+def config():
+    return load_config()
+\`\`\`
+
+**作用域**：function（默认）、class、module、session`
+    },
+    {
+      id: 4,
+      title: 'Mock 与覆盖率',
+      type: 'explanation',
+      content: `**Mock** 用于模拟外部依赖，**覆盖率** 衡量测试覆盖程度。
+
+\`\`\`python
+from unittest.mock import Mock, patch
+
+# 模拟外部 API
+@patch('requests.get')
+def test_api(mock_get):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {"data": "test"}
+    
+    result = fetch_data()
+    assert result == {"data": "test"}
+
+# 覆盖率（pip install pytest-cov）
+# pytest --cov=src tests/
+\`\`\`
+
+**测试金字塔**：
+- 单元测试（最多）：快速、稳定、覆盖核心逻辑
+- 集成测试：验证模块交互
+- 端到端测试（最少）：验证完整流程`
+    },
+    {
+      id: 5,
+      title: '练习：计算器测试',
+      type: 'exercise',
+      content: `为一个简单的计算器模块编写完整的测试套件：
+
+\`\`\`python
+# calculator.py
+def divide(a, b):
+    if b == 0:
+        raise ValueError("除数不能为0")
+    return a / b
+
+# test_calculator.py - 编写测试
+\`\`\`
+`,
+      code: `import pytest
+
+# calculator.py
+def divide(a, b):
+    if b == 0:
+        raise ValueError("除数不能为0")
+    return a / b
+
+# test_calculator.py
+class TestDivide:
+    def test_normal(self):
+        assert divide(10, 2) == 5.0
+    
+    def test_float(self):
+        assert divide(7, 2) == 3.5
+    
+    def test_zero_divisor(self):
+        with pytest.raises(ValueError, match="除数不能为0"):
+            divide(10, 0)
+    
+    @pytest.mark.parametrize("a,b,expected", [
+        (10, 5, 2),
+        (9, 3, 3),
+        (100, 10, 10),
+    ])
+    def test_parametrized(self, a, b, expected):
+        assert divide(a, b) == expected
+`
+    },
+    {
+      id: 6,
+      title: '第43关测验',
+      type: 'quiz',
+      content: `**问题1**：pytest 中 @pytest.fixture 的作用？
+- A. 标记测试函数
+- B. 提供测试前/后的设置和清理
+- C. 定义测试数据
+- D. 创建 Mock 对象
+
+**问题2**：以下哪个是 pytest 相比 unittest 的优势？
+- A. 运行更快
+- B. 无需类即可编写测试，支持参数化
+- C. 自动生成测试
+- D. 无需安装
+
+**问题3**：测试金字塔中应该最多的是？
+- A. 端到端测试
+- B. 集成测试
+- C. 单元测试
+- D. 性能测试
+
+**答案**：1.B  2.B  3.C`
+    }
+  ],
+  // 第44关
+  44: [
+    {
+      id: 1,
+      title: 'Python 内存管理',
+      type: 'explanation',
+      content: `Python 内存管理采用三种机制：
+
+**1. 引用计数**（主要机制）
+\`\`\`python
+a = [1, 2, 3]  # 引用计数 = 1
+b = a           # 引用计数 = 2
+del a           # 引用计数 = 1
+# 当引用计数为 0 时，立即释放
+\`\`\`
+
+**2. 标记-清除**（处理循环引用）
+\`\`\`python
+a.b = b
+b.a = a  # 循环引用，引用计数无法回收
+# 标记-清除机制定期扫描并回收
+\`\`\`
+
+**3. 分代回收**（优化性能）
+- 第0代：新创建的对象，频繁扫描
+- 第1代：存活一段时间的对象，较少扫描
+- 第2代：长期存活的对象，很少扫描
+
+可以用 gc 模块控制：\`import gc; gc.collect()\``
+    },
+    {
+      id: 2,
+      title: '内存分析工具',
+      type: 'explanation',
+      content: `\`\`\`python
+import sys
+import tracemalloc
+
+# 查看对象内存占用
+data = list(range(10000))
+print(f"列表大小: {sys.getsizeof(data)} bytes")
+
+# 内存追踪
+tracemalloc.start()
+snapshot1 = tracemalloc.take_snapshot()
+
+# 创建大量对象
+big_list = [{'id': i, 'data': 'x' * 100} for i in range(10000)]
+
+snapshot2 = tracemalloc.take_snapshot()
+stats = snapshot2.compare_to(snapshot1, 'lineno')
+for stat in stats[:5]:
+    print(stat)
+
+# 使用 gc 模块
+import gc
+gc.collect()  # 强制垃圾回收
+print(f"回收对象数: {gc.get_count()}")
+\`\`\`
+`,
+      code: `import sys
+import tracemalloc
+
+# 内存对比
+tracemalloc.start()
+
+# 方式1: 列表
+list_data = list(range(1000000))
+list_size = sys.getsizeof(list_data)
+
+# 方式2: 生成器（几乎不占内存）
+gen_data = range(1000000)
+gen_size = sys.getsizeof(gen_data)
+
+print(f"列表大小: {list_size} bytes")
+print(f"生成器大小: {gen_size} bytes")
+print(f"节省: {(1 - gen_size/list_size)*100:.1f}%")
+
+# 内存快照
+snapshot = tracemalloc.take_snapshot()
+print(f"当前内存快照对象数: {len(snapshot.statistics('lineno'))}")
+`
+    },
+    {
+      id: 3,
+      title: '性能分析 cProfile',
+      type: 'explanation',
+      content: `**cProfile** 是 Python 内置的性能分析工具：
+
+\`\`\`python
+import cProfile
+import pstats
+
+# 方式1：装饰器
+@cProfile.profile
+def slow_function():
+    total = 0
+    for i in range(1000000):
+        total += i
+    return total
+
+# 方式2：代码块
+profiler = cProfile.Profile()
+profiler.enable()
+
+# 要分析的代码
+result = sum(range(1000000))
+
+profiler.disable()
+
+# 查看结果
+stats = pstats.Stats(profiler)
+stats.sort_stats('cumulative')
+stats.print_stats(10)  # 打印前10项
+\`\`\`
+`,
+      code: `import cProfile
+import time
+
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+def measure():
+    start = time.time()
+    result = fibonacci(30)
+    print(f"fib(30) = {result}, 耗时: {time.time()-start:.3f}s")
+
+# 性能分析
+profiler = cProfile.Profile()
+profiler.enable()
+measure()
+profiler.disable()
+
+# 输出 Top 10 耗时函数
+profiler.print_stats(10)
+`
+    },
+    {
+      id: 4,
+      title: '优化技巧',
+      type: 'explanation',
+      content: `**常用 Python 性能优化技巧**：
+
+**1. 使用内置函数**（比手写循环快很多）
+\`\`\`python
+# 慢
+total = 0
+for i in range(1000000):
+    total += i
+
+# 快
+total = sum(range(1000000))
+\`\`\`
+
+**2. 使用 lru_cache 缓存**
+\`\`\`python
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+\`\`\`
+
+**3. 列表推导式**（比 map/filter 更快）
+**4. 使用生成器**（处理大数据）
+**5. 局部变量访问更快**
+\`\`\`python
+# 慢：频繁访问全局变量
+def process():
+    for i in range(1000000):
+        global_var = i
+
+# 快：使用局部变量
+def process():
+    local = global_var  # 缓存到局部
+    for i in range(1000000):
+        local = i
+\`\`\`
+`,
+      code: `from functools import lru_cache
+import time
+
+# 优化前：无缓存
+def fib_slow(n):
+    if n <= 1:
+        return n
+    return fib_slow(n-1) + fib_slow(n-2)
+
+# 优化后：LRU 缓存
+@lru_cache(maxsize=128)
+def fib_fast(n):
+    if n <= 1:
+        return n
+    return fib_fast(n-1) + fib_fast(n-2)
+
+# 对比
+start = time.time()
+print(f"Slow: fib(30) = {fib_slow(30)}, {time.time()-start:.3f}s")
+
+start = time.time()
+print(f"Fast: fib(30) = {fib_fast(30)}, {time.time()-start:.6f}s")
+
+# 更多优化示例
+def optimize_demo():
+    # 使用列表推导代替循环
+    squares = [x**2 for x in range(1000000)]
+    
+    # 使用 join 代替 +=
+    parts = [f"item-{i}" for i in range(10000)]
+    result = ",".join(parts)  # 比 result += "," + item 快得多
+`
+    },
+    {
+      id: 5,
+      title: '练习：斐波那契优化',
+      type: 'exercise',
+      content: `对比三种实现方式的性能：
+1. 递归（无优化）
+2. 动态规划（缓存中间结果）
+3. 生成器（惰性求值）
+
+\`\`\`python
+import time
+# 在这里编写代码
+\`\`\`
+`,
+      code: `import time
+import sys
+sys.setrecursionlimit(10000)
+
+# 方式1: 朴素递归
+def fib_recursive(n):
+    if n <= 1:
+        return n
+    return fib_recursive(n-1) + fib_recursive(n-2)
+
+# 方式2: 动态规划
+def fib_dp(n):
+    if n <= 1:
+        return n
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    for i in range(2, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+
+# 方式3: 生成器
+def fib_generator():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+# 对比
+n = 30
+
+start = time.time()
+r1 = fib_recursive(n)
+print(f"递归: {r1}, {(time.time()-start)*1000:.1f}ms")
+
+start = time.time()
+r2 = fib_dp(n)
+print(f"动态规划: {r2}, {(time.time()-start)*1000:.1f}ms")
+
+start = time.time()
+gen = fib_generator()
+r3 = next(gen)
+for _ in range(n):
+    r3 = next(gen)
+print(f"生成器: {r3}, {(time.time()-start)*1000:.1f}ms")
+`
+    },
+    {
+      id: 6,
+      title: '第44关测验',
+      type: 'quiz',
+      content: `**问题1**：Python 主要的内存回收机制？
+- A. 手动 free()
+- B. 引用计数 + 标记清除 + 分代回收
+- C. Java 式的 GC
+- D. 不回收
+
+**问题2**：@lru_cache 的主要作用？
+- A. 加速递归函数
+- B. 缓存函数结果，避免重复计算
+- C. 减少内存使用
+- D. 加密数据
+
+**问题3**：以下哪种方式最慢？
+- A. sum(range(1000000))
+- B. for 循环累加
+- C. 列表推导式
+- D. numpy.sum
+
+**答案**：1.B  2.B  3.B`
+    }
   ]
 }
 
@@ -12450,6 +14892,406 @@ _test_results.append({
 `,
       testCases: [
         { name: '基础测试', input: '无', expected: '总收益率' }
+      ],
+      xpReward: 50
+    }
+  ],
+  35: [
+    {
+      id: 1,
+      title: '向量与数据框操作',
+      description: '实现 R 风格的向量操作和数据框创建。\n\n要求：\n- 创建两个向量：name 向量（5个姓名）和 score 向量（5个分数）\n- 将它们合并为数据框（DataFrame）\n- 计算分数的均值和标准差\n- 筛选分数大于平均值的学生\n- 添加一列 pass：分数 >= 80 为 "PASS"，否则为 "FAIL"\n- 打印所有结果',
+      difficulty: 'easy',
+      initialCode: `import pandas_ as pd
+import numpy_ as np
+
+# 1. 创建向量 (R: name <- c("张三","李四","王五","赵六","钱七"))
+name = # TODO
+score = # TODO
+
+# 2. 创建数据框 (R: df <- data.frame(name, score))
+df = # TODO
+
+# 3. 计算统计量
+mean_score = # TODO
+std_score = # TODO
+print(f"平均分: {mean_score:.1f}, 标准差: {std_score:.1f}")
+
+# 4. 筛选高于平均分的学生
+above_avg = # TODO
+print("高于平均分的学生:")
+print(above_avg)
+
+# 5. 添加 pass 列
+df["pass"] = # TODO
+print("最终数据框:")
+print(df)
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "创建了数据框",
+    "passed": "name" in output.lower() and "score" in output.lower(),
+    "message": "应创建包含姓名和分数的数据框"
+})
+_test_results.append({
+    "name": "计算统计量",
+    "passed": "平均分" in output or "均值" in output or "mean" in output.lower(),
+    "message": "应输出平均分或均值"
+})
+_test_results.append({
+    "name": "筛选学生",
+    "passed": "高于" in output or "筛选" in output or "avg" in output.lower(),
+    "message": "应包含筛选逻辑"
+})
+_test_results.append({
+    "name": "添加 pass 列",
+    "passed": "PASS" in output or "FAIL" in output or "pass" in output.lower(),
+    "message": "应包含 PASS/FAIL 判定"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '数据框' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: 'dplyr 风格数据处理',
+      description: '使用 pandas 模拟 R dplyr 的管道操作，完成数据处理流水线。\n\n要求：\n- 生成模拟销售数据（3 个产品 × 4 个地区 × 20 条记录）\n- 用链式操作模拟 dplyr 管道：filter → mutate → group_by → summarise\n- 计算各地区各产品的总销售额、平均利润率\n- 找出总销售额最高的地区-产品组合\n- 打印处理结果',
+      difficulty: 'medium',
+      initialCode: `import pandas_ as pd
+import numpy_ as np
+
+np.random.seed(42)
+
+# 1. 生成模拟数据
+products = ["A", "B", "C"]
+regions = ["East", "West", "South", "North"]
+n = 60
+
+sales_data = pd.DataFrame({
+    "product": # TODO: 随机产品
+    "region":  # TODO: 随机地区
+    "sales":   # TODO: 随机销售额 (100-500)
+    "profit":  # TODO: 随机利润 (10-100)
+})
+
+# 2. 模拟 dplyr 管道操作
+# R: sales_data %>% filter(sales > 200) %>%
+#          mutate(profit_rate = profit/sales) %>%
+#          group_by(region, product) %>%
+#          summarise(total_sales = sum(sales), avg_rate = mean(profit_rate))
+result = (sales_data
+    # TODO: 链式操作完成数据处理
+)
+
+print("处理结果:")
+print(result)
+
+# 3. 找出销售额最高的组合
+top = # TODO
+print(f"销售额最高的组合: {top}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "生成模拟数据",
+    "passed": "product" in output.lower() and "region" in output.lower(),
+    "message": "应包含产品和地区数据"
+})
+_test_results.append({
+    "name": "dplyr 管道操作",
+    "passed": "profit_rate" in output.lower() or "利润率" in output or "total_sales" in output.lower(),
+    "message": "应包含 mutate 和 summarise 操作"
+})
+_test_results.append({
+    "name": "分组统计",
+    "passed": "group" in output.lower() or "地区" in output or "product" in output.lower(),
+    "message": "应有分组统计结果"
+})
+_test_results.append({
+    "name": "找出最高组合",
+    "passed": "最高" in output or "top" in output.lower() or "best" in output.lower(),
+    "message": "应找出销售额最高的组合"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '管道操作' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 3,
+      title: '统计检验实战',
+      description: '实现独立样本 t 检验和卡方检验，模拟 R 的统计假设检验流程。\n\n要求：\n- 生成两组随机数据（A 组和 B 组，各 30 个样本）\n- 执行独立样本 t 检验（比较两组均值）\n- 生成列联表数据，执行卡方独立性检验\n- 打印检验统计量、p 值和结论（是否拒绝 H₀）\n- 使用显著性水平 α = 0.05',
+      difficulty: 'hard',
+      initialCode: `import numpy_ as np
+from scipy_ import stats
+
+np.random.seed(42)
+
+# 1. 生成两组数据
+group_a = np.random.normal(50, 10, 30)
+group_b = np.random.normal(55, 10, 30)
+
+# 2. 独立样本 t 检验
+t_stat, p_value_t = # TODO
+
+print("=== 独立样本 t 检验 ===")
+print(f"A 组均值: {group_a.mean():.2f}")
+print(f"B 组均值: {group_b.mean():.2f}")
+print(f"t 统计量: {t_stat:.4f}")
+print(f"p 值: {p_value_t:.4f}")
+print(f"结论: {'拒绝 H0 (显著差异)' if p_value_t < 0.05 else '不能拒绝 H0'}")
+
+# 3. 卡方检验 - 生成列联表
+# 口味偏好调查：男/女 × 甜/咸/辣
+observed = np.array([
+    # TODO: 创建 2x3 列联表
+])
+
+chi2_stat, p_value_chi2, dof, expected = # TODO
+
+print()
+print("=== 卡方独立性检验 ===")
+print(f"列联表:\\n{observed}")
+print(f"卡方统计量: {chi2_stat:.4f}")
+print(f"自由度: {dof}")
+print(f"p 值: {p_value_chi2:.4f}")
+print(f"结论: {'拒绝 H0 (有关联)' if p_value_chi2 < 0.05 else '不能拒绝 H0 (独立)'}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "t 检验实现",
+    "passed": "t" in output.lower() and "统计量" in output,
+    "message": "应计算 t 统计量和 p 值"
+})
+_test_results.append({
+    "name": "p 值判断",
+    "passed": "p 值" in output or "p_value" in output.lower(),
+    "message": "应输出 p 值"
+})
+_test_results.append({
+    "name": "卡方检验实现",
+    "passed": "chi2" in output.lower() or "卡方" in output,
+    "message": "应执行卡方检验"
+})
+_test_results.append({
+    "name": "假设结论",
+    "passed": "拒绝" in output or "H0" in output or "不能拒绝" in output,
+    "message": "应给出检验结论"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '假设检验' }
+      ],
+      xpReward: 50
+    }
+  ],
+  36: [
+    {
+      id: 1,
+      title: '类型与多重派发',
+      description: '使用 Python 的 functools.singledispatch 模拟 Julia 的多重派发，实现类型感知的函数。\n\n要求：\n- 创建一个 describe_value 函数，根据输入类型返回不同描述\n- 支持 int、float、str、list/np.ndarray 四种类型\n- 对每种类型实现不同的描述逻辑\n- 测试所有类型的派发结果\n- 计算一个数值列表的总和（Kahan 补偿求和法）',
+      difficulty: 'easy',
+      initialCode: `import numpy_ as np
+from functools import singledispatch
+
+# TODO: 使用 singledispatch 创建 describe_value 函数
+# 并为 int, float, str, np.ndarray 分别实现方法
+
+# 你的代码 here
+
+# 测试
+print("多重派发测试:")
+print(f"  int: {describe_value(42)}")
+print(f"  float: {describe_value(3.14)}")
+print(f"  str: {describe_value('Hello')}")
+print(f"  array: {describe_value(np.array([1,2,3]))}")
+
+# Kahan 补偿求和
+def kahan_sum(arr):
+    # TODO: 实现 Kahan 求和算法
+    pass
+
+data = np.random.randn(1000).astype(np.float32)
+print(f"Kahan 求和: {kahan_sum(data):.6f}")
+print(f"普通求和: {np.sum(data):.6f}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "实现派发函数",
+    "passed": "describe" in output.lower() or "dispatch" in output.lower(),
+    "message": "应使用 singledispatch 或类似机制"
+})
+_test_results.append({
+    "name": "支持多种类型",
+    "passed": "int" in output.lower() and "float" in output.lower() and "str" in output.lower(),
+    "message": "应支持至少 3 种类型"
+})
+_test_results.append({
+    "name": "Kahan 求和",
+    "passed": "kahan" in output.lower() or "补偿" in output or "compensation" in output.lower(),
+    "message": "应实现 Kahan 补偿求和"
+})
+_test_results.append({
+    "name": "打印测试结果",
+    "passed": "42" in output or "3.14" in output or "Hello" in output,
+    "message": "应输出测试用例的结果"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '多重派发' }
+      ],
+      xpReward: 30
+    },
+    {
+      id: 2,
+      title: '矩阵运算实战',
+      description: '实现 Julia 风格的矩阵运算和线性代数操作。\n\n要求：\n- 创建 3×3 矩阵 A 和 B\n- 计算矩阵乘法 C = A @ B\n- 计算 A 的行列式、逆矩阵、特征值和特征向量\n- 求解线性方程组 Ax = b\n- 计算矩阵的 Frobenius 范数\n- 验证 A @ A_inv ≈ I（单位矩阵）',
+      difficulty: 'medium',
+      initialCode: `import numpy_ as np
+
+np.random.seed(42)
+
+# 1. 创建矩阵
+A = np.random.randint(1, 10, (3, 3)).astype(float)
+B = np.random.randint(1, 10, (3, 3)).astype(float)
+
+print("矩阵 A:")
+print(A)
+print("\\n矩阵 B:")
+print(B)
+
+# 2. 矩阵乘法
+C = # TODO
+print(f"\\nC = A @ B:\\n{C}")
+
+# 3. 行列式和逆矩阵
+det_A = # TODO
+A_inv = # TODO
+print(f"\\ndet(A) = {det_A:.4f}")
+print(f"\\nA_inv = \\n{A_inv}")
+
+# 4. 验证 A @ A_inv ≈ I
+identity_check = # TODO
+print(f"\\nA @ A_inv ≈ I: {np.allclose(identity_check, np.eye(3))}")
+
+# 5. 特征值分解
+eigenvalues, eigenvectors = # TODO
+print(f"\\n特征值: {eigenvalues}")
+print(f"特征向量:\\n{eigenvectors}")
+
+# 6. 求解线性方程组 Ax = b
+b = np.array([1.0, 2.0, 3.0])
+x = # TODO
+print(f"\\n方程组解 x: {x}")
+print(f"验证 Ax = {A @ x} ≈ b = {b}: {np.allclose(A @ x, b)}")
+
+# 7. Frobenius 范数
+fro_norm = # TODO
+print(f"\\nFrobenius 范数: {fro_norm:.4f}")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "矩阵乘法",
+    "passed": "@" in output or "C =" in output or "矩阵乘法" in output,
+    "message": "应执行矩阵乘法 A @ B"
+})
+_test_results.append({
+    "name": "行列式和逆矩阵",
+    "passed": "det" in output.lower() or "行列式" in output or "逆" in output,
+    "message": "应计算行列式和逆矩阵"
+})
+_test_results.append({
+    "name": "特征值分解",
+    "passed": "特征值" in output or "eigenvalue" in output.lower(),
+    "message": "应计算特征值和特征向量"
+})
+_test_results.append({
+    "name": "求解方程组",
+    "passed": "方程组" in output or "solve" in output.lower(),
+    "message": "应求解线性方程组"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: '线性代数' }
+      ],
+      xpReward: 40
+    },
+    {
+      id: 3,
+      title: '微分方程求解',
+      description: '求解三个经典的常微分方程（ODE）模型，模拟 Julia DifferentialEquations.jl 的使用场景。\n\n要求：\n- 模型1：指数增长 dy/dt = 0.3*y, y(0)=1, 求 y(10)\n- 模型2：Logistic 增长 dy/dt = r*y*(1-y/K), 求稳态值\n- 模型3：二阶 ODE（简谐振动）d²x/dt² + x = 0, 求 x(π)\n- 用 scipy.integrate.solve_ivp 求解\n- 对比数值解与解析解\n- 打印所有结果和误差',
+      difficulty: 'hard',
+      initialCode: `import numpy_ as np
+from scipy_ import integrate
+
+# 模型 1: 指数增长 dy/dt = 0.3*y
+def exp_ode(t, y):
+    return 0.3 * y
+
+sol1 = integrate.solve_ivp(exp_ode, [0, 10], [1.0], method='RK45')
+y_num = sol1.y[0][-1]
+y_exact = np.exp(0.3 * 10)
+print(f"模型1 指数增长:")
+print(f"  数值解 y(10) = {y_num:.4f}")
+print(f"  解析解 y(10) = {y_exact:.4f}")
+print(f"  误差: {abs(y_num - y_exact):.6f}")
+print()
+
+# 模型 2: Logistic 增长
+def logistic_ode(t, y):
+    r, K = 1.0, 10.0
+    return r * y * (1 - y / K)
+
+sol2 = integrate.solve_ivp(logistic_ode, [0, 20], [0.5], method='RK45')
+# 稳态值 = K (当 t → ∞)
+steady_state = # TODO
+print(f"模型2 Logistic 增长:")
+print(f"  稳态值 (理论 K=10): {steady_state:.4f}")
+print(f"  t=20 时 y 值: {sol2.y[0][-1]:.4f}")
+print()
+
+# 模型 3: 简谐振动 d²x/dt² + x = 0
+# 化为一阶: [dx/dt, dv/dt] = [v, -x]
+def harmonic_ode(t, state):
+    # TODO: 实现简谐振动方程
+    pass
+
+sol3 = integrate.solve_ivp(harmonic_ode, [0, np.pi], [1.0, 0.0], method='RK45')
+x_pi = # TODO: 获取 x(π) 的数值解
+x_exact_pi = np.cos(np.pi)  # 解析解 cos(π) = -1
+print(f"模型3 简谐振动:")
+print(f"  数值解 x(π) = {x_pi:.4f}")
+print(f"  解析解 cos(π) = {x_exact_pi:.4f}")
+print(f"  误差: {abs(x_pi - x_exact_pi):.6f}")
+print()
+print("✅ 三个 ODE 模型求解完成！")
+`,
+      testCode: `output = _output_buffer.getvalue()
+_test_results.append({
+    "name": "指数增长模型",
+    "passed": "指数" in output or "exp" in output.lower() or "0.3" in output,
+    "message": "应包含指数增长模型求解"
+})
+_test_results.append({
+    "name": "Logistic 模型",
+    "passed": "logistic" in output.lower() or "Logistic" in output or "稳态" in output,
+    "message": "应包含 Logistic 模型求解"
+})
+_test_results.append({
+    "name": "简谐振动模型",
+    "passed": "简谐" in output or "harmonic" in output.lower() or "cos" in output.lower(),
+    "message": "应包含简谐振动模型求解"
+})
+_test_results.append({
+    "name": "数值解与解析解对比",
+    "passed": "误差" in output or "error" in output.lower(),
+    "message": "应对比数值解和解析解的误差"
+})
+`,
+      testCases: [
+        { name: '基础测试', input: '无', expected: 'ODE 求解' }
       ],
       xpReward: 50
     }

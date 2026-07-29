@@ -162,7 +162,17 @@ const defaultProgress: UserProgress = {
     31: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     32: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     33: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    34: { unlocked: true, completed: false, lessons: {}, challenges: {} }
+    34: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    35: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    36: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    37: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    38: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    39: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    40: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    41: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    42: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    43: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    44: { unlocked: true, completed: false, lessons: {}, challenges: {} }
   },
   unlockedAchievements: ['first-day'],
   claimedAchievements: [],
@@ -646,7 +656,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       if (newGodMode) {
         // 开启无敌版：解锁所有关卡
         const levels: Record<number, LevelProgress> = {}
-        for (let i = 1; i <= 34; i++) {
+        for (let i = 1; i <= 44; i++) {
           levels[i] = {
             ...(prev.levels[i] || { lessons: {}, challenges: {} }),
             unlocked: true,
@@ -673,7 +683,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       } else {
         // 关闭无敌版：恢复按进度解锁（第1关解锁，其余按完成情况）
         const levels: Record<number, LevelProgress> = {}
-        for (let i = 1; i <= 34; i++) {
+        for (let i = 1; i <= 44; i++) {
           const existing = prev.levels[i] || { lessons: {}, challenges: {} }
           levels[i] = {
             ...existing,
@@ -681,7 +691,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           }
         }
         // 确保已完成关卡的下一关是解锁的
-        for (let i = 1; i <= 33; i++) {
+        for (let i = 1; i <= 43; i++) {
           if (levels[i].completed) {
             levels[i + 1].unlocked = true
           }

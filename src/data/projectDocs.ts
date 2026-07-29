@@ -33,14 +33,14 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v1.1'
+export const DOC_VERSION = 'v1.2'
 export const DOC_LAST_UPDATE = '2026-07-29'
 export const DOC_CHANGES = [
-  '添加版本化管理系统（版本注册表 + 数据冻结）',
-  '优化进度保存机制（安全存储 + 防抖 + 状态追踪）',
-  '修复关卡完成逻辑（completeLesson 自动检查关卡完成）',
-  'Vite 代码分割优化（react-vendor + pyodide 独立 chunk）',
-  '添加源码探索页面（游戏化UI）'
+  '扩展至44关：新增输入输出、迭代器生成器、JSON/XML、数据库、多线程、异步编程、单元测试、性能优化',
+  '重构拓展卡片体系：6大分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战）',
+  '对齐菜鸟教程完整章节结构，补充所有核心主题',
+  '无敌模式覆盖全部44关',
+  '版本化存储 key 自动升级，旧版本数据冻结保留'
 ]
 
 // ===== 技术栈 =====
@@ -106,8 +106,8 @@ export const FILE_TREE: FileNode[] = [
         path: 'src/data',
         desc: '静态数据',
         children: [
-          { name: 'mockData.ts', type: 'file', path: 'src/data/mockData.ts', desc: '34关卡元数据（标题/难度/图标/分类）' },
-          { name: 'lessonContent.ts', type: 'file', path: 'src/data/lessonContent.ts', desc: '课程内容（6800+行，含步骤/代码/答案/解析）' },
+          { name: 'mockData.ts', type: 'file', path: 'src/data/mockData.ts', desc: '44关卡元数据（标题/难度/图标/分类/主题）' },
+          { name: 'lessonContent.ts', type: 'file', path: 'src/data/lessonContent.ts', desc: '课程内容（8000+行，44关×6步，含讲解/示例/练习/测验）' },
           { name: 'achievements.ts', type: 'file', path: 'src/data/achievements.ts', desc: '成就系统定义（XP/徽章/解锁条件）' },
           { name: 'runoobTopics.ts', type: 'file', path: 'src/data/runoobTopics.ts', desc: '菜鸟教程拓展学习路径' },
           { name: 'projectDocs.ts', type: 'file', path: 'src/data/projectDocs.ts', desc: '项目文档数据（本文件）' }
@@ -152,7 +152,7 @@ export const FEATURES: FeatureItem[] = [
   {
     icon: '🎮',
     title: '游戏化关卡系统',
-    desc: '34个关卡覆盖Python基础到量化交易，蛇形地图布局，支持关卡解锁/完成状态/进度百分比显示',
+    desc: '44个关卡覆盖Python基础到性能优化，蛇形地图布局，6大主题分类（语言基础/数据科学/进阶编程/Web开发/工具数据库/金融实战），支持关卡解锁/完成状态/进度百分比显示',
     files: ['src/data/mockData.ts', 'src/pages/LevelMap/LevelMap.tsx', 'src/context/ProgressContext.tsx']
   },
   {

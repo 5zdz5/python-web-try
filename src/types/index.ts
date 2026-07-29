@@ -1,3 +1,14 @@
+// 关卡分类：对应菜鸟教程 Python3 的章节分类
+export type LevelCategory =
+  | 'basic'         // Python 基础语法
+  | 'advanced'      // Python 进阶特性
+  | 'network'       // 网络与爬虫
+  | 'data-science'  // 数据科学
+  | 'web'           // Web 开发
+  | 'tools'         // 工具与可视化
+  | 'finance'       // 金融与其他语言
+  | 'system'        // 系统编程
+
 export interface Level {
   id: number
   title: string
@@ -10,6 +21,7 @@ export interface Level {
   challenges: number
   topics: string[]
   side: 'left' | 'right'
+  category: LevelCategory
 }
 
 export interface Lesson {

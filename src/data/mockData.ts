@@ -12,7 +12,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 3,
     topics: ['Python简介', '环境搭建', '第一个程序', '打印输出'],
-    side: 'left'
+    side: 'left',
+    category: 'basic'
   },
   {
     id: 2,
@@ -25,7 +26,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['变量', '数字类型', '字符串', '运算符', '类型转换'],
-    side: 'right'
+    side: 'right',
+    category: 'basic'
   },
   {
     id: 3,
@@ -38,7 +40,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 5,
     topics: ['if语句', 'else和elif', '比较运算', '逻辑运算', '嵌套条件'],
-    side: 'left'
+    side: 'left',
+    category: 'basic'
   },
   {
     id: 4,
@@ -51,7 +54,8 @@ export const levels: Level[] = [
     lessons: 7,
     challenges: 6,
     topics: ['for循环', 'range()函数', 'while循环', 'break与continue', '循环嵌套'],
-    side: 'right'
+    side: 'right',
+    category: 'basic'
   },
   {
     id: 5,
@@ -64,7 +68,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 5,
     topics: ['列表基础', '列表操作', '元组', '切片', '列表推导式'],
-    side: 'left'
+    side: 'left',
+    category: 'basic'
   },
   {
     id: 6,
@@ -77,7 +82,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 5,
     topics: ['字典基础', '字典操作', '集合', '字典推导式', '常用场景'],
-    side: 'right'
+    side: 'right',
+    category: 'basic'
   },
   {
     id: 7,
@@ -90,7 +96,8 @@ export const levels: Level[] = [
     lessons: 8,
     challenges: 7,
     topics: ['函数定义', '参数类型', '返回值', '作用域', '递归', 'Lambda函数'],
-    side: 'left'
+    side: 'left',
+    category: 'basic'
   },
   {
     id: 8,
@@ -103,7 +110,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 5,
     topics: ['文件读写', '上下文管理器', '目录操作', '异常处理', 'JSON处理'],
-    side: 'right'
+    side: 'right',
+    category: 'basic'
   },
   {
     id: 9,
@@ -116,7 +124,8 @@ export const levels: Level[] = [
     lessons: 4,
     challenges: 3,
     topics: ['项目规划', '模块化设计', '测试调试', '项目部署'],
-    side: 'left'
+    side: 'left',
+    category: 'basic'
   },
   {
     id: 10,
@@ -129,7 +138,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['字符串索引', '字符串方法', '格式化输出', '字符串编码'],
-    side: 'right'
+    side: 'right',
+    category: 'advanced'
   },
   {
     id: 11,
@@ -142,7 +152,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['import语句', '自定义模块', '包管理', '标准库'],
-    side: 'left'
+    side: 'left',
+    category: 'advanced'
   },
   {
     id: 12,
@@ -155,7 +166,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['类与对象', '属性方法', '构造函数', 'self关键字', '封装'],
-    side: 'right'
+    side: 'right',
+    category: 'advanced'
   },
   {
     id: 13,
@@ -168,7 +180,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['类的继承', '方法重写', 'super()', '多态', '抽象类'],
-    side: 'left'
+    side: 'left',
+    category: 'advanced'
   },
   {
     id: 14,
@@ -181,7 +194,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 3,
     topics: ['自定义异常', '异常链', '上下文管理', '断言与调试'],
-    side: 'right'
+    side: 'right',
+    category: 'advanced'
   },
   {
     id: 15,
@@ -194,7 +208,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['os模块', '路径处理', '目录遍历', '文件操作'],
-    side: 'left'
+    side: 'left',
+    category: 'advanced'
   },
   {
     id: 16,
@@ -207,7 +222,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['生成器', '装饰器', '闭包', 'Lambda', 'map/filter/reduce'],
-    side: 'right'
+    side: 'right',
+    category: 'advanced'
   },
   {
     id: 17,
@@ -220,7 +236,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['datetime', '正则表达式', 'json', 'collections'],
-    side: 'left'
+    side: 'left',
+    category: 'advanced'
   },
   {
     id: 18,
@@ -233,7 +250,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['项目实战', '命令行工具', '数据处理', '代码优化'],
-    side: 'right'
+    side: 'right',
+    category: 'advanced'
   },
   {
     id: 19,
@@ -246,7 +264,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['requests', 'GET/POST', 'Session', 'Headers', 'JSON 接口'],
-    side: 'left'
+    side: 'left',
+    category: 'network'
   },
   {
     id: 20,
@@ -259,7 +278,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['re 模块', '正则语法', '分组捕获', '查找替换', '爬虫文本解析'],
-    side: 'right'
+    side: 'right',
+    category: 'network'
   },
   {
     id: 21,
@@ -272,7 +292,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['Counter', 'deque', 'defaultdict', 'namedtuple', 'OrderedDict'],
-    side: 'left'
+    side: 'left',
+    category: 'network'
   },
   {
     id: 22,
@@ -285,7 +306,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['无限迭代器', '组合迭代器', 'groupby', '排列组合', '排列密码'],
-    side: 'right'
+    side: 'right',
+    category: 'network'
   },
   {
     id: 23,
@@ -298,7 +320,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['ndarray', '广播', '矩阵运算', '统计方法', '随机抽样'],
-    side: 'left'
+    side: 'left',
+    category: 'data-science'
   },
   {
     id: 24,
@@ -311,7 +334,8 @@ export const levels: Level[] = [
     lessons: 7,
     challenges: 4,
     topics: ['DataFrame', '读写 CSV', '数据清洗', 'groupby', '时间序列'],
-    side: 'right'
+    side: 'right',
+    category: 'data-science'
   },
   {
     id: 25,
@@ -324,7 +348,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['折线图', '柱状图', '饼图', '子图', '样式与导出'],
-    side: 'left'
+    side: 'left',
+    category: 'data-science'
   },
   {
     id: 26,
@@ -337,7 +362,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['linalg', 'optimize', 'integrate', 'stats', 'signal'],
-    side: 'right'
+    side: 'right',
+    category: 'data-science'
   },
   {
     id: 27,
@@ -350,7 +376,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['路由', '模板', '表单', 'Session', 'REST API'],
-    side: 'left'
+    side: 'left',
+    category: 'web'
   },
   {
     id: 28,
@@ -363,7 +390,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['路径参数', 'Pydantic', '依赖注入', 'OAuth2', '文档生成'],
-    side: 'right'
+    side: 'right',
+    category: 'web'
   },
   {
     id: 29,
@@ -376,7 +404,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['MTV', 'ORM', 'Admin', '认证', '中间件'],
-    side: 'left'
+    side: 'left',
+    category: 'web'
   },
   {
     id: 30,
@@ -389,7 +418,8 @@ export const levels: Level[] = [
     lessons: 6,
     challenges: 4,
     topics: ['Spider', 'Item Pipeline', 'Selector', '中间件', '反爬处理'],
-    side: 'right'
+    side: 'right',
+    category: 'network'
   },
   {
     id: 31,
@@ -402,7 +432,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['组件', 'Callback', 'Plotly 图', '多页布局', 'Pandas 联动'],
-    side: 'left'
+    side: 'left',
+    category: 'tools'
   },
   {
     id: 32,
@@ -415,7 +446,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['单元格', '魔法命令', 'ipywidgets', '导出', '可复现研究'],
-    side: 'right'
+    side: 'right',
+    category: 'tools'
   },
   {
     id: 33,
@@ -428,7 +460,8 @@ export const levels: Level[] = [
     lessons: 5,
     challenges: 4,
     topics: ['IO 操作', '像素', '变换', '滤镜', '水印与合成'],
-    side: 'left'
+    side: 'left',
+    category: 'tools'
   },
   {
     id: 34,
@@ -441,7 +474,148 @@ export const levels: Level[] = [
     lessons: 7,
     challenges: 4,
     topics: ['均线策略', '回测', '夏普比率', '最大回撤', '仓位管理'],
-    side: 'right'
+    side: 'right',
+    category: 'finance'
+  },
+  {
+    id: 35,
+    title: '第35关：R 语言入门',
+    subtitle: '统计分析利器',
+    description: '学习 R 语言基础：向量与数据框、数据清洗、统计分析、可视化绘图，掌握统计学界的"通用语"。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约3小时',
+    lessons: 6,
+    challenges: 3,
+    topics: ['向量', '数据框', 'dplyr', 'ggplot2', '统计检验'],
+    side: 'left',
+    category: 'finance'
+  },
+  {
+    id: 36,
+    title: '第36关：Julia 科学计算',
+    subtitle: '高性能计算新贵',
+    description: '学习 Julia 语言基础：类型系统、多维数组、数学计算、微分方程求解，兼顾 Python 效率和 C 性能。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约3小时',
+    lessons: 6,
+    challenges: 3,
+    topics: ['多重派发', '数组运算', '微分方程', '性能优化', '与 Python 对比'],
+    side: 'right',
+    category: 'finance'
+  },
+  {
+    id: 37,
+    title: '第37关：Python 输入输出',
+    subtitle: '格式化输出与用户交互',
+    description: '学习 input()/print() 进阶用法、格式化字符串（%、format、f-string）、文件读写、标准输入输出流。',
+    status: 'locked',
+    difficulty: 2,
+    duration: '约2小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['input/print', '格式化输出', 'f-string', 'stdin/stdout', '文件IO'],
+    side: 'left',
+    category: 'system'
+  },
+  {
+    id: 38,
+    title: '第38关：迭代器与生成器',
+    subtitle: '惰性计算的艺术',
+    description: '学习 iter()/next()、自定义迭代器、生成器 yield、列表推导式、生成器表达式，掌握惰性求值与内存优化。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约2.5小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['iter/next', 'yield', '生成器表达式', '列表推导', '内存优化'],
+    side: 'right',
+    category: 'system'
+  },
+  {
+    id: 39,
+    title: '第39关：JSON 与 XML 处理',
+    subtitle: '数据交换格式',
+    description: '学习 json 模块（序列化/反序列化）、XML 解析（ElementTree）、数据格式转换，掌握主流数据交换格式。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2小时',
+    lessons: 5,
+    challenges: 4,
+    topics: ['json', 'pickle', 'XML/ElementTree', '数据格式转换'],
+    side: 'left',
+    category: 'system'
+  },
+  {
+    id: 40,
+    title: '第40关：Python 数据库编程',
+    subtitle: 'SQLite 与 MySQL',
+    description: '学习 SQLite 内置数据库、MySQL 连接、CRUD 操作、事务管理、ORM 基础（SQLAlchemy），掌握 Python 数据库开发。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2.5小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['sqlite3', 'MySQL', '事务', 'SQLAlchemy', 'ORM'],
+    side: 'right',
+    category: 'system'
+  },
+  {
+    id: 41,
+    title: '第41关：多线程与多进程',
+    subtitle: '并发编程入门',
+    description: '学习 threading 模块、GIL 全局解释器锁、multiprocessing 多进程、线程池/进程池、同步互斥，掌握 Python 并发模型。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约3小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['threading', 'GIL', 'multiprocessing', '线程池', '锁与条件变量'],
+    side: 'left',
+    category: 'system'
+  },
+  {
+    id: 42,
+    title: '第42关：异步编程 asyncio',
+    subtitle: '协程与事件循环',
+    description: '学习 asyncio 事件循环、async/await、协程、Task、Future、异步IO、aiohttp，掌握现代 Python 异步编程。',
+    status: 'locked',
+    difficulty: 5,
+    duration: '约3小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['asyncio', 'async/await', '事件循环', 'Task', 'aiohttp'],
+    side: 'right',
+    category: 'system'
+  },
+  {
+    id: 43,
+    title: '第43关：单元测试 pytest',
+    subtitle: '代码质量保障',
+    description: '学习 unittest 标准库、pytest 框架、测试用例组织、fixture、参数化测试、Mock、覆盖率分析，建立测试驱动开发思维。',
+    status: 'locked',
+    difficulty: 3,
+    duration: '约2小时',
+    lessons: 5,
+    challenges: 4,
+    topics: ['unittest', 'pytest', 'fixture', 'Mock', '覆盖率'],
+    side: 'left',
+    category: 'system'
+  },
+  {
+    id: 44,
+    title: '第44关：内存与性能优化',
+    subtitle: '写出更快的 Python',
+    description: '学习引用计数与垃圾回收、内存剖析、性能分析（cProfile）、优化技巧、缓存策略（lru_cache）、代码性能调优实战。',
+    status: 'locked',
+    difficulty: 4,
+    duration: '约2.5小时',
+    lessons: 6,
+    challenges: 4,
+    topics: ['GC机制', 'cProfile', 'lru_cache', '内存剖析', '优化实战'],
+    side: 'right',
+    category: 'system'
   }
 ]
 
@@ -465,7 +639,7 @@ export const currentLevelChallenges: Challenge[] = [
 ]
 
 export const userProgress: UserProgress = {
-  totalLevels: 34,
+  totalLevels: 44,
   completedLevels: 3,
   totalXP: 180,
   currentXP: 50,
