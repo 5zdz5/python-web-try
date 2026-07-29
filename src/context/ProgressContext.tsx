@@ -70,7 +70,7 @@ interface ProgressContextType {
 }
 
 const STORAGE_KEY = 'python-quest-progress'
-const STORAGE_VERSION = 'v4-gist'
+const STORAGE_VERSION = 'v5-unlock-all-18'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -89,7 +89,16 @@ const defaultProgress: UserProgress = {
     6: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     7: { unlocked: true, completed: false, lessons: {}, challenges: {} },
     8: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    9: { unlocked: true, completed: false, lessons: {}, challenges: {} }
+    9: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    10: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    11: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    12: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    13: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    14: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    15: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    16: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    17: { unlocked: true, completed: false, lessons: {}, challenges: {} },
+    18: { unlocked: true, completed: false, lessons: {}, challenges: {} }
   },
   unlockedAchievements: ['first-day'],
   claimedAchievements: [],
