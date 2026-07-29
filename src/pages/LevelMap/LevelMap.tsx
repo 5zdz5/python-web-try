@@ -5,20 +5,12 @@ import { levels, currentLevelLessons, currentLevelChallenges } from '../../data/
 import { challenges } from '../../data/lessonContent'
 import { useProgress } from '../../context/ProgressContext'
 import { Level, LevelCategory } from '../../types'
-
-// 分类元数据
-const CATEGORY_META: Record<LevelCategory, { label: string; icon: string; color: string; desc: string }> = {
-  basic:         { label: 'Python 基础',     icon: '🐍', color: '#10b981', desc: '语法、变量、循环、函数、数据结构入门' },
-  advanced:      { label: 'Python 进阶',     icon: '🚀', color: '#f97316', desc: 'OOP、装饰器、异常、标准库、综合实战' },
-  network:       { label: '网络与爬虫',       icon: '🌐', color: '#3b82f6', desc: 'Requests、正则表达式、Scrapy 爬虫框架' },
-  'data-science': { label: '数据科学',        icon: '📊', color: '#8b5cf6', desc: 'NumPy、Pandas、Matplotlib、SciPy' },
-  web:           { label: 'Web 开发',         icon: '⚡', color: '#06b6d4', desc: 'Flask、FastAPI、Django 全栈框架' },
-  tools:         { label: '工具与可视化',     icon: '🛠️', color: '#f59e0b', desc: 'Dash 仪表盘、Jupyter、Pillow 图像' },
-  finance:       { label: '金融与其他语言',   icon: '💹', color: '#ef4444', desc: '量化交易、R 语言、Julia 科学计算' },
-  system:        { label: '系统编程',         icon: '⚙️', color: '#6366f1', desc: 'IO、迭代器、JSON、数据库、并发、测试、性能' }
-}
-
-const CATEGORY_ORDER: LevelCategory[] = ['basic', 'advanced', 'network', 'data-science', 'web', 'tools', 'finance', 'system']
+import {
+  CATEGORY_META,
+  CATEGORY_ORDER,
+  filterLevelsByCategory,
+  computeCategoryProgressPercent
+} from '../../config/categories'
 
 function LevelMap() {
   const navigate = useNavigate()
@@ -40,20 +32,17 @@ function LevelMap() {
     })
   }, [isLevelUnlocked, isLevelCompleted, getLevelProgress])
 
-  // 当前分类的关卡
+  // 当前分类的关卡（迭代适配：复用 config/categories 共享逻辑）
   const categoryLevels = useMemo(() => {
-    return levelsWithStatus.filter(l => l.category === activeCategory)
+    return filterLevelsByCategory(levelsWithStatus, activeCategory)
   }, [levelsWithStatus, activeCategory])
 
   // 全局进度
   const completedCount = levelsWithStatus.filter(l => l.status === 'completed').length
   const progressPercent = Math.round((completedCount / levels.length) * 100)
 
-  // 当前分类进度
-  const categoryCompleted = categoryLevels.filter(l => l.status === 'completed').length
-  const categoryProgressPercent = categoryLevels.length > 0
-    ? Math.round((categoryCompleted / categoryLevels.length) * 100)
-    : 0
+  // 当前分类进度（迭代适配：复用 config/categories 共享计算函数）
+  const categoryProgressPercent = computeCategoryProgressPercent(categoryLevels, progress.levels)
 
   const renderStars = (difficulty: number) => {
     return Array(5).fill(0).map((_, i) => (

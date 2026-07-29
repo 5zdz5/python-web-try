@@ -1,17 +1,30 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
 import VersionHistory from '../../components/VersionHistory'
 import { CURRENT_VERSION, getCurrentVersionInfo } from '../../config/versionManager'
+import { levels } from '../../data/mockData'
+import { runoobTopics } from '../../data/runoobTopics'
 
 function Home() {
   const [showVersionHistory, setShowVersionHistory] = useState(false)
   const versionInfo = getCurrentVersionInfo()
+
+  // 自动计算统计数据（迭代新增关卡/卡片时自动更新）
+  const { totalLevels, totalChallenges, totalTopics, totalCategories } = useMemo(() => {
+    const totalLevels = levels.length
+    const totalChallenges = levels.reduce((s, l) => s + (l.challenges || 0), 0)
+    const totalTopics = runoobTopics.length
+    const categorySet = new Set(levels.map((l) => l.category))
+    const totalCategories = categorySet.size
+    return { totalLevels, totalChallenges, totalTopics, totalCategories }
+  }, [])
+
   const stats = [
-    { value: '10', label: '大关卡' },
-    { value: '52', label: '编程挑战' },
-    { value: '156+', label: '学习者' },
-    { value: '98%', label: '好评率' }
+    { value: String(totalLevels), label: '大关卡' },
+    { value: String(totalChallenges) + '+', label: '编程挑战' },
+    { value: String(totalTopics), label: '主题卡片' },
+    { value: String(totalCategories) + ' 类', label: '课程分类' }
   ]
 
   return (
@@ -36,7 +49,7 @@ function Home() {
           </h1>
           
           <p className="hero-subtitle animate-fade-in delay-200">
-            通过 9 大关卡、50+ 编程挑战，从零到英雄独立完成项目
+            通过 {totalLevels} 大关卡、{totalChallenges}+ 编程挑战，从零到英雄独立完成项目
           </p>
           
           <div className="hero-actions animate-fade-in delay-300">
@@ -69,13 +82,13 @@ function Home() {
             <div className="feature-card">
               <div className="feature-icon">🎯</div>
               <h3>闯关式学习</h3>
-              <p>9大精心设计的关卡，从基础到进阶，每一步都有明确的目标和成就感。</p>
+              <p>{totalLevels}大精心设计的关卡，从基础到进阶，每一步都有明确的目标和成就感。</p>
             </div>
             
             <div className="feature-card">
               <div className="feature-icon">💻</div>
               <h3>实战挑战</h3>
-              <p>50+编程挑战，边学边练，在实践中真正掌握Python编程技能。</p>
+              <p>{totalChallenges}+编程挑战，边学边练，在实践中真正掌握Python编程技能。</p>
             </div>
             
             <div className="feature-card">

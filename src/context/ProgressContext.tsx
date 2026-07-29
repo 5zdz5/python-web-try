@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { useAuth } from './AuthContext'
 import { readGist, writeGist } from '../config/github'
 import { achievements as allAchievements, AchievementStats } from '../data/achievements'
+import { levels as ALL_LEVELS } from '../data/mockData'
 import { initVersionSystem, getVersionStorageKey, CURRENT_VERSION, getCurrentVersionInfo, VersionInfo } from '../config/versionManager'
 
 interface LessonProgress {
@@ -128,68 +129,7 @@ const defaultProgress: UserProgress = {
   streak: 7,
   studyDays: [today()],
   lastStudyDate: today(),
-  levels: {
-    1: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    2: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    3: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    4: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    5: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    6: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    7: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    8: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    9: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    10: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    11: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    12: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    13: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    14: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    15: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    16: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    17: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    18: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    19: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    20: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    21: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    22: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    23: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    24: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    25: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    26: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    27: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    28: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    29: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    30: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    31: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    32: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    33: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    34: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    35: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    36: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    37: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    38: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    39: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    40: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    41: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    42: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    43: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    44: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    45: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    46: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    47: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    48: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    49: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    50: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    51: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    52: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    53: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    54: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    55: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    56: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    57: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    58: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    59: { unlocked: true, completed: false, lessons: {}, challenges: {} },
-    60: { unlocked: true, completed: false, lessons: {}, challenges: {} }
-  },
+  levels: buildDefaultLevels(),
   unlockedAchievements: ['first-day'],
   claimedAchievements: [],
   activityLog: [
@@ -205,12 +145,70 @@ const defaultProgress: UserProgress = {
   ]
 }
 
+/**
+ * 迭代适配：从 mockData.levels 自动生成默认关卡进度
+ * 新增关卡只需改 mockData，此处会自动补全默认状态
+ */
+function buildDefaultLevels(): Record<number, LevelProgress> {
+  const out: Record<number, LevelProgress> = {}
+  for (const lv of ALL_LEVELS) {
+    // 默认第 1 关解锁，其余锁
+    out[lv.id] = {
+      unlocked: lv.id === 1,
+      completed: false,
+      lessons: {},
+      challenges: {}
+    }
+  }
+  return out
+}
+
+/**
+ * 迭代适配：确保 progress.levels 中包含所有关卡
+ * 每次版本升级或从存储载入时调用，避免因新增关卡导致 undefined/缺项
+ */
+function ensureAllLevelsExist(levels: Record<number, LevelProgress> | undefined): Record<number, LevelProgress> {
+  const out: Record<number, LevelProgress> = { ...(levels || {}) }
+  for (const lv of ALL_LEVELS) {
+    if (!out[lv.id]) {
+      out[lv.id] = { unlocked: lv.id === 1, completed: false, lessons: {}, challenges: {} }
+    } else {
+      // 确保 lessons/challenges 存在（兼容老数据结构缺项）
+      out[lv.id] = {
+        unlocked: lv.id === 1 ? true : (out[lv.id].unlocked ?? false),
+        completed: out[lv.id].completed ?? false,
+        lessons: out[lv.id].lessons ?? {},
+        challenges: out[lv.id].challenges ?? {}
+      }
+    }
+  }
+  return out
+}
+
+/**
+ * 迭代适配：给整个 UserProgress 做 levels 补全（含字段结构兼容）
+ */
+function sanitizeProgress(p: any): UserProgress {
+  if (!p || typeof p !== 'object') {
+    return { ...defaultProgress, levels: buildDefaultLevels() }
+  }
+  return {
+    ...defaultProgress,
+    ...p,
+    levels: ensureAllLevelsExist(p.levels)
+  }
+}
+
 function migrateProgress(saved: any): UserProgress {
-  if (!saved || typeof saved !== 'object') return { ...defaultProgress }
+  if (!saved || typeof saved !== 'object') return { ...defaultProgress, levels: buildDefaultLevels() }
+  const mergedLevels = ensureAllLevelsExist({
+    ...buildDefaultLevels(),
+    ...(saved.levels || {})
+  })
   return {
     ...defaultProgress,
     ...saved,
-    levels: saved.levels ? { ...defaultProgress.levels, ...saved.levels } : { ...defaultProgress.levels },
+    levels: mergedLevels,
     unlockedAchievements: Array.isArray(saved.unlockedAchievements)
       ? saved.unlockedAchievements
       : defaultProgress.unlockedAchievements,
@@ -249,7 +247,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         if (legacyData && !saved) {
           return migrateProgress(JSON.parse(legacyData))
         }
-        return parsed
+        return sanitizeProgress(parsed)
       } catch {}
     }
     // 回退：尝试旧版数据并迁移
@@ -260,7 +258,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
     safeSetItem(STORAGE_KEY + '-version', STORAGE_VERSION)
-    return { ...defaultProgress }
+    return sanitizeProgress(defaultProgress)
   })
 
   const hasSyncedRef = useRef(false)
@@ -672,11 +670,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       if (newGodMode) {
         // 开启无敌版：解锁所有关卡
         const levels: Record<number, LevelProgress> = {}
-        for (let i = 1; i <= 60; i++) {
-          levels[i] = {
-            ...(prev.levels[i] || { lessons: {}, challenges: {} }),
+        for (const lv of ALL_LEVELS) {
+          levels[lv.id] = {
+            ...(prev.levels[lv.id] || { lessons: {}, challenges: {} }),
             unlocked: true,
-            completed: prev.levels[i]?.completed || false
+            completed: prev.levels[lv.id]?.completed || false
           }
         }
         return {
@@ -699,17 +697,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       } else {
         // 关闭无敌版：恢复按进度解锁（第1关解锁，其余按完成情况）
         const levels: Record<number, LevelProgress> = {}
-        for (let i = 1; i <= 60; i++) {
-          const existing = prev.levels[i] || { lessons: {}, challenges: {} }
-          levels[i] = {
+        for (const lv of ALL_LEVELS) {
+          const existing = prev.levels[lv.id] || { lessons: {}, challenges: {} }
+          levels[lv.id] = {
             ...existing,
-            unlocked: i === 1 || existing.completed
+            unlocked: lv.id === 1 || existing.completed
           }
         }
-        // 确保已完成关卡的下一关是解锁的
-        for (let i = 1; i <= 59; i++) {
-          if (levels[i].completed) {
-            levels[i + 1].unlocked = true
+        // 确保已完成关卡的下一关是解锁的（按 ALL_LEVELS id 升序排列处理）
+        const sortedIds = ALL_LEVELS.map((l) => l.id).sort((a, b) => a - b)
+        for (let i = 0; i < sortedIds.length - 1; i++) {
+          const curId = sortedIds[i]
+          const nextId = sortedIds[i + 1]
+          if (levels[curId]?.completed) {
+            levels[nextId].unlocked = true
           }
         }
         return {

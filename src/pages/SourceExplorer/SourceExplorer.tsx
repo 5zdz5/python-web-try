@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import './SourceExplorer.css'
 import {
@@ -6,6 +6,9 @@ import {
   TECH_STACK, FILE_TREE, FEATURES, PRINCIPLES, MIGRATION_STEPS,
   FileNode
 } from '../../data/projectDocs'
+import { levels } from '../../data/mockData'
+import { runoobTopics } from '../../data/runoobTopics'
+import { CATEGORY_ORDER } from '../../config/categories'
 
 type Tab = 'overview' | 'files' | 'features' | 'principles' | 'migration'
 
@@ -48,6 +51,19 @@ function getFileIcon(name: string): string {
 
 function SourceExplorer() {
   const [activeTab, setActiveTab] = useState<Tab>('overview')
+
+  // 迭代适配：项目规模统计从实际数据自动计算，新增关卡/卡片/分类时无需改 UI
+  const stats = useMemo(() => {
+    const totalLessons = levels.reduce((s, l) => s + (l.lessons || 0), 0)
+    const totalChallenges = levels.reduce((s, l) => s + (l.challenges || 0), 0)
+    return {
+      levels: levels.length,
+      categories: CATEGORY_ORDER.length,
+      topics: runoobTopics.length,
+      lessons: totalLessons,
+      challenges: totalChallenges
+    }
+  }, [])
 
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'overview', label: '总览', icon: '🏠' },
@@ -129,10 +145,10 @@ function SourceExplorer() {
                 <div className="overview-stats">
                   <div className="os-row"><span className="os-label">组件</span><span className="os-val">9 个</span></div>
                   <div className="os-row"><span className="os-label">页面</span><span className="os-val">7 个</span></div>
-                  <div className="os-row"><span className="os-label">关卡</span><span className="os-val">60 关</span></div>
-                  <div className="os-row"><span className="os-label">分类地图</span><span className="os-val">8 大主题</span></div>
-                  <div className="os-row"><span className="os-label">主题卡片</span><span className="os-val">76 张</span></div>
-                  <div className="os-row"><span className="os-label">课程步骤</span><span className="os-val">10000+ 行</span></div>
+                  <div className="os-row"><span className="os-label">关卡</span><span className="os-val">{stats.levels} 关</span></div>
+                  <div className="os-row"><span className="os-label">分类地图</span><span className="os-val">{stats.categories} 大主题</span></div>
+                  <div className="os-row"><span className="os-label">主题卡片</span><span className="os-val">{stats.topics} 张</span></div>
+                  <div className="os-row"><span className="os-label">课程步骤</span><span className="os-val">{stats.lessons} 课时 / {stats.challenges} 挑战</span></div>
                   <div className="os-row"><span className="os-label">依赖</span><span className="os-val">4 运行时 + 5 开发</span></div>
                 </div>
               </div>

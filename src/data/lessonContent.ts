@@ -11947,7 +11947,7 @@ class Post(models.Model):
 
 **问题3**：模板中输出变量的语法？
 - A. {{ variable }}
-- B. ${ variable }
+- B. \${ variable }
 - C. <%= variable %>
 - D. [[ variable ]]
 
