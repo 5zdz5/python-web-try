@@ -308,6 +308,26 @@ export const runoobTopics: RunoobTopic[] = [
     unlocked: true,
     href: '#/level/44'
   },
+  {
+    id: 'python-socket',
+    name: 'Python 网络编程',
+    description: 'Socket、TCP/UDP、urllib、SMTP 邮件、端口扫描。',
+    icon: '🔌',
+    category: 'advanced',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/45'
+  },
+  {
+    id: 'python-system',
+    name: '系统模块进阶',
+    description: 'sys/subprocess/logging/csv/datetime/queue/StringIO。',
+    icon: '⚙️',
+    category: 'advanced',
+    difficulty: 3,
+    unlocked: true,
+    href: '#/level/46'
+  },
 
   // ===== Web 开发 =====
   {
@@ -341,6 +361,16 @@ export const runoobTopics: RunoobTopic[] = [
     href: '#/level/28'
   },
   {
+    id: 'fastapi-adv',
+    name: 'FastAPI 进阶',
+    description: 'Pydantic 校验、依赖注入、JWT 认证、中间件、CRUD API。',
+    icon: '🔱',
+    category: 'web',
+    difficulty: 5,
+    unlocked: true,
+    href: '#/level/48'
+  },
+  {
     id: 'django',
     name: 'Django',
     description: '全功能 Python Web 框架，MTV、ORM、Admin。',
@@ -349,6 +379,16 @@ export const runoobTopics: RunoobTopic[] = [
     difficulty: 4,
     unlocked: true,
     href: '#/level/29'
+  },
+  {
+    id: 'django-adv',
+    name: 'Django 进阶',
+    description: 'MVT 路由、模板系统、ORM 查询、Admin 后台、模型迁移。',
+    icon: '🏗️',
+    category: 'web',
+    difficulty: 5,
+    unlocked: true,
+    href: '#/level/49'
   },
   {
     id: 'scrapy',
@@ -373,6 +413,16 @@ export const runoobTopics: RunoobTopic[] = [
     href: '#/level/23'
   },
   {
+    id: 'numpy-adv',
+    name: 'NumPy 进阶',
+    description: '花式索引、广播、线性代数分解、统计分布、卷积、文件IO。',
+    icon: '🧮',
+    category: 'data',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/50'
+  },
+  {
     id: 'pandas',
     name: 'Pandas',
     description: 'DataFrame、CSV/Excel、数据清洗、groupby。',
@@ -383,6 +433,16 @@ export const runoobTopics: RunoobTopic[] = [
     href: '#/level/24'
   },
   {
+    id: 'pandas-adv',
+    name: 'Pandas 进阶',
+    description: 'MultiIndex、merge/pivot、时间序列、重采样、性能优化、完整分析。',
+    icon: '💼',
+    category: 'data',
+    difficulty: 5,
+    unlocked: true,
+    href: '#/level/51'
+  },
+  {
     id: 'matplotlib',
     name: 'Matplotlib',
     description: '折线图、柱状图、饼图、子图、样式导出。',
@@ -391,6 +451,16 @@ export const runoobTopics: RunoobTopic[] = [
     difficulty: 2,
     unlocked: true,
     href: '#/level/25'
+  },
+  {
+    id: 'matplotlib-adv',
+    name: 'Matplotlib 进阶',
+    description: 'GridSpec 复杂布局、3D 图形、样式主题、Animation 动画、完整仪表盘。',
+    icon: '🎨',
+    category: 'data',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/52'
   },
   {
     id: 'scipy',
@@ -456,6 +526,16 @@ export const runoobTopics: RunoobTopic[] = [
     href: '#/level/32'
   },
   {
+    id: 'jupyter-adv',
+    name: 'Jupyter 进阶',
+    description: '%%魔法命令、富显示系统、ipywidgets 交互、并行/内核、nbconvert/参数化。',
+    icon: '📒',
+    category: 'tool',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/53'
+  },
+  {
     id: 'pillow',
     name: 'Pillow 图像处理',
     description: '打开保存、像素操作、变换、滤镜、水印。',
@@ -464,6 +544,26 @@ export const runoobTopics: RunoobTopic[] = [
     difficulty: 2,
     unlocked: true,
     href: '#/level/33'
+  },
+  {
+    id: 'pillow-adv',
+    name: 'Pillow 进阶',
+    description: '几何变换、色彩增强/EXIF、ImageDraw 绘制、批量水印、海报生成。',
+    icon: '🎞️',
+    category: 'tool',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/54'
+  },
+  {
+    id: 'pyqt',
+    name: 'Python Qt (PyQt5)',
+    description: 'Qt GUI 开发：QWidget、布局管理、信号槽、QThread、多控件应用。',
+    icon: '🪟',
+    category: 'tool',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/47'
   },
   {
     id: 'git',
@@ -536,6 +636,16 @@ export const runoobTopics: RunoobTopic[] = [
     difficulty: 5,
     unlocked: true,
     href: '#/level/34'
+  },
+  {
+    id: 'r-adv',
+    name: 'R 语言进阶',
+    description: '向量/数据框、dplyr 处理、ggplot2 绘图、假设检验、回归分析、数据挖掘全流程。',
+    icon: '📊',
+    category: 'finance',
+    difficulty: 4,
+    unlocked: true,
+    href: '#/level/55'
   }
 ]
 

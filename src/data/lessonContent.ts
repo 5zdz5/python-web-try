@@ -10749,6 +10749,3218 @@ print(f"生成器: {r3}, {(time.time()-start)*1000:.1f}ms")
 
 **答案**：1.B  2.B  3.B`
     }
+  ],
+  // 第45关
+  45: [
+    {
+      id: 1, title: 'Socket 编程基础', type: 'explanation',
+      content: `**Socket** 是网络编程的基础，Python 使用 socket 模块进行网络通信。
+
+**TCP 客户端示例**：
+\`\`\`python
+import socket
+
+# 创建 TCP 客户端
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('127.0.0.1', 8888))
+client.sendall(b'Hello Server!')
+response = client.recv(1024)
+print(f'收到: {response.decode()}')
+client.close()
+\`\`\`
+
+**UDP 客户端示例**：
+\`\`\`python
+import socket
+
+client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client.sendto(b'Hello!', ('127.0.0.1', 8888))
+data, addr = client.recvfrom(1024)
+print(f'收到: {data.decode()}')
+client.close()
+\`\`\`
+
+**TCP vs UDP**：TCP 可靠有序、UDP 快速无连接。`
+    },
+    {
+      id: 2, title: 'Socket 服务器', type: 'example',
+      content: `\`\`\`python
+import socket
+import threading
+
+def handle_client(conn, addr):
+    print(f'新连接: {addr}')
+    data = conn.recv(1024)
+    conn.sendall(data.upper())
+    conn.close()
+
+# TCP 服务器
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(('0.0.0.0', 8888))
+server.listen(5)
+print('服务器启动在 8888...')
+
+while True:
+    conn, addr = server.accept()
+    threading.Thread(target=handle_client, args=(conn, addr)).start()
+\`\`\``,
+      code: `import socket
+
+# 创建回显服务器
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind(('127.0.0.1', 9999))
+server.listen(1)
+print('等待连接...')
+
+conn, addr = server.accept()
+print(f'客户端: {addr}')
+data = conn.recv(1024)
+print(f'收到: {data.decode()}')
+conn.sendall(data[::-1])  # 反转字符串
+conn.close()
+server.close()
+`
+    },
+    {
+      id: 3, title: 'urllib 网络请求', type: 'explanation',
+      content: `urllib 是 Python 内置的 HTTP 请求库：
+
+\`\`\`python
+import urllib.request
+import urllib.parse
+import json
+
+# GET 请求
+url = 'https://api.github.com/repos/python/cpython'
+req = urllib.request.Request(url, headers={'User-Agent': 'Python'})
+with urllib.request.urlopen(req) as resp:
+    data = json.loads(resp.read().decode())
+    print(f'Stars: {data["stargazers_count"]}')
+
+# POST 请求
+data = urllib.parse.urlencode({'key': 'value'}).encode()
+req = urllib.request.Request('https://httpbin.org/post', data=data, method='POST')
+with urllib.request.urlopen(req) as resp:
+    print(resp.read().decode())
+\`\`\`
+
+**urllib vs requests**：urllib 是内置库，requests 更易用。`
+    },
+    {
+      id: 4, title: 'SMTP 发送邮件', type: 'explanation',
+      content: `使用 smtplib 发送邮件：
+
+\`\`\`python
+import smtplib
+from email.mime.text import MIMEText
+
+msg = MIMEText('Hello, 这是测试邮件', 'plain', 'utf-8')
+msg['Subject'] = 'Python 邮件测试'
+msg['From'] = 'sender@example.com'
+msg['To'] = 'receiver@example.com'
+
+# 使用 Gmail SMTP
+with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+    server.login('sender@gmail.com', 'app-password')
+    server.send_message(msg)
+print('邮件发送成功')
+\`\`\``,
+      code: `import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+msg = MIMEMultipart()
+msg['From'] = 'y***@qq.com'
+msg['To'] = 'y***@163.com'
+msg['Subject'] = 'Python 自动化邮件'
+
+body = MIMEText('这是一封自动化发送的邮件', 'plain', 'utf-8')
+msg.attach(body)
+
+# QQ 邮箱 SMTP
+with smtplib.SMTP_SSL('smtp.qq.com', 465) as s:
+    s.login('y***@qq.com', 'your-auth-code')
+    s.send_message(msg)
+print('发送成功!')
+`
+    },
+    {
+      id: 5, title: '练习：端口扫描器', type: 'exercise',
+      content: `编写一个简单的端口扫描器，扫描指定主机的常用端口：
+
+\`\`\`python
+import socket
+# 在这里编写代码
+\`\`\``,
+      code: `import socket
+
+def scan_ports(host, ports):
+    open_ports = []
+    for port in ports:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.5)
+        result = s.connect_ex((host, port))
+        if result == 0:
+            open_ports.append(port)
+        s.close()
+    return open_ports
+
+common_ports = [21, 22, 23, 80, 443, 8080, 3306, 6379, 27017]
+target = '127.0.0.1'
+open_found = scan_ports(target, common_ports)
+
+print(f'扫描 {target} 的常用端口:')
+for port in common_ports:
+    status = '✓ 开放' if port in open_found else '✗ 关闭'
+    print(f'  {port}: {status}')
+`
+    },
+    {
+      id: 6, title: '第45关测验', type: 'quiz',
+      content: `**问题1**：TCP 和 UDP 的主要区别？
+- A. TCP 更快，UDP 更可靠
+- B. TCP 可靠有序，UDP 快速无连接
+- C. 没有区别
+- D. TCP 只能在 Windows 用
+
+**问题2**：Python 内置的 HTTP 请求库是？
+- A. requests
+- B. urllib
+- C. httpclient
+- D. httpx
+
+**问题3**：发送邮件需要使用的协议？
+- A. HTTP
+- B. FTP
+- C. SMTP
+- D. SSH
+
+**答案**：1.B  2.B  3.C`
+    }
+  ],
+  // 第46关
+  46: [
+    {
+      id: 1, title: 'sys 与 subprocess', type: 'explanation',
+      content: `**sys 模块**：与 Python 解释器交互
+
+\`\`\`python
+import sys
+
+print(sys.version)          # Python 版本
+print(sys.platform)         # 操作系统
+print(sys.path)             # 模块搜索路径
+sys.exit(0)                 # 退出程序
+\`\`\`
+
+**subprocess 模块**：执行外部命令
+
+\`\`\`python
+import subprocess
+
+# 执行命令
+result = subprocess.run(['ls', '-la'], capture_output=True, text=True)
+print(result.stdout)
+print(result.returncode)
+
+# 使用管道
+p = subprocess.Popen(['cat', '/etc/passwd'], stdout=subprocess.PIPE)
+output = p.stdout.read().decode()
+\`\`\``
+    },
+    {
+      id: 2, title: 'logging 日志', type: 'example',
+      content: `\`\`\`python
+import logging
+
+# 配置日志
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logging.debug('调试信息')
+logging.info('一般信息')
+logging.warning('警告信息')
+logging.error('错误信息')
+logging.critical('严重错误')
+\`\`\``,
+      code: `import logging
+
+# 同时输出到文件和控制台
+logger = logging.getLogger('myapp')
+logger.setLevel(logging.DEBUG)
+
+# 文件处理器
+fh = logging.FileHandler('app.log', encoding='utf-8')
+fh.setLevel(logging.DEBUG)
+
+# 控制台处理器
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+
+logger.addHandler(fh)
+logger.addHandler(ch)
+
+logger.info('应用启动')
+logger.debug('加载配置')
+logger.warning('磁盘空间不足')
+logger.info('应用关闭')
+`
+    },
+    {
+      id: 3, title: 'csv 与 datetime', type: 'explanation',
+      content: `**csv 模块**：读写 CSV 文件
+
+\`\`\`python
+import csv
+
+# 读取
+with open('data.csv', 'r') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row['name'], row['score'])
+
+# 写入
+with open('output.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['姓名', '分数'])
+    writer.writerow(['张三', 95])
+\`\`\`
+
+**datetime 模块**：日期时间处理
+
+\`\`\`python
+from datetime import datetime, timedelta
+
+now = datetime.now()
+print(now.strftime('%Y-%m-%d %H:%M:%S'))
+
+# 日期运算
+tomorrow = now + timedelta(days=1)
+diff = tomorrow - now
+print(f'相差: {diff}')
+\`\`\``
+    },
+    {
+      id: 4, title: 'queue 与 StringIO', type: 'explanation',
+      content: `**queue 模块**：线程安全队列
+
+\`\`\`python
+import queue
+import threading
+
+q = queue.Queue()
+
+def producer():
+    for i in range(5):
+        q.put(f'产品-{i}')
+        print(f'生产: 产品-{i}')
+
+def consumer():
+    while True:
+        item = q.get()
+        print(f'消费: {item}')
+        q.task_done()
+
+threading.Thread(target=consumer, daemon=True).start()
+threading.Thread(target=producer).start()
+\`\`\`
+
+**io.StringIO**：内存中的字符串流
+
+\`\`\`python
+from io import StringIO
+
+buf = StringIO()
+buf.write('Hello World')
+buf.write('This is test')
+print(buf.getvalue())
+\`\`\``,
+      code: `import queue
+import threading
+import time
+
+task_queue = queue.Queue(maxsize=3)
+
+def worker(name):
+    while True:
+        task = task_queue.get()
+        print(f'[{name}] 处理任务: {task}')
+        time.sleep(0.5)
+        task_queue.task_done()
+
+# 启动3个工作线程
+for i in range(3):
+    t = threading.Thread(target=worker, args=(f'Worker-{i}',), daemon=True)
+    t.start()
+
+# 提交任务
+for i in range(10):
+    task_queue.put(f'Task-{i}')
+
+task_queue.join()
+print('所有任务完成!')
+`
+    },
+    {
+      id: 5, title: '练习：日志分析器', type: 'exercise',
+      content: '编写一个日志分析器，读取日志文件并统计各级别日志数量',
+      code: `import re
+from collections import Counter
+
+def analyze_log(filepath):
+    levels = Counter()
+    pattern = r'\\[(DEBUG|INFO|WARNING|ERROR|CRITICAL)\\]'
+    
+    with open(filepath, 'r', encoding='utf-8') as f:
+        for line in f:
+            match = re.search(pattern, line)
+            if match:
+                levels[match.group(1)] += 1
+    
+    total = sum(levels.values())
+    print(f'日志分析报告 (共 {total} 条)')
+    print('=' * 30)
+    for level, count in sorted(levels.items()):
+        pct = count / total * 100
+        bar = '█' * int(pct / 2)
+        print(f'{level:10s}: {count:5d} ({pct:5.1f}%) {bar}')
+
+# 创建测试日志
+test_log = 'test.log'
+with open(test_log, 'w') as f:
+    for i in range(100):
+        f.write(f'2024-01-01 12:00:{i:02d} [{["DEBUG","INFO","WARNING","ERROR"][i%4]}] 测试信息 {i}\\n')
+
+analyze_log(test_log)
+`
+    },
+    {
+      id: 6, title: '第46关测验', type: 'quiz',
+      content: `**问题1**：logging 默认的最低级别是？
+- A. DEBUG
+- B. WARNING
+- C. INFO
+- D. ERROR
+
+**问题2**：subprocess.run() 的 capture_output 参数作用？
+- A. 捕获命令输出
+- B. 显示进度条
+- C. 提高执行速度
+- D. 加密输出
+
+**问题3**：queue.Queue 的 maxsize 参数作用？
+- A. 最大元素数量限制
+- B. 最大线程数
+- C. 最大内存占用
+- D. 执行超时时间
+
+**答案**：1.B  2.A  3.A`
+    }
+  ],
+  // 第47关
+  47: [
+    {
+      id: 1, title: 'PyQt5 基础', type: 'explanation',
+      content: `**PyQt5** 是 Python 的 Qt5 绑定，用于开发桌面 GUI 应用。
+
+\`\`\`python
+# pip install PyQt5
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+
+app = QApplication(sys.argv)
+
+window = QWidget()
+window.setWindowTitle('我的第一个Qt窗口')
+window.resize(400, 300)
+
+label = QLabel('Hello PyQt5!', window)
+label.move(150, 130)
+
+window.show()
+sys.exit(app.exec_())
+\`\`\`
+
+**核心概念**：
+- QApplication：应用对象，管理事件循环
+- QWidget：所有窗口的基类
+- 信号与槽：事件通信机制`
+    },
+    {
+      id: 2, title: '常用控件', type: 'example',
+      content: `\`\`\`python
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
+    QLineEdit, QLabel, QVBoxLayout, QHBoxLayout)
+
+class LoginWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('登录窗口')
+        self.resize(300, 200)
+        
+        layout = QVBoxLayout()
+        
+        layout.addWidget(QLabel('用户名:'))
+        self.username = QLineEdit()
+        layout.addWidget(self.username)
+        
+        layout.addWidget(QLabel('密码:'))
+        self.password = QLineEdit()
+        self.password.setEchoMode(QLineEdit.Password)
+        layout.addWidget(self.password)
+        
+        btn = QPushButton('登录')
+        btn.clicked.connect(self.on_login)
+        layout.addWidget(btn)
+        
+        self.result = QLabel('')
+        layout.addWidget(self.result)
+        
+        self.setLayout(layout)
+    
+    def on_login(self):
+        u = self.username.text()
+        p = self.password.text()
+        self.result.setText(f'欢迎, {u}!')
+
+app = QApplication([])
+window = LoginWindow()
+window.show()
+app.exec_()
+\`\`\``,
+      code: `from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
+    QProgressBar, QVBoxLayout)
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+
+class ProgressThread(QThread):
+    progress = pyqtSignal(int)
+    
+    def run(self):
+        for i in range(101):
+            self.progress.emit(i)
+            self.msleep(50)
+
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        
+        self.bar = QProgressBar()
+        self.bar.setRange(0, 100)
+        layout.addWidget(self.bar)
+        
+        self.btn = QPushButton('开始')
+        self.btn.clicked.connect(self.start_progress)
+        layout.addWidget(self.btn)
+        
+        self.setLayout(layout)
+    
+    def start_progress(self):
+        self.thread = ProgressThread()
+        self.thread.progress.connect(self.bar.setValue)
+        self.thread.start()
+
+app = QApplication([])
+window = MainWindow()
+window.show()
+app.exec_()
+`
+    },
+    {
+      id: 3, title: '布局管理', type: 'explanation',
+      content: `**三种布局管理器**：
+
+- QVBoxLayout：垂直布局
+- QHBoxLayout：水平布局
+- QGridLayout：网格布局
+
+\`\`\`python
+from PyQt5.QtWidgets import *
+
+class FormWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        grid = QGridLayout()
+        
+        grid.addWidget(QLabel('姓名:'), 0, 0)
+        grid.addWidget(QLineEdit(), 0, 1)
+        grid.addWidget(QLabel('电话:'), 1, 0)
+        grid.addWidget(QLineEdit(), 1, 1)
+        grid.addWidget(QLabel('地址:'), 2, 0)
+        grid.addWidget(QTextEdit(), 2, 1)
+        
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(QPushButton('确定'))
+        btn_layout.addWidget(QPushButton('取消'))
+        grid.addLayout(btn_layout, 3, 0, 1, 2)
+        
+        self.setLayout(grid)
+
+app = QApplication([])
+FormWindow().show()
+app.exec_()
+\`\`\``
+    },
+    {
+      id: 4, title: '信号与槽', type: 'explanation',
+      content: `**信号（Signal）** 与 **槽（Slot）** 是 Qt 的事件通信机制：
+
+\`\`\`python
+from PyQt5.QtCore import pyqtSignal, QObject
+
+class Communicator(QObject):
+    close_app = pyqtSignal()
+    data_ready = pyqtSignal(str, int)
+    
+    def do_work(self):
+        self.close_app.emit()
+        self.data_ready.emit('hello', 42)
+
+class Receiver:
+    def on_close(self):
+        print('收到关闭信号')
+    
+    def on_data(self, text, num):
+        print(f'收到数据: {text}, {num}')
+
+comm = Communicator()
+recv = Receiver()
+
+comm.close_app.connect(recv.on_close)
+comm.data_ready.connect(recv.on_data)
+
+comm.do_work()
+# 输出:
+# 收到关闭信号
+# 收到数据: hello, 42
+\`\`\``,
+      code: `from PyQt5.QtWidgets import *
+from PyQt5.QtCore import pyqtSignal
+
+class TemperatureMonitor(QWidget):
+    warning = pyqtSignal(float)
+    
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setRange(0, 100)
+        self.slider.valueChanged.connect(self.check_temp)
+        layout.addWidget(self.slider)
+        
+        self.label = QLabel('温度: 0°C')
+        layout.addWidget(self.label)
+        
+        self.status = QLabel('')
+        layout.addWidget(self.status)
+        
+        self.warning.connect(self.on_warning)
+        self.setLayout(layout)
+    
+    def check_temp(self, value):
+        self.label.setText(f'温度: {value}°C')
+        if value > 80:
+            self.warning.emit(value)
+    
+    def on_warning(self, temp):
+        self.status.setText(f'⚠️ 高温警告: {temp}°C')
+        self.status.setStyleSheet('color: red')
+
+app = QApplication([])
+TemperatureMonitor().show()
+app.exec_()
+`
+    },
+    {
+      id: 5, title: '练习：待办事项 GUI', type: 'exercise',
+      content: '使用 PyQt5 创建一个简单的待办事项应用',
+      code: `from PyQt5.QtWidgets import *
+
+class TodoApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.todos = []
+        
+        layout = QVBoxLayout()
+        
+        # 输入区
+        input_layout = QHBoxLayout()
+        self.input = QLineEdit()
+        self.input.setPlaceholderText('添加待办事项...')
+        self.input.returnPressed.connect(self.add_todo)
+        btn_add = QPushButton('添加')
+        btn_add.clicked.connect(self.add_todo)
+        input_layout.addWidget(self.input)
+        input_layout.addWidget(btn_add)
+        layout.addLayout(input_layout)
+        
+        # 列表
+        self.list_widget = QListWidget()
+        layout.addWidget(self.list_widget)
+        
+        # 操作按钮
+        btn_layout = QHBoxLayout()
+        btn_clear = QPushButton('清空已完成')
+        btn_clear.clicked.connect(self.clear_done)
+        btn_layout.addWidget(btn_clear)
+        layout.addLayout(btn_layout)
+        
+        self.setLayout(layout)
+    
+    def add_todo(self):
+        text = self.input.text().strip()
+        if text:
+            item = QListWidgetItem(text)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
+            self.list_widget.addItem(item)
+            self.input.clear()
+    
+    def clear_done(self):
+        for i in range(self.list_widget.count() - 1, -1, -1):
+            if self.list_widget.item(i).checkState() == Qt.Checked:
+                self.list_widget.takeItem(i)
+
+app = QApplication([])
+TodoApp().show()
+app.exec_()
+`
+    },
+    {
+      id: 6, title: '第47关测验', type: 'quiz',
+      content: `**问题1**：PyQt5 中信号与槽的作用？
+- A. 数据存储
+- B. 事件通信机制
+- C. 布局管理
+- D. 绘图工具
+
+**问题2**：哪个布局管理器按网格排列控件？
+- A. QVBoxLayout
+- B. QHBoxLayout
+- C. QGridLayout
+- D. QStackedLayout
+
+**问题3**：QApplication 的主要职责？
+- A. 绘制窗口
+- B. 管理事件循环和应用对象
+- C. 网络请求
+- D. 文件操作
+
+**答案**：1.B  2.C  3.B`
+    }
+  ],
+  // 第48关
+  48: [
+    {
+      id: 1, title: 'FastAPI 路由基础', type: 'explanation',
+      content: `**FastAPI** 是现代高性能 Python API 框架。
+
+\`\`\`python
+# pip install fastapi uvicorn
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get('/')
+def read_root():
+    return {'message': 'Hello FastAPI'}
+
+@app.get('/items/{item_id}')
+def read_item(item_id: int, q: str = None):
+    return {'item_id': item_id, 'q': q}
+
+@app.post('/items')
+def create_item(item: dict):
+    return item
+\`\`\`
+
+运行：uvicorn main:app --reload
+文档：访问 /docs 查看自动生成的 Swagger UI`
+    },
+    {
+      id: 2, title: 'Pydantic 数据校验', type: 'example',
+      content: `\`\`\`python
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class Item(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    price: float = Field(gt=0)
+    description: Optional[str] = None
+    tags: list[str] = []
+
+class ItemCreate(BaseModel):
+    name: str
+    price: float
+    description: Optional[str] = None
+
+@app.post('/items', response_model=Item)
+def create_item(item: ItemCreate):
+    db_item = {**item.dict(), 'id': len(items_db) + 1}
+    items_db.append(db_item)
+    return db_item
+
+@app.get('/items/{item_id}', response_model=Item)
+def get_item(item_id: int):
+    for item in items_db:
+        if item['id'] == item_id:
+            return item
+    raise HTTPException(status_code=404, detail='Not found')
+\`\`\``,
+      code: `from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+app = FastAPI(title='用户管理 API')
+users_db = {}
+
+class User(BaseModel):
+    id: int
+    username: str
+    email: str
+    age: Optional[int] = None
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    age: Optional[int] = None
+
+@app.post('/users', response_model=User)
+def create_user(user: UserCreate):
+    uid = len(users_db) + 1
+    db_user = {**user.dict(), 'id': uid}
+    users_db[uid] = db_user
+    return db_user
+
+@app.get('/users/{user_id}', response_model=User)
+def get_user(user_id: int):
+    if user_id not in users_db:
+        raise HTTPException(404, '用户不存在')
+    return users_db[user_id]
+
+@app.get('/users', response_model=list[User])
+def list_users():
+    return list(users_db.values())
+`
+    },
+    {
+      id: 3, title: '依赖注入', type: 'explanation',
+      content: `**依赖注入（Dependency Injection）** 是 FastAPI 的核心特性：
+
+\`\`\`python
+from fastapi import Depends
+
+def get_db():
+    db = create_db_connection()
+    try:
+        yield db
+    finally:
+        db.close()
+
+def get_current_user(db=Depends(get_db)):
+    user_id = get_current_user_id()
+    return db.query(User).get(user_id)
+
+@app.get('/profile')
+def get_profile(user=Depends(get_current_user)):
+    return user
+\`\`\`
+
+**应用场景**：
+- 数据库会话管理
+- 认证授权
+- 配置注入
+- 服务单例`
+    },
+    {
+      id: 4, title: '中间件与认证', type: 'explanation',
+      content: `\`\`\`python
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        print(f'{request.method} {request.url}')
+        response = await call_next(request)
+        print(f'Status: {response.status_code}')
+        return response
+
+app.add_middleware(LoggingMiddleware)
+
+# JWT 认证
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+
+async def get_current_user(token=Depends(oauth2_scheme)):
+    payload = decode_token(token)
+    user = get_user(payload['sub'])
+    if not user:
+        raise HTTPException(401)
+    return user
+
+@app.get('/protected')
+def protected_route(user=Depends(get_current_user)):
+    return {'user': user.username}
+\`\`\``,
+      code: `from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+import jwt
+
+app = FastAPI()
+SECRET_KEY = 'your-secret-key'
+ALGORITHM = 'HS256'
+
+class User(BaseModel):
+    username: str
+    password: str
+
+fake_users = {'admin': 'password123'}
+
+def create_token(username: str):
+    expire = datetime.utcnow() + timedelta(hours=24)
+    payload = {'sub': username, 'exp': expire}
+    return jwt.encode(payload, SECRET_KEY, ALGORITHM)
+
+def verify_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl='login'))):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload['sub']
+    except:
+        raise HTTPException(401, '无效令牌')
+
+@app.post('/login')
+def login(form: OAuth2PasswordRequestForm = Depends()):
+    if fake_users.get(form.username) == form.password:
+        token = create_token(form.username)
+        return {'access_token': token, 'token_type': 'bearer'}
+    raise HTTPException(401, '用户名或密码错误')
+
+@app.get('/me')
+def me(username: str = Depends(verify_token)):
+    return {'username': username}
+`
+    },
+    {
+      id: 5, title: '练习：完整 API', type: 'exercise',
+      content: '使用 FastAPI 创建一个图书管理 API，包含 CRUD 操作和认证',
+      code: `from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+app = FastAPI(title='图书管理 API')
+
+class Book(BaseModel):
+    id: int
+    title: str
+    author: str
+    year: int
+    available: bool = True
+
+class BookCreate(BaseModel):
+    title: str
+    author: str
+    year: int
+
+books_db = [
+    {'id': 1, 'title': 'Python入门', 'author': '张三', 'year': 2024, 'available': True},
+    {'id': 2, 'title': '算法导论', 'author': '李四', 'year': 2023, 'available': True},
+]
+
+@app.get('/books', response_model=list[Book])
+def list_books(available: Optional[bool] = None):
+    if available is None:
+        return books_db
+    return [b for b in books_db if b['available'] == available]
+
+@app.get('/books/{book_id}', response_model=Book)
+def get_book(book_id: int):
+    for b in books_db:
+        if b['id'] == book_id:
+            return b
+    raise HTTPException(404, '图书不存在')
+
+@app.post('/books', response_model=Book)
+def create_book(book: BookCreate):
+    new_id = max(b['id'] for b in books_db) + 1
+    new_book = {**book.dict(), 'id': new_id, 'available': True}
+    books_db.append(new_book)
+    return new_book
+
+@app.put('/books/{book_id}', response_model=Book)
+def update_book(book_id: int, book: BookCreate):
+    for i, b in enumerate(books_db):
+        if b['id'] == book_id:
+            books_db[i].update(book.dict())
+            return books_db[i]
+    raise HTTPException(404, '图书不存在')
+
+@app.delete('/books/{book_id}')
+def delete_book(book_id: int):
+    for i, b in enumerate(books_db):
+        if b['id'] == book_id:
+            books_db.pop(i)
+            return {'message': '删除成功'}
+    raise HTTPException(404, '图书不存在')
+`
+    },
+    {
+      id: 6, title: '第48关测验', type: 'quiz',
+      content: `**问题1**：FastAPI 使用哪个库进行数据校验？
+- A. marshmallow
+- B. pydantic
+- C. wtforms
+- D. cerberus
+
+**问题2**：FastAPI 文档页面的路径是？
+- A. /docs
+- B. /admin
+- C. /api
+- D. /swagger
+
+**问题3**：依赖注入的关键字是？
+- A. inject
+- B. Depends
+- C. Provide
+- D. Wire
+
+**答案**：1.B  2.A  3.B`
+    }
+  ],
+  // 第49关
+  49: [
+    {
+      id: 1, title: 'Django MVT 模式', type: 'explanation',
+      content: `**Django** 采用 MVT 架构（Model-View-Template）：
+
+\`\`\`bash
+# 创建项目
+django-admin startproject myproject
+cd myproject
+python manage.py startapp myapp
+
+# 目录结构
+myproject/
+├── manage.py
+├── myproject/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+└── myapp/
+    ├── models.py
+    ├── views.py
+    ├── urls.py
+    └── templates/
+\`\`\`
+
+**MVT 职责**：
+- Model：数据模型，ORM 映射
+- View：业务逻辑，处理请求
+- Template：HTML 模板，页面渲染`
+    },
+    {
+      id: 2, title: '视图与 URL 路由', type: 'example',
+      content: `\`\`\`python
+# myapp/views.py
+from django.http import HttpResponse
+from django.shortcuts import render
+
+def hello(request):
+    return HttpResponse('Hello Django!')
+
+def home(request):
+    return render(request, 'home.html', {'title': '首页'})
+
+def about(request, year):
+    return render(request, 'about.html', {'year': year})
+
+# myapp/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('hello/', views.hello, name='hello'),
+    path('about/<int:year>/', views.about, name='about'),
+]
+\`\`\``,
+      code: `# models.py
+from django.db import models
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    published = models.DateTimeField(auto_now_add=True)
+    author = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['-published']
+
+# views.py
+from django.shortcuts import render, get_object_or_404
+from .models import Article
+
+def article_list(request):
+    articles = Article.objects.all()[:10]
+    return render(request, 'list.html', {'articles': articles})
+
+def article_detail(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    return render(request, 'detail.html', {'article': article})
+`
+    },
+    {
+      id: 3, title: '模板系统', type: 'explanation',
+      content: `**Django 模板语言** 用于动态生成 HTML：
+
+\`\`\`html
+{# templates/article_list.html #}
+<!DOCTYPE html>
+<html>
+<head><title>{{ title }}</title></head>
+<body>
+    <h1>文章列表</h1>
+    {% for article in articles %}
+        <article>
+            <h2><a href="{% url 'detail' article.pk %}">
+                {{ article.title }}
+            </a></h2>
+            <p>作者: {{ article.author }}</p>
+            <time>{{ article.published|date:"Y-m-d" }}</time>
+        </article>
+    {% empty %}
+        <p>暂无文章</p>
+    {% endfor %}
+</body>
+</html>
+\`\`\`
+
+**常用标签**：{% for %}, {% if %}, {% url %}, {% block %}, {% extends %}
+**过滤器**：|date, |length, |escape, |truncatechars`
+    },
+    {
+      id: 4, title: '模型与 ORM', type: 'explanation',
+      content: `**Django ORM** 让数据库操作变得简单：
+
+\`\`\`python
+# 创建
+article = Article.objects.create(
+    title='Django 教程',
+    content='Django 是 Web 框架',
+    author='张三'
+)
+
+# 查询
+all_articles = Article.objects.all()
+published = Article.objects.filter(published__year=2024)
+article = Article.objects.get(pk=1)
+
+# 更新
+article.title = '新标题'
+article.save()
+
+# 删除
+article.delete()
+
+# 聚合
+from django.db.models import Count, Avg
+stats = Article.objects.aggregate(
+    total=Count('id'),
+    avg_count=Avg('id')
+)
+\`\`\``,
+      code: `# 迁移命令
+# python manage.py makemigrations
+# python manage.py migrate
+
+# admin.py
+from django.contrib import admin
+from .models import Article
+
+@admin.register(Article)
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ['title', 'author', 'published']
+    list_filter = ['author', 'published']
+    search_fields = ['title', 'content']
+    date_hierarchy = 'published'
+
+# 创建超级用户
+# python manage.py createsuperuser
+`
+    },
+    {
+      id: 5, title: '练习：博客系统', type: 'exercise',
+      content: '创建一个简单的 Django 博客应用',
+      code: `# models.py 完整示例
+from django.db import models
+from django.utils import timezone
+
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    content = models.TextField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    author = models.CharField(max_length=100)
+    created = models.DateTimeField(default=timezone.now)
+    updated = models.DateTimeField(auto_now=True)
+    published = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return self.title
+`
+    },
+    {
+      id: 6, title: '第49关测验', type: 'quiz',
+      content: `**问题1**：Django 的架构模式是？
+- A. MVC
+- B. MVT
+- C. MVVM
+- D. MVP
+
+**问题2**：Django ORM 中获取所有记录的方法？
+- A. all()
+- B. get_all()
+- C. find()
+- D. select()
+
+**问题3**：模板中输出变量的语法？
+- A. {{ variable }}
+- B. ${ variable }
+- C. <%= variable %>
+- D. [[ variable ]]
+
+**答案**：1.B  2.A  3.A`
+    }
+  ],
+  // 第50关
+  50: [
+    {
+      id: 1, title: 'NumPy 高级索引', type: 'explanation',
+      content: `**NumPy 花式索引**：通过整数数组或布尔数组索引。
+
+\`\`\`python
+import numpy as np
+
+arr = np.arange(12).reshape(3, 4)
+print(arr)
+# [[ 0  1  2  3]
+#  [ 4  5  6  7]
+#  [ 8  9 10 11]]
+
+# 花式索引
+print(arr[[0, 2]])  # 第0、2行
+print(arr[np.array([1, 2]), np.array([2, 3])])  # (1,2)、(2,3)
+
+# 布尔索引
+mask = arr > 5
+print(arr[mask])
+\`\`\`
+
+**where 函数**：三元运算的向量化版本。`
+    },
+    {
+      id: 2, title: '广播与线性代数', type: 'example',
+      content: `\`\`\`python
+import numpy as np
+
+# 广播机制
+A = np.array([1, 2, 3])  # shape: (3,)
+B = np.array([[10], [20]])  # shape: (2,1)
+# A 自动扩展为 (2,3)，B 自动扩展为 (2,3)
+print(A + B)
+
+# 线性代数
+M = np.array([[1, 2], [3, 4]])
+print(np.linalg.inv(M))        # 逆矩阵
+print(np.linalg.det(M))        # 行列式
+print(np.linalg.eig(M))        # 特征值
+print(np.dot(M, np.linalg.inv(M)))  # 单位矩阵近似
+\`\`\``,
+      code: `import numpy as np
+
+# 矩阵分解
+A = np.array([[4, 2, 1], [2, 6, 3], [1, 3, 5]])
+
+# Cholesky 分解 (正定矩阵)
+L = np.linalg.cholesky(A)
+print('Cholesky 分解 L:')
+print(L)
+print('验证 L·Lᵀ = A:')
+print(np.allclose(L @ L.T, A))
+
+# SVD 分解
+U, s, Vt = np.linalg.svd(A)
+print('\\n奇异值:', s)
+
+# 求解线性方程组 Ax = b
+b = np.array([1, 2, 3])
+x = np.linalg.solve(A, b)
+print('\\n线性方程组解:', x)
+print('验证 Ax = b:', np.allclose(A @ x, b))
+`
+    },
+    {
+      id: 3, title: '统计与随机', type: 'explanation',
+      content: `\`\`\`python
+import numpy as np
+
+np.random.seed(42)
+
+# 随机数生成
+data = np.random.normal(0, 1, 1000)  # 正态分布
+
+# 统计量
+print('均值:', np.mean(data))
+print('中位数:', np.median(data))
+print('方差:', np.var(data))
+print('标准差:', np.std(data))
+print('分位数:', np.percentile(data, [25, 50, 75]))
+
+# 相关系数矩阵
+x = np.random.randn(100)
+y = 2 * x + np.random.randn(100) * 0.5
+print(np.corrcoef(x, y))
+
+# 直方图统计
+hist, bins = np.histogram(data, bins=10)
+\`\`\``
+    },
+    {
+      id: 4, title: '文件IO', type: 'explanation',
+      content: `\`\`\`python
+import numpy as np
+
+# 保存为 npy 格式 (二进制)
+arr = np.array([[1, 2], [3, 4]])
+np.save('data.npy', arr)
+loaded = np.load('data.npy')
+
+# 保存为 npz (多个数组压缩)
+np.savez('archive.npz', a=arr, b=arr * 2)
+archive = np.load('archive.npz')
+print(archive['a'], archive['b'])
+
+# 文本文件
+arr = np.loadtxt('data.txt')
+np.savetxt('data.txt', arr, fmt='%.4f')
+
+# CSV
+data = np.genfromtxt('data.csv', delimiter=',', skip_header=1)
+\`\`\``,
+      code: `import numpy as np
+
+np.random.seed(42)
+temperatures = np.random.randn(24, 7) * 5 + 25  # 24小时×7天
+
+# 每日统计
+print('每日最高温:', np.max(temperatures, axis=0))
+print('每日最低温:', np.min(temperatures, axis=0))
+print('每日平均:', np.mean(temperatures, axis=0).round(2))
+
+# 每小时平均（跨周）
+hourly_avg = np.mean(temperatures, axis=1)
+print('\\n每小时平均温度:')
+for h, t in enumerate(hourly_avg[::4]):
+    print(f'  {h*4:2d}:00 - {t:5.2f}°C')
+
+# 滑动窗口平均 (卷积)
+window_size = 3
+kernel = np.ones(window_size) / window_size
+smoothed = np.convolve(hourly_avg, kernel, mode='same')
+print('\\n滑动平均平滑完成，方差变化:')
+print(f'  原始方差: {np.var(hourly_avg):.4f}')
+print(f'  平滑后方差: {np.var(smoothed):.4f}')
+`
+    },
+    {
+      id: 5, title: '练习：图像卷积', type: 'exercise',
+      content: '使用 NumPy 实现图像卷积，包括边缘检测、模糊、锐化',
+      code: `import numpy as np
+
+def convolve2d(image, kernel):
+    kh, kw = kernel.shape
+    ih, iw = image.shape
+    pad_h, pad_w = kh // 2, kw // 2
+    padded = np.pad(image, ((pad_h, pad_h), (pad_w, pad_w)), mode='edge')
+    output = np.zeros_like(image, dtype=np.float64)
+    for i in range(ih):
+        for j in range(iw):
+            output[i, j] = np.sum(padded[i:i+kh, j:j+kw] * kernel)
+    return output
+
+# 创建测试图像（简单渐变+边缘）
+img = np.zeros((20, 20))
+img[5:15, 5:15] = 1.0
+img += np.linspace(0, 0.3, 20).reshape(-1, 1)
+
+# 各种卷积核
+kernels = {
+    '边缘检测 (Sobel X)': np.array([[-1,0,1],[-2,0,2],[-1,0,1]]),
+    '边缘检测 (Sobel Y)': np.array([[-1,-2,-1],[0,0,0],[1,2,1]]),
+    '高斯模糊': np.array([[1,2,1],[2,4,2],[1,2,1]]) / 16,
+    '锐化': np.array([[0,-1,0],[-1,5,-1],[0,-1,0]]),
+    '浮雕': np.array([[-2,-1,0],[-1,1,1],[0,1,2]]),
+}
+
+print('原图像 (角落)')
+print(img[:6, :6])
+print()
+
+for name, k in kernels.items():
+    result = convolve2d(img, k)
+    print(f'{name}:')
+    print(f'  值域: [{result.min():.2f}, {result.max():.2f}]')
+    print(f'  左上区域:')
+    print(result[:4, :4].round(2))
+    print()
+`
+    },
+    {
+      id: 6, title: '第50关测验', type: 'quiz',
+      content: `**问题1**：arr[[0, 2]] 这种索引方式叫？
+- A. 切片索引
+- B. 花式索引
+- C. 布尔索引
+- D. 多维索引
+
+**问题2**：np.linalg.svd 的功能是？
+- A. 求解线性方程组
+- B. 计算逆矩阵
+- C. 奇异值分解
+- D. 计算行列式
+
+**问题3**：哪个是多个数组的压缩保存格式？
+- A. .npy
+- B. .npz
+- C. .csv
+- D. .txt
+
+**答案**：1.B  2.C  3.B`
+    }
+  ],
+  // 第51关
+  51: [
+    {
+      id: 1, title: 'Pandas 层级索引', type: 'explanation',
+      content: `**MultiIndex**（多级索引）处理高维数据。
+
+\`\`\`python
+import pandas as pd
+import numpy as np
+
+# 创建多级索引
+arrays = [
+    ['A', 'A', 'B', 'B'],
+    [1, 2, 1, 2]
+]
+mi = pd.MultiIndex.from_arrays(arrays, names=['group', 'id'])
+df = pd.DataFrame({'value': [10, 20, 30, 40]}, index=mi)
+
+print(df)
+print(df.loc['A'])           # 外层索引
+print(df.loc[('A', 1)])      # 多层索引
+print(df.xs(1, level='id'))  # 按内层索引
+
+# 多级列索引
+columns = pd.MultiIndex.from_product([['2023', '2024'], ['Q1', 'Q2']])
+sales = pd.DataFrame(np.random.rand(4, 4), columns=columns)
+print(sales['2023'])  # 按外层列
+\`\`\``
+    },
+    {
+      id: 2, title: '合并与重塑', type: 'example',
+      content: `\`\`\`python
+# merge: SQL 风格连接
+left = pd.DataFrame({'key': ['A','B','C'], 'val1': [1,2,3]})
+right = pd.DataFrame({'key': ['B','C','D'], 'val2': [4,5,6]})
+pd.merge(left, right, on='key', how='inner')
+pd.merge(left, right, on='key', how='outer')
+pd.merge(left, right, on='key', how='left')
+
+# concat: 拼接
+pd.concat([left, right], axis=0)  # 行拼接
+pd.concat([left, right], axis=1)  # 列拼接
+
+# pivot: 数据透视
+df = pd.DataFrame({
+    'date': ['2024-01','2024-01','2024-02','2024-02'],
+    'product': ['A','B','A','B'],
+    'sales': [100, 150, 120, 180]
+})
+df.pivot(index='date', columns='product', values='sales')
+\`\`\``,
+      code: `import pandas as pd
+import numpy as np
+
+# 电商销售数据
+orders = pd.DataFrame({
+    '订单ID': [1001,1002,1003,1004,1005,1006],
+    '日期': pd.date_range('2024-01-01', periods=6),
+    '地区': ['北京','上海','北京','深圳','上海','北京'],
+    '品类': ['电子','服装','食品','电子','服装','食品'],
+    '金额': [2999, 599, 89, 4599, 899, 129],
+    '数量': [1, 2, 3, 1, 1, 4]
+})
+
+# 透视表：地区+品类的销售额总和
+pivot = orders.pivot_table(
+    values='金额', index='地区', columns='品类',
+    aggfunc='sum', fill_value=0, margins=True, margins_name='合计'
+)
+print('地区 x 品类 销售矩阵:')
+print(pivot)
+print()
+
+# melt: 宽表转长表（透视逆操作）
+melted = pivot.drop('合计').reset_index().melt(
+    id_vars='地区', var_name='品类', value_name='销售额'
+)
+print('\\n长表格式（Top5）:')
+print(melted.sort_values('销售额', ascending=False).head())
+`
+    },
+    {
+      id: 3, title: '时间序列', type: 'explanation',
+      content: `\`\`\`python
+import pandas as pd
+
+# 日期范围
+idx = pd.date_range('2024-01-01', periods=365, freq='D')
+ts = pd.Series(range(len(idx)), index=idx)
+
+# 重采样
+ts.resample('ME').sum()        # 月求和
+ts.resample('QE').mean()       # 季平均
+ts.resample('YE').agg(['sum','mean','max'])
+
+# 移动窗口
+ts.rolling(window=7).mean()    # 7日移动平均
+ts.rolling(30).agg(['mean','std'])
+ts.expanding().sum()           # 累积和
+
+# 时区处理
+ts = ts.tz_localize('UTC').tz_convert('Asia/Shanghai')
+
+# 时间偏移
+ts.index + pd.DateOffset(days=1)
+ts.index.shift(1, freq='MS')
+\`\`\``
+    },
+    {
+      id: 4, title: '性能优化', type: 'explanation',
+      content: `\`\`\`python
+# 1. 使用更高效的数据类型
+df['category'] = df['category'].astype('category')
+df['value'] = pd.to_numeric(df['value'], downcast='integer')
+
+# 2. 读取时优化
+df = pd.read_csv('large.csv',
+    usecols=['col1','col2'],      # 只读取需要的列
+    dtype={'id': 'int32'},        # 指定类型
+    parse_dates=['date'],         # 解析日期
+    chunksize=10000               # 分块读取
+)
+
+# 3. 向量化操作，避免逐行循环
+df['new'] = df['a'] + df['b'] * 2       # ✓ 快
+# for i, row in df.iterrows(): ...       # ✗ 慢
+
+# 4. apply 优化 - 使用内置函数优先
+df.applymap(lambda x: x**2)             # 逐元素
+df['col'].transform(np.log1p)           # 变换
+\`\`\``,
+      code: `import pandas as pd
+import numpy as np
+import time
+
+# 生成大量数据
+N = 100000
+df = pd.DataFrame({
+    'A': np.random.randn(N),
+    'B': np.random.randn(N),
+    'category': np.random.choice(['X','Y','Z'], N)
+})
+
+# 测试1：向量化 vs 循环
+t0 = time.time()
+df['vec_result'] = df['A'] * 2 + df['B'] ** 2
+t_vec = time.time() - t0
+
+t0 = time.time()
+loop_result = []
+for i in range(len(df)):
+    loop_result.append(df.iloc[i]['A'] * 2 + df.iloc[i]['B'] ** 2)
+t_loop = time.time() - t0
+
+print(f'向量化:   {t_vec:.4f}s')
+print(f'循环:     {t_loop:.4f}s  (慢 {t_loop/t_vec:.1f}x)')
+
+# 测试2：category 类型优化
+df_cat = df.copy()
+df_cat['category'] = df_cat['category'].astype('category')
+print(f'\\n原 dtype 内存: {df.memory_usage()["category"]:,} bytes')
+print(f'category 内存: {df_cat.memory_usage()["category"]:,} bytes')
+
+# 测试3：groupby 聚合性能
+t0 = time.time()
+result = df.groupby('category').agg(
+    A_mean=('A','mean'), B_std=('B','std'),
+    count=('A','count')
+)
+t_group = time.time() - t0
+print(f'\\ngroupby 聚合: {t_group:.4f}s')
+print(result)
+`
+    },
+    {
+      id: 5, title: '练习：销售数据分析', type: 'exercise',
+      content: '对销售数据进行完整分析：清洗、聚合、时间序列',
+      code: `import pandas as pd
+import numpy as np
+
+# 生成模拟数据
+np.random.seed(42)
+dates = pd.date_range('2024-01-01', '2024-06-30', freq='D')
+regions = ['北京','上海','广州','深圳','成都']
+products = ['手机','电脑','平板','耳机','手表']
+
+data = []
+for d in dates:
+    for r in regions:
+        for p in products:
+            qty = np.random.poisson(3)
+            price = {'手机':3999,'电脑':6999,'平板':2999,'耳机':599,'手表':1299}[p]
+            data.append([d, r, p, qty, price * qty])
+
+df = pd.DataFrame(data, columns=['日期','地区','产品','数量','金额'])
+
+print('=== 数据概览 ===')
+print(f'行数: {len(df):,}')
+print(f'时间跨度: {df.日期.min().date()} ~ {df.日期.max().date()}')
+print(f'总销售额: {df.金额.sum():,.0f} 元')
+
+print('\\n=== 各产品销售情况 ===')
+prod = df.groupby('产品').agg(
+    销售额=('金额','sum'), 销售数量=('数量','sum'), 均价=('金额', lambda x: x.sum()/df.loc[x.index,'数量'].sum())
+).sort_values('销售额', ascending=False)
+prod['占比'] = prod['销售额'] / prod['销售额'].sum() * 100
+print(prod.round(2))
+
+print('\\n=== 各月销售趋势 ===')
+monthly = df.groupby(df.日期.dt.to_period('M'))['金额'].sum()
+for period, total in monthly.items():
+    prev = monthly.shift(1).get(period)
+    change = (total/prev - 1) * 100 if prev else 0
+    print(f'{period}: {total:>10,.0f} 元  ({change:+.1f}%)')
+
+print('\\n=== Top 10 销售日 ===')
+daily = df.groupby('日期')['金额'].sum().sort_values(ascending=False)
+print(daily.head(10).apply(lambda x: f'{x:,.0f} 元'))
+`
+    },
+    {
+      id: 6, title: '第51关测验', type: 'quiz',
+      content: `**问题1**：SQL 风格的 DataFrame 连接函数是？
+- A. join
+- B. concat
+- C. merge
+- D. combine
+
+**问题2**：pivot 操作的逆操作是？
+- A. unpivot
+- B. melt
+- C. stack
+- D. unstack
+
+**问题3**：7日移动平均用什么方法？
+- A. rolling(7).mean()
+- B. window(7).mean()
+- C. sliding(7).mean()
+- D. moving(7).mean()
+
+**答案**：1.C  2.B  3.A`
+    }
+  ],
+  // 第52关
+  52: [
+    {
+      id: 1, title: '子图与布局', type: 'explanation',
+      content: `\`\`\`python
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 子图网格
+fig, axes = plt.subplots(2, 3, figsize=(12, 8))
+
+# axs 是 (2,3) 的数组
+axes[0, 0].plot(np.random.randn(100))
+axes[0, 1].scatter(np.random.rand(50), np.random.rand(50))
+axes[0, 2].bar(['A','B','C'], [3, 6, 4])
+axes[1, 0].hist(np.random.randn(1000))
+axes[1, 1].boxplot(np.random.randn(100))
+axes[1, 2].pie([30, 40, 20, 10])
+
+plt.tight_layout()
+
+# 复杂布局 GridSpec
+from matplotlib.gridspec import GridSpec
+fig = plt.figure(figsize=(10, 8))
+gs = GridSpec(3, 3, figure=fig)
+ax1 = fig.add_subplot(gs[0, :])   # 占满第一行
+ax2 = fig.add_subplot(gs[1:, 0:2]) # 占下面两行左边两列
+ax3 = fig.add_subplot(gs[1, 2])    # 中间行右边
+ax4 = fig.add_subplot(gs[2, 2])    # 最后一格
+\`\`\``
+    },
+    {
+      id: 2, title: '3D 图形', type: 'example',
+      content: `\`\`\`python
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig = plt.figure(figsize=(12, 8))
+
+# 3D 折线图
+ax1 = fig.add_subplot(2, 2, 1, projection='3d')
+t = np.linspace(0, 10*np.pi, 500)
+ax1.plot(np.cos(t), np.sin(t), t)
+
+# 3D 散点图
+ax2 = fig.add_subplot(2, 2, 2, projection='3d')
+x, y, z = np.random.randn(3, 100)
+ax2.scatter(x, y, z, c=z, cmap='viridis')
+
+# 3D 曲面
+ax3 = fig.add_subplot(2, 2, 3, projection='3d')
+X, Y = np.meshgrid(np.linspace(-3, 3, 50), np.linspace(-3, 3, 50))
+Z = np.sin(np.sqrt(X**2 + Y**2)) / (np.sqrt(X**2 + Y**2) + 1e-9)
+ax3.plot_surface(X, Y, Z, cmap='terrain')
+
+# 等高线
+ax4 = fig.add_subplot(2, 2, 4, projection='3d')
+ax4.contour3D(X, Y, Z, 50, cmap='coolwarm')
+\`\`\``,
+      code: `import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+
+# 创建数据
+X = np.linspace(-5, 5, 100)
+Y = np.linspace(-5, 5, 100)
+X, Y = np.meshgrid(X, Y)
+
+# 二元函数可视化
+fig = plt.figure(figsize=(15, 10))
+
+# 1. 马鞍面 z = x^2 - y^2
+Z1 = X**2 - Y**2
+ax1 = fig.add_subplot(2, 3, 1, projection='3d')
+ax1.plot_surface(X, Y, Z1, cmap=cm.RdBu, alpha=0.8)
+ax1.set_title('马鞍面: z=x²-y²')
+
+# 2. 高斯 z = exp(-(x²+y²))
+Z2 = np.exp(-(X**2 + Y**2)/2)
+ax2 = fig.add_subplot(2, 3, 2, projection='3d')
+ax2.plot_surface(X, Y, Z2, cmap=cm.viridis)
+ax2.set_title('高斯曲面')
+
+# 3. 双螺旋参数方程
+ax3 = fig.add_subplot(2, 3, 3, projection='3d')
+t = np.linspace(0, 8*np.pi, 500)
+ax3.plot(np.cos(t), np.sin(t), t, 'b-', linewidth=2)
+ax3.plot(np.cos(t+np.pi), np.sin(t+np.pi), t, 'r-', linewidth=2)
+ax3.set_title('双螺旋')
+
+# 4. 投影等高线
+ax4 = fig.add_subplot(2, 3, 4)
+contour = ax4.contourf(X, Y, Z2, levels=20, cmap=cm.viridis)
+plt.colorbar(contour, ax=ax4)
+ax4.set_title('等高线投影')
+
+# 5. 密度分布
+ax5 = fig.add_subplot(2, 3, 5)
+data = np.random.multivariate_normal([0,0], [[1,0.5],[0.5,1]], 10000)
+hist = ax5.hist2d(data[:,0], data[:,1], bins=50, cmap=cm.magma)
+plt.colorbar(hist[3], ax=ax5)
+ax5.set_title('二维直方图')
+
+# 6. 向量场
+ax6 = fig.add_subplot(2, 3, 6)
+Xg, Yg = np.meshgrid(np.arange(-3, 3.5, 0.5), np.arange(-3, 3.5, 0.5))
+U = -Yg
+V = Xg
+ax6.quiver(Xg, Yg, U, V, np.hypot(U, V), cmap=cm.plasma)
+ax6.set_title('向量场')
+
+plt.tight_layout()
+plt.savefig('3d_visualization.png', dpi=150)
+print('图像已保存为 3d_visualization.png')
+`
+    },
+    {
+      id: 3, title: '样式与动画', type: 'explanation',
+      content: `\`\`\`python
+# 样式系统
+plt.style.use('seaborn-v0_8')
+# 可用样式: default, ggplot, fivethirtyeight, dark_background, seaborn-v0_8
+print(plt.style.available)
+
+# 自定义 RC 参数
+plt.rcParams.update({
+    'figure.facecolor': '#1a1a2e',
+    'axes.facecolor': '#16213e',
+    'axes.edgecolor': '#0f3460',
+    'text.color': '#eaeaea',
+    'axes.labelcolor': '#eaeaea',
+    'xtick.color': '#eaeaea',
+    'ytick.color': '#eaeaea',
+    'axes.grid': True,
+    'grid.alpha': 0.3,
+    'font.family': ['Microsoft YaHei', 'SimHei', 'sans-serif'],
+})
+
+# 颜色映射
+cmap = plt.get_cmap('viridis')
+colors = [cmap(i) for i in np.linspace(0, 1, 10)]
+\`\`\``
+    },
+    {
+      id: 4, title: '交互式动画', type: 'explanation',
+      content: `\`\`\`python
+import matplotlib.animation as animation
+
+# 基本动画
+fig, ax = plt.subplots()
+x = np.linspace(0, 2*np.pi, 200)
+line, = ax.plot(x, np.sin(x))
+
+def animate(frame):
+    line.set_ydata(np.sin(x + frame * 0.1))
+    return line,
+
+anim = animation.FuncAnimation(
+    fig, animate, frames=100, interval=30, blit=True
+)
+anim.save('sine_wave.gif', writer='pillow', fps=30)
+
+# 散点动画
+fig, ax = plt.subplots(figsize=(6, 6))
+scat = ax.scatter([], [], s=50)
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1)
+
+def animate(i):
+    n_points = min(i * 5, 500)
+    xy = np.random.rand(n_points, 2)
+    scat.set_offsets(xy)
+    scat.set_array(np.random.rand(n_points))
+    return scat,
+\`\`\``,
+      code: `import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.animation as animation
+
+# 多图联动动画 - 心跳信号 + 滑动窗口
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+
+# 模拟心跳信号
+t_full = np.linspace(0, 10, 1000)
+heartbeat = (
+    np.sin(2*np.pi*1.2*t_full) * 0.1 +
+    0.3 * np.exp(-((t_full - 2.5) % 10 / 0.1)**2) +
+    -0.15 * np.exp(-((t_full - 2.65) % 10 / 0.08)**2) +
+    0.1 * np.random.randn(len(t_full)) * 0.05
+)
+
+window = 100
+line1, = ax1.plot([], [], 'r-', linewidth=1.5)
+line2, = ax2.plot([], [], 'r-', linewidth=1.5)
+ax2.set_xlim(0, window)
+ax2.set_ylim(-0.5, 0.5)
+ax2.grid(True, alpha=0.3)
+ax1.grid(True, alpha=0.3)
+ax1.set_title('心电信号实时监测')
+ax2.set_title('滑动窗口 (放大)')
+
+def init():
+    line1.set_data([], [])
+    line2.set_data([], [])
+    return line1, line2
+
+def update(frame):
+    idx = frame % len(t_full)
+    # 全局
+    line1.set_data(t_full[:idx+1], heartbeat[:idx+1])
+    ax1.set_xlim(0, max(10, t_full[idx]))
+    ax1.set_ylim(-0.6, 0.6)
+    
+    # 滑动窗口
+    start = max(0, idx - window)
+    t_win = t_full[start:idx+1]
+    y_win = heartbeat[start:idx+1]
+    line2.set_data(range(len(y_win)), y_win)
+    ax2.set_title(f'滑动窗口: 采样点 {idx}  BPM: {1.2*60:.0f}')
+    return line1, line2
+
+anim = animation.FuncAnimation(fig, update, frames=1000, 
+    init_func=init, interval=15, blit=False)
+print('动画已创建（可在交互环境中播放）')
+`
+    },
+    {
+      id: 5, title: '练习：综合可视化', type: 'exercise',
+      content: '绘制完整的数据可视化仪表盘（5图联动）',
+      code: `import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib
+matplotlib.rcParams['font.family'] = ['Microsoft YaHei', 'SimHei']
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+np.random.seed(42)
+fig = plt.figure(figsize=(16, 10), facecolor='#f0f2f5')
+fig.suptitle('2024年度运营数据仪表盘', fontsize=20, fontweight='bold', y=0.98)
+
+# 定义配色
+colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452']
+
+# 1. 销售趋势折线图（左上）
+ax1 = plt.subplot2grid((2, 4), (0, 0), colspan=2)
+months = np.arange(1, 13)
+sales_a = 100 + np.cumsum(np.random.randn(12)) * 5 + 8
+sales_b = 80 + np.cumsum(np.random.randn(12)) * 4 + 6
+ax1.plot(months, sales_a, 'o-', color=colors[0], linewidth=2, label='产品线A')
+ax1.plot(months, sales_b, 's-', color=colors[2], linewidth=2, label='产品线B')
+ax1.fill_between(months, sales_a, sales_b, alpha=0.1, color=colors[0])
+for i, (a, b) in enumerate(zip(sales_a, sales_b), 1):
+    ax1.annotate(f'{a:.0f}', (i, a+2), ha='center', fontsize=8, color=colors[0])
+ax1.set_title('月度销售趋势 (万元)', fontweight='bold')
+ax1.set_xticks(months)
+ax1.legend()
+ax1.grid(alpha=0.3)
+
+# 2. 品类占比饼图（右上）
+ax2 = plt.subplot2grid((2, 4), (0, 2))
+categories = ['电子','服装','食品','家居','美妆','书籍']
+values = [350, 280, 190, 150, 120, 80]
+wedges, texts, autotexts = ax2.pie(values, labels=categories, autopct='%1.1f%%',
+    colors=colors[:6], pctdistance=0.75, textprops={'fontsize':9})
+ax2.set_title('品类销售占比', fontweight='bold')
+# 环形图
+centre_circle = plt.Circle((0,0), 0.5, color='#f0f2f5')
+ax2.add_artist(centre_circle)
+
+# 3. 地区分布条形图（右中）
+ax3 = plt.subplot2grid((2, 4), (0, 3))
+regions = ['华东','华南','华北','华中','西南','西北','东北']
+revenues = [420, 380, 310, 250, 200, 150, 130]
+bars = ax3.barh(regions[::-1], revenues[::-1], color=colors[:7][::-1])
+for bar, val in zip(bars, revenues[::-1]):
+    ax3.text(val + 5, bar.get_y() + bar.get_height()/2, f'{val}', va='center', fontsize=9)
+ax3.set_title('地区营收分布', fontweight='bold')
+
+# 4. 用户散点+密度（左下）
+ax4 = plt.subplot2grid((2, 4), (1, 0), colspan=2)
+users = 1000
+age = np.random.normal(30, 10, users).clip(18, 60)
+spend = (np.random.exponential(200, users) + age * 2).clip(50, 1500)
+sc = ax4.scatter(age, spend, c=age, cmap='YlOrRd', alpha=0.6, s=20, edgecolors='white', linewidths=0.5)
+plt.colorbar(sc, ax=ax4, label='年龄')
+ax4.set_xlabel('年龄')
+ax4.set_ylabel('月消费 (元)')
+ax4.set_title('用户画像: 年龄 vs 消费', fontweight='bold')
+ax4.grid(alpha=0.2)
+
+# 5. 指标雷达图
+ax5 = plt.subplot2grid((2, 4), (1, 2), projection='polar')
+metrics = ['访问量', '转化率', '复购率', '客单价', '满意度']
+angles = np.linspace(0, 2*np.pi, len(metrics), endpoint=False).tolist()
+angles += angles[:1]
+values_this = [85, 72, 68, 90, 88]
+values_last = [75, 65, 60, 80, 82]
+values_this += values_this[:1]
+values_last += values_last[:1]
+ax5.plot(angles, values_this, 'o-', color=colors[0], linewidth=2, label='本期')
+ax5.fill(angles, values_this, alpha=0.25, color=colors[0])
+ax5.plot(angles, values_last, '--', color=colors[3], linewidth=1.5, label='上期')
+ax5.fill(angles, values_last, alpha=0.1, color=colors[3])
+ax5.set_xticks(angles[:-1])
+ax5.set_xticklabels(metrics, fontsize=9)
+ax5.set_ylim(0, 100)
+ax5.set_title('关键指标对比', fontweight='bold', pad=20)
+ax5.legend(fontsize=8, loc='lower right')
+
+# 6. KPI 指标（右下）
+ax6 = plt.subplot2grid((2, 4), (1, 3))
+ax6.axis('off')
+kpis = [
+    ('总营收', '1,486万', '+15.3%', colors[1]),
+    ('订单量', '52,341', '+8.7%', colors[0]),
+    ('用户数', '128.5万', '+22.1%', colors[2]),
+    ('退货率', '2.3%', '-0.8%', colors[3]),
+]
+y_pos = np.linspace(0.95, 0.1, len(kpis))
+for (label, value, change, color), y in zip(kpis, y_pos):
+    ax6.text(0.1, y, label, fontsize=11, transform=ax6.transAxes, color='#666')
+    ax6.text(0.1, y - 0.06, value, fontsize=18, fontweight='bold', 
+             transform=ax6.transAxes, color=color)
+    ax6.text(0.75, y - 0.04, change, fontsize=12, transform=ax6.transAxes,
+             bbox=dict(boxstyle='round,pad=0.3', facecolor=color, alpha=0.15, edgecolor='none'),
+             color=color, fontweight='bold')
+
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.savefig('dashboard.png', dpi=120, bbox_inches='tight')
+print('仪表盘已保存为 dashboard.png')
+`
+    },
+    {
+      id: 6, title: '第52关测验', type: 'quiz',
+      content: `**问题1**：创建 2×3 子图网格的函数是？
+- A. plt.subplots(2, 3)
+- B. plt.grid(2, 3)
+- C. plt.layout(2, 3)
+- D. plt.multi(2, 3)
+
+**问题2**：3D 图形需要什么 projection 参数？
+- A. '3d'
+- B. '3dim'
+- C. 'three'
+- D. 'ax3d'
+
+**问题3**：哪种函数可保存动画为 GIF？
+- A. anim.to_gif()
+- B. anim.save() 配合 pillow writer
+- C. plt.gif()
+- D. animation.gif()
+
+**答案**：1.A  2.A  3.B`
+    }
+  ],
+  // 第53关
+  53: [
+    {
+      id: 1, title: '魔法命令与配置', type: 'explanation',
+      content: `**Jupyter** 中的魔法命令 (Magic Commands)：
+
+\`\`\`python
+# 行魔法 (line magic) %
+%timeit range(1000)            # 性能测试
+%timeit -n 100 -r 5 x = 1+1    # 100循环×5次重复
+%memit sum(range(1000000))     # 内存测试 (需memory_profiler)
+%pwd                           # 显示工作目录
+%cd /path                      # 切换目录
+%matplotlib inline             # 内联图表
+%load_ext autoreload           # 自动重载
+%autoreload 2                  # 修改自动生效
+%who / %whos / %who_ls         # 查看变量
+
+# 单元格魔法 (cell magic) %%
+%%time                          # 整格执行时间
+%%writefile script.py           # 写入文件
+%%bash / %%sh / %%cmd           # 运行 shell
+%%html / %%markdown             # 渲染HTML/MD
+%%latex                         # LaTeX 公式
+%%capture output                # 捕获输出
+%%prun                          # 性能分析 (cProfile)
+%%timeit                        # 整格性能测试
+%%javascript                    # 执行 JS
+\`\`\``
+    },
+    {
+      id: 2, title: 'IPython 扩展与显示', type: 'example',
+      content: `\`\`\`python
+# 富输出系统
+from IPython.display import display, HTML, JSON, Image, Audio, Video, Latex
+import pandas as pd
+
+# 显示 HTML
+display(HTML('<h3 style="color:red">自定义标题</h3>'))
+
+# 显示 Markdown 表格
+from IPython.display import Markdown
+display(Markdown('''
+| 标题1 | 标题2 |
+|-------|-------|
+| 数据1 | 数据2 |
+'''))
+
+# 显示数学公式
+display(Latex(r'\frac{1}{\sqrt{2\pi}} \int_{-\infty}^{x} e^{-t^2/2} dt'))
+
+# 显示音频
+import numpy as np
+rate = 44100
+t = np.linspace(0, 2, 2*rate)
+audio = np.sin(2*np.pi*440*t) * np.exp(-t)
+display(Audio(audio, rate=rate))
+
+# 交互控件
+from ipywidgets import interact, IntSlider, FloatSlider
+\`\`\``,
+      code: `# Jupyter 中可直接运行
+from IPython.display import display, HTML, Image, SVG
+from ipywidgets import interact, IntSlider, FloatSlider, Dropdown, Checkbox
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+print('=== 交互式可视化演示 ===')
+print('(此示例展示 Jupyter ipywidgets 功能)')
+
+# 定义交互函数
+@interact(
+    freq=FloatSlider(min=0.1, max=10, value=2, step=0.1, description='频率'),
+    amplitude=FloatSlider(min=0.1, max=2, value=1, step=0.1, description='振幅'),
+    phase=FloatSlider(min=0, max=6.28, value=0, step=0.1, description='相位'),
+    color=Dropdown(options=['red','blue','green','purple'], value='blue', description='颜色')
+)
+def plot_wave(freq, amplitude, phase, color):
+    x = np.linspace(0, 10, 500)
+    y = amplitude * np.sin(freq * x + phase)
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(x, y, color=color, linewidth=2)
+    ax.set_ylim(-2.5, 2.5)
+    ax.grid(True, alpha=0.3)
+    ax.set_title(f'y = {amplitude:.2f}·sin({freq:.2f}·x + {phase:.2f})')
+    plt.savefig('wave_plot.png', bbox_inches='tight')
+    plt.close()
+    print(f'参数已保存: freq={freq:.2f}, amp={amplitude:.2f}, phase={phase:.2f}')
+
+# 进阶：多参数联动
+@interact(
+    show_sin=Checkbox(value=True, description='sin 曲线'),
+    show_cos=Checkbox(value=True, description='cos 曲线'),
+    n_points=IntSlider(min=10, max=1000, value=100, description='采样点数')
+)
+def multi_plot(show_sin, show_cos, n_points):
+    x = np.linspace(0, 4*np.pi, n_points)
+    fig, ax = plt.subplots(figsize=(10, 4))
+    if show_sin:
+        ax.plot(x, np.sin(x), label='sin(x)', linewidth=2)
+    if show_cos:
+        ax.plot(x, np.cos(x), label='cos(x)', linewidth=2)
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    ax.set_title(f'采样点: {n_points}')
+    plt.savefig('multi_plot.png', bbox_inches='tight')
+    plt.close()
+    print(f'绘图点数: {n_points}')
+`
+    },
+    {
+      id: 3, title: '内核与并行', type: 'explanation',
+      content: `**多内核支持**：
+- Python (ipykernel)
+- R, Julia, C++, JavaScript, etc.
+
+**并行计算**：
+\`\`\`python
+from IPython import parallel
+rc = parallel.Client()
+view = rc.load_balanced_view()
+
+@view.parallel(block=True)
+def process(n):
+    import time
+    time.sleep(1)
+    return n * n
+
+results = process.map(range(100))
+print(results)
+
+# %%px cell 魔法在所有内核执行
+%%px
+import numpy as np
+result = np.random.randn(100).sum()
+print(result)
+\`\`\`
+
+**dask 并行数据处理**：
+\`\`\`python
+import dask.dataframe as dd
+ddf = dd.read_csv('big*.csv')
+result = ddf.groupby('col').agg({'val': ['mean','std']}).compute()
+\`\`\``
+    },
+    {
+      id: 4, title: 'Notebook 自动化', type: 'explanation',
+      content: `\`\`\`python
+# nbconvert: 导出/转换 notebook
+# jupyter nbconvert --to html|pdf|markdown|slides notebook.ipynb
+
+# 以编程方式执行 notebook
+import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+
+with open('analysis.ipynb') as f:
+    nb = nbformat.read(f, as_version=4)
+
+ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
+ep.preprocess(nb, {'metadata': {'path': './'}})
+
+with open('executed.ipynb', 'w') as f:
+    nbformat.write(nb, f)
+
+# papermill 参数化执行
+import papermill as pm
+pm.execute_notebook(
+    'template.ipynb',
+    'output_{}.ipynb'.format(date),
+    parameters={'DATE': date, 'REGION': 'US'}
+)
+
+# 自定义内核扩展 (kernel extension)
+# 放置在 ~/.ipython/profile_default/startup/
+\`\`\``,
+      code: `# Jupyter 性能分析综合示例
+import numpy as np
+import time
+
+print('=== Notebook 性能分析工具 ===')
+
+# 1. %timeit 精确计时
+print('\\n--- %timeit 数组运算 ---')
+a = np.random.rand(10000)
+
+# 2. %%prun 分析调用栈
+def slow_operation(size):
+    result = []
+    for i in range(size):
+        result.append(np.sqrt(i**2 + np.random.rand()))
+    return np.array(result)
+
+# 3. 行级性能分析 (需 line_profiler)
+# %load_ext line_profiler
+# %lprun -f slow_operation slow_operation(10000)
+
+# 4. 内存分析 (需 memory_profiler)
+# %load_ext memory_profiler
+# %mprun -f slow_operation slow_operation(10000)
+
+# 5. %%time 总耗时 + CPU 分配
+def benchmark():
+    t0 = time.time()
+    r1 = slow_operation(10000)
+    t1 = time.time()
+    # 优化版 - 向量化
+    r2 = np.sqrt(np.arange(10000)**2 + np.random.rand(10000))
+    t2 = time.time()
+    return t1-t0, t2-t1, np.allclose(r1, r2)
+
+loop_t, vec_t, close = benchmark()
+print(f'循环版耗时:   {loop_t*1000:.2f} ms')
+print(f'向量化耗时:   {vec_t*1000:.2f} ms')
+print(f'加速比:       {loop_t/vec_t:.1f}x')
+print(f'结果一致:     {close}')
+
+print('\\n=== Notebook 调试技巧 ===')
+# %debug: 异常后进入交互调试器
+# %pdb: 自动开启调试
+# %run script.py: 运行外部脚本并带入命名空间
+# %quickref: 快速参考卡
+# %history: 命令历史
+print('常用调试魔术: %debug / %pdb / %run / %history')
+`
+    },
+    {
+      id: 5, title: '练习：交互式仪表盘', type: 'exercise',
+      content: '使用 ipywidgets 创建数据探索仪表盘',
+      code: `import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from ipywidgets import (interact, IntSlider, FloatSlider, 
+    Dropdown, SelectMultiple, RadioButtons, HBox, VBox)
+import io, base64
+
+# 生成数据集
+np.random.seed(42)
+dates = pd.date_range('2024-01-01', periods=180, freq='D')
+regions = ['华东','华北','华南','西南','西北','东北']
+products = ['手机','电脑','平板','耳机']
+records = []
+for d in dates:
+    for r in regions:
+        for p in products:
+            q = max(1, int(np.random.poisson(5) + (0 if r!='华东' else 3)))
+            records.append([d, r, p, q, q * np.random.uniform(500, 7000)])
+df = pd.DataFrame(records, columns=['日期','地区','产品','销量','营收'])
+
+print('=== Jupyter 交互式数据探索工具 ===')
+print(f'数据集大小: {len(df):,} 行')
+
+# 定义仪表盘函数
+def dashboard(
+    地区选择 = ['华东','华北','华南'],
+    产品选择 = ['手机','电脑'],
+    图表类型 = '折线图',
+    聚合方式 = '求和',
+    移动窗口 = 7
+):
+    # 筛选
+    filtered = df[
+        df['地区'].isin(地区选择) & 
+        df['产品'].isin(产品选择)
+    ].copy()
+    filtered['周'] = filtered['日期'].dt.to_period('W')
+    
+    # 聚合
+    agg_map = {'求和': 'sum', '均值': 'mean', '计数': 'count', '最大': 'max'}
+    agg_func = agg_map[聚合方式]
+    
+    daily = filtered.groupby('日期').agg(
+        营收=('营收', agg_func), 销量=('销量', agg_func)
+    )
+    daily_ma = daily.rolling(移动窗口).mean()
+    
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 14))
+    
+    # 图1：时间序列
+    if 图表类型 == '折线图':
+        ax1.plot(daily.index, daily['营收'], alpha=0.5, label='原始')
+        ax1.plot(daily_ma.index, daily_ma['营收'], 'r-', linewidth=2,
+                label=f'{移动窗口}日移动平均')
+    elif 图表类型 == '柱状图':
+        weekly = filtered.groupby('周')['营收'].sum()
+        weekly.index = weekly.index.to_timestamp()
+        ax1.bar(weekly.index, weekly.values, width=5, alpha=0.7)
+    else:  # 面积图
+        ax1.fill_between(daily.index, 0, daily['营收'], alpha=0.5)
+    ax1.legend(fontsize=10)
+    ax1.set_title('营收时间序列')
+    ax1.grid(alpha=0.3)
+    
+    # 图2：地区分布
+    region_agg = filtered.groupby('地区')['营收'].sum().sort_values()
+    ax2.barh(region_agg.index, region_agg.values, color=plt.cm.Set2.colors[:len(region_agg)])
+    for i, (name, val) in enumerate(region_agg.items()):
+        ax2.text(val, i, f'{val/10000:.1f}万', va='center')
+    ax2.set_title('地区营收分布')
+    
+    # 图3：产品构成热力图
+    pivot = filtered.pivot_table(index='地区', columns='产品',
+        values='营收', aggfunc='sum', fill_value=0)
+    im = ax3.imshow(pivot.values, cmap='YlOrRd', aspect='auto')
+    ax3.set_xticks(range(len(pivot.columns)))
+    ax3.set_xticklabels(pivot.columns)
+    ax3.set_yticks(range(len(pivot.index)))
+    ax3.set_yticklabels(pivot.index)
+    for i in range(len(pivot.index)):
+        for j in range(len(pivot.columns)):
+            ax3.text(j, i, f'{pivot.values[i,j]/10000:.0f}万',
+                    ha='center', va='center', color='white' if pivot.values[i,j]>pivot.values.max()/2 else 'black')
+    plt.colorbar(im, ax=ax3, label='营收')
+    ax3.set_title('地区×产品 营收热力图')
+    
+    plt.tight_layout()
+    plt.savefig('dashboard_widget.png', dpi=120, bbox_inches='tight')
+    plt.close()
+    
+    # 统计摘要
+    print(f'\\n筛选结果: {len(filtered):,} 条记录')
+    print(f'总营收: {filtered["营收"].sum():,.0f} 元')
+    print(f'总销量: {filtered["销量"].sum():,} 件')
+    print(f'日均: {daily["营收"].mean():,.0f} 元')
+    print(f'最高日: {daily["营收"].idxmax().date()} ({daily["营收"].max():,.0f} 元)')
+
+# 调用示例（实际 notebook 中为下拉/多选控件）
+dashboard(
+    地区选择=regions[:4],
+    产品选择=products,
+    图表类型='折线图',
+    聚合方式='求和',
+    移动窗口=14
+)
+print('\\n仪表盘已生成: dashboard_widget.png')
+`
+    },
+    {
+      id: 6, title: '第53关测验', type: 'quiz',
+      content: `**问题1**：单元格级别的魔法命令前缀？
+- A. %
+- B. %%
+- C. $
+- D. #
+
+**问题2**：显示 HTML 内容用哪个类？
+- A. IFrame
+- B. HTML()
+- C. display_html()
+- D. WebView
+
+**问题3**：ipywidgets 中创建交互式控件的装饰器？
+- A. @widget
+- B. @interact
+- C. @ui
+- D. @display
+
+**答案**：1.B  2.B  3.B`
+    }
+  ],
+  // 第54关
+  54: [
+    {
+      id: 1, title: '图像变换与滤波', type: 'explanation',
+      content: `**Pillow (PIL)** 进阶：几何变换和图像滤波。
+
+\`\`\`python
+from PIL import Image, ImageFilter, ImageEnhance, ImageOps
+
+img = Image.open('photo.jpg')
+
+# 几何变换
+img.resize((800, 600))                       # 缩放
+img.thumbnail((400, 300))                    # 等比缩略
+img.rotate(45, expand=True)                  # 旋转45°
+img.transpose(Image.FLIP_LEFT_RIGHT)         # 水平翻转
+img.transpose(Image.FLIP_TOP_BOTTOM)         # 垂直翻转
+
+# 仿射变换
+img.transform((300,300), Image.AFFINE,
+              data=(1,0.2,0,0.1,1,0))        # 倾斜
+
+# 图像滤波
+img.filter(ImageFilter.BLUR)
+img.filter(ImageFilter.SHARPEN)
+img.filter(ImageFilter.SMOOTH)
+img.filter(ImageFilter.EDGE_ENHANCE)
+img.filter(ImageFilter.FIND_EDGES)           # 边缘检测
+img.filter(ImageFilter.GaussianBlur(radius=3))  # 高斯模糊
+\`\`\``
+    },
+    {
+      id: 2, title: '色彩空间与增强', type: 'example',
+      content: `\`\`\`python
+from PIL import Image, ImageOps, ImageEnhance
+from PIL.ImageColor import getrgb
+
+img = Image.open('sample.jpg')
+
+# 色彩模式转换
+img_rgb = img.convert('RGB')
+img_l = img.convert('L')                       # 灰度
+img_1 = img.convert('1')                       # 二值
+img_hsv = img.convert('HSV')                   # HSV 通道分离
+
+# 色彩增强
+enhancer = ImageEnhance.Color(img)
+enhancer.enhance(1.5)     # 饱和度 +50%
+
+ImageEnhance.Brightness(img).enhance(0.8)  # 亮度 -20%
+ImageEnhance.Contrast(img).enhance(1.3)    # 对比度 +30%
+ImageEnhance.Sharpness(img).enhance(2.0)   # 锐化 2x
+
+# 调色板和颜色映射
+ImageOps.colorize(img_l, black='blue', white='red')  # 假彩色
+ImageOps.posterize(img, bits=4)  # 色调分离
+
+# 通道分离与混合
+r, g, b = img.split()
+new_img = Image.merge('RGB', (b, g, r))  # 通道交换（蓝变红）
+\`\`\``,
+      code: `from PIL import Image, ImageFilter, ImageEnhance, ImageOps, ImageDraw
+import numpy as np
+
+print('=== Pillow 图像变换演示 ===')
+
+# 创建测试图像（带图案）
+size = 300
+img = Image.new('RGB', (size, size), color=(240, 245, 250))
+draw = ImageDraw.Draw(img)
+# 画渐变色块
+for i in range(100):
+    for j in range(100):
+        intensity = (i + j) / 200
+        draw.point((i+50, j+50), fill=(
+            int(255*intensity),
+            int(200*intensity),
+            200 - int(100*intensity)
+        ))
+# 画圆形
+for r in range(20, 100, 20):
+    draw.ellipse([150-r, 200-r, 150+r, 200+r], outline=(50, 50, 150), width=2)
+
+transforms = {
+    '原图': lambda x: x,
+    '灰度': lambda x: x.convert('L'),
+    '高斯模糊': lambda x: x.filter(ImageFilter.GaussianBlur(3)),
+    '边缘检测': lambda x: x.filter(ImageFilter.CONTOUR),
+    '浮雕': lambda x: x.filter(ImageFilter.EMBOSS),
+    '对比度+80%': lambda x: ImageEnhance.Contrast(x).enhance(1.8),
+    '色相调换': lambda x: Image.merge('RGB', x.split()[::-1]),
+    '色调分离 (3bit)': lambda x: ImageOps.posterize(x, 3),
+    '反色': lambda x: ImageOps.invert(x),
+    '均衡化': lambda x: ImageOps.equalize(x.convert('RGB')),
+}
+
+for name, func in transforms.items():
+    try:
+        result = func(img.copy())
+        w, h = result.size
+        if w > 200 or h > 200:
+            result = result.resize((200, 200))
+        result.save(f'pillow_{name}.png')
+        print(f'✓ {name}: pillow_{name}.png ({w}x{h})')
+    except Exception as e:
+        print(f'✗ {name}: {e}')
+
+# 自动对比
+from PIL import ImageStat
+stat = ImageStat.Stat(img)
+print(f'\\n图像统计:')
+print(f'  RGB 均值: {[round(v,1) for v in stat.mean]}')
+print(f'  RGB 方差: {[round(v,1) for v in stat.var]}')
+print(f'  RGB 极值: {stat.extrema}')
+`
+    },
+    {
+      id: 3, title: '批量处理与 EXIF', type: 'explanation',
+      content: `\`\`\`python
+import os
+from PIL import Image, ImageExif
+
+# 批量生成缩略图
+input_dir = 'photos/'
+output_dir = 'thumbnails/'
+os.makedirs(output_dir, exist_ok=True)
+
+for fname in os.listdir(input_dir):
+    if fname.lower().endswith(('.jpg','.png')):
+        img = Image.open(os.path.join(input_dir, fname))
+        img.thumbnail((256, 256))
+        img.save(os.path.join(output_dir, fname), quality=85, optimize=True)
+
+# EXIF 元数据读取
+with Image.open('photo.jpg') as img:
+    exif = img.getexif()
+    if exif:
+        for tag_id, value in exif.items():
+            tag = ImageExif.Base.TAGS.get(tag_id, tag_id)
+            print(f'{tag}: {value}')
+
+# EXIF 关键字段: Make, Model, DateTime, GPSInfo, FocalLength, ExposureTime, ISO...
+
+# 图像转 PDF
+images = [Image.open(f'p{i}.jpg').convert('RGB') for i in range(10)]
+images[0].save('output.pdf', save_all=True, append_images=images[1:])
+\`\`\``
+    },
+    {
+      id: 4, title: '绘图与合成', type: 'explanation',
+      content: `\`\`\`python
+from PIL import Image, ImageDraw, ImageFont
+
+# 创建画布
+img = Image.new('RGB', (800, 600), 'white')
+draw = ImageDraw.Draw(img)
+
+# 绘制基本形状
+draw.line([(0,0), (800,600)], fill='red', width=3)
+draw.rectangle([100, 100, 300, 300], fill='#FFD700', outline='black', width=2)
+draw.ellipse([400, 100, 700, 400], fill=(100,200,255), outline='navy')
+draw.polygon([(400,500), (500,420), (600,500)], fill='green')
+draw.arc([100, 400, 300, 600], start=0, end=270, fill='purple', width=5)
+draw.pieslice([500, 420, 780, 580], start=0, end=240, fill='orange')
+
+# 文字
+font = ImageFont.truetype('msyh.ttc', 48)
+draw.text((100, 50), 'Hello Pillow!', fill='black', font=font, anchor='mm')
+
+# 图像合成
+img1 = Image.open('bg.jpg')
+img2 = Image.open('logo.png').convert('RGBA')
+img1.paste(img2, (50, 50), mask=img2)  # alpha 合成
+
+# 画布裁剪与粘贴
+region = img1.crop((100,100,500,400))
+region = region.rotate(15)
+img1.paste(region, (600, 200))
+\`\`\``,
+      code: `from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import math, random
+
+# 生成完整海报
+W, H = 800, 1000
+poster = Image.new('RGB', (W, H), (20, 20, 40))
+
+# 渐变背景
+bg = Image.new('RGB', (W, H))
+for y in range(H):
+    r = int(20 + y * 40 / H)
+    g = int(20 + y * 60 / H)
+    b = int(60 + y * 120 / H)
+    for x in range(W):
+        bg.putpixel((x, y), (r, g, b))
+poster = bg
+
+draw = ImageDraw.Draw(poster)
+
+# 装饰性几何图形
+random.seed(42)
+for _ in range(80):
+    x1, y1 = random.randint(0,W), random.randint(0,H)
+    s = random.randint(3, 15)
+    alpha = random.randint(30, 80)
+    color = (random.randint(100,255), random.randint(100,255), random.randint(150,255))
+    draw.ellipse([x1-s, y1-s, x1+s, y1+s], outline=color, width=1)
+
+# 居中标题
+try:
+    title_font = ImageFont.truetype('msyh.ttc', 72)
+    subtitle_font = ImageFont.truetype('msyh.ttc', 36)
+    body_font = ImageFont.truetype('msyh.ttc', 24)
+except:
+    title_font = ImageFont.load_default()
+    subtitle_font = ImageFont.load_default()
+    body_font = ImageFont.load_default()
+
+# 居中文字
+draw.text((W/2, 200), '数据可视化', font=title_font, fill='white', anchor='mm')
+draw.text((W/2, 280), 'Python Mastery Series', font=subtitle_font, fill=(200, 220, 255), anchor='mm')
+
+# 分割线
+draw.line([(100, 350), (W-100, 350)], fill=(255,255,255,128), width=2)
+
+# 卡片内容
+cards = [
+    ('Pillow', '图像处理与合成', '#ef4444'),
+    ('NumPy', '数值计算基础', '#f59e0b'),
+    ('Pandas', '数据分析核心', '#3b82f6'),
+    ('Matplotlib', '可视化绘图', '#10b981'),
+]
+for i, (title, desc, color) in enumerate(cards):
+    y = 400 + i * 130
+    # 卡片背景
+    draw.rounded_rectangle([100, y, W-100, y+110],
+        radius=20, fill=(255,255,255,20), outline=(255,255,255,40))
+    # 序号圆点
+    draw.ellipse([130, y+30, 180, y+80], fill=color)
+    draw.text((155, y+55), str(i+1), font=subtitle_font, fill='white', anchor='mm')
+    # 文字
+    draw.text((210, y+30), title, font=subtitle_font, fill='white')
+    draw.text((210, y+70), desc, font=body_font, fill=(180,190,220))
+
+# 底部时间
+import datetime
+today = datetime.date.today().strftime('%Y.%m.%d')
+draw.text((W/2, H-80), f'版本 v1.0  日期 {today}', font=body_font,
+    fill=(150, 160, 190), anchor='mm')
+
+# 保存
+poster.save('poster.png', quality=95)
+print(f'海报已生成: poster.png ({W}x{H})')
+`
+    },
+    {
+      id: 5, title: '练习：水印工具', type: 'exercise',
+      content: '实现批量图片水印工具（文字+图片水印，支持自定义参数）',
+      code: `from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+import os, math
+
+class WatermarkTool:
+    def __init__(self):
+        self.supported = ('.jpg','.jpeg','.png','.bmp','.webp')
+    
+    def add_text_watermark(self, img, text,
+                          position='bottom-right', font_size=36,
+                          opacity=120, color=(255,255,255), margin=30,
+                          angle=0):
+        """添加文字水印"""
+        base = img.convert('RGBA')
+        W, H = base.size
+        
+        # 建透明层
+        layer = Image.new('RGBA', base.size, (0,0,0,0))
+        draw = ImageDraw.Draw(layer)
+        
+        try:
+            font = ImageFont.truetype('msyh.ttc', font_size)
+        except:
+            font = ImageFont.load_default()
+        
+        # 计算文字位置
+        bbox = draw.textbbox((0,0), text, font=font)
+        tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
+        
+        pos_map = {
+            'top-left': (margin, margin),
+            'top-right': (W-tw-margin, margin),
+            'top-center': ((W-tw)//2, margin),
+            'center': ((W-tw)//2, (H-th)//2),
+            'bottom-left': (margin, H-th-margin),
+            'bottom-right': (W-tw-margin, H-th-margin),
+            'bottom-center': ((W-tw)//2, H-th-margin),
+        }
+        x, y = pos_map.get(position, pos_map['bottom-right'])
+        
+        # 旋转水印
+        if angle:
+            tmp = Image.new('RGBA', (tw+20, th+20), (0,0,0,0))
+            tmp_draw = ImageDraw.Draw(tmp)
+            tmp_draw.text((10, 10), text, font=font, fill=(*color, opacity))
+            tmp = tmp.rotate(angle, expand=True, resample=Image.BICUBIC)
+            # 居中
+            tw2, th2 = tmp.size
+            layer.paste(tmp, (x + (tw-tw2)//2, y + (th-th2)//2), mask=tmp)
+        else:
+            draw.text((x, y), text, font=font, fill=(*color, opacity))
+        
+        return Image.alpha_composite(base, layer)
+    
+    def add_image_watermark(self, img, logo_path,
+                           position='bottom-right', scale=0.2,
+                           opacity=180, margin=30):
+        """添加图片水印"""
+        base = img.convert('RGBA')
+        W, H = base.size
+        
+        logo = Image.open(logo_path).convert('RGBA')
+        lw, lh = logo.size
+        
+        # 按比例缩放（基于图片宽度）
+        new_w = int(W * scale)
+        new_h = int(lh * new_w / lw)
+        logo = logo.resize((new_w, new_h), Image.LANCZOS)
+        
+        # 透明度
+        if opacity < 255:
+            r, g, b, a = logo.split()
+            a = a.point(lambda x: int(x * opacity / 255))
+            logo = Image.merge('RGBA', (r, g, b, a))
+        
+        pos_map = {
+            'top-left': (margin, margin),
+            'top-right': (W-new_w-margin, margin),
+            'center': ((W-new_w)//2, (H-new_h)//2),
+            'bottom-left': (margin, H-new_h-margin),
+            'bottom-right': (W-new_w-margin, H-new_h-margin),
+        }
+        x, y = pos_map.get(position, pos_map['bottom-right'])
+        
+        base.paste(logo, (x, y), mask=logo)
+        return base
+    
+    def add_tiled_watermark(self, img, text, font_size=48,
+                            opacity=60, angle=-30, spacing=150):
+        """平铺水印（防盗图）"""
+        base = img.convert('RGBA')
+        W, H = base.size
+        diagonal = int(math.sqrt(W*W + H*H))
+        
+        layer = Image.new('RGBA', (diagonal, diagonal), (0,0,0,0))
+        draw = ImageDraw.Draw(layer)
+        try:
+            font = ImageFont.truetype('msyh.ttc', font_size)
+        except:
+            font = ImageFont.load_default()
+        
+        # 计算文字尺寸
+        bbox = draw.textbbox((0,0), text, font=font)
+        tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
+        
+        for x in range(0, diagonal, tw + spacing):
+            for y in range(0, diagonal, th + spacing):
+                draw.text((x, y), text, font=font, fill=(255,255,255, opacity))
+        
+        layer = layer.rotate(angle, resample=Image.BICUBIC)
+        # 裁回原尺寸
+        left = (diagonal - W) // 2
+        top = (diagonal - H) // 2
+        layer = layer.crop((left, top, left+W, top+H))
+        
+        return Image.alpha_composite(base, layer)
+    
+    def process_folder(self, input_dir, output_dir, **kwargs):
+        """批量处理目录"""
+        os.makedirs(output_dir, exist_ok=True)
+        count = 0
+        for fname in os.listdir(input_dir):
+            if fname.lower().endswith(self.supported):
+                try:
+                    img = Image.open(os.path.join(input_dir, fname))
+                    if kwargs.get('mode') == 'text':
+                        result = self.add_text_watermark(img, kwargs['text'])
+                    elif kwargs.get('mode') == 'image':
+                        result = self.add_image_watermark(img, kwargs['logo'])
+                    else:
+                        result = self.add_tiled_watermark(img, kwargs['text'])
+                    
+                    out_path = os.path.join(output_dir, fname)
+                    result.convert('RGB').save(out_path, quality=85)
+                    count += 1
+                    print(f'✓ {fname}')
+                except Exception as e:
+                    print(f'✗ {fname}: {e}')
+        print(f'完成！共处理 {count} 张图片')
+        return count
+
+# 使用示例
+tool = WatermarkTool()
+
+# 创建测试图像
+test = Image.new('RGB', (600, 400), (100, 150, 200))
+d = ImageDraw.Draw(test)
+for i in range(10):
+    d.rectangle([i*60, i*40, i*60+50, i*40+30],
+        fill=(i*25, 50, 200-i*20), outline='white')
+test.save('test_img.jpg')
+
+# 各种水印效果
+result1 = tool.add_text_watermark(test, '© 版权所有 2024', angle=0)
+result1.save('watermark_text.png')
+print('✓ 文字水印: watermark_text.png')
+
+result2 = tool.add_tiled_watermark(test, '防盗水印', opacity=50)
+result2.save('watermark_tiled.png')
+print('✓ 平铺水印: watermark_tiled.png')
+`
+    },
+    {
+      id: 6, title: '第54关测验', type: 'quiz',
+      content: `**问题1**：RGB 转灰度的方法是？
+- A. convert('L')
+- B. to_gray()
+- C. grayscale()
+- D. Image.GRAY
+
+**问题2**：高斯模糊的参数 radius 控制什么？
+- A. 颜色深度
+- B. 模糊半径
+- C. 分辨率
+- D. 旋转角度
+
+**问题3**：粘贴透明 PNG 时 mask 参数作用？
+- A. 缩放比例
+- B. 旋转角度
+- C. alpha 通道合成
+- D. 边框粗细
+
+**答案**：1.A  2.B  3.C`
+    }
+  ],
+  // 第55关
+  55: [
+    {
+      id: 1, title: 'R 基础与向量', type: 'explanation',
+      content: `**R 语言** 是统计计算和数据可视化的强力工具。
+
+\`\`\`r
+# 变量与赋值
+x <- 10
+y = 20
+z <<- 30  # 全局赋值
+
+# 向量
+v <- c(1, 2, 3, 4, 5)          # 组合
+1:10                           # 序列
+seq(1, 10, by=2)              # 步长序列
+rep(c('A','B'), each=3, times=2)  # 重复
+v[1]                           # 索引 (从1开始!)
+v[c(1, 3, 5)]                  # 选择多个
+v[v > 3]                       # 逻辑索引
+
+# 向量运算 (向量化)
+v1 + v2                        # 逐元素
+sum(v), mean(v), sd(v), var(v)
+range(v), quantile(v)
+min(v), max(v), which.min(v)
+
+# 常用函数
+sample(1:100, 10)              # 采样
+rnorm(100, mean=0, sd=1)       # 正态分布
+runif(100, min=0, max=100)     # 均匀
+table(categorical_var)         # 频率表
+\`\`\``
+    },
+    {
+      id: 2, title: '数据框与矩阵', type: 'example',
+      content: `\`\`\`r
+# 矩阵
+m <- matrix(1:12, nrow=3, ncol=4, byrow=TRUE)
+rownames(m) <- paste0('R', 1:3)
+colnames(m) <- paste0('C', 1:4)
+m[1, 2]           # 第1行第2列
+m[, 2]            # 第2列
+m['R1', ]         # 第1行
+t(m)              # 转置
+m %*% t(m)        # 矩阵乘法
+solve(m[,1:3])    # 逆方阵
+
+# 数据框
+df <- data.frame(
+    name = c('Alice','Bob','Charlie'),
+    age = c(25, 30, 35),
+    score = c(85, 92, 78),
+    stringsAsFactors = FALSE
+)
+
+# 选取
+df$name                       # 按列名
+df[, 'age']                   # 同上
+df[df$age > 28, c('name','score')]  # 条件筛选
+subset(df, age > 28 & score >= 80)
+
+# 增删改
+df$grade <- ifelse(df$score >= 90, 'A',
+            ifelse(df$score >= 80, 'B', 'C'))
+df$temp <- NULL               # 删除列
+\`\`\``,
+      code: `# R 数据框操作综合示例（使用 R 语法）
+# 在 Python 环境模拟 R 的等价逻辑（便于运行）
+# 等价的 R 代码可在 R 控制台直接执行
+import pandas as pd
+import numpy as np
+
+print('=== R 语言 数据操作 (Python等价实现演示) ===')
+print('注: 以下代码展示与 R 函数对应的操作逻辑')
+
+# R: df <- data.frame(name=c('A','B','C','D'), score=c(85,92,78,95), class=c('X','X','Y','Y'))
+df = pd.DataFrame({
+    'name': ['Alice','Bob','Charlie','David','Emma','Frank'],
+    'age': [25, 30, 35, 28, 22, 40],
+    'score': [85, 92, 78, 95, 88, 72],
+    'class': ['X','X','Y','Y','X','Y']
+})
+
+print('原始数据:')
+print(df.to_string(index=False))
+
+# R: summary(df) 基本统计
+print('\\n=== summary() 等价: 描述统计 ===')
+print(df.describe(include='all').to_string())
+
+# R: table(df$class)
+print('\\n=== table() 等价: 频数统计 ===')
+print(df['class'].value_counts())
+
+# R: aggregate(score ~ class, data=df, FUN=mean)
+print('\\n=== aggregate() 等价: 分组聚合 ===')
+grouped = df.groupby('class').agg(
+    平均分数=('score', 'mean'),
+    最高分数=('score', 'max'),
+    平均年龄=('age', 'mean'),
+    人数=('name', 'count')
+).round(2)
+print(grouped)
+
+# R: df[order(-df$score),] 按分数降序
+print('\\n=== order() 等价: 排序 ===')
+print(df.sort_values('score', ascending=False).to_string(index=False))
+
+# R: apply(df[,2:3], 2, mean)
+print('\\n=== apply() 等价: 行列级操作 ===')
+numeric_cols = ['age', 'score']
+for direction, label in [(0, 'apply(df, 2, mean) 列均值'), (1, 'apply(df, 1, sum) 行和(前5)')]:
+    if direction == 0:
+        result = df[numeric_cols].mean()
+        print(f'\\n{label}:')
+        print(result)
+    else:
+        print(f'\\n{label}:')
+        print(df[numeric_cols].sum(axis=1).head().to_string())
+
+# R: merge 合并
+extra = pd.DataFrame({
+    'name': ['Alice','Bob','Frank','Grace'],
+    'city': ['北京','上海','广州','深圳'],
+    'group': [1, 2, 1, 2]
+})
+# R: merge(df, extra, by='name', all.x=TRUE)
+merged = df.merge(extra, on='name', how='left')
+print('\\n=== merge() 等价: 左连接 ===')
+print(merged.to_string(index=False))
+`
+    },
+    {
+      id: 3, title: 'ggplot2 可视化', type: 'explanation',
+      content: `**ggplot2** 是 R 的声明式绘图系统（图形语法）。
+
+\`\`\`r
+library(ggplot2)
+
+# 基本图形
+ggplot(data = df, aes(x = age, y = score)) +
+    geom_point(aes(color = class), size = 3, alpha = 0.8) +
+    geom_smooth(method = "lm", se = TRUE, color = "red") +
+    labs(title = "年龄 vs 分数", x = "年龄", y = "分数",
+         color = "班级") +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+# 分面
+ggplot(df, aes(x = score, fill = class)) +
+    geom_histogram(bins = 15, alpha = 0.7) +
+    facet_wrap(~ class, nrow = 1) +
+    scale_fill_brewer(palette = "Set2")
+
+# 箱线图 + 抖动点
+ggplot(df, aes(x = class, y = score, fill = class)) +
+    geom_boxplot(alpha = 0.7, width = 0.6) +
+    geom_jitter(width = 0.2, size = 2, color = "black") +
+    stat_summary(fun = mean, geom = "point",
+                 shape = 18, size = 4, color = "red")
+
+# 主题系统: theme_minimal, theme_classic, theme_dark, ggthemes 包
+\`\`\``
+    },
+    {
+      id: 4, title: '统计与回归', type: 'explanation',
+      content: `\`\`\`r
+# 假设检验
+# t 检验
+t.test(x ~ group, data=df)            # 独立样本
+t.test(x, mu=0, alternative='greater')  # 单样本
+
+# 卡方检验
+chisq.test(table(df$A, df$B))
+
+# 方差分析 ANOVA
+aov_model <- aov(value ~ group, data=df)
+summary(aov_model)
+TukeyHSD(aov_model)                    # 事后检验
+
+# 线性回归
+model <- lm(y ~ x1 + x2 + factor(cat), data=df)
+summary(model)                         # 系数、R²、p值
+coef(model) / confint(model)           # 系数与置信区间
+predict(model, newdata=new_df)         # 预测
+plot(model)                            # 诊断图 (4张)
+
+# 广义线性模型 (GLM)
+glm_model <- glm(success ~ ., data=df, family=binomial)
+summary(glm_model)
+
+# 相关性
+cor(df[,sapply(df, is.numeric)])
+cor.test(df$x, df$y, method='spearman')
+\`\`\``,
+      code: `# R 统计分析 等价实现 (Python)
+import numpy as np
+import pandas as pd
+from scipy import stats
+import statsmodels.api as sm
+
+print('=== R 统计分析 等价 Python 实现 ===')
+
+# 生成数据
+np.random.seed(42)
+n = 100
+group = np.repeat(['A','B','C'], [35, 35, 30])
+x = np.random.randn(n) * 10 + 50
+noise = np.random.randn(n) * 2
+y = 0.8 * x + (group == 'B') * 5 - (group == 'A') * 3 + noise
+df = pd.DataFrame({'x': x, 'y': y, 'group': group})
+
+# 1. t 检验: t.test(x ~ group) A vs B
+print('\\n=== t.test() 等价: A 组 vs B 组独立样本 t 检验 ===')
+group_a = df[df['group']=='A']['y']
+group_b = df[df['group']=='B']['y']
+t_stat, p_val = stats.ttest_ind(group_a, group_b)
+print(f't 统计量: {t_stat:.4f}')
+print(f'p 值:     {p_val:.6f}')
+print(f'差异显著: {p_val < 0.05} (α=0.05)')
+
+# 2. ANOVA: aov(y ~ group)
+print('\\n=== aov() 等价: 单因素方差分析 ===')
+groups_data = [df[df['group']==g]['y'].values for g in ['A','B','C']]
+f_stat, p_anova = stats.f_oneway(*groups_data)
+print(f'F 统计量: {f_stat:.4f}')
+print(f'p 值:     {p_anova:.6f}')
+
+# 3. 线性回归: lm(y ~ x + group)
+print('\\n=== lm() 等价: 多元线性回归 ===')
+X = pd.get_dummies(df[['x','group']], drop_first=True)
+X = sm.add_constant(X.astype(float))
+y_data = df['y']
+model = sm.OLS(y_data, X).fit()
+print(model.summary().tables[1])  # 系数表
+print(f'\\nR² (调整): {model.rsquared_adj:.4f}')
+print(f'F p 值:    {model.f_pvalue:.6f}')
+
+# 4. 相关性检验: cor.test()
+print('\\n=== cor.test() 等价: x 与 y 相关性 ===')
+r, p_corr = stats.pearsonr(df['x'], df['y'])
+rho, p_spearman = stats.spearmanr(df['x'], df['y'])
+print(f'Pearson r = {r:.4f}  (p={p_corr:.2e})')
+print(f'Spearman ρ = {rho:.4f}  (p={p_spearman:.2e})')
+
+# 5. 置信区间
+print('\\n=== confint() 等价: 回归系数 95% 置信区间 ===')
+ci = model.conf_int(alpha=0.05)
+ci.columns = ['下限', '上限']
+ci['系数'] = model.params
+ci = ci[['系数', '下限', '上限']]
+print(ci.round(4))
+`
+    },
+    {
+      id: 5, title: '练习：数据挖掘实战', type: 'exercise',
+      content: 'R 风格的完整数据挖掘流程：数据处理 → EDA → 建模 → 评估',
+      code: `import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from scipy import stats
+import statsmodels.api as sm
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
+
+print('=' * 60)
+print('    R 数据挖掘实战 - 客户流失预测 (Python 等价实现)')
+print('=' * 60)
+
+# 1. 数据加载与预处理 (R: read_csv + dplyr 管道)
+np.random.seed(42)
+N = 5000
+data = pd.DataFrame({
+    'age': np.random.randint(18, 80, N),
+    'income': np.random.randint(2000, 50000, N),
+    'tenure': np.random.randint(1, 72, N),
+    'contract': np.random.choice(['月付','1年','2年'], N, p=[0.4,0.35,0.25]),
+    'internet': np.random.choice(['光纤','DSL','无'], N, p=[0.5,0.35,0.15]),
+    'support_calls': np.random.poisson(1.2, N),
+    'monthly_charges': np.random.uniform(20, 120, N),
+})
+# 合成流失标签
+p_churn = (
+    0.05 +
+    0.3 * (data['contract'] == '月付') +
+    0.1 * (data['internet'] == '光纤') +
+    0.005 * data['support_calls'] +
+    -0.002 * data['tenure'] +
+    np.random.randn(N) * 0.1
+).clip(0, 1)
+data['churn'] = (np.random.rand(N) < p_churn).astype(int)
+
+print('\\n=== 1. 数据概览 (R: str() + summary()) ===')
+print(f'样本数: {len(data):,}  特征数: {len(data.columns)-1}')
+print(f'流失率: {data.churn.mean():.2%}')
+print(data.describe().round(2).to_string())
+
+# 2. 探索性分析 (R: ggplot2)
+print('\\n=== 2. EDA 探索性分析 ===')
+# 按合同类型的流失率
+grouped_contract = data.groupby('contract').agg(
+    样本数=('churn', 'count'),
+    流失率=('churn', 'mean'),
+    平均月费=('monthly_charges', 'mean')
+).sort_values('流失率', ascending=False)
+print('不同合同类型的流失率:')
+print(grouped_contract.style.format({'流失率': '{:.2%}'}).to_string() if hasattr(grouped_contract, 'style') else grouped_contract)
+
+for c in ['contract','internet']:
+    ct = pd.crosstab(data[c], data['churn'], normalize='index')
+    print(f'\\n{c} × 流失 列联表 (行比例):')
+    print(ct.round(3))
+    chi2, p, dof, exp = stats.chi2_contingency(pd.crosstab(data[c], data['churn']))
+    print(f'卡方检验: χ²={chi2:.2f}, p={p:.4e}')
+
+# 数值特征与流失的相关性
+print('\\n数值特征与流失的相关性 (点二列相关):')
+for col in ['age','income','tenure','support_calls','monthly_charges']:
+    r, p = stats.pointbiserialr(data['churn'], data[col])
+    sig = '***' if p<0.001 else ('**' if p<0.01 else ('*' if p<0.05 else ''))
+    print(f'  {col:>16s}: r = {r:+.4f}  p = {p:.4f} {sig}')
+
+# 3. 特征工程 (R: dplyr::mutate)
+print('\\n=== 3. 特征工程 ===')
+data['charges_per_tenure'] = data['monthly_charges'] * data['tenure']
+data['calls_per_month'] = data['support_calls'] / (data['tenure'] / 12 + 0.1)
+data = pd.get_dummies(data, columns=['contract','internet'], drop_first=True)
+print(f'特征维度: {len(data.columns)-1} (编码后)')
+
+# 4. 建模 (R: glm / randomForest)
+print('\\n=== 4. 模型训练 ===')
+X = data.drop('churn', axis=1)
+y = data['churn']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+# 随机森林
+rf = RandomForestClassifier(n_estimators=200, max_depth=8, 
+    class_weight='balanced', random_state=42, n_jobs=-1)
+rf.fit(X_train, y_train)
+
+# 交叉验证
+cv_scores = cross_val_score(rf, X_train, y_train, cv=5, scoring='roc_auc')
+print(f'随机森林 5折 CV AUC: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}')
+
+# 逻辑回归 (R: glm(family=binomial))
+X_train_const = sm.add_constant(X_train.astype(float))
+logit = sm.Logit(y_train, X_train_const).fit(disp=0)
+
+# 5. 评估 (R: confusionMatrix / ROC)
+print('\\n=== 5. 模型评估 (测试集) ===')
+y_pred = rf.predict(X_test)
+y_prob = rf.predict_proba(X_test)[:, 1]
+print('混淆矩阵:')
+cm = confusion_matrix(y_test, y_pred)
+print(pd.DataFrame(cm,
+    index=['实际:未流失','实际:流失'],
+    columns=['预测:未流失','预测:流失']))
+print(f'\\n{classification_report(y_test, y_pred, target_names=["未流失","流失"])}')
+print(f'AUC: {roc_auc_score(y_test, y_prob):.4f}')
+
+# 6. 特征重要性
+print('\\n=== 6. 特征重要性 (Top 10) ===')
+importances = pd.DataFrame({
+    '特征': X.columns,
+    '重要性': rf.feature_importances_
+}).sort_values('重要性', ascending=False).head(10)
+for i, row in importances.iterrows():
+    bar = '█' * int(row['重要性'] * 200)
+    print(f'  {row["特征"]:>22s}: {row["重要性"]:.4f} {bar}')
+
+print('\\n✅ 数据挖掘流程完成！')
+`
+    },
+    {
+      id: 6, title: '第55关测验', type: 'quiz',
+      content: `**问题1**：R 中向量索引从几开始？
+- A. 0
+- B. 1
+- C. 取决于类型
+- D. 可配置
+
+**问题2**：ggplot2 中添加散点的几何层是？
+- A. geom_lines()
+- B. geom_points()
+- C. geom_point()
+- D. geom_scatter()
+
+**问题3**：线性回归函数是？
+- A. regression()
+- B. lm()
+- C. linear()
+- D. fit()
+
+**答案**：1.B  2.C  3.B`
+    }
   ]
 }
 
