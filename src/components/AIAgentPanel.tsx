@@ -11,7 +11,7 @@
  */
 import { useState } from 'react'
 import { useAIAgent } from '../context/AIAgentContext'
-import type { AgentState, TunableParams, OptDomain } from '../types/ai'
+import type { AgentState, TunableParams, OptDomain, OrchestrationEntryType } from '../types/ai'
 import './AIAgentPanel.css'
 
 const STATE_LABELS: Record<AgentState, string> = {
@@ -64,6 +64,14 @@ const PARAM_LABELS: Record<keyof TunableParams, string> = {
   enableErrorRecovery: '错误恢复',
 }
 
+const ORC_TYPE_LABELS: Record<OrchestrationEntryType, { label: string; icon: string; color: string }> = {
+  'experience-read': { label: '读取经验包', icon: '📖', color: '#3b82f6' },
+  'agent-optimize': { label: 'Agent优化', icon: '⚡', color: '#10b981' },
+  'llm-feature': { label: 'LLM功能', icon: '🧠', color: '#8b5cf6' },
+  'global-adapt': { label: '全局适配', icon: '🌐', color: '#06b6d4' },
+  'pack-write': { label: '写入经验包', icon: '📦', color: '#f59e0b' },
+}
+
 function formatTime(iso: string): string {
   try { return new Date(iso).toLocaleString('zh-CN', { hour12: false }) } catch { return iso }
 }
@@ -101,10 +109,12 @@ function AIAgentPanel() {
     currentMetrics, currentScores, strategies,
     startAgent, stopAgent, pauseAgent, resetAgent, updateConfig, resetParams,
     createSnapshot, restoreSnapshot, deleteSnapshot, markSnapshotStable,
+    orchestration, runGlobalOrchestration, clearOrchestrationEntries,
   } = useAIAgent()
 
   const [showParams, setShowParams] = useState(false)
   const [showConfig, setShowConfig] = useState(false)
+  const [showOrchestration, setShowOrchestration] = useState(false)
 
   const isRunning = !['idle', 'paused', 'committed', 'rolledback'].includes(state)
 
@@ -146,6 +156,13 @@ function AIAgentPanel() {
           </button>
           <button className="aap-btn aap-btn-snapshot" onClick={() => createSnapshot('手动快照')}>
             📸 快照
+          </button>
+          <button
+            className="aap-btn aap-btn-orchestrate"
+            onClick={() => runGlobalOrchestration()}
+            disabled={orchestration.active}
+          >
+            {orchestration.active ? '⏳ 调配中...' : '🌐 全局调配'}
           </button>
         </div>
 
@@ -417,6 +434,81 @@ function AIAgentPanel() {
           ))}
           {snapshots.length === 0 && <div className="aap-empty">暂无快照</div>}
         </div>
+      </div>
+
+      {/* ===== 全局调配记录 ===== */}
+      <div className="aap-section">
+        <div className="aap-section-header" onClick={() => setShowOrchestration(!showOrchestration)}>
+          <h3 className="aap-section-title">🌐 全局调配记录 ({orchestration.entries.length})</h3>
+          <span className="aap-toggle">{showOrchestration ? '▼' : '▶'}</span>
+        </div>
+        {showOrchestration && (
+          <div className="aap-orchestration">
+            {/* 调配概览 */}
+            <div className="aap-orc-overview">
+              <div className="aap-orc-stat">
+                <span className="aap-orc-stat-val">{orchestration.totalAdaptations}</span>
+                <span className="aap-orc-stat-label">累计调配</span>
+              </div>
+              <div className="aap-orc-stat">
+                <span className="aap-orc-stat-val">{orchestration.entries.length}</span>
+                <span className="aap-orc-stat-label">记录条数</span>
+              </div>
+              <div className="aap-orc-stat">
+                <span className="aap-orc-stat-val">{orchestration.lastRun ? formatTime(orchestration.lastRun).split(' ')[1] : '-'}</span>
+                <span className="aap-orc-stat-label">上次调配</span>
+              </div>
+              <div className="aap-orc-stat">
+                <span className="aap-orc-stat-val" style={{ color: orchestration.packReadEnabled ? '#10b981' : '#6b7280' }}>
+                  {orchestration.packReadEnabled ? '✓' : '✗'}
+                </span>
+                <span className="aap-orc-stat-label">强制读包</span>
+              </div>
+              <div className="aap-orc-stat">
+                <span className="aap-orc-stat-val" style={{ color: orchestration.autoWritePack ? '#10b981' : '#6b7280' }}>
+                  {orchestration.autoWritePack ? '✓' : '✗'}
+                </span>
+                <span className="aap-orc-stat-label">自动写包</span>
+              </div>
+            </div>
+
+            {/* 调配记录列表 */}
+            <div className="aap-orc-entries">
+              {orchestration.entries.map((entry) => {
+                const meta = ORC_TYPE_LABELS[entry.type] || { label: entry.type, icon: '•', color: '#6b7280' }
+                return (
+                  <div key={entry.id} className="aap-orc-entry" style={{ borderLeftColor: meta.color }}>
+                    <span className="aap-orc-entry-icon">{meta.icon}</span>
+                    <div className="aap-orc-entry-body">
+                      <div className="aap-orc-entry-head">
+                        <span className="aap-orc-entry-type" style={{ color: meta.color }}>{meta.label}</span>
+                        <span className="aap-orc-entry-time">{formatTime(entry.timestamp).split(' ')[1]}</span>
+                      </div>
+                      <div className="aap-orc-entry-summary">{entry.summary}</div>
+                      {entry.detail && <div className="aap-orc-entry-detail">{entry.detail}</div>}
+                      {entry.modules && entry.modules.length > 0 && (
+                        <div className="aap-orc-entry-modules">
+                          {entry.modules.map(m => <code key={m}>{m}</code>)}
+                        </div>
+                      )}
+                    </div>
+                    {entry.scoreImpact !== undefined && (
+                      <span className="aap-orc-entry-score">+{Math.round(entry.scoreImpact)}</span>
+                    )}
+                  </div>
+                )
+              })}
+              {orchestration.entries.length === 0 && <div className="aap-empty">暂无调配记录，点击「🌐 全局调配」按钮开始</div>}
+            </div>
+
+            {/* 清除按钮 */}
+            {orchestration.entries.length > 0 && (
+              <button className="aap-btn aap-btn-reset-params" onClick={clearOrchestrationEntries}>
+                🗑 清除调配记录
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

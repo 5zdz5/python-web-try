@@ -9,8 +9,9 @@ import {
 import { levels } from '../../data/mockData'
 import { runoobTopics } from '../../data/runoobTopics'
 import { CATEGORY_ORDER } from '../../config/categories'
+import ExperiencePackPanel from '../../components/ExperiencePackPanel'
 
-type Tab = 'overview' | 'files' | 'features' | 'principles' | 'migration'
+type Tab = 'overview' | 'files' | 'features' | 'principles' | 'migration' | 'experience'
 
 function FileTreeNode({ node, depth }: { node: FileNode; depth: number }) {
   const [expanded, setExpanded] = useState(depth < 2)
@@ -70,7 +71,8 @@ function SourceExplorer() {
     { id: 'files', label: '源码结构', icon: '📂' },
     { id: 'features', label: '功能清单', icon: '✨' },
     { id: 'principles', label: '核心原理', icon: '🔬' },
-    { id: 'migration', label: '迁移指南', icon: '🚀' }
+    { id: 'migration', label: '迁移指南', icon: '🚀' },
+    { id: 'experience', label: '经验包', icon: '📦' }
   ]
 
   return (
@@ -197,6 +199,9 @@ function SourceExplorer() {
                 <button className="cta-btn" onClick={() => setActiveTab('migration')}>
                   🚀 迁移指南
                 </button>
+                <button className="cta-btn" onClick={() => setActiveTab('experience')}>
+                  📦 大模型经验包
+                </button>
               </div>
             </div>
           </div>
@@ -295,6 +300,13 @@ function SourceExplorer() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* 经验包 */}
+        {activeTab === 'experience' && (
+          <div className="tab-panel animate-fade-in">
+            <ExperiencePackPanel />
           </div>
         )}
       </div>

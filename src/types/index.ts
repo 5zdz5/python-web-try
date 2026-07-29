@@ -47,3 +47,10 @@ export interface UserProgress {
   streak: number
   rank: string
 }
+
+// 经验包类型导出
+export type {
+  PackMetadata, ModuleCategory, ModuleInfo, ArchitectureOverview, FileTreeNode,
+  CodingConvention, DesignPattern, LessonLearned, ReusableComponent,
+  ExtensionRoadmap, BuildConstraints, ExperiencePack,
+} from './experiencePack'

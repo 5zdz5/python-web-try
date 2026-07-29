@@ -157,3 +157,34 @@ export interface AgentSummary {
   rollbackCount: number
   uptimeMs: number
 }
+
+// ===== 全局调配（Global Orchestration）=====
+
+/** 调配记录条目类型 */
+export type OrchestrationEntryType =
+  | 'experience-read'    // 读取经验包
+  | 'agent-optimize'     // Agent 自身参数优化
+  | 'llm-feature'        // LLM 驱动的功能新增
+  | 'global-adapt'       // 全局适配（跨模块协调）
+  | 'pack-write'         // 写入经验包
+
+/** 单条调配记录 */
+export interface OrchestrationEntry {
+  id: string
+  timestamp: string
+  type: OrchestrationEntryType
+  summary: string                    // 一句话摘要
+  detail?: string                    // 详细说明
+  modules?: string[]                 // 涉及的模块 ID
+  scoreImpact?: number               // 对综合分的影响
+}
+
+/** 全局调配状态 */
+export interface GlobalOrchestrationState {
+  active: boolean                    // 是否正在调配
+  lastRun: string | null             // 上次调配时间 ISO
+  entries: OrchestrationEntry[]      // 调配记录（最新在前）
+  packReadEnabled: boolean           // 是否在每次开发前强制读取经验包
+  autoWritePack: boolean             // 是否每次优化后自动写入经验包
+  totalAdaptations: number           // 累计适配次数
+}

@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useMonitor } from '../../context/MonitorContext'
 import { SOURCE_CODE_ENTRIES } from '../../data/sourceCodeData'
 import AIAgentPanel from '../../components/AIAgentPanel'
+import ExperiencePackPanel from '../../components/ExperiencePackPanel'
 import type { MonitorGroup, MonitorEvent } from '../../types/monitor'
 import './MonitorDashboard.css'
 
-type Tab = 'overview' | 'groups' | 'source' | 'patrol' | 'snapshots' | 'agent'
+type Tab = 'overview' | 'groups' | 'source' | 'patrol' | 'snapshots' | 'agent' | 'experience'
 
 const STATUS_COLORS: Record<MonitorGroup['status'], string> = {
   healthy: '#10b981',
@@ -63,6 +64,7 @@ function MonitorDashboard() {
     { id: 'patrol', label: '巡游记录', icon: '🚀' },
     { id: 'snapshots', label: '快照保险', icon: '💾' },
     { id: 'agent', label: 'AI Agent', icon: '🤖' },
+    { id: 'experience', label: '经验包', icon: '📦' },
   ]
 
   const groupList = Object.values(groups)
@@ -436,6 +438,13 @@ function MonitorDashboard() {
               </p>
             </div>
             <AIAgentPanel />
+          </div>
+        )}
+
+        {/* ===== Experience Pack 经验包 ===== */}
+        {activeTab === 'experience' && (
+          <div className="md-panel" style={{ padding: 0, background: 'transparent', boxShadow: 'none' }}>
+            <ExperiencePackPanel />
           </div>
         )}
       </div>

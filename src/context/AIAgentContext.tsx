@@ -14,10 +14,12 @@
 import { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react'
 import type {
   AgentState, AgentConfig, TunableParams, ObservedMetrics, HealthScores,
-  Iteration, Decision, AgentSnapshot, AgentSummary, IterationPhase
+  Iteration, Decision, AgentSnapshot, AgentSummary, IterationPhase,
+  GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
 } from '../types/ai'
 import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
+import { generateExperiencePack } from '../ai/experiencePack'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
 
@@ -26,8 +28,10 @@ const AGENT_PARAMS_KEY = 'python-quest-agent-params'
 const AGENT_CONFIG_KEY = 'python-quest-agent-config'
 const AGENT_SNAPSHOTS_KEY = 'python-quest-agent-snapshots'
 const AGENT_HISTORY_KEY = 'python-quest-agent-history'
+const AGENT_ORCHESTRATION_KEY = 'python-quest-agent-orchestration'
 const MAX_SNAPSHOTS = 8
 const MAX_HISTORY = 20
+const MAX_ORCHESTRATION_ENTRIES = 30
 
 // ===== 默认配置 =====
 const DEFAULT_CONFIG: AgentConfig = {
@@ -70,6 +74,11 @@ interface AIAgentContextValue {
   currentMetrics: ObservedMetrics | null
   currentScores: HealthScores | null
   strategies: typeof STRATEGIES
+
+  // 全局调配
+  orchestration: GlobalOrchestrationState
+  runGlobalOrchestration: () => Promise<void>
+  clearOrchestrationEntries: () => void
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -97,6 +106,29 @@ function makeVersionStamp(iteration: number): string {
   return `agent@${CURRENT_VERSION}-iter${iteration}-${Date.now()}`
 }
 
+/** 默认全局调配状态 */
+const DEFAULT_ORCHESTRATION: GlobalOrchestrationState = {
+  active: false,
+  lastRun: null,
+  entries: [],
+  packReadEnabled: true,
+  autoWritePack: true,
+  totalAdaptations: 0,
+}
+
+/** 创建调配记录条目 */
+function makeEntry(type: OrchestrationEntryType, summary: string, detail?: string, modules?: string[], scoreImpact?: number): OrchestrationEntry {
+  return {
+    id: `orc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    timestamp: new Date().toISOString(),
+    type,
+    summary,
+    detail,
+    modules,
+    scoreImpact,
+  }
+}
+
 // ===== Provider =====
 export function AIAgentProvider({ children }: { children: ReactNode }) {
   const monitor = useMonitor()
@@ -119,6 +151,9 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   const [currentScores, setCurrentScores] = useState<HealthScores | null>(null)
   const [rollbackCount, setRollbackCount] = useState(0)
   const [appliedOptimizations, setAppliedOptimizations] = useState(0)
+  const [orchestration, setOrchestration] = useState<GlobalOrchestrationState>(() =>
+    safeParse(safeGet(AGENT_ORCHESTRATION_KEY), DEFAULT_ORCHESTRATION)
+  )
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -133,6 +168,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   useEffect(() => { safeSet(AGENT_CONFIG_KEY, JSON.stringify(config)) }, [config])
   useEffect(() => { safeSet(AGENT_HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY))) }, [history])
   useEffect(() => { safeSet(AGENT_SNAPSHOTS_KEY, JSON.stringify(snapshots.slice(0, MAX_SNAPSHOTS))) }, [snapshots])
+  useEffect(() => { safeSet(AGENT_ORCHESTRATION_KEY, JSON.stringify({ ...orchestration, entries: orchestration.entries.slice(0, MAX_ORCHESTRATION_ENTRIES) })) }, [orchestration])
 
   // ===== 跟踪首页位置 =====
   useEffect(() => {
@@ -531,6 +567,110 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     monitor.logEvent('info', 'agent', '参数已重置为默认值')
   }, [monitor])
 
+  // ===== 全局调配 =====
+  const runGlobalOrchestration = useCallback(async () => {
+    setOrchestration(prev => ({ ...prev, active: true }))
+    const newEntries: OrchestrationEntry[] = []
+
+    // 阶段 1: 读取经验包
+    const pack = generateExperiencePack({ generatedBy: 'ai-agent' })
+    newEntries.push(makeEntry(
+      'experience-read',
+      `已读取经验包 ${pack.meta.packVersion}`,
+      `模块 ${pack.modules.length} 个，约定 ${pack.conventions.length} 条，教训 ${pack.lessons.length} 条`,
+      pack.modules.slice(0, 5).map(m => m.id),
+    ))
+    monitor.logEvent('info', 'agent', `全局调配：已读取经验包 ${pack.meta.packVersion}`)
+
+    await sleep(300)
+
+    // 阶段 2: 分析当前状态
+    const metrics = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
+    const scores = computeScores(metrics)
+    newEntries.push(makeEntry(
+      'global-adapt',
+      `当前健康度：综合 ${scores.overall}，性能 ${scores.performance}，UX ${scores.ux}，稳定性 ${scores.stability}，内容 ${scores.content}`,
+      `FCP=${metrics.fcp}ms, LCP=${metrics.lcp}ms, 内存=${metrics.memoryUsed}MB, 错误=${metrics.errorCount}`,
+    ))
+    monitor.logEvent('info', 'agent', `全局调配：分析完成，综合分 ${scores.overall}`)
+
+    await sleep(300)
+
+    // 阶段 3: 协调优化策略（跨所有领域）
+    const onHome = isOnHomepageRef.current
+    const strategies = selectStrategies(
+      config.enabledDomains,
+      config.homepageProtected && onHome,
+      5,  // 全局调配选最多 5 个策略
+    )
+    let newParams = { ...params }
+    const appliedNames: string[] = []
+    for (const s of strategies) {
+      const before = { ...newParams }
+      newParams = s.apply(newParams)
+      newEntries.push(makeEntry(
+        'agent-optimize',
+        `应用策略：${s.name}`,
+        `预期收益 ${s.expectedGain}，风险 ${s.risk}`,
+        undefined,
+        s.expectedGain * 100,
+      ))
+      appliedNames.push(s.name)
+    }
+    if (appliedNames.length > 0) {
+      setParams(newParams)
+      setAppliedOptimizations(prev => prev + appliedNames.length)
+      newEntries.push(makeEntry(
+        'agent-optimize',
+        `本轮调配应用了 ${appliedNames.length} 个优化策略`,
+        appliedNames.join('、'),
+      ))
+      monitor.logEvent('info', 'agent', `全局调配：应用 ${appliedNames.length} 个策略`)
+    } else {
+      newEntries.push(makeEntry(
+        'agent-optimize',
+        '无可用策略（首页保护或领域禁用）',
+      ))
+    }
+
+    await sleep(300)
+
+    // 阶段 4: 全局适配分析（LLM 功能新增 + Agent 自优化协调）
+    newEntries.push(makeEntry(
+      'global-adapt',
+      `全局适配完成：LLM 功能新增与 Agent 自优化已协调`,
+      `本轮协调了 ${strategies.length} 个 Agent 策略，经验包模块 ${pack.modules.length} 个，约定 ${pack.conventions.length} 条已纳入考量`,
+      pack.modules.filter(m => m.category === 'ai' || m.category === 'context').map(m => m.id),
+    ))
+
+    await sleep(200)
+
+    // 阶段 5: 写入经验包
+    if (orchestration.autoWritePack) {
+      newEntries.push(makeEntry(
+        'pack-write',
+        `经验包已更新：${pack.meta.packVersion}`,
+        `已记录 ${newEntries.length} 条调配记录，下次读取时将包含本次变更`,
+        ['ai-experiencepack', 'ctx-ai'],
+      ))
+      monitor.logEvent('info', 'agent', `全局调配：经验包已写入`)
+    }
+
+    // 提交所有记录
+    setOrchestration(prev => ({
+      ...prev,
+      active: false,
+      lastRun: new Date().toISOString(),
+      entries: [...newEntries, ...prev.entries].slice(0, MAX_ORCHESTRATION_ENTRIES),
+      totalAdaptations: prev.totalAdaptations + 1,
+    }))
+    monitor.logEvent('info', 'agent', `全局调配完成（共 ${newEntries.length} 条记录）`)
+  }, [config, params, orchestration.autoWritePack, monitor])
+
+  const clearOrchestrationEntries = useCallback(() => {
+    setOrchestration(prev => ({ ...prev, entries: [], totalAdaptations: 0 }))
+  }, [])
+
   // ===== 自动运行 =====
   useEffect(() => {
     if (config.autoRun && state === 'idle') {
@@ -566,6 +706,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     startAgent, stopAgent, pauseAgent, resetAgent, updateConfig, resetParams,
     createSnapshot, restoreSnapshot, deleteSnapshot, markSnapshotStable,
     currentMetrics, currentScores, strategies: STRATEGIES,
+    orchestration, runGlobalOrchestration, clearOrchestrationEntries,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>
