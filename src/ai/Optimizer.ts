@@ -281,17 +281,53 @@ export const STRATEGIES: OptimizationStrategy[] = [
     appliesTo: (p) => p.agentLearningRate > BOUNDS.agentLearningRate.min,
     apply: (p) => ({ ...p, agentLearningRate: Math.max(p.agentLearningRate * 0.7, BOUNDS.agentLearningRate.min) }),
   },
+  // ===== pack28 超级进化：学习效果优化（基于 Pyodide 真实测试结果） =====
+  {
+    id: 'learn-boost-empty-scan',
+    domain: 'learning-outcome',
+    name: '加强空关卡扫描（提升学习覆盖率）',
+    description: '启用更激进的空关卡扫描频率，确保所有关卡有学习内容。基于 Pyodide 测试通过率反馈。',
+    expectedGain: 0.2,
+    risk: 0.1,
+    homepageSafe: true,
+    appliesTo: (p) => !p.enableEmptyLessonScan,
+    apply: (p) => ({ ...p, enableEmptyLessonScan: true }),
+  },
+  {
+    id: 'learn-speed-up-content-refresh',
+    domain: 'learning-outcome',
+    name: '加快内容刷新（快速响应学习反馈）',
+    description: '缩短内容刷新间隔，让 Agent 更快感知课程内容变化和学习效果反馈。',
+    expectedGain: 0.15,
+    risk: 0.15,
+    homepageSafe: true,
+    appliesTo: (p) => p.contentRefreshInterval > 60000,
+    apply: (p) => ({ ...p, contentRefreshInterval: Math.max(p.contentRefreshInterval * 0.5, 30000) }),
+  },
+  {
+    id: 'learn-enable-error-recovery',
+    domain: 'learning-outcome',
+    name: '启用错误自动恢复（降低学习中断率）',
+    description: '启用错误自动恢复，当学员代码执行出错时自动重试，降低学习中断率。',
+    expectedGain: 0.18,
+    risk: 0.2,
+    homepageSafe: true,
+    appliesTo: (p) => !p.enableErrorRecovery,
+    apply: (p) => ({ ...p, enableErrorRecovery: true }),
+  },
 ]
 
 // ===== 健康度评分系统 =====
 // 各领域权重（综合分加权平均）
 // pack23: meta 域权重 0（元优化不参与综合分加权，但策略仍可应用）
+// pack28: learning-outcome 域权重 0.15（教育产品核心指标，从其他域分摊）
 const WEIGHTS: Record<OptDomain, number> = {
-  performance: 0.3,
-  ux: 0.25,
-  content: 0.2,
-  stability: 0.25,
+  performance: 0.25,
+  ux: 0.2,
+  content: 0.15,
+  stability: 0.2,
   meta: 0,
+  'learning-outcome': 0.2,
 }
 
 /** 计算 0-100 的评分，越大越优 */
@@ -346,19 +382,32 @@ function scoreStability(m: ObservedMetrics): number {
   return clampScore(crashScore * 0.4 + errAgeScore * 0.2 + retryScore * 0.2 + uptimeScore * 0.2)
 }
 
+/** 计算学习效果分（pack28 超级进化：基于 Pyodide 真实测试通过率） */
+function scoreLearningOutcome(m: ObservedMetrics): number {
+  // 测试通过率：0=0, 1=100
+  const passRateScore = m.testPassRate * 100
+  // 错误模式数：0=100, 10+=0（错误模式越少说明课程质量越好）
+  const errorPatternScore = Math.max(0, 100 - (m.commonErrorPatterns / 10) * 100)
+  // 提示后重试率：0=50, 1=100（高重试率说明学员愿意继续尝试）
+  const retryScore = 50 + m.retryAfterHintRate * 50
+  return clampScore(passRateScore * 0.6 + errorPatternScore * 0.2 + retryScore * 0.2)
+}
+
 /** 计算所有评分 */
 export function computeScores(m: ObservedMetrics): HealthScores {
   const performance = scorePerformance(m)
   const ux = scoreUX(m)
   const content = scoreContent(m)
   const stability = scoreStability(m)
+  const learningOutcome = scoreLearningOutcome(m)
   const overall = Math.round(
     performance * WEIGHTS.performance +
     ux * WEIGHTS.ux +
     content * WEIGHTS.content +
-    stability * WEIGHTS.stability
+    stability * WEIGHTS.stability +
+    learningOutcome * WEIGHTS['learning-outcome']
   )
-  return { performance, ux, content, stability, overall: clampScore(overall) }
+  return { performance, ux, content, stability, overall: clampScore(overall), learningOutcome }
 }
 
 /** 按领域筛选可用策略 */

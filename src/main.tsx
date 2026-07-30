@@ -17,17 +17,17 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       {/* ThemeProvider 在最外层，确保一开始就注入 CSS 变量，避免闪烁 */}
       <ThemeProvider>
         <MonitorProvider>
-          <AIAgentProvider>
-            <AuthProvider>
-              <ProgressProvider>
-                <PyodideProvider>
+          <PyodideProvider>
+            <AIAgentProvider>
+              <AuthProvider>
+                <ProgressProvider>
                   <HashRouter>
                     <App />
                   </HashRouter>
-                </PyodideProvider>
-              </ProgressProvider>
-            </AuthProvider>
-          </AIAgentProvider>
+                </ProgressProvider>
+              </AuthProvider>
+            </AIAgentProvider>
+          </PyodideProvider>
         </MonitorProvider>
       </ThemeProvider>
     </ErrorBoundary>

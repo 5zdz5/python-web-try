@@ -9,7 +9,7 @@
  */
 
 /** 优化领域 */
-export type OptDomain = 'performance' | 'ux' | 'content' | 'stability' | 'meta'
+export type OptDomain = 'performance' | 'ux' | 'content' | 'stability' | 'meta' | 'learning-outcome'
 
 /** Agent 运行状态 */
 export type AgentState = 'idle' | 'observing' | 'analyzing' | 'deciding' | 'acting' | 'verifying' | 'committed' | 'rolledback' | 'paused'
@@ -38,6 +38,22 @@ export interface ObservedMetrics {
   levelsWithContent: number      // 有内容的关卡数
   emptyLessons: number           // 空课程数
   brokenImages: number           // 损坏图片数
+  // 学习效果指标（pack28 超级进化：Pyodide 验证闭环）
+  testPassRate: number           // 测试通过率 0-1
+  commonErrorPatterns: number    // 常见错误模式数
+  retryAfterHintRate: number     // 提示后重试率 0-1
+}
+
+/** 学习效果指标（pack28 超级进化：基于 Pyodide 真实代码执行结果） */
+export interface LearningMetrics {
+  totalTests: number             // 总测试数
+  passedTests: number            // 通过数
+  failedTests: number            // 失败数
+  passRate: number               // 通过率 0-1
+  errorPatterns: { pattern: string; count: number }[]  // 错误模式分布
+  averageAttempts: number        // 平均尝试次数
+  lastValidationTime: string     // 最后验证时间 ISO
+  highFailureLevels: number[]    // 高失败率关卡 ID（失败率 >40%）
 }
 
 /** 健康度评分（每个领域 0-100） */
@@ -47,6 +63,7 @@ export interface HealthScores {
   content: number               // 内容质量分
   stability: number             // 稳定性分
   overall: number                // 综合分（加权平均）
+  learningOutcome?: number       // 学习效果分（pack28 新增，可选保持向后兼容）
 }
 
 /** 优化策略 */

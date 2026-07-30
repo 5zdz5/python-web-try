@@ -44,6 +44,7 @@ const DOMAIN_LABELS: Record<OptDomain, string> = {
   content: '内容',
   stability: '稳定性',
   meta: '元优化',
+  'learning-outcome': '学习效果',
 }
 
 const PARAM_LABELS: Record<keyof TunableParams, string> = {

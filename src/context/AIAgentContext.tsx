@@ -16,7 +16,7 @@ import type {
   AgentState, AgentConfig, TunableParams, ObservedMetrics, HealthScores,
   Iteration, Decision, AgentSnapshot, AgentSummary, IterationPhase,
   GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
-  WikiSyncState, WikiPushRecord,
+  WikiSyncState, WikiPushRecord, LearningMetrics,
 } from '../types/ai'
 import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
@@ -27,6 +27,8 @@ import {
 } from '../ai/wikiSync'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
+import { usePyodide } from './PyodideContext'
+import { challenges } from '../data/lessonContent'
 
 // ===== 常量 =====
 const AGENT_PARAMS_KEY = 'python-quest-agent-params'
@@ -48,7 +50,7 @@ const DEFAULT_CONFIG: AgentConfig = {
   rollbackThreshold: 5,          // 综合分下降 5 分触发回溯
   homepageProtected: true,
   maxIterations: 20,
-  enabledDomains: ['performance', 'ux', 'content', 'stability', 'meta'],
+  enabledDomains: ['performance', 'ux', 'content', 'stability', 'meta', 'learning-outcome'],
 }
 
 // ===== Context 类型 =====
@@ -95,6 +97,10 @@ interface AIAgentContextValue {
   wikiSync: WikiSyncState
   inspectAndPushToWiki: () => Promise<WikiPushRecord[]>
   updateWikiSyncConfig: (patch: Partial<Pick<WikiSyncState, 'autoPushEnabled'>>) => void
+
+  // pack28 超级进化：学习效果指标（Pyodide 验证闭环）
+  learningMetrics: LearningMetrics | null
+  runLearningValidation: () => Promise<LearningMetrics | null>
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -148,6 +154,7 @@ function makeEntry(type: OrchestrationEntryType, summary: string, detail?: strin
 // ===== Provider =====
 export function AIAgentProvider({ children }: { children: ReactNode }) {
   const monitor = useMonitor()
+  const pyodide = usePyodide()
 
   const [state, setState] = useState<AgentState>('idle')
   const [config, setConfig] = useState<AgentConfig>(() =>
@@ -175,6 +182,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     const stored = safeParse(safeGet(AGENT_WIKI_SYNC_KEY), DEFAULT_WIKI_SYNC)
     return { ...DEFAULT_WIKI_SYNC, ...stored }
   })
+  // pack28 超级进化：学习效果指标（Pyodide 验证闭环）
+  const [learningMetrics, setLearningMetrics] = useState<LearningMetrics | null>(null)
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -334,6 +343,87 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     }, config.iterationInterval)
   }, [config.iterationInterval])
 
+  // ===== pack28 超级进化：Pyodide 验证闭环 =====
+  // 调用 Pyodide 跑各关卡的挑战测试用例，采集真实学习效果指标
+  // 这是 Agent 从"性能优化器"升级为"学习效果优化器"的关键
+  const runLearningValidation = useCallback(async (): Promise<LearningMetrics | null> => {
+    if (!pyodide.pyodide) {
+      monitor.logEvent('warning', 'agent', '学习验证跳过：Pyodide 未就绪')
+      return null
+    }
+
+    let totalTests = 0
+    let passedTests = 0
+    let failedTests = 0
+    const errorPatternMap = new Map<string, number>()
+    const highFailureLevels: number[] = []
+    let totalAttempts = 0
+    let validatedLevels = 0
+
+    // 遍历所有关卡的挑战，跑初始代码 + 测试代码
+    // 限制最多验证 10 个关卡避免阻塞太久
+    const levelIds = Object.keys(challenges).map(Number).slice(0, 10)
+
+    for (const levelId of levelIds) {
+      const levelChallenges = challenges[levelId]
+      if (!levelChallenges || levelChallenges.length === 0) continue
+
+      let levelFailed = 0
+      let levelTotal = 0
+
+      for (const challenge of levelChallenges) {
+        // 只跑前 2 个挑战避免太慢
+        if (levelTotal >= 2) break
+        levelTotal++
+        totalTests++
+        totalAttempts++
+
+        try {
+          const result = await pyodide.runCodeWithTests(challenge.initialCode, challenge.testCode)
+          if (result.passed) {
+            passedTests++
+          } else {
+            failedTests++
+            levelFailed++
+            // 提取错误模式（取错误信息第一行或关键词）
+            const errMsg = result.error || '未知错误'
+            const pattern = errMsg.split('\n')[0].slice(0, 50) || 'unknown'
+            errorPatternMap.set(pattern, (errorPatternMap.get(pattern) || 0) + 1)
+          }
+        } catch {
+          failedTests++
+          levelFailed++
+          errorPatternMap.set('execution-error', (errorPatternMap.get('execution-error') || 0) + 1)
+        }
+      }
+
+      // 失败率 > 40% 标记为高失败率关卡
+      if (levelTotal > 0 && levelFailed / levelTotal > 0.4) {
+        highFailureLevels.push(levelId)
+      }
+      if (levelTotal > 0) validatedLevels++
+    }
+
+    const metrics: LearningMetrics = {
+      totalTests,
+      passedTests,
+      failedTests,
+      passRate: totalTests > 0 ? passedTests / totalTests : 0,
+      errorPatterns: Array.from(errorPatternMap.entries())
+        .map(([pattern, count]) => ({ pattern, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5),
+      averageAttempts: validatedLevels > 0 ? totalAttempts / validatedLevels : 0,
+      lastValidationTime: new Date().toISOString(),
+      highFailureLevels,
+    }
+
+    setLearningMetrics(metrics)
+    monitor.logEvent('info', 'agent',
+      `学习验证完成：通过率 ${(metrics.passRate * 100).toFixed(1)}%（${passedTests}/${totalTests}），高失败率关卡 ${highFailureLevels.length} 个`)
+    return metrics
+  }, [pyodide, monitor])
+
   // ===== 迭代循环核心 =====
   const runIteration = useCallback(async () => {
     if (state === 'paused' || state === 'idle') return
@@ -486,6 +576,14 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     await sleep(config.verificationPeriod)
 
     const metricsAfter = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
+    // pack28 超级进化：验证阶段接入 Pyodide 学习验证，用真实测试通过率替代纯 DOM 检测
+    if (config.enabledDomains.includes('learning-outcome')) {
+      const lm = await runLearningValidation()
+      if (lm) {
+        metricsAfter.testPassRate = lm.passRate
+        metricsAfter.commonErrorPatterns = lm.errorPatterns.length
+      }
+    }
     const scoresAfter = computeScores(metricsAfter)
     iteration.metricsAfter = metricsAfter
     iteration.scoresAfter = scoresAfter
@@ -537,7 +635,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
     // 安排下一轮（通过 ref 调用最新版本）
     scheduleNext()
-  }, [state, config, params, createSnapshot, restoreSnapshotInternal, markSnapshotStable, monitor, logDecision, scheduleNext])
+  }, [state, config, params, createSnapshot, restoreSnapshotInternal, markSnapshotStable, monitor, logDecision, scheduleNext, runLearningValidation])
 
   // 同步 ref，确保 scheduleNext 始终调用最新的 runIteration
   useEffect(() => {
@@ -906,6 +1004,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     clearAgentRuntimeCache, safeFullReset, agentCacheStats,
     // pack21: Wiki 同步能力暴露给 Agent
     wikiSync, inspectAndPushToWiki, updateWikiSyncConfig,
+    // pack28 超级进化：学习效果指标
+    learningMetrics, runLearningValidation,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>

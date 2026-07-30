@@ -158,6 +158,10 @@ export function collectMetrics(monitorErrorCount = 0, monitorCrashCount = 0): Ob
     levelsWithContent: content.levelsWithContent,
     emptyLessons: content.emptyLessons,
     brokenImages: content.brokenImages,
+    // pack28: 学习效果指标默认值（真实值由 AIAgentContext.runLearningValidation 填充）
+    testPassRate: 0,
+    commonErrorPatterns: 0,
+    retryAfterHintRate: 0,
   }
 }
 

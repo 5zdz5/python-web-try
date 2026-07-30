@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 27
+const PACK_BUILD = 28
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -2265,6 +2265,16 @@ const CONVERSATION_LOG = [
     summary: '用户原话："记录每一次对话，根据往昔对话进行重编码，经过每5轮对话进行一次滚动适配"。本次完成 META_RHYTHM 元节奏从"死常量"到"经验包一等公民"的接入。① types/experiencePack.ts 新增 MetaRhythmRule + MetaRhythm 两个接口，ExperiencePack 接口添加 metaRhythm: MetaRhythm 字段。② experiencePack.ts 将 META_RHYTHM 接入 generateExperiencePack() 返回值，并新增 SPLIT_EXPORT_META_RHYTHM 导出（recodeLoop 读 rollTrigger 判断滚动适配触发、Agent 推 Wiki 时一并写出）。③ tsc --noEmit 0 错误。④ conv-30 触发 rhythm-roll 滚动适配（30 mod 5 === 0）：本次属轻量滚动（接入型变更，无新可重编码点），getRecodeStats 维持 15 applied/5 pending，META_WORKFLOW 无需更新，AI_PROJECT_EXPERIENCE 追加 1 条"元逻辑接入"经验',
     filesModified: ['src/types/experiencePack.ts', 'src/ai/experiencePack.ts'],
     patternsAdded: ['元节奏接入模式（META_RHYTHM 四步打通：类型定义→接口字段→生成器接入→导出，让下一个 AI 读经验包 JSON 时能看到记录/重编码/滚动适配三条规则与触发条件）', '滚动适配触发判定模式（convId 末尾数字 mod 5 === 0 触发，conv-30 为 pack27 首次触发点，触发时执行全量重跑+统计+回写+检查 META_WORKFLOW+推 Wiki 五步）'],
+    date: '2026-07-31',
+  },
+  // —— pack28 新增：Agent 超级进化 — P0参数真实消费 + P1 Pyodide验证闭环 ——
+  // 用户原话："agent超级进化"
+  // conv-31 不触发 rhythm-roll（31 mod 5 !== 0），但记录 rhythm-record + rhythm-recode
+  {
+    id: 'conv-20260731-31',
+    summary: '用户原话"agent超级进化"。基于调研发现 Agent 架构完备但执行层空转（19个可调参数无人读取、Pyodide不接入验证、recodeLoop零调用、meta参数自指空转）。本次聚焦两个杠杆点落地：①P0参数真实消费 — 调整 main.tsx Provider 嵌套顺序（PyodideProvider 移到 AIAgentProvider 外层），CodeEditor 消费 params.debounceMs 做运行防抖，Agent 调 debounceMs 现在真实影响组件响应节奏。②P1 Pyodide验证闭环 — types/ai.ts 新增 learning-outcome 域 + LearningMetrics 接口 + ObservedMetrics 扩展 testPassRate/commonErrorPatterns/retryAfterHintRate 三字段；AIAgentContext 实现 runLearningValidation() 调用 Pyodide 跑各关卡挑战测试用例（限10关卡×2挑战），采集真实通过率/错误模式/高失败率关卡；迭代循环验证阶段接入学习验证，metricsAfter.testPassRate 填真实值；Optimizer 新增 scoreLearningOutcome() 评分函数 + 3条 learning-outcome 域策略（加强空关卡扫描/加快内容刷新/启用错误恢复），WEIGHTS 加入 learning-outcome:0.2；HealthScores 加 learningOutcome 可选字段；AIAgentPanel DOMAIN_LABELS 加学习效果映射。③tsc --noEmit 0错误（修复4个错误：AIAgentPanel缺域映射/useMemo未用/runLearningValidation声明顺序）。Agent 从"性能优化器"升级为"学习效果优化器"，验证阶段的 gain 终于基于真实学习数据',
+    filesModified: ['src/types/ai.ts', 'src/ai/Optimizer.ts', 'src/ai/metrics.ts', 'src/context/AIAgentContext.tsx', 'src/main.tsx', 'src/components/CodeEditor/CodeEditor.tsx', 'src/components/AIAgentPanel.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['Pyodide验证闭环模式（runLearningValidation调Pyodide跑关卡测试→采集通过率/错误模式/高失败率关卡→填metricsAfter→影响综合分→触发learning-outcome域策略，形成"学员代码执行结果→Agent决策→学习体验优化"飞轮）', '参数真实消费模式（组件useAIAgent读params→params值直接控制组件行为如debounceMs防抖，Agent优化不再是数字游戏而是真实可观测的应用行为变化）', 'Provider嵌套顺序调整模式（PyodideProvider移到AIAgentProvider外层，让AIAgentContext能usePyodide，打破"AIAgent想用Pyodide但Pyodide在内层"的架构约束）', '学习效果评分模式（scoreLearningOutcome=通过率60%+错误模式数20%+提示后重试率20%，教育产品核心指标从纯DOM检测升级为真实代码执行结果）'],
     date: '2026-07-31',
   },
 ]

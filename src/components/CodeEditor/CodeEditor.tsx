@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, KeyboardEvent } from 'react'
 import { usePyodide } from '../../context/PyodideContext'
+import { useAIAgent } from '../../context/AIAgentContext'
 import './CodeEditor.css'
 
 interface CodeEditorProps {
@@ -13,8 +14,8 @@ interface CodeEditorProps {
   placeholder?: string
 }
 
-function CodeEditor({ 
-  initialCode = '', 
+function CodeEditor({
+  initialCode = '',
   onRun,
   readOnly = false,
   height = '300px',
@@ -30,38 +31,46 @@ function CodeEditor({
   const [testResults, setTestResults] = useState<any[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { isLoading, runCode, runCodeWithTests } = usePyodide()
+  // pack28 超级进化：消费 Agent 的 debounceMs 参数，让 Agent 优化真正影响组件行为
+  const { params } = useAIAgent()
+  const debounceMs = params.debounceMs
 
   useEffect(() => {
     setCode(initialCode)
   }, [initialCode])
 
+  // pack28: 用 debounceMs 做运行防抖，Agent 调整 debounceMs 会真实影响组件响应节奏
+  const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handleRun = async () => {
     if (isLoading || isRunning) return
-    
-    setIsRunning(true)
-    setOutput('')
-    setError(null)
-    setTestResults([])
+    // 防抖：debounceMs 内重复点击只执行最后一次
+    if (runTimerRef.current) clearTimeout(runTimerRef.current)
+    runTimerRef.current = setTimeout(async () => {
+      setIsRunning(true)
+      setOutput('')
+      setError(null)
+      setTestResults([])
 
-    try {
-      if (testCode) {
-        const result = await runCodeWithTests(code, testCode)
-        setOutput(result.output)
-        setError(result.error)
-        setTestResults(result.testResults)
-        onTestResult?.(result.passed, result.testResults)
-        onRun?.(result.output, result.error)
-      } else {
-        const result = await runCode(code)
-        setOutput(result.output)
-        setError(result.error)
-        onRun?.(result.output, result.error)
+      try {
+        if (testCode) {
+          const result = await runCodeWithTests(code, testCode)
+          setOutput(result.output)
+          setError(result.error)
+          setTestResults(result.testResults)
+          onTestResult?.(result.passed, result.testResults)
+          onRun?.(result.output, result.error)
+        } else {
+          const result = await runCode(code)
+          setOutput(result.output)
+          setError(result.error)
+          onRun?.(result.output, result.error)
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '执行出错')
+      } finally {
+        setIsRunning(false)
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '执行出错')
-    } finally {
-      setIsRunning(false)
-    }
+    }, debounceMs)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
