@@ -5,7 +5,7 @@ import './InteractiveLesson.css'
 interface InteractiveStep {
   id: number
   title: string
-  type: 'explanation' | 'example' | 'practice' | 'quiz'
+  type: 'explanation' | 'example' | 'practice' | 'quiz' | 'exercise'
   content: string
   code?: string
   testCode?: string

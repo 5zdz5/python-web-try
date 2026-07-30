@@ -99,7 +99,7 @@ function VersionHistory({ onClose }: VersionHistoryProps) {
                   <div className="vh-detail-icon">🏆</div>
                   <div>
                     <span className="vh-detail-big">
-                      {Object.values(selectedData.levels || {}).filter((l: any) => l?.completed).length}
+                      {Object.values(selectedData.levels || {}).filter((l: { completed?: boolean }) => l?.completed).length}
                     </span>
                     <span className="vh-detail-small">完成关卡</span>
                   </div>
@@ -109,7 +109,7 @@ function VersionHistory({ onClose }: VersionHistoryProps) {
               <div className="vh-detail-section">
                 <h4>关卡完成情况</h4>
                 <div className="vh-levels-grid">
-                  {Object.entries(selectedData.levels || {}).map(([id, level]: [string, any]) => (
+                  {Object.entries(selectedData.levels || {}).map(([id, level]: [string, { completed?: boolean; unlocked?: boolean }]) => (
                     <div key={id} className={`vh-level-chip ${level.completed ? 'completed' : level.unlocked ? 'unlocked' : 'locked'}`}>
                       <span className="vh-level-num">第{id}关</span>
                       <span className="vh-level-status">
@@ -124,7 +124,7 @@ function VersionHistory({ onClose }: VersionHistoryProps) {
                 <div className="vh-detail-section">
                   <h4>最近活动 ({selectedData.activityLog.length} 条)</h4>
                   <div className="vh-activity-list">
-                    {selectedData.activityLog.slice(0, 8).map((act: any) => (
+                    {selectedData.activityLog.slice(0, 8).map((act: { id: string; icon: string; title: string; timestamp: string }) => (
                       <div key={act.id} className="vh-activity-item">
                         <span className="vh-activity-icon">{act.icon}</span>
                         <div className="vh-activity-info">

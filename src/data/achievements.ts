@@ -224,7 +224,18 @@ export const rarityConfig: Record<string, { label: string; color: string; bg: st
   legendary: { label: '传说', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' }
 }
 
-export const leaderboardMockData = [
+export interface LeaderboardEntry {
+  rank: number
+  name: string
+  avatar: string
+  xp: number
+  streak: number
+  levels: number
+  color: string
+  isMe?: boolean
+}
+
+export const leaderboardMockData: LeaderboardEntry[] = [
   { rank: 1, name: 'PythonMaster', avatar: 'PM', xp: 2850, streak: 45, levels: 9, color: '#f59e0b' },
   { rank: 2, name: 'CodeWizard', avatar: 'CW', xp: 2340, streak: 32, levels: 8, color: '#a855f7' },
   { rank: 3, name: 'DataDragon', avatar: 'DD', xp: 1980, streak: 28, levels: 8, color: '#3b82f6' },

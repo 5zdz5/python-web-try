@@ -47,7 +47,8 @@ function LearningPath() {
       ...lp,
       lessonCount,
       challengeCount,
-      total: lessonCount + challengeCount
+      total: lessonCount + challengeCount,
+      unlocked: lv.status !== 'locked'
     }
   })
 

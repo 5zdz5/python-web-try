@@ -11,7 +11,7 @@
 import { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react'
 import type {
   MonitorGroup, MonitorReport, MonitorSnapshot, MonitorEvent,
-  PatrolState, PatrolConfig, PatrolStep, MonitorSummary
+  PatrolState, PatrolStep, MonitorSummary
 } from '../types/monitor'
 
 // ===== 常量 =====
@@ -151,12 +151,16 @@ export function MonitorProvider({ children }: { children: ReactNode }) {
 
   // ===== 创建快照（必须在全局错误捕获 useEffect 之前定义，避免 TDZ） =====
   const createSnapshot = useCallback((): MonitorSnapshot => {
-    const allKeys = Object.keys(localStorage).filter(k =>
-      k.startsWith('python-quest') || k.startsWith('monitor')
-    )
-    const data: Record<string, string> = {}
-    for (const key of allKeys) {
-      data[key] = localStorage.getItem(key) || ''
+    let data: Record<string, string> = {}
+    try {
+      const allKeys = Object.keys(localStorage).filter(k =>
+        k.startsWith('python-quest') || k.startsWith('monitor')
+      )
+      for (const key of allKeys) {
+        data[key] = localStorage.getItem(key) || ''
+      }
+    } catch {
+      /* localStorage 不可用，返回空快照 */
     }
     const snapshot: MonitorSnapshot = {
       id: `snap-${Date.now()}`,

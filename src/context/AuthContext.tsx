@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import {
   loadAuth, saveAuth, clearAuth, verifyToken, findOrCreateGist,
-  testGistAccess, GithubUser, AuthState
+  testGistAccess, AuthState
 } from '../config/github'
 
 interface AuthContextType {

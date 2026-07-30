@@ -91,7 +91,7 @@ function ScoreBar({ label, score, color }: { label: string; score: number; color
   )
 }
 
-function ParamRow({ name, value }: { name: keyof TunableParams; value: any }) {
+function ParamRow({ name, value }: { name: keyof TunableParams; value: string | number | boolean }) {
   const display = typeof value === 'boolean' ? (value ? '✓ 开' : '✗ 关') : value
   return (
     <div className="aap-param-row">

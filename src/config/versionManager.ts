@@ -166,7 +166,16 @@ export function getPreviousVersionStorageKey(): string | null {
 }
 
 /** 获取指定版本的进度数据（只读） */
-export function getVersionProgress(version: string): any | null {
+/** 版本进度数据结构 */
+export interface VersionProgressData {
+  totalXP?: number
+  studyDays?: string[]
+  levels?: Record<string, { completed?: boolean; unlocked?: boolean; lessons?: Record<string, { completed?: boolean }>; challenges?: Record<string, { completed?: boolean }> }>
+  activityLog?: { id: string; icon: string; title: string; timestamp: string }[]
+  [key: string]: unknown
+}
+
+export function getVersionProgress(version: string): VersionProgressData | null {
   const registry = getVersionRegistry()
   const info = registry.find(v => v.version === version)
   if (!info) return null
@@ -193,13 +202,13 @@ export function getAllVersionSnapshots(): VersionSnapshot[] {
         snapshotDate: info.date
       }
     }
-    const levels = data.levels || {}
-    const completedLevels = Object.values(levels).filter((l: any) => l?.completed).length
+    const levels = (data.levels as Record<string, { completed?: boolean; lessons?: Record<string, { completed?: boolean }>; challenges?: Record<string, { completed?: boolean }> }>) || {}
+    const completedLevels = Object.values(levels).filter(l => l?.completed).length
     const completedLessons = Object.values(levels).reduce(
-      (sum: number, l: any) => sum + Object.values(l?.lessons || {}).filter((x: any) => x?.completed).length, 0
+      (sum, l) => sum + Object.values(l?.lessons || {}).filter(x => x?.completed).length, 0
     )
     const completedChallenges = Object.values(levels).reduce(
-      (sum: number, l: any) => sum + Object.values(l?.challenges || {}).filter((x: any) => x?.completed).length, 0
+      (sum, l) => sum + Object.values(l?.challenges || {}).filter(x => x?.completed).length, 0
     )
     return {
       version: info.version,

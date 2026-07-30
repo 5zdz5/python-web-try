@@ -615,7 +615,6 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     let newParams = { ...params }
     const appliedNames: string[] = []
     for (const s of strategies) {
-      const before = { ...newParams }
       newParams = s.apply(newParams)
       newEntries.push(makeEntry(
         'agent-optimize',
@@ -738,7 +737,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       timerRef.current = null
     }
     // 2. 再调 stopAgent 做状态同步（幂等）
-    stopAgentRef.current?.()
+    stopAgent()
     // 3. 清缓存
     clearAgentRuntimeCache()
     // 4. 强制重置所有状态

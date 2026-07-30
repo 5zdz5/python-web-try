@@ -93,15 +93,15 @@ function Leaderboard() {
         <div className="lb-filters">
           <div className="filter-group">
             <span className="filter-label">时间:</span>
-            {[
-              { v: 'all', l: '总榜' },
-              { v: 'month', l: '本月' },
-              { v: 'week', l: '本周' }
-            ].map(p => (
+            {([
+              { v: 'all' as const, l: '总榜' },
+              { v: 'month' as const, l: '本月' },
+              { v: 'week' as const, l: '本周' }
+            ]).map(p => (
               <button
                 key={p.v}
                 className={`filter-btn ${period === p.v ? 'active' : ''}`}
-                onClick={() => setPeriod(p.v as any)}
+                onClick={() => setPeriod(p.v)}
               >
                 {p.l}
               </button>

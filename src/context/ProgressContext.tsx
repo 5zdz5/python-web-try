@@ -188,37 +188,39 @@ function ensureAllLevelsExist(levels: Record<number, LevelProgress> | undefined)
 /**
  * 迭代适配：给整个 UserProgress 做 levels 补全（含字段结构兼容）
  */
-function sanitizeProgress(p: any): UserProgress {
+function sanitizeProgress(p: unknown): UserProgress {
   if (!p || typeof p !== 'object') {
     return { ...defaultProgress, levels: buildDefaultLevels() }
   }
+  const obj = p as Record<string, unknown>
   return {
     ...defaultProgress,
-    ...p,
-    levels: ensureAllLevelsExist(p.levels)
+    ...(obj as Partial<UserProgress>),
+    levels: ensureAllLevelsExist(obj.levels as UserProgress['levels'])
   }
 }
 
-function migrateProgress(saved: any): UserProgress {
+function migrateProgress(saved: unknown): UserProgress {
   if (!saved || typeof saved !== 'object') return { ...defaultProgress, levels: buildDefaultLevels() }
+  const obj = saved as Record<string, unknown>
   const mergedLevels = ensureAllLevelsExist({
     ...buildDefaultLevels(),
-    ...(saved.levels || {})
+    ...((obj.levels as Record<string, unknown>) || {})
   })
   return {
     ...defaultProgress,
-    ...saved,
+    ...(obj as Partial<UserProgress>),
     levels: mergedLevels,
-    unlockedAchievements: Array.isArray(saved.unlockedAchievements)
-      ? saved.unlockedAchievements
+    unlockedAchievements: Array.isArray(obj.unlockedAchievements)
+      ? obj.unlockedAchievements as string[]
       : defaultProgress.unlockedAchievements,
-    claimedAchievements: Array.isArray(saved.claimedAchievements)
-      ? saved.claimedAchievements
+    claimedAchievements: Array.isArray(obj.claimedAchievements)
+      ? obj.claimedAchievements as string[]
       : defaultProgress.claimedAchievements,
-    activityLog: Array.isArray(saved.activityLog) && saved.activityLog.length > 0
-      ? saved.activityLog
+    activityLog: Array.isArray(obj.activityLog) && obj.activityLog.length > 0
+      ? obj.activityLog
       : defaultProgress.activityLog,
-    studyDays: Array.isArray(saved.studyDays) ? saved.studyDays : defaultProgress.studyDays
+    studyDays: Array.isArray(obj.studyDays) ? obj.studyDays : defaultProgress.studyDays
   }
 }
 

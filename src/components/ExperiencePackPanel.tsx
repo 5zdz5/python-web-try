@@ -9,7 +9,7 @@
  *   5. 扩展路线图展示
  */
 import { useMemo, useState } from 'react'
-import type { ExperiencePack, ModuleCategory } from '../types/experiencePack'
+import type { ExperiencePack, ModuleCategory, ModuleInfo } from '../types/experiencePack'
 import { generateExperiencePack, downloadExperiencePack, estimatePackSizeKb, PACK_VERSION } from '../ai/experiencePack'
 import './ExperiencePackPanel.css'
 
@@ -39,7 +39,7 @@ function StatCard({ icon, label, value, hint }: { icon: string; label: string; v
   )
 }
 
-function ModuleCard({ mod }: { mod: any }) {
+function ModuleCard({ mod }: { mod: ModuleInfo }) {
   const [expanded, setExpanded] = useState(false)
   const style = CATEGORY_LABELS[mod.category] || CATEGORY_LABELS.component
   return (
@@ -147,6 +147,7 @@ export default function ExperiencePackPanel() {
   }, [pack.lessons, lessonQuery])
 
   const [activeTab, setActiveTab] = useState<'overview' | 'modules' | 'lessons' | 'roadmap' | 'conventions' | 'patterns'>('overview')
+  type TabId = typeof activeTab
 
   const handleDownload = () => {
     downloadExperiencePack(pack)
@@ -207,7 +208,7 @@ export default function ExperiencePackPanel() {
           <button
             key={id}
             className={`ep-tab ${activeTab === id ? 'active' : ''}`}
-            onClick={() => setActiveTab(id as any)}
+            onClick={() => setActiveTab(id as TabId)}
           >
             {label}
           </button>

@@ -89,6 +89,7 @@ export interface FileTreeNode {
 /** 编码约定 */
 export interface CodingConvention {
   category: 'naming' | 'structure' | 'pattern' | 'state' | 'style' | 'import'
+    | 'anti-slop' | 'typography' | 'color' | 'meta-workflow' | 'karpathy'
   rule: string
   description: string
   // 正例/反例
@@ -102,6 +103,7 @@ export interface CodingConvention {
 export interface DesignPattern {
   name: string
   category: 'context' | 'component' | 'state' | 'data' | 'error-handling' | 'snapshot'
+    | 'external-skill' | 'monitor' | 'design' | 'content' | 'karpathy'
   filePattern: string             // 哪类文件使用
   where: string                   // 示例位置
   description: string
@@ -209,6 +211,8 @@ export interface ExperiencePack {
     impeccableWorkflow: string
     // pack5 新增：元工作流
     readExecuteWriteWorkflow: string
+    // pack6 新增：Karpathy 四原则工作流
+    karpathyWorkflow: string
   }
   // pack5 新增：对话历史归档（每次对话追加一条，包括纯答疑）
   conversationLog: ConversationLogEntry[]

@@ -62,7 +62,7 @@ export { PyodideProvider } from './context/PyodideContext'
 //  6. COMPONENTS 可复用组件层（被 pages 消费）
 // ============================================================
 // 6.1 原子组件
-export { Button } from './components/Button'
+export { default as Button } from './components/Button'
 // 6.2 功能组件
 export { default as Footer } from './components/Footer/Footer'
 export { default as Navbar } from './components/Navbar/Navbar'

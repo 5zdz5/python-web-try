@@ -1,11 +1,13 @@
 export interface InteractiveStep {
   id: number
   title: string
-  type: 'explanation' | 'example' | 'practice' | 'quiz'
+  type: 'explanation' | 'example' | 'practice' | 'quiz' | 'exercise'
   content: string
   code?: string
   testCode?: string
   hint?: string
+  answer?: string
+  explanation?: string
   options?: string[]
   correctAnswer?: number
 }

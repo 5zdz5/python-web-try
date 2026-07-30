@@ -121,7 +121,7 @@
   border: none;
   outline: none;
   resize: none;
-  color: #e2e8f0;
+  color: var(--color-text-primary);
   font-family: inherit;
   font-size: 13px;
   line-height: 1.6;
@@ -188,13 +188,13 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 1.6;
-  color: #e2e8f0;
+  color: var(--color-text-primary);
   white-space: pre-wrap;
   word-break: break-all;
 }
 
 .error-text {
-  color: #f87171 !important;
+  color: var(--color-error) !important;
 }
 
 .output-placeholder {

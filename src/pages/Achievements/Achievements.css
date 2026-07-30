@@ -30,7 +30,7 @@
 .achievements-decoration .deco-2 {
   width: 350px;
   height: 350px;
-  background: #a855f7;
+  background: var(--color-accent-secondary);
   bottom: -100px;
   left: -100px;
   box-shadow: 0 0 120px rgba(168, 85, 247, 0.4);
@@ -315,7 +315,7 @@
   clip-path: var(--zzz-clip-path-sm);
   font-family: var(--font-mono);
   font-size: 10px;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;

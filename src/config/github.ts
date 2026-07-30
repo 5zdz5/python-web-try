@@ -43,16 +43,24 @@ export function loadAuth(): AuthState | null {
 }
 
 export function saveAuth(state: AuthState) {
-  localStorage.setItem(TOKEN_KEY, state.token)
-  localStorage.setItem(USER_KEY, JSON.stringify(state.user))
-  if (state.gistId) localStorage.setItem(GIST_ID_KEY, state.gistId)
-  else localStorage.removeItem(GIST_ID_KEY)
+  try {
+    localStorage.setItem(TOKEN_KEY, state.token)
+    localStorage.setItem(USER_KEY, JSON.stringify(state.user))
+    if (state.gistId) localStorage.setItem(GIST_ID_KEY, state.gistId)
+    else localStorage.removeItem(GIST_ID_KEY)
+  } catch {
+    /* localStorage 不可用或已满，静默降级 */
+  }
 }
 
 export function clearAuth() {
-  localStorage.removeItem(TOKEN_KEY)
-  localStorage.removeItem(USER_KEY)
-  localStorage.removeItem(GIST_ID_KEY)
+  try {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
+    localStorage.removeItem(GIST_ID_KEY)
+  } catch {
+    /* localStorage 不可用，静默降级 */
+  }
 }
 
 export class GithubApiError extends Error {

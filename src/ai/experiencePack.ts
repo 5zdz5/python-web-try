@@ -17,14 +17,14 @@
 import type {
   ExperiencePack, ModuleInfo, CodingConvention, DesignPattern,
   LessonLearned, ReusableComponent, ExtensionRoadmap, BuildConstraints,
-  ArchitectureOverview, FileTreeNode, ModuleCategory,
+  ArchitectureOverview, FileTreeNode,
 } from '../types/experiencePack'
 import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '../config/versionManager'
 
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 6
+const PACK_BUILD = 7
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -1052,6 +1052,7 @@ const COMPONENTS: ReusableComponent[] = [
     props: ['variant', 'size', 'disabled', 'onClick', 'children'],
     purpose: '原子按钮组件，统一风格',
     whenToUse: '所有按钮',
+    usageHint: '<Button variant="primary" size="md" onClick={handler}>文字</Button>',
   },
 ]
 
@@ -1531,6 +1532,14 @@ const CONVERSATION_LOG = [
     summary: '将 Andrej Karpathy Skill 四条核心编码原则写入经验包 pack6，并封装为 THINK→DIFF→RUN→POLISH 四步工作流 Prompt，后续所有对话按此工作流执行',
     filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts', 'project_memory.md'],
     patternsAdded: ['Karpathy 原则1 先想清楚再动手', 'Karpathy 原则2 小步diff不超200行', 'Karpathy 原则3 每步必跑build', 'Karpathy 原则4 童子军准则', 'Karpathy 四步编码流水线模式', 'karpathyWorkflow 工作流Prompt模板'],
+    date: '2026-07-30',
+  },
+  // —— pack7 新增：20轮代码筛查与迭代 ——
+  {
+    id: 'conv-20260730-11',
+    summary: '按 Karpathy 四步流水线对全项目进行20轮筛查迭代：类型安全(60→0错误)、any清理(40处→约15处可接受的API/性能相关)、CSS硬编码色(33处→CSS变量)、localStorage保护(3处加try-catch)、事件监听器(5个全有cleanup)、监测覆盖(7/7页面)、ErrorBoundary(全app)、XSS(静态内容低风险)',
+    filesModified: ['src/types/experiencePack.ts', 'src/ai/experiencePack.ts', 'src/data/lessonContent.ts', 'src/data/achievements.ts', 'src/context/AIAgentContext.tsx', 'src/context/AuthContext.tsx', 'src/context/MonitorContext.tsx', 'src/context/ProgressContext.tsx', 'src/config/github.ts', 'src/config/versionManager.ts', 'src/components/ExperiencePackPanel.tsx', 'src/components/AIAgentPanel.tsx', 'src/components/VersionHistory/VersionHistory.tsx', 'src/components/InteractiveLesson/InteractiveLesson.tsx', 'src/components/ChallengeArena/ChallengeArena.css', 'src/components/PatrolButton.css', 'src/components/ExperiencePackPanel.css', 'src/pages/Achievements/Achievements.css', 'src/pages/Leaderboard/Leaderboard.css', 'src/components/LoginModal/LoginModal.css', 'src/components/CodeEditor/CodeEditor.css', 'src/index.ts', 'src/pages/LearningPath/LearningPath.tsx', 'src/pages/Leaderboard/Leaderboard.tsx', 'src/data/projectDocs.ts'],
+    patternsAdded: ['VersionProgressData 类型接口', 'LeaderboardEntry 类型接口', 'sanitizeProgress/migrateProgress 用 unknown 替代 any', 'CSS 硬编码色→CSS变量 33处', 'saveAuth/clearAuth/createSnapshot try-catch 保护', 'InteractiveStep 加 exercise/answer/explanation 类型', 'ConventionCategory 扩展 anti-slop/typography/color/meta-workflow/karpathy', 'DesignPatternCategory 扩展 external-skill/monitor/design/content/karpathy'],
     date: '2026-07-30',
   },
 ]
