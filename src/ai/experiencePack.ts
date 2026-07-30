@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 19
+const PACK_BUILD = 20
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -650,12 +650,19 @@ const CONVENTIONS: CodingConvention[] = [
     badExample: '改 Optimizer.ts → 反复修一个 TS 错误 → 30 分钟还没解决 → 还在硬刚 → 早就该 revert 重规划',
     consequence: '无时间预算 → agent 在错误方向上死循环 → 烧时间烧 token → 用户体验灾难',
   },
-  // —— pack11 新增：对话后自动推送规则（用户要求"每次对话都推"） ——
-  { category: 'meta-workflow', rule: '每轮对话 POLISH 阶段完成后，必须自动 git push origin master 将本次 commit 推送到远程，触发 GitHub Pages 重建',
-    description: '用户原话："每次对话都推"。即在 Karpathy 四步流水线 POLISH 阶段写完经验包 + git commit 之后，紧接着执行 git push origin master，不要等待用户额外说"推送"。推送目标：远程 origin/master 分支（对应仓库 5zdz5/python-web-try）。推送完成后在给用户的 5 句话总结里写明"已推送"三个字 + commit range（如 198a46e..9e0eb65）+ GitHub Pages 重建提示（1-3分钟后上线）。用户未说明"不要推送"时一律默认推送；仅当用户明确说"本地调试先别推"或"等会儿再推"时才跳过推送步骤。',
-    goodExample: '对话 POLISH 阶段完成 → git commit → git push origin master → 总结写"已推送 9e0eb65..xxxxxx 到 master，GitHub Pages 1-3分钟后上线"',
-    badExample: '用户说"改个bug" → 改完代码 → commit → 告诉用户"要推送吗" → 等用户说推才推（违反默认推送规则）',
-    consequence: '不推送 → 用户刷新线上页面看不到最新效果 → 用户以为没改 → 重复劳动；默认推送让用户零等待立即看到变化',
+  // —— pack11 新增：对话后自动推送规则（用户要求"每次对话都推"，pack20 升级为"一致推送不准遗漏"） ——
+  { category: 'meta-workflow', rule: '每次 git commit 之后必须立即 git push origin master，无例外、不准遗漏（用户 pack20 原话："以后一致推送，不准遗漏"）',
+    description: '本规则由 pack11"每次对话都推"在 pack20 升级而来，取消了 pack11 中"用户明确说不推才跳过"的例外条款。现规则：① 一致性 — 只要产生了 git commit，就必须紧接着 git push origin master，无一例外；② 不准遗漏 — 禁止"commit 完先不推，等会儿再推"的延迟推送，禁止"用户没说推所以不推"的被动推送，禁止"忘了推"的遗漏推送；③ 用户主权保留 — 若用户本轮明确说"先别 commit / 本地调试不 commit"，则不执行 commit（因为一旦 commit 就必须 push），但用户不得要求"commit 了但不推"这种矛盾状态；④ 推送目标 origin/master（仓库 5zdz5/python-web-try），触发 GitHub Pages 重建；⑤ 推送完成后在给用户的 5 句话总结里写明"已推送"+ commit range（如 198a46e..9e0eb65）+ GitHub Pages 重建提示（1-3分钟后上线）。本规则与 pack20 新增的"推送前自检清单"配合使用。',
+    goodExample: 'git commit 完成 → 立即 git push origin master → 总结写"已推送 7a593f0..xxxxxx 到 master，GitHub Pages 1-3分钟后上线"',
+    badExample: '① commit 完不推，等用户问"推送了吗"才推；② 用户说"提交"但没说"推送"，所以只 commit 不 push（违反一致推送）；③ 忘了推，导致 origin/master 落后本地 1 个 commit',
+    consequence: '不一致推送 → origin/master 与本地脱节 → 用户在另一台设备看不到最新代码 → GitHub Pages 线上版本滞后 → 用户以为没改 → 重复劳动；遗漏推送破坏"本地=远程"的不变量，长期累积导致推送冲突和回滚困难',
+  },
+  // —— pack20 新增：推送前自检清单（用户要求"以后一致推送，不准遗漏，编写一套规则写入源码"） ——
+  { category: 'meta-workflow', rule: '推送前自检清单 4 项 — git push 前必须依次确认：① 工作树 clean（git status 无未提交）② 本地领先 origin 恰好 N≥1 个 commit ③ push 目标是 master 分支 ④ 推送后立即验证 origin/master 与本地 HEAD 一致',
+    description: '用户 pack20 原话："以后一致推送，不准遗漏，编写一套规则，写入源码"。为保证"一致推送不准遗漏"的可执行性，制定 4 项推送前自检清单：① 工作树 clean — git status 必须显示 nothing to commit, working tree clean，若有未暂存/未追踪文件必须先 add+commit 或确认无需提交后再 push；② 本地领先 origin — git status 必须显示 ahead of origin/master by N commit(s)（N≥1），若显示 up to date 说明无新 commit 可推（可能是空提交或已推过），若显示 behind 说明远程有新提交需要先 pull --rebase；③ push 目标 master — push 命令必须指定 origin master（或 origin HEAD），禁止 push 到其他分支以免误改 PR 分支；④ 推送后验证 — push 完成后立即 git log origin/master -n 1 确认远端 HEAD 与本地 HEAD hash 一致，若不一致说明推送失败需重试。自检清单与 pack11 升级版"一致推送"规则共同构成"推送铁律"，违反任意一项视为推送流程失败。',
+    goodExample: 'git commit → git status(确认 clean + ahead by 1) → git push origin master → git log origin/master -n 1(确认 hash=本地 HEAD) → 总结写"已推送"',
+    badExample: '① commit 后直接 push 不看 status → 工作树有未追踪文件遗漏提交；② push 时不指定分支 → 误推到其他分支；③ push 完不验证 → 推送静默失败但以为成功',
+    consequence: '不自检 → 推送流程易在"工作树未 clean / 推到错分支 / 静默失败"三个环节出错 → 远程与本地脱节 → 后续 pull 冲突 → 团队协作灾难',
   },
   // —— pack12 新增：对话七步闭环规则（用户要求"回顾对话+适配+应用skill+局部监测对接agent+省察遗漏+与web无缝衔接"） ——
   { category: 'meta-workflow', rule: '对话七步闭环：每轮对话必须依次执行 ① 回顾历史对话 ② 逐条适配 ③ 应用 Skill ④ 设置代码局部监测 ⑤ 对接 Agent 运行 ⑥ 省察遗漏 ⑦ 与当前 Web 内容无缝衔接',
@@ -1947,6 +1954,22 @@ const CONVERSATION_LOG = [
     summary: '用户要求"编写一个蚕食按钮，根据 scrapling 对网站进行内容爬取，将爬取内容关卡化处理使用户易于学习"。新增 3 个文件落地法则 1-8 全链路：① src/data/nibbleLevels.ts 数据层（fetchHtml 多 CORS 代理 fallback：allorigins/corsproxy/thingproxy + 15s 超时；nibbleToLevels h2/h3 标题分割算法；NibbleLevel/NibbleStep/NibbleChallenge 三层类型）② src/components/NibbleButton/NibbleButton.tsx 组件层（监测主动注册 + URL 输入 + fetching/parsing/done/error 五态机 + 像素风 3D 按钮）③ src/pages/NibbleLevels/NibbleLevels.tsx 页面层（双栏布局 + 步骤指示器 + 挑战展示）。法则 6 三注册完成：App.tsx 路由 /nibble、Navbar 导航"蚕食爬取"、projectDocs.ts FILE_TREE 追加节点。法则 5 主题双适配：CSS 同时支持 [data-theme=pixel-spectrum] 彩虹流动 + [data-theme=pixel-crow] 乌鸦虹彩。PACK_BUILD 17→18',
     filesModified: ['src/data/nibbleLevels.ts', 'src/components/NibbleButton/NibbleButton.tsx', 'src/components/NibbleButton/NibbleButton.css', 'src/pages/NibbleLevels/NibbleLevels.tsx', 'src/pages/NibbleLevels/NibbleLevels.css', 'src/App.tsx', 'src/components/Navbar/Navbar.tsx', 'src/data/projectDocs.ts', 'src/ai/experiencePack.ts'],
     patternsAdded: ['蚕食爬取架构模式（数据层 fetchHtml+关卡化 / 组件层五态机+监测注册 / 页面层双栏布局，三层解耦）', '多 CORS 代理 fallback 模式（PROXIES 数组 + for 循环 + try-catch + 15s 超时，单代理失效自动切换）', 'h2/h3 标题分割关卡化算法（DOMParser 解析 + querySelectorAll 遍历 + 按 heading 切块 + 提取 p/code/ul 为步骤）', '法则 5 主题双适配实战（[data-theme=pixel-spectrum] 彩虹流动 + [data-theme=pixel-crow] 乌鸦虹彩，单 CSS 文件双选择器）'],
+    date: '2026-07-30',
+  },
+  // —— pack19 新增：Skill 实验室 + taste-skill/impeccable 审美落地（补录，原 projectDocs 已记 conv-22 但经验包漏录） ——
+  {
+    id: 'conv-20260730-22',
+    summary: '用户批评"重构UI与界面时完全没有调用 taste skill 与另一个，审美低下"，要求"创建 skill 察看按钮，可让 skill 真正被使用"。新增 SkillViewer 组件（双栏实验室面板：左列表+右详情，每个 Skill 展示核心规则含正反例+调用命令一键复制+调用示例+Web入口跳转）+ SkillLab 页面壳。扩展 installedSkills.ts：InstalledSkill 接口新增 rules/invokeCommand/invokeExample 三字段，8 个 Skill 全部补全核心规则（共 18 条，含 taste-skill 三旋钮 anti-slop/字体反默认/LILA + impeccable 四规则 no-card-in-card/radius-unified/spacing-scale/console-leftover）。严格应用 taste-skill：间距 8 倍数、字体 var(--font-mono) JetBrains Mono、颜色 var(--color-accent-*) 非 AI 紫蓝。严格应用 impeccable：用 .skill-section 分隔不嵌套 .card、圆角 var(--radius-*)、无 console 残留。法则 6 三注册：App.tsx 路由 /skills、Navbar 导航"Skill 实验室"、projectDocs.ts FILE_TREE 追加节点。PACK_BUILD 18→19，DOC_VERSION v2.8→v2.9',
+    filesModified: ['src/components/SkillViewer/SkillViewer.tsx', 'src/components/SkillViewer/SkillViewer.css', 'src/pages/SkillLab/SkillLab.tsx', 'src/pages/SkillLab/SkillLab.css', 'src/pages/SkillLab/index.ts', 'src/config/installedSkills.ts', 'src/App.tsx', 'src/components/Navbar/Navbar.tsx', 'src/data/projectDocs.ts', 'src/ai/experiencePack.ts'],
+    patternsAdded: ['Skill 注册表 rules/invokeCommand/invokeExample 三字段模式（让 skill 不只是名字，而是可被查阅和应用的规则集）', 'SkillViewer 双栏面板模式（左列表+右详情+分类筛选+调用命令一键复制+Web入口跳转）', 'taste-skill 三旋钮实战（anti-slop 间距显式声明/字体反默认 JetBrains Mono/LILA 反 AI 紫蓝用 var(--color-accent-*)）', 'impeccable 四规则实战（.skill-section 分隔不嵌套 .card / var(--radius-*) / 8 倍数 / 无 console）'],
+    date: '2026-07-30',
+  },
+  // —— pack20 新增：一致推送铁律（用户要求"以后一致推送，不准遗漏，编写一套规则写入源码"） ——
+  {
+    id: 'conv-20260730-23',
+    summary: '用户原话："以后一致推送，不准遗漏，编写一套规则，写入源码"。本次会话先提交 pack19（commit 7a593f0，30 files +6444/-32），用户追问"提交"后已 commit 但未 push（违反 pack11 原规则因有"用户说不推才跳过"例外）。用户遂要求升级推送规则为"一致推送不准遗漏"，取消一切例外。编写 2 条 meta-workflow 编码约定写入经验包：① pack11 升级版"一致推送规则"（commit 后必须立即 push，无例外，禁止延迟/被动/遗漏推送，用户主权保留为"不 commit"而非"commit 了不推"）② pack20 新增"推送前自检清单 4 项"（工作树 clean / 本地领先 origin N≥1 / push 目标 master / 推送后验证 origin/master HEAD=本地 HEAD）。同时补录 conv-22（pack19 经验包漏录的对话归档）。PACK_BUILD 19→20，DOC_VERSION v2.9→v3.0',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['一致推送铁律（commit 后必须立即 push，无例外不准遗漏，取消"用户说不推才跳过"例外条款）', '推送前自检清单 4 项（工作树 clean / 本地领先 origin N≥1 / push 目标 master / 推送后验证 HEAD 一致）', '用户主权保留边界（用户可说"不 commit"，但不得要求"commit 了不推"的矛盾状态）'],
     date: '2026-07-30',
   },
 ]
