@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 24
+const PACK_BUILD = 25
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -1486,14 +1486,132 @@ const BUILD: BuildConstraints = {
 
 // ========================= 9. 给新模型的快速上手指南 =========================
 const QUICKSTART_LLM = [
-  'Step 0. 【强制】第一步必须读取经验包：调用 generateExperiencePack() 或打开 /source → 📦 经验包 Tab，读 overview + modules，搞清楚哪些文件管什么',
-  'Step 1. 根据你要做的事，在 modules 里找到要改的模块，看 extensionPoints 和 pitfalls',
-  'Step 2. 在 lessons 里搜一下有没有类似的踩坑，避免重蹈覆辙',
-  'Step 3. 改代码遵循 conventions（特别注意：每次开发前必须读经验包，每次优化后必须写入经验包）',
-  'Step 4. 如果是数据内容变更（新增关卡/卡片/文档），只改 data/ 目录，UI 会自动渲染；不要改 UI',
-  'Step 5. 如果是架构级变更，改完后更新 projectDocs.ts DOC_CHANGES + DOC_VERSION，并同时改 versionManager.ts CURRENT_VERSION',
-  'Step 6. 本地验证：npm run build 通过 → npm run dev 打开 4 个关键页面（Home/LevelMap/LevelDetail/Monitor）无白屏无报错',
-  'Step 7. 【强制】开发完成后，在仪表盘 📦 Experience Pack Tab 点击"下载经验包 JSON"，或在 AI Agent Tab 点击"🌐 全局调配"按钮自动写入经验包，作为下一个模型的接力棒',
+  'Step 0. 【强制·元工作流】第一步必须读 META_WORKFLOW（7 步循环：读指令→读经验包→工作→写对话→写更新→思维归纳→Wiki 推送），每次对话从 Step 1 开始到 Step 7 闭环',
+  'Step 0.5. 【强制】读 AI_PROJECT_EXPERIENCE（本 AI 在本项目积累的 11 条经验，全部围绕"减少无效代码"），避免重复试错',
+  'Step 1. 【强制】读经验包：调用 generateExperiencePack() 或打开 /source → 📦 经验包 Tab，读 overview + modules，搞清楚哪些文件管什么',
+  'Step 2. 根据你要做的事，在 modules 里找到要改的模块，看 extensionPoints 和 pitfalls',
+  'Step 3. 在 lessons 里搜一下有没有类似的踩坑，避免重蹈覆辙',
+  'Step 4. 改代码遵循 conventions（特别注意：每次开发前必须读经验包，每次优化后必须写入经验包）',
+  'Step 5. 如果是数据内容变更（新增关卡/卡片/文档），只改 data/ 目录，UI 会自动渲染；不要改 UI',
+  'Step 6. 如果是架构级变更，改完后更新 projectDocs.ts DOC_CHANGES + DOC_VERSION，并同时改 versionManager.ts CURRENT_VERSION',
+  'Step 7. 本地验证：npm run build 通过 → npm run dev 打开 4 个关键页面（Home/LevelMap/LevelDetail/Monitor）无白屏无报错',
+  'Step 8. 【强制】开发完成后，在仪表盘 📦 Experience Pack Tab 点击"下载经验包 JSON"，或在 AI Agent Tab 点击"🌐 全局调配"按钮自动写入经验包，作为下一个模型的接力棒',
+  'Step 9. 【强制·元工作流闭环】对话结束前必须完成：CONVERSATION_LOG 追加 1 条 + PACK_BUILD+1 + DOC_VERSION 升级 + DOC_CHANGES 追加 + Wiki 推送（自主决策不询问）',
+]
+
+// ========================= 9.5. 元工作流（每次对话必须遵守的 7 步循环） =========================
+// 这套元逻辑是"如何使用经验包"本身的方法论。每次对话从 Step 1 开始，到 Step 7 闭环。
+// 写在这里是为了让下一个接手的 AI 在读 QUICKSTART_LLM 时就能看到，不会跳过任何一步。
+const META_WORKFLOW = [
+  {
+    step: 1,
+    name: '读指令',
+    rule: '对话开始时先完整读用户指令，识别意图（新功能/修 bug/重构/审查/答疑），不急于动手',
+    must: '识别意图类型 + 提取关键实体（文件/模块/概念）+ 判断是否需要读经验包',
+    antiPattern: '只读一半就开始改代码 / 把"审查"当"重构"做 / 把"答疑"当"实现"做',
+  },
+  {
+    step: 2,
+    name: '读经验包适配经验包要求',
+    rule: '动代码前必须读经验包：调用 generateExperiencePack() 或读 experiencePack.ts 的 MODULES/CONVENTIONS/LESSONS，找到 extensionPoints 和 pitfalls',
+    must: '读 MODULES 找目标模块 + 读 CONVENTIONS 找相关规则 + 读 LESSONS 找类似踩坑 + 读 META_WORKFLOW（本章节）确认流程',
+    antiPattern: '跳过经验包直接敲键盘 / 只读 MODULES 不读 CONVENTIONS / 凭记忆不读经验包',
+  },
+  {
+    step: 3,
+    name: '工作（THINK→DIFF→RUN→POLISH）',
+    rule: '按 Karpathy 四步执行：THINK（规划分层归属+小步拆分）→ DIFF（每 commit ≤200 行）→ RUN（npm run build 验证）→ POLISH（童子军准则+git push origin master）',
+    must: 'THINK 阶段必须列 todo + DIFF 阶段必须小步 + RUN 阶段必须构建通过 + POLISH 阶段必须推送',
+    antiPattern: '一次改 600 行 / 跳过 build 直接 commit / POLISH 阶段不 push 留半成品',
+  },
+  {
+    step: 4,
+    name: '经验包写入对话',
+    rule: '每次对话结束前必须向 CONVERSATION_LOG 追加 1 条记录（id/summary/filesModified/patternsAdded/date 五字段必填），即使纯答疑也要写入',
+    must: 'id 格式 conv-YYYYMMDD-NN + summary 包含用户原话+做了什么+关键决策 + filesModified 列全 + patternsAdded 提炼可复用模式',
+    antiPattern: '对话结束不写 CONVERSATION_LOG / summary 只写"修了 bug"不写根因 / filesModified 漏文件',
+  },
+  {
+    step: 5,
+    name: '经验包写入更新',
+    rule: '每次对话结束前必须更新版本号：PACK_BUILD+1 + DOC_VERSION 升级 + DOC_CHANGES 追加条目 + MODULES 追加新模块（若有）',
+    must: 'PACK_BUILD +1 + DOC_VERSION 小版本+1（如 v3.4→v3.5）+ DOC_CHANGES 顶部追加 + MODULES 追加新模块（若有）',
+    antiPattern: '只改 PACK_BUILD 不改 DOC_VERSION / DOC_CHANGES 写在末尾不在顶部 / 新模块不登记到 MODULES',
+  },
+  {
+    step: 6,
+    name: '对话人思维归纳',
+    rule: '从用户本轮对话中归纳用户思维模式和工作偏好，写入 user_profile.md（跨项目）或 project_memory.md（本项目）',
+    must: '识别用户决策模式（如"自主决策不询问"）+ 识别用户审美偏好（如"3D 像素立体"）+ 识别用户工作流偏好（如"一致推送铁律"）',
+    antiPattern: '用户说了 3 次"不用问"才记下来 / 用户偏好只在对话里有效不写入 memory / 把项目级偏好写进 user_profile',
+  },
+  {
+    step: 7,
+    name: '经验包整合 + Wiki 推送',
+    rule: '按 Wiki 同步自主决策铁律推送：默认目标空间+默认 markdown+去重规则内→自主决策直接推不询问；经验包 overwrite + 代码更改 append',
+    must: '经验包 overwrite 到经验包节点 + 代码更改 append 到流水节点 + 按去重规则（PACK_BUILD/DOC_VERSION/contentHash）避免重复推送',
+    antiPattern: '每次都问用户要不要推 Wiki / 经验包和代码更改推到同一节点 / 不去重导致 Wiki 内容爆炸',
+  },
+]
+
+// ========================= 9.6. AI 项目经验（本 AI 在本项目积累的经验） =========================
+// 这些是 AI 在维护 python-quest 过程中积累的"怎么做这个项目"的经验，减少无效代码和重复试错。
+const AI_PROJECT_EXPERIENCE = [
+  {
+    category: '减少无效代码',
+    experience: '扩展联合类型（OptDomain/TunableParams/OrchestrationEntryType）后，必须全局搜索所有 Record<该类型, ...> 映射并同步更新，否则 tsc 报错但 vite 构建漏过',
+    action: '扩展类型后立即 Grep "Record<OptDomain" / "Record<keyof TunableParams" / "Record<OrchestrationEntryType" 三类映射，全部同步更新',
+  },
+  {
+    category: '减少无效代码',
+    experience: 'vite 构建不做严格类型检查（esbuild 转译），tsc --noEmit 才能暴露所有类型错误。超极审查必须跑 tsc --noEmit，不能只靠 vite build 通过',
+    action: '每次审查跑 npx tsc --noEmit，不能只靠 npm run build',
+  },
+  {
+    category: '减少无效代码',
+    experience: '经验包 CONVERSATION_LOG 的 summary 必须包含根因和决策，不能只写"修了 bug"。下一个 AI 读 summary 时要能复现决策路径',
+    action: 'summary 格式：用户原话 → 做了什么 → 关键决策（为什么这样改）→ 根因（如适用）',
+  },
+  {
+    category: '减少无效代码',
+    experience: 'CSS 硬编码色必须用 var(--color-*) 主题变量，不能用 #hex。LILA 规则禁用 AI 紫蓝色（#7c3aed/#6366f1/#3b82f6/#8b5cf6/#9d4edd），用项目主题色变量',
+    action: '写 CSS 时先查 ThemeContext 的主题变量，找不到才用 fallback。写完 Grep 扫描 AI 紫蓝色',
+  },
+  {
+    category: '减少无效代码',
+    experience: 'context hook 导出名必须核对实际 export 名，不能凭记忆。AIAgentContext 导出的是 useAIAgent 不是 useAgent',
+    action: 'import context hook 前先 Grep "^export" 核对导出名，不能凭记忆写 import',
+  },
+  {
+    category: '减少无效代码',
+    experience: 'Iteration 接口无 applied 字段，时间字段是 startTime 非 timestamp。运算符优先级 ?? 低于 -，涉及 ?? 和算术运算必须加括号',
+    action: '用 Iteration 字段前先读 types/ai.ts 接口定义，不凭记忆用字段名',
+  },
+  {
+    category: '减少无效代码',
+    experience: '用户偏好"自主决策不询问"：默认场景（默认目标空间+默认格式+去重规则内）直接做不问，仅非默认场景（目标空间变更/格式变更/连错≥3次/用户明确要确认）才问',
+    action: '每次决策前判断是否默认场景，是→直接做，否→才问用户',
+  },
+  {
+    category: '减少无效代码',
+    experience: '一致推送铁律：每次 git commit 后必须立即 git push origin master，无例外。推送前自检 4 项（工作树 clean/本地领先 N≥1/push 目标 master/推送后 origin=本地 HEAD）',
+    action: 'commit 后立即 push，不批量不遗漏，push 后验证 origin/master HEAD = 本地 HEAD',
+  },
+  {
+    category: '减少无效代码',
+    experience: '法则 6 三注册：新增页面必须同时完成路由注册（App.tsx Route）+ 导航注册（Navbar Link）+ 文档注册（projectDocs DOC_CHANGES），缺一不可',
+    action: '新增页面后检查三注册是否齐全，缺一补一',
+  },
+  {
+    category: '减少无效代码',
+    experience: 'taste-skill 三旋钮：anti-slop 反默认（显式声明配置项及理由）+ 字体反 Inter/Serif（用 JetBrains Mono 等有辨识度字体）+ LILA 反 AI 紫蓝（禁用 #7c3aed 等，用主题色变量）',
+    action: '重构 UI 时必须显式应用 taste-skill，不能凭审美默认值',
+  },
+  {
+    category: '减少无效代码',
+    experience: 'impeccable 四规则：禁止卡片套卡片（用 section 分隔）+ 圆角统一变量（--radius-sm/md/lg）+ 间距 8 倍数（--space-*）+ 禁止 console 残留',
+    action: '重构 UI 时必须显式应用 impeccable，写完 Grep 扫描 console 残留',
+  },
 ]
 
 // ========================= 10. 提交前自检清单 =========================
@@ -2029,6 +2147,14 @@ const CONVERSATION_LOG = [
     patternsAdded: ['进化控制台交互模式（状态徽章九态映射+进度条+4 按钮 3D 像素立体+当前迭代信息条，从 useAIAgent 解构 startAgent/stopAgent/resetAgent/runGlobalOrchestration 四控制 API）', '3D 像素按钮 CSS 立体效果模式（inset 上亮下暗内阴影+外阴影底座，hover 上移加深，active 下移按压，transform 位移配合 box-shadow 变化）', 'Iteration 接口字段约束（无 applied 字段，用 result===\'committed\' 判断；时间字段是 startTime 非 timestamp；运算符优先级 ?? 低于 -，涉及 ?? 和算术运算必须加括号）'],
     date: '2026-07-31',
   },
+  // —— pack25 新增：元工作流 + AI 项目经验写入经验包（用户原话"把读指令，读经验包适配经验包要求，工作，经验包写入对话，经验包写入更新，对话人思维归纳，经验包整合，写入经验包的元逻辑中"） ——
+  {
+    id: 'conv-20260731-28',
+    summary: '用户原话："把读指令，读经验包适配经验包要求，工作，经验包写入对话，经验包写入更新，对话人思维归纳，经验包整合，写入经验包的元逻辑中（要求每次对话遵守），并写入你这个ai做这个项目的经验，减少无效代码"。本次是元层级提升：把"如何使用经验包"本身的方法论写入经验包。① 新增 META_WORKFLOW 常量（7 步循环）：Step1 读指令（识别意图+提取实体）→ Step2 读经验包适配要求（MODULES/CONVENTIONS/LESSONS/META_WORKFLOW）→ Step3 工作（THINK→DIFF→RUN→POLISH 四步）→ Step4 经验包写入对话（CONVERSATION_LOG 追加 1 条，5 字段必填）→ Step5 经验包写入更新（PACK_BUILD+1+DOC_VERSION 升级+DOC_CHANGES 追加+MODULES 追加）→ Step6 对话人思维归纳（写入 user_profile.md 或 project_memory.md）→ Step7 经验包整合+Wiki 推送（自主决策不询问）。每步包含 rule/must/antiPattern 三字段。② 新增 AI_PROJECT_EXPERIENCE 常量（11 条经验，全部围绕"减少无效代码"）：扩展联合类型必须同步 Record 映射/vite 不做严格类型检查必须跑 tsc/summary 必须含根因和决策/CSS 必须用主题变量禁 AI 紫蓝/context hook 导出名必须核对/Iteration 字段必须读接口定义/自主决策不询问/一致推送铁律/法则 6 三注册/taste-skill 三旋钮/impeccable 四规则。③ 更新 QUICKSTART_LLM：Step 0 改为强制读 META_WORKFLOW + 新增 Step 0.5 读 AI_PROJECT_EXPERIENCE + 新增 Step 9 元工作流闭环。④ 扩展 ExperiencePack 接口：新增 metaWorkflow 和 aiProjectExperience 两字段。⑤ 更新 generateExperiencePack 输出：加入 metaWorkflow 和 aiProjectExperience。PACK_BUILD 24→25，DOC_VERSION v3.4→v3.5',
+    filesModified: ['src/ai/experiencePack.ts', 'src/types/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['元工作流 7 步循环模式（读指令→读经验包→工作→写对话→写更新→思维归纳→Wiki 推送，每步 rule/must/antiPattern 三字段，写入经验包让下一个 AI 第一眼看到）', 'AI 项目经验沉淀模式（11 条经验全部围绕"减少无效代码"，每条含 category/experience/action 三字段，从踩过的坑提炼可执行 action）', '元逻辑写入经验包模式（META_WORKFLOW 和 AI_PROJECT_EXPERIENCE 作为 ExperiencePack 接口字段，通过 generateExperiencePack 输出，QUICKSTART_LLM Step 0 强制读）'],
+    date: '2026-07-31',
+  },
 ]
 
 
@@ -2151,6 +2277,8 @@ export function generateExperiencePack(
     preCommitChecklist: PRECOMMIT_CHECKLIST,
     promptTemplates: PROMPT_TEMPLATES,
     conversationLog: CONVERSATION_LOG,
+    metaWorkflow: META_WORKFLOW,
+    aiProjectExperience: AI_PROJECT_EXPERIENCE,
   }
 }
 

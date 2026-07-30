@@ -218,4 +218,18 @@ export interface ExperiencePack {
   }
   // pack5 新增：对话历史归档（每次对话追加一条，包括纯答疑）
   conversationLog: ConversationLogEntry[]
+  // pack25 新增：元工作流（每次对话必须遵守的 7 步循环）
+  metaWorkflow: {
+    step: number
+    name: string
+    rule: string
+    must: string
+    antiPattern: string
+  }[]
+  // pack25 新增：AI 项目经验（本 AI 在本项目积累的经验，减少无效代码）
+  aiProjectExperience: {
+    category: string
+    experience: string
+    action: string
+  }[]
 }
