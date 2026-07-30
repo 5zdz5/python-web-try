@@ -169,6 +169,20 @@ export interface BuildConstraints {
   envDifferences: string[]
 }
 
+/** 单条对话归档记录（pack5 新增） */
+export interface ConversationLogEntry {
+  /** 对话 ID，格式 conv-YYYYMMDD-N */
+  id: string
+  /** 一句话说明用户诉求与最终产出 */
+  summary: string
+  /** 本次修改的文件列表（相对路径） */
+  filesModified: string[]
+  /** 本次新增的设计模式名称列表 */
+  patternsAdded: string[]
+  /** 日期 YYYY-MM-DD */
+  date: string
+}
+
 /** 完整经验包 */
 export interface ExperiencePack {
   meta: PackMetadata
@@ -190,5 +204,12 @@ export interface ExperiencePack {
     fixBug: string
     refactor: string
     test: string
+    // pack3 新增：外部 Skill 工作流
+    tasteSkillWorkflow: string
+    impeccableWorkflow: string
+    // pack5 新增：元工作流
+    readExecuteWriteWorkflow: string
   }
+  // pack5 新增：对话历史归档（每次对话追加一条，包括纯答疑）
+  conversationLog: ConversationLogEntry[]
 }

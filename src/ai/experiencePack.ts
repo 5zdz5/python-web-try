@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 4
+const PACK_BUILD = 5
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -523,6 +523,25 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: 'background: var(--color-accent-primary) /* 用项目已有的非紫蓝主题色；新增Badge从分类色琥珀/青柠/玫红里选 */',
     badExample: 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)（典型 AI 紫蓝渐变，直接 LLM 吐出来没改）',
     consequence: '紫蓝撞脸→用户觉得"又是一个AI生成的玩意"→可信度下降；也破坏本项目 8 大分类已有主题色一致性',
+  },
+  // —— pack5 新增：元工作流约定（经验包的自维护规则） ——
+  { category: 'meta-workflow', rule: '经验包读-执行-写回 闭环：每一次用户与 AI 的对话都必须先读最新经验包再执行，执行后把本轮内容写回经验包',
+    description: '经验包是项目的"活档案"，不是一次性的交付物。每一次用户对话必须遵守"读-执行-写"三步闭环：1) 读（READ）— 在动手写代码前，必须先调用 generateExperiencePack() 或读取 /source → 📦 经验包 Tab，加载最新的 modules/conventions/patterns/lessons/prompt-templates；2) 执行（EXECUTE）— 基于经验包中的约束和模板执行任务，遇到冲突时以经验包为准；3) 写回（WRITE）— 任务完成后，必须把本轮对话的关键信息追加写回经验包：新增的模块/约定/模式/教训/Prompt 模板，同时 PACK_BUILD +1、DOC_VERSION 升级、DOC_CHANGES 追加一条。这样保证经验包永远反映项目的最新状态，下一个模型接手时不会基于过时信息做决策。该规则是递归的：包括"读-执行-写"规则本身在内的每一次对话都必须被记录，没有任何例外。',
+    goodExample: '用户说"加个新功能X" → ① 读经验包找相关模块与约定 → ② 按 conventions 写代码 → ③ 在 experiencePack.ts 追加 X 的 module/pattern/lesson，PACK_BUILD+1，DOC_VERSION v1.5→v1.6，DOC_CHANGES 新增一条',
+    badExample: '用户说"改个bug" → 直接改代码 → 不更新经验包 → 下次模型读经验包发现 modules 列表与实际代码不符 → 基于错误信息做决策',
+    consequence: '经验包过时 → 后续模型读到的是"昨天的项目" → 决策基于过时信息 → 错误累积 → 经验包失去意义变成死文档',
+  },
+  { category: 'meta-workflow', rule: '对话归档必填字段：每次对话写回经验包时，必须包含对话摘要/修改文件/新增模式 三项',
+    description: '为保证对话历史可追溯，每次写回经验包时必须填齐三项字段：① 对话摘要（一句话说明本轮用户诉求与最终产出）写入 PROMPT_TEMPLATES 的 conversationLog 数组（pack5 新增字段）；② 修改文件列表（绝对或相对路径）写入对应 module 的 lastModified 字段；③ 新增模式（若本轮引入了新的设计/架构/约定模式）追加到 PATTERNS 数组并给 category 字段。这三项缺一不可，即使是纯答疑对话也要写入 conversationLog。',
+    goodExample: 'conversationLog.push({ id: "conv-2026-0730-1", summary: "用户要求将监测系统设计模式写入经验包", filesModified: ["src/ai/experiencePack.ts"], patternsAdded: ["reportHealth 自动建组","巡游三态检测"], date: "2026-07-30" })',
+    badExample: '只改代码不写 conversationLog → 3 个月后没人知道这次对话发生过什么',
+    consequence: '对话历史丢失 → 经验包只记录代码不记录"为什么这样改" → 后续模型只知其然不知其所以然',
+  },
+  { category: 'meta-workflow', rule: 'PACK_BUILD 递增锁：经验包内容发生任何变更（新增/修改/删除 pattern/lesson/convention/prompt）必须 PACK_BUILD +1',
+    description: 'PACK_BUILD 是经验包的"修订号"，类似于 semver 的 patch 段。任何对 experiencePack.ts 内容的变更——哪怕只改一个标点——都必须把 PACK_BUILD +1，并同步更新 projectDocs.ts 的 DOC_VERSION 与 DOC_CHANGES。这一规则通过硬约束保证（见 project_memory.md），未递增 PACK_BUILD 的经验包变更视为无效提交。PACK_BUILD 不允许回退，即使删除了内容也只能继续递增。',
+    goodExample: '新增 1 条 lesson → PACK_BUILD 5→6 → DOC_VERSION v1.5→v1.6 → DOC_CHANGES 新增一条"pack6: 新增 xxx 教训"',
+    badExample: '改了 3 条 pattern 但 PACK_BUILD 不变 → 下游模型无法判断经验包是否更新 → 可能读到缓存的旧版本',
+    consequence: 'PACK_BUILD 不变 → 无法检测经验包更新 → 下游基于过期经验包决策 → 递归雪崩',
   },
 ]
 
@@ -1170,7 +1189,173 @@ ${PRECOMMIT_CHECKLIST.map((c, i) => `${i + 1}. ${c}`).join('\n')}
 - impeccable 四阶段 23 命令执行报告（每步耗时/命中数/修复数）
 - lessons 新增条目列表（cmd22 changelog 产出）
 - projectDocs.ts 版本变更摘要（cmd21 document 产出）`,
+  // —— pack5 新增：元工作流 Prompt 模板 ——
+  readExecuteWriteWorkflow: `【经验包读-执行-写回 元工作流】（强制 — 适用于每一次用户对话，无例外）
+目标：确保每一次用户与 AI 的对话都遵守"先读经验包 → 再执行任务 → 后写回经验包"三步闭环，让经验包永远是项目的最新活档案。
+
+适用范围：所有用户对话，包括但不限于：新增功能、修 bug、重构、答疑、配置、UI 改动、性能优化、文档编写。即使是"帮我查一下 xxx"这种纯答疑对话，也要写入 conversationLog。
+
+═══════════════════════════════════════════
+阶段 1：READ 读经验包（动手前必做，跳过即违规）
+═══════════════════════════════════════════
+步骤 1.1  调用 generateExperiencePack() 或打开 /#/source → 📦 经验包 Tab 加载最新经验包
+步骤 1.2  读取 PACK_BUILD 与 DOC_VERSION，确认是最新版本（不是缓存的旧版本）
+步骤 1.3  按"用户诉求类型"定向查找经验包内容：
+         - 新增功能 → 读 modules 找相关模块 + extensionPoints + conventions
+         - 修 bug → 读 lessons 找同类问题 + PATTERNS 找相关模式
+         - 重构 → 读 PATTERNS + conventions + reusableComponents
+         - UI 改动 → 读 conventions (anti-slop/字体反默认/LILA) + theme 模式
+         - 答疑 → 读 architecture + modules 总览
+步骤 1.4  把读到的"约束清单"列给用户看（1-3 句话），确认理解一致后再进入阶段 2
+
+═══════════════════════════════════════════
+阶段 2：EXECUTE 执行任务（按经验包约束做）
+═══════════════════════════════════════════
+步骤 2.1  按 conventions 中的规则写代码（违反任意一条 = 失败）
+         - 禁止 anti-slop（默认值必须有理由）
+         - 字体反默认（不用 Inter/Serif）
+         - LILA 反紫蓝（不用 #7c3aed/#6366f1/#3b82f6）
+         - 不写死统计（data-driven UI）
+         - 必须用 CSS 变量（var(--color-accent-*)）
+步骤 2.2  若经验包已有 PATTERNS 匹配本次任务，套用 template 代码
+步骤 2.3  若有 lessons 匹配，先避开已知坑
+步骤 2.4  若有 promptTemplates 匹配（如 tasteSkillWorkflow/impeccableWorkflow），按模板执行
+步骤 2.5  执行过程中若发现经验包约束与用户诉求冲突，先告诉用户冲突点，让用户决定优先级
+步骤 2.6  npm run build 必须通过，npm run dev 关键页面无白屏无控制台错误
+
+═══════════════════════════════════════════
+阶段 3：WRITE 写回经验包（执行后必做，跳过即违规）
+═══════════════════════════════════════════
+步骤 3.1  在 PROMPT_TEMPLATES.conversationLog 数组追加一条对话记录：
+         {
+           id: "conv-YYYYMMDD-N",   // 如 conv-20260730-1
+           summary: "<一句话说明用户诉求与最终产出>",
+           filesModified: ["<相对路径1>", "<相对路径2>"],
+           patternsAdded: ["<新增模式1>", "<新增模式2>"],  // 没有则空数组
+           date: "YYYY-MM-DD"
+         }
+步骤 3.2  若本轮引入新的设计/架构/约定模式，追加到 PATTERNS 数组：
+         { name, category, filePattern, where, description, whenToUse, template }
+         category 必填，便于检索（monitor/design/content/context/external-skill/meta-workflow 等）
+步骤 3.3  若本轮踩了新坑，追加到 lessons 数组：{ id: "L-xxx", title, problem, solution, tags }
+步骤 3.4  若本轮引入新的编码约定，追加到 conventions 数组：
+         { category, rule, description, goodExample, badExample, consequence }
+步骤 3.5  若本轮引入新的 Prompt 工作流，追加到 PROMPT_TEMPLATES 对象：<workflowName>: "<prompt>"
+步骤 3.6  更新对应 module 的 lastModified 字段（若该模块有改动）
+步骤 3.7  PACK_BUILD +1（必做，即使只改了一个字符）
+步骤 3.8  同步更新 projectDocs.ts：
+         - DOC_VERSION 升级（v1.5 → v1.6 → ...）
+         - DOC_LAST_UPDATE = 今天日期
+         - DOC_CHANGES 数组追加一条说明本次变更内容
+
+输入参数：
+- conversationId：<必填，格式 conv-YYYYMMDD-N>
+- userRequest：<必填，用户的原始诉求原文>
+- taskType：<必填，feature/bugfix/refactor/ui/answer/config/doc/perf>
+
+输出（在对话结尾给用户的总结报告里必须包含）：
+- 本次对话写入经验包的位置摘要：{ conversationLog: 1 条, patterns: N 条, lessons: N 条, conventions: N 条 }
+- PACK_BUILD: 旧值 → 新值
+- DOC_VERSION: 旧值 → 新值
+- 经验包 JSON 下载地址（/#/source → 📦 经验包 Tab → 下载）
+
+注意事项（违规即视为无效提交）：
+A. 严禁"只改代码不写经验包"——这是 pack5 元工作流约定的头号违规
+B. 严禁"读经验包跳过步骤1直接写代码"——跳过 READ 阶段等于盲改
+C. 严禁"PACK_BUILD 不递增就提交经验包变更"——硬约束已写入 project_memory.md
+D. 严禁"conversationLog 字段缺失"——id/summary/filesModified/patternsAdded/date 五字段必填
+E. 递归规则：本"读-执行-写"工作流本身的"写入过程"也要被记录到 conversationLog`,
 }
+
+// ========================= 12. 对话历史归档（pack5 新增） =========================
+// 每次 AI 与用户对话结束后，必须在此追加一条记录
+// 字段：id / summary / filesModified / patternsAdded / date
+// 即使是纯答疑对话也要写入，不留空白
+const CONVERSATION_LOG = [
+  {
+    id: 'conv-20260730-1',
+    summary: '用户要求对 Web 代码进行功能归类并创建可下载的大模型经验包',
+    filesModified: ['src/index.ts', 'src/types/experiencePack.ts', 'src/ai/experiencePack.ts',
+      'src/components/ExperiencePackPanel.tsx', 'src/components/ExperiencePackPanel.css',
+      'src/pages/MonitorDashboard/MonitorDashboard.tsx'],
+    patternsAdded: ['7层分层导出架构', '经验包 JSON 生成与下载面板'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-2',
+    summary: '添加 AI Agent 全局调配功能 + 经验包写入源码按钮进入页面',
+    filesModified: ['src/context/AIAgentContext.tsx', 'src/components/AIAgentPanel.tsx',
+      'src/components/AIAgentPanel.css', 'src/pages/MonitorDashboard/MonitorDashboard.tsx'],
+    patternsAdded: ['全局调配记录编排', '经验包从 /source 路由可访问'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-3',
+    summary: 'AI Agent 自主运行 20 轮迭代 + 减少无效优化 + 添加清缓存与安全重置按钮',
+    filesModified: ['src/ai/Optimizer.ts', 'src/context/AIAgentContext.tsx',
+      'src/components/AIAgentPanel.tsx', 'src/components/AIAgentPanel.css'],
+    patternsAdded: ['7层策略过滤链', '评分阈值控制优化数量', 'python-quest-agent-* 前缀缓存隔离'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-4',
+    summary: '全站 UI 绝区零(ZZZ)风格化处理 — 首页/关卡/详情/监测/Agent/经验包等 15 个 CSS 文件',
+    filesModified: ['src/index.css', 'src/pages/Home/Home.css', 'src/pages/LevelMap/LevelMap.css',
+      'src/pages/LevelDetail/LevelDetail.css', 'src/pages/MonitorDashboard/MonitorDashboard.css',
+      'src/components/AIAgentPanel.css', 'src/components/ExperiencePackPanel.css',
+      'src/pages/Leaderboard/Leaderboard.css', 'src/pages/LearningPath/LearningPath.css',
+      'src/pages/Achievements/Achievements.css'],
+    patternsAdded: ['ZZZ 赛博朋克风格系统（荧光黄绿+斜切角+扫描线+霓虹发光）'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-5',
+    summary: '编写有按钮可进入的 5 套主题系统（zzz/genshin/starrail/cyberpunk2077/light-tech），支持全局即时切换',
+    filesModified: ['src/context/ThemeContext.tsx', 'src/components/ThemePanel/ThemePanel.tsx',
+      'src/components/ThemePanel/ThemePanel.css', 'src/components/Navbar/Navbar.tsx',
+      'src/data/themes.ts', 'src/types/theme.ts', 'src/index.css', 'src/main.tsx'],
+    patternsAdded: ['CSS 变量实时注入主题切换', 'localStorage 持久化主题选择', 'data-theme 属性扩展钩子'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-6',
+    summary: '监查监测系统全局覆盖度 — 发现 reportHealth 静默丢弃 bug + 7 页未注册监测组 + 巡游检测过浅',
+    filesModified: [],
+    patternsAdded: ['监测系统三层覆盖审计方法论'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-7',
+    summary: '修复监测系统 + 集成 Taste-Skill/Impeccable 双 Skill + 组件设计升级',
+    filesModified: ['src/context/MonitorContext.tsx', 'src/pages/Home/Home.tsx',
+      'src/pages/LevelMap/LevelMap.tsx', 'src/pages/LevelDetail/LevelDetail.tsx',
+      'src/pages/LearningPath/LearningPath.tsx', 'src/pages/Achievements/Achievements.tsx',
+      'src/pages/Leaderboard/Leaderboard.tsx', 'src/pages/SourceExplorer/SourceExplorer.tsx',
+      'src/ai/experiencePack.ts', 'src/data/projectDocs.ts',
+      'src/components/Button/Button.css', 'src/components/Navbar/Navbar.css',
+      'src/components/Card/Card.tsx', 'src/components/Card/Card.css'],
+    patternsAdded: ['reportHealth 自动建组', '巡游三态检测', '业务页面 useEffect 主动注册监测组',
+      'taste-skill 三旋钮设计', 'impeccable 四模式23命令', 'impeccable 58检测规则集',
+      'Card 组件反卡片套卡检测渲染'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-8',
+    summary: '将监测系统全局适配与设计/关卡等 7 条设计模式写入经验包 pack4',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['reportHealth 自动建组', '巡游三态检测', '业务页面主动注册监测组',
+      '监测三层覆盖', '监测仪表盘 6 Tab 结构', '主题与监测解耦', '关卡三层数据'],
+    date: '2026-07-30',
+  },
+  {
+    id: 'conv-20260730-9',
+    summary: '将"每次对话读经验包→执行→写回经验包"的元工作流写入经验包 pack5（本条为递归规则，含其自身）',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['经验包读-执行-写回元工作流', 'conversationLog 对话归档必填字段', 'PACK_BUILD 递增锁'],
+    date: '2026-07-30',
+  },
+]
+
 
 // ========================= 生成器主函数 =========================
 
@@ -1286,6 +1471,7 @@ export function generateExperiencePack(
     quickstartForLLM: QUICKSTART_LLM,
     preCommitChecklist: PRECOMMIT_CHECKLIST,
     promptTemplates: PROMPT_TEMPLATES,
+    conversationLog: CONVERSATION_LOG,
   }
 }
 
