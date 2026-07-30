@@ -90,6 +90,7 @@ export interface FileTreeNode {
 export interface CodingConvention {
   category: 'naming' | 'structure' | 'pattern' | 'state' | 'style' | 'import'
     | 'anti-slop' | 'typography' | 'color' | 'meta-workflow' | 'karpathy'
+    | 'darwin-ratchet' | 'autoresearch'
   rule: string
   description: string
   // 正例/反例

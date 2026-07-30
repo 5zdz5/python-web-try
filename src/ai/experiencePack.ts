@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 8
+const PACK_BUILD = 10
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -568,6 +568,45 @@ const CONVENTIONS: CodingConvention[] = [
     badExample: '改 LevelDetail.tsx 注册监测组 → 顺手把整个文件改成了另一种架构 → 500 行改动 → 炸了 8 个依赖组件',
     consequence: '不执行童子军准则 → 技术债按触碰次数线性累积 → 半年后每个文件都"不敢动" → 项目进入维护噩梦',
   },
+  // —— pack10 新增：Darwin 棘轮机制（外部 Skill: alchaincyf/darwin-skill） ——
+  { category: 'darwin-ratchet', rule: 'Darwin 棘轮原则：分数只升不降，每轮验证通过才保留，退步自动 git revert（禁用 git reset --hard）',
+    description: '来自 alchaincyf/darwin-skill v2.0 的核心机制。每次代码修改后必须通过独立验证（tsc + build + 浏览器白屏检测三选一或全跑），全部通过 → 保留 + commit；任一失败 → git revert HEAD~1（绝不用 git reset --hard，会丢历史）。棘轮 = 只能向前转的齿轮，分数只升不降。这条规则消灭了"局部退化累积"的隐形 bug——例如改了 A 模块让某指标从 92 掉到 88，AI 自己看不到差异但用户感受到。Darwin 在 darwin-skill 中实测：6 个独立评委共识下，huashu-gpt-image skill 从 80.8 → 91.5 → 91.65（+10.85 分），从未出现回退后仍保留退步的情况。',
+    goodExample: '改完 Button.css → 跑 npm run build → 通过 + 关键页面无白屏 → git commit → 进入下一个修改',
+    badExample: '改完 Button.css → 看一眼"差不多应该没问题" → git commit → 后来发现圆角变了导致 5 个组件布局错乱 → 已经 commit 进去很难回滚',
+    consequence: '不验证就 commit → 局部退步累积 → 项目整体质量曲线下降 → 后期"修一个 bug 冒三个新 bug"',
+  },
+  { category: 'darwin-ratchet', rule: 'Darwin 独立评委原则：禁止"同一 AI 又改又评"，验证必须用子 agent 或独立工具链',
+    description: '来自 darwin-skill 反例黑名单第 1 条 + 微软 SkillLens 论文实证：LLM 自评准确率仅 46.4%（接近抛硬币）。同一个 AI 改完代码又自己评"看起来没问题"，等于让小偷当法官。验证必须用三个独立工具链之一：① 子 agent（用 Task 工具调起 general_purpose_task 让另一个上下文做验证，不带本轮记忆）；② 编译器/构建器（tsc --noEmit、npm run build）；③ 浏览器实测（白屏检测、console error 数、关键 DOM 元素计数）。Darwin v2.0 升级为多评委独立审查：每轮启动 2 个独立评委 + 评委不复用（下轮换全新评委避免锚定效应）。',
+    goodExample: 'AIAgent 修改 Optimizer.ts → 启动 Task 子代理跑 tsc + build + 浏览器检查 → 子代理报告"3 项全过" → 保留修改',
+    badExample: 'AIAgent 修改 Optimizer.ts → 自己说"代码看起来对的，应该没问题" → commit → 半个月后用户发现 TypeError',
+    consequence: 'AI 自评 = 46.4% 准确率 = 一半修改被错误地"自评通过" → 项目质量在 AI 自己看不到的地方持续下滑',
+  },
+  { category: 'darwin-ratchet', rule: 'Darwin 单一变量原则：每轮只改一个维度，避免"多维同时改"导致改进不可归因',
+    description: '来自 darwin-skill 反例黑名单第 5 条："一轮内改多个维度"。如果同时改"性能"+"UX"+"稳定性"三个维度，指标提升时无法归因是哪个维度贡献的，指标下降时也无法定位是哪部分出问题。正确做法：①每轮选出加权短板最大的维度（weighted_gap = weight × (10 − score) / 10，避免低权重维度制造进步幻觉）；②针对该维度生成 1 个具体改进方案；③跑独立验证；④通过 → commit 进入下一轮，不通过 → revert 重新规划。这条规则让"为什么变好/变坏"始终可回答。',
+    goodExample: '本轮只改"性能"维度（缓存 TTL 拉长）→ 验证通过 → commit → 下轮只改"UX"维度（动画缩短）→ 验证 → commit',
+    badExample: '一次性改了性能缓存 TTL + UX 动画时长 + 稳定性重试次数 → 指标 +3 → 不知道是哪部分贡献的 → 下次想再优化不知道从哪下手',
+    consequence: '多维度同时改 → 改进归因失效 → 后续优化方向盲目 → 陷入"试错堆冗余"恶性循环（凑分而非真改进）',
+  },
+  // —— pack10 新增：autoresearch 自主实验循环（外部 Skill: karpathy/autoresearch） ——
+  { category: 'autoresearch', rule: 'autoresearch 单文件可修改原则：agent 每次实验只改一个核心文件，其他文件只读',
+    description: '来自 karpathy/autoresearch 的核心设计：repo 中"prepare.py（数据准备）+ train.py（训练循环）+ program.md（agent 指令）"三文件，agent 只能改 train.py 一个，prepare.py 和 program.md 只读。这种约束让 scope 永远可控、diff 永远可 review、回滚永远精准。映射到 python-quest：每次任务前明确"本次可修改文件清单"，例如"修 Button 样式"就只能改 src/components/Button/Button.tsx + Button.css，不能顺手改 Navbar、不能顺手改 index.css。即使是 AI Agent 自主迭代也遵循此约束：每轮迭代只允许触碰一个 module（如 ctx-ai 或 comp-aipanel），不能跨多个 module 修改。',
+    goodExample: '"修 Button 圆角" → 只改 Button.css 一个文件 → build 通过 → commit → 下一个任务再改别的',
+    badExample: '"修 Button 圆角" → 顺手把 Navbar 的圆角也改了 → 顺手把 index.css 的全局圆角也调了 → 3 个文件改动 → 出错不知道是哪部分',
+    consequence: '多文件同时改 → diff 巨大无法 review → 出错回滚只能整 commit 回退 → 误伤其他本可保留的修改',
+  },
+  { category: 'autoresearch', rule: 'autoresearch 固定时间预算原则：每次实验有固定时间上限，超时自动终止并保留当前最优',
+    description: '来自 karpathy/autoresearch 的"5 分钟固定训练预算"原则：无论改了什么，训练都跑 5 分钟（wall clock），到点立即终止并评估指标。这让不同实验可直接比较（同样时间预算下的产出），也防止 agent 在错误方向上无限循环。映射到 python-quest 的验证阶段：每次代码修改后的验证阶段固定 90 秒预算，超时即视为失败 → git revert。这条规则与 Darwin 棘轮配合：时间预算防止"无限试错"，棘轮防止"退步累积"，两者结合保证"在有限时间内只向前走"。autoresearch 实测：12 实验/小时，100 实验/夜，到点必停。',
+    goodExample: '改 Optimizer.ts → 启动 90 秒计时 → tsc + build + 4 页面白屏检测 全跑完 < 90s → 通过 → commit',
+    badExample: '改 Optimizer.ts → 反复修一个 TS 错误 → 30 分钟还没解决 → 还在硬刚 → 早就该 revert 重规划',
+    consequence: '无时间预算 → agent 在错误方向上死循环 → 烧时间烧 token → 用户体验灾难',
+  },
+  // —— pack10 新增：Skill 与经验包双螺旋迭代元规则（用户本轮核心诉求） ——
+  { category: 'meta-workflow', rule: 'Skill 与经验包双螺旋：Skill 是"怎么做"的规则，经验包是"做了什么"的记录，两者交叉引用、共同迭代进化',
+    description: '用户原话："把这个网站的开发过程（包括你我的对话）做成一个 skill，与经验包一起随着与 ai 对话、编码的过程中进行迭代优化"。这构成"活档案 + 活规则"双螺旋结构：① Skill（python-quest-dev-process）定义"每次对话怎么执行"——读经验包 → Karpathy 四步 → Darwin 验证 → 写回经验包；② 经验包（experiencePack.ts）记录"每次对话做了什么"——CONVERSATION_LOG、PATTERNS、CONVENTIONS、LESSONS 实时更新；③ 两者交叉引用：Skill 的模板引用经验包的字段名（CONVERSATION_LOG/PACK_BUILD），经验包的 patterns 引用 Skill 的步骤名（THINK/DIFF/RUN/POLISH）；④ 共同迭代：每次对话既可能新增/修改 Skill 规则，也可能新增/修改经验包条目，两者版本号同步递增（PACK_BUILD 与 Skill 版本同步）。',
+    goodExample: '用户说"加个登录方式" → ① 读 Skill 提示"按 Karpathy 四步执行" → ② 读经验包找 AuthContext module → ③ 写代码 → ④ 写回经验包（新增 conversationLog + patterns）→ ⑤ Skill 规则若需更新（如"OAuth 登录新流程"）也同步更新',
+    badExample: '用户说"加个登录方式" → 只改代码 → 不更新 Skill 也不更新经验包 → 下次模型完全不知道这次发生了什么',
+    consequence: 'Skill 与经验包脱节 → Skill 变成死规则 → 经验包变成死档案 → 两者失去协同进化的能力 → 项目失去"自我积累"的核心价值',
+  },
 ]
 
 // ========================= 4. 设计模式 =========================
@@ -851,6 +890,43 @@ function LevelMap() {
   4.4 总结：给用户发 ≤5 句话总结（改了什么/怎么验证/产出物在哪）
   ⇒ 产出物：对话总结（含版本号变更、经验包位置、构建结果）
 ─────────────────────────────────────────────`,
+  },
+  // —— pack9 新增：Darwin/autoresearch 设计模式 ——
+  {
+    name: 'Darwin 棘轮+autoresearch 自主实验循环',
+    category: 'external-skill',
+    filePattern: '外部 Skill: alchaincyf/darwin-skill + karpathy/autoresearch',
+    where: '所有代码修改任务的验证阶段',
+    description: '将 Darwin 的棘轮机制（只保留改进+自动回滚退步）与 autoresearch 的自主实验循环（固定预算+单文件修改+可量化指标）结合。每次代码修改后：①用 tsc+build+白屏检测做独立验证（不用AI自评）；②改进→保留+commit，退步→git revert；③每次只改一个维度；④90秒验证预算超时即回滚。这构成"5层防线"：单文件→单变量→独立验证→棘轮保留→时间预算。',
+    whenToUse: '所有涉及代码修改的任务，作为 Karpathy 流水线阶段3(RUN)的验证规则补充',
+    template:
+`// Darwin+autoresearch 验证循环
+const VERIFY_BUDGET_SEC = 90  // 固定验证预算
+const METRICS = {
+  tscErrors: { target: 0, tool: 'npx tsc --noEmit' },
+  buildExit: { target: 0, tool: 'npm run build' },
+  whiteScreen: { target: 'no-blank', tool: 'browser_check 4 pages' },
+}
+// 每次修改后：跑3个独立验证 → 全过=保留 → 任一失败=git revert
+// 禁止自评（SkillLens: LLM自评准确率仅46.4%）`,
+  },
+  {
+    name: 'python-quest-dev-process Skill（网站开发过程 Skill）',
+    category: 'content',
+    filePattern: '本项目全生命周期：从需求到交付到迭代',
+    where: '每次对话开始时读取，对话结束时写回',
+    description: '将 python-quest 网站的完整开发过程封装为一个 Skill。核心内容：①用户下达需求 → ②AI读取经验包 → ③按 Karpathy 四步流水线执行(THINK→DIFF→RUN→POLISH) → ④按 Darwin 棘轮验证(只保留改进) → ⑤按 taste-skill/impeccable 检查艺术风格 → ⑥写回经验包(追加 CONVERSATION_LOG + PACK_BUILD+1)。这个 Skill 随着每次对话迭代进化，与经验包一起构成"活档案+活规则"的双螺旋。',
+    whenToUse: '所有涉及 python-quest 项目的对话，无例外。每次对话开始时读取本 Skill + 经验包，结束时写回两者',
+    template:
+`【python-quest-dev-process Skill 模板】
+每次对话必执行：
+1. READ：读取经验包（experiencePack.ts）+ 本 Skill → 提取相关 conventions/patterns/lessons
+2. EXECUTE：按 Karpathy 四步流水线执行用户需求
+   THINK → DIFF(小步) → RUN(Darwin棘轮验证) → POLISH(童子军准则)
+3. CHECK：按 taste-skill 检查 LILA/字体/anti-slop；按 impeccable 检查圆角/间距
+4. WRITE：写回经验包（CONVERSATION_LOG +1 条 + PACK_BUILD +1）+ 更新本 Skill
+5. ITERATE：本 Skill 和经验包一起迭代优化——每次对话都可能新增/修改 Skill 规则
+   Skill 是"怎么做"的规则，经验包是"做了什么"的记录，两者交叉引用互相进化`,
   },
 ]
 
@@ -1548,6 +1624,17 @@ const CONVERSATION_LOG = [
     summary: '按 taste-skill + impeccable 双 Skill 对全项目 CSS 进行艺术风格优化：修复 LILA 紫蓝违规(ErrorBoundary 18处/SourceExplorer 30+处/VersionHistory 10+处/PatrolButton 3处)、圆角统一为 --radius-* 变量、字体反默认(--font-mono JetBrains Mono 提前)、去除 CSS 变量 fallback 硬编码色',
     filesModified: ['src/index.css', 'src/components/ErrorBoundary.css', 'src/pages/SourceExplorer/SourceExplorer.css', 'src/components/VersionHistory/VersionHistory.css', 'src/components/PatrolButton.css', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['LILA 紫蓝色→CSS变量+color-mix 替换模式', '圆角硬编码→--radius-* 变量统一', 'CSS 变量 fallback 去除规则', '--font-mono 字体栈顺序修正(JetBrains Mono优先)'],
+    date: '2026-07-30',
+  },
+  // —— pack10 新增：接入 Darwin + autoresearch + 创建 dev-process skill + 双螺旋元规则 ——
+  {
+    id: 'conv-20260730-13',
+    summary: '接入 Darwin skill（alchaincyf/darwin-skill）与 autoresearch skill（karpathy/autoresearch）写入经验包；创建 python-quest-dev-process skill 封装网站开发全过程；写入"Skill+经验包双螺旋迭代"元规则——Skill 是"怎么做"的规则、经验包是"做了什么"的记录，两者交叉引用、共同迭代进化',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['Darwin 棘轮+autoresearch 自主实验循环', 'python-quest-dev-process Skill（网站开发过程 Skill）',
+      'Darwin 棘轮原则（分数只升不降+git revert 禁 reset --hard）', 'Darwin 独立评委原则（禁自评，LLM 自评仅 46.4%）',
+      'Darwin 单一变量原则（一轮一维度，加权短板优先）', 'autoresearch 单文件可修改原则（其他只读）',
+      'autoresearch 固定时间预算原则（90s 验证预算）', 'Skill 与经验包双螺旋元规则'],
     date: '2026-07-30',
   },
 ]

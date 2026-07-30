@@ -33,7 +33,7 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v1.9'
+export const DOC_VERSION = 'v2.0'
 export const DOC_LAST_UPDATE = '2026-07-30'
 export const DOC_CHANGES = [
   '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
@@ -47,7 +47,8 @@ export const DOC_CHANGES = [
   'v1.6：经验包元工作流 pack5 — 写入"读-执行-写回"三步闭环规则作为 PROMPT 模板 + 3 条 meta-workflow 编码约定 + 9 条对话历史归档 CONVERSATION_LOG 数组。强制要求每次对话先读经验包再执行后写回，PACK_BUILD 递增锁，conversationLog 五字段必填，递归规则含其自身',
   'v1.7：Andrej Karpathy Skill 四原则写入经验包 pack6 — 4 条 karpathy 编码约定（Think/Small diff/Run early/Leave better）+ 1 条四步编码流水线设计模式 + karpathyWorkflow Prompt 模板（THINK→DIFF→RUN→POLISH 四阶段+违规自动失败清单6条）+ 第 10 条对话归档。Karpathy 四原则为后续所有对话的最高优先级工作流，在 anti-slop / LILA / impeccable 之上',
   'v1.8：20轮代码筛查与迭代 pack7 — tsc 类型错误 60→0、any 清理 40→约15（保留 API/性能相关）、CSS 硬编码色 33处→CSS 变量、localStorage 保护 3处加 try-catch、事件监听器 5个全有 cleanup、监测覆盖 7/7 页面、ErrorBoundary 全 app 覆盖、XSS 静态内容低风险。新增 VersionProgressData/LeaderboardEntry 类型接口、ConventionCategory/DesignPatternCategory 联合类型扩展、InteractiveStep 加 exercise/answer/explanation',
-  'v1.9：按 taste-skill + impeccable 双 Skill 艺术风格优化 pack8 — LILA 紫蓝违规修复 60+处（ErrorBoundary/SourceExplorer/VersionHistory/PatrolButton）、圆角统一为 --radius-* 变量、字体反默认（--font-mono JetBrains Mono 提前）、去除 CSS 变量 fallback 硬编码色、rgba 紫蓝改用 color-mix(in srgb, ...) 表达式'
+  'v1.9：按 taste-skill + impeccable 双 Skill 艺术风格优化 pack8 — LILA 紫蓝违规修复 60+处（ErrorBoundary/SourceExplorer/VersionHistory/PatrolButton）、圆角统一为 --radius-* 变量、字体反默认（--font-mono JetBrains Mono 提前）、去除 CSS 变量 fallback 硬编码色、rgba 紫蓝改用 color-mix(in srgb, ...) 表达式',
+  'v2.0：接入 Darwin skill（alchaincyf/darwin-skill）与 autoresearch skill（karpathy/autoresearch）pack10 — 新增 6 条编码约定：3 条 darwin-ratchet（棘轮原则分数只升不降+git revert 禁 reset --hard / 独立评委原则禁自评 LLM 自评仅 46.4% / 单一变量原则一轮一维度）、2 条 autoresearch（单文件可修改原则其他只读 / 固定时间预算原则 90s 验证）、1 条 meta-workflow 双螺旋元规则（Skill 是"怎么做"的规则 + 经验包是"做了什么"的记录，两者交叉引用共同迭代进化）。新增 2 条设计模式：Darwin 棘轮+autoresearch 自主实验循环、python-quest-dev-process Skill（网站开发过程 Skill）。扩展 CodingConvention.category 联合类型新增 darwin-ratchet / autoresearch 两个分类。第 13 条对话归档 conv-20260730-13'
 ]
 
 // ===== 技术栈 =====
