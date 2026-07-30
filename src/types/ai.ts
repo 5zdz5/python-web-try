@@ -247,3 +247,51 @@ export interface WikiSyncState {
   totalPushes: number                // 累计推送次数
   totalFailures: number              // 累计失败次数
 }
+
+// ===== LLM 集成（pack30：Agent 向 LLM 方向进化）=====
+
+/** LLM 配置（OpenAI 兼容接口） */
+export interface LLMConfig {
+  enabled: boolean                   // 是否启用 LLM 分析
+  baseUrl: string                    // API base URL（如 https://api.openai.com/v1）
+  apiKey: string                     // API Key（存 localStorage）
+  model: string                      // 模型名（如 gpt-4o-mini / deepseek-chat）
+  temperature: number                // 采样温度 0-2
+  maxTokens: number                  // 最大输出 token 数
+  timeout: number                    // 请求超时 ms
+  maxRetries: number                 // 最大重试次数
+}
+
+/** LLM 输出的单条优化建议 */
+export interface LLMSuggestion {
+  id: string                         // 建议 ID（LLM 生成或哈希）
+  target: string                     // 目标：参数名 / 文件 / 模块
+  problem: string                    // 问题描述
+  fix: string                        // 修复方案
+  priority: 'high' | 'medium' | 'low'
+  risk: number                       // 风险等级 0-1
+  paramChanges?: Partial<TunableParams>  // 参数变更（可选，适用于参数级建议）
+  codePatch?: string                 // 代码补丁（可选，适用于代码级建议）
+  rationale?: string                 // LLM 给出的理由
+}
+
+/** LLM 分析结果 */
+export interface LLMAnalysisResult {
+  timestamp: string                  // 分析时间 ISO
+  reasoning: string                  // LLM 整体推理过程
+  confidence: number                 // 置信度 0-1
+  suggestions: LLMSuggestion[]       // 建议列表
+  model: string                      // 使用的模型
+  tokenUsage?: { prompt: number; completion: number; total: number }
+  error?: string                     // 失败原因（成功时为 undefined）
+}
+
+/** 已采纳的建议记录 */
+export interface AdoptedSuggestion {
+  suggestionId: string
+  timestamp: string
+  target: string
+  applied: boolean                   // 是否成功应用
+  paramChanges?: Partial<TunableParams>
+}
+

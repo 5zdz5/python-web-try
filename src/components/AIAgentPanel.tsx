@@ -11,7 +11,7 @@
  */
 import { useState, useEffect } from 'react'
 import { useAIAgent } from '../context/AIAgentContext'
-import type { AgentState, TunableParams, OptDomain, OrchestrationEntryType } from '../types/ai'
+import type { AgentState, TunableParams, OptDomain, OrchestrationEntryType, LLMSuggestion } from '../types/ai'
 import './AIAgentPanel.css'
 
 const STATE_LABELS: Record<AgentState, string> = {
@@ -111,6 +111,54 @@ function ParamRow({ name, value }: { name: keyof TunableParams; value: string | 
   )
 }
 
+function SuggestionCard({ suggestion, adopted, onAdopt, onDismiss }: {
+  suggestion: LLMSuggestion
+  adopted: boolean
+  onAdopt: () => void
+  onDismiss: () => void
+}) {
+  const priorityColors: Record<string, string> = { high: '#ef4444', medium: '#f59e0b', low: '#6b7280' }
+  const priorityLabels: Record<string, string> = { high: '高', medium: '中', low: '低' }
+
+  return (
+    <div className="aap-llm-suggestion" style={{ borderLeftColor: priorityColors[suggestion.priority] }}>
+      <div className="aap-llm-suggestion-header">
+        <span className="aap-llm-suggestion-target">{suggestion.target}</span>
+        <span className="aap-llm-suggestion-priority" style={{ color: priorityColors[suggestion.priority] }}>
+          {priorityLabels[suggestion.priority]}
+        </span>
+        <span className="aap-llm-suggestion-risk">风险 {Math.round(suggestion.risk * 100)}%</span>
+      </div>
+      <div className="aap-llm-suggestion-problem">{suggestion.problem}</div>
+      <div className="aap-llm-suggestion-fix">{suggestion.fix}</div>
+      {suggestion.paramChanges && (
+        <div className="aap-llm-suggestion-params">
+          {Object.entries(suggestion.paramChanges).map(([k, v]) => (
+            <code key={k}>{k}: {String(v)}</code>
+          ))}
+        </div>
+      )}
+      {suggestion.rationale && (
+        <div className="aap-llm-suggestion-rationale">理由：{suggestion.rationale}</div>
+      )}
+      <div className="aap-llm-suggestion-actions">
+        {!adopted ? (
+          <>
+            <button className="aap-btn aap-btn-primary aap-btn-sm" onClick={onAdopt}>
+              ✓ 采纳
+            </button>
+            <button className="aap-btn aap-btn-sm" onClick={onDismiss}>
+              ✗ 忽略
+            </button>
+          </>
+        ) : (
+          <span className="aap-badge aap-badge-on">已采纳</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function AIAgentPanel() {
   const {
     state, config, params, summary, currentIteration, history, snapshots,
@@ -119,11 +167,16 @@ function AIAgentPanel() {
     createSnapshot, restoreSnapshot, deleteSnapshot, markSnapshotStable,
     orchestration, runGlobalOrchestration, clearOrchestrationEntries,
     clearAgentRuntimeCache, safeFullReset, agentCacheStats,
+    llmConfig, llmAnalysis, adoptedSuggestions, isLLMAnalyzing,
+    runLLMAnalysis, updateLLMConfig, applyLLMSuggestion, dismissLLMSuggestion, testLLM,
   } = useAIAgent()
 
   const [showParams, setShowParams] = useState(false)
   const [showConfig, setShowConfig] = useState(false)
   const [showOrchestration, setShowOrchestration] = useState(false)
+  const [showLLM, setShowLLM] = useState(false)
+  const [llmTestResult, setLlmTestResult] = useState<string | null>(null)
+  const [isTestingLLM, setIsTestingLLM] = useState(false)
   const [cacheStats, setCacheStats] = useState(() => ({ localStorageCount: 0, sessionStorageCount: 0 }))
   const [clearedMsg, setClearedMsg] = useState<string | null>(null)
 
@@ -580,6 +633,172 @@ function AIAgentPanel() {
             )}
           </div>
         )}
+
+        {/* ===== LLM 分析面板（pack30：Agent 向 LLM 方向进化） ===== */}
+        <div className="aap-section">
+          <div
+            className="aap-section-header"
+            onClick={() => setShowLLM(!showLLM)}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="aap-section-icon">🧠</span>
+            <span className="aap-section-title">LLM 优化分析</span>
+            <span className="aap-section-toggle">{showLLM ? '▼' : '▶'}</span>
+            {llmConfig.enabled && <span className="aap-badge aap-badge-on">已启用</span>}
+          </div>
+
+          {showLLM && (
+            <div className="aap-section-body">
+              {/* LLM 配置区 */}
+              <div className="aap-llm-config">
+                <label className="aap-llm-toggle">
+                  <input
+                    type="checkbox"
+                    checked={llmConfig.enabled}
+                    onChange={e => updateLLMConfig({ enabled: e.target.checked })}
+                  />
+                  <span>启用 LLM 分析</span>
+                </label>
+
+                <div className="aap-llm-field">
+                  <label>API Base URL</label>
+                  <input
+                    type="text"
+                    value={llmConfig.baseUrl}
+                    onChange={e => updateLLMConfig({ baseUrl: e.target.value })}
+                    placeholder="https://api.openai.com/v1"
+                    disabled={!llmConfig.enabled}
+                  />
+                </div>
+
+                <div className="aap-llm-field">
+                  <label>API Key</label>
+                  <input
+                    type="password"
+                    value={llmConfig.apiKey}
+                    onChange={e => updateLLMConfig({ apiKey: e.target.value })}
+                    placeholder="sk-..."
+                    disabled={!llmConfig.enabled}
+                  />
+                </div>
+
+                <div className="aap-llm-field">
+                  <label>模型</label>
+                  <input
+                    type="text"
+                    value={llmConfig.model}
+                    onChange={e => updateLLMConfig({ model: e.target.value })}
+                    placeholder="gpt-4o-mini / deepseek-chat"
+                    disabled={!llmConfig.enabled}
+                  />
+                </div>
+
+                <div className="aap-llm-row">
+                  <div className="aap-llm-field aap-llm-field-sm">
+                    <label>温度 ({llmConfig.temperature})</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={llmConfig.temperature}
+                      onChange={e => updateLLMConfig({ temperature: parseFloat(e.target.value) })}
+                      disabled={!llmConfig.enabled}
+                    />
+                  </div>
+                  <div className="aap-llm-field aap-llm-field-sm">
+                    <label>Max Tokens</label>
+                    <input
+                      type="number"
+                      value={llmConfig.maxTokens}
+                      onChange={e => updateLLMConfig({ maxTokens: parseInt(e.target.value) || 2000 })}
+                      disabled={!llmConfig.enabled}
+                    />
+                  </div>
+                </div>
+
+                <div className="aap-llm-actions">
+                  <button
+                    className="aap-btn"
+                    onClick={async () => {
+                      setIsTestingLLM(true)
+                      setLlmTestResult(null)
+                      const r = await testLLM()
+                      setLlmTestResult(r.ok ? `✓ ${r.message}` : `✗ ${r.message}`)
+                      setIsTestingLLM(false)
+                    }}
+                    disabled={!llmConfig.enabled || isTestingLLM}
+                  >
+                    {isTestingLLM ? '⏳ 测试中...' : '🔌 测试连接'}
+                  </button>
+                  <button
+                    className="aap-btn aap-btn-primary"
+                    onClick={() => runLLMAnalysis()}
+                    disabled={!llmConfig.enabled || isLLMAnalyzing}
+                  >
+                    {isLLMAnalyzing ? '⏳ LLM 分析中...' : '🧠 运行 LLM 分析'}
+                  </button>
+                </div>
+
+                {llmTestResult && <div className="aap-llm-test-result">{llmTestResult}</div>}
+              </div>
+
+              {/* LLM 分析结果 */}
+              {llmAnalysis && (
+                <div className="aap-llm-result">
+                  <div className="aap-llm-meta">
+                    <span>模型: {llmAnalysis.model}</span>
+                    <span>置信度: {(llmAnalysis.confidence * 100).toFixed(0)}%</span>
+                    <span>{formatTime(llmAnalysis.timestamp).split(' ')[1]}</span>
+                    {llmAnalysis.tokenUsage && (
+                      <span>Tokens: {llmAnalysis.tokenUsage.total}</span>
+                    )}
+                  </div>
+
+                  {llmAnalysis.error ? (
+                    <div className="aap-llm-error">⚠ {llmAnalysis.error}</div>
+                  ) : (
+                    <>
+                      <div className="aap-llm-reasoning">{llmAnalysis.reasoning}</div>
+
+                      {llmAnalysis.suggestions.length > 0 ? (
+                        <div className="aap-llm-suggestions">
+                          {llmAnalysis.suggestions.map(s => (
+                            <SuggestionCard
+                              key={s.id}
+                              suggestion={s}
+                              adopted={adoptedSuggestions.some(a => a.suggestionId === s.id)}
+                              onAdopt={() => applyLLMSuggestion(s.id)}
+                              onDismiss={() => dismissLLMSuggestion(s.id)}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="aap-empty">LLM 认为当前状态健康，无需优化</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* 已采纳建议历史 */}
+              {adoptedSuggestions.length > 0 && (
+                <div className="aap-llm-adopted">
+                  <div className="aap-llm-adopted-title">已采纳建议 ({adoptedSuggestions.length})</div>
+                  {adoptedSuggestions.slice(-5).reverse().map((a, i) => (
+                    <div key={i} className="aap-llm-adopted-item">
+                      <span className="aap-llm-adopted-target">{a.target}</span>
+                      <span className={`aap-badge ${a.applied ? 'aap-badge-on' : ''}`}>
+                        {a.applied ? '已应用' : '待手动'}
+                      </span>
+                      <span className="aap-llm-adopted-time">{formatTime(a.timestamp).split(' ')[1]}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

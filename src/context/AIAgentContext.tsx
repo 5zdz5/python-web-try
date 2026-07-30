@@ -17,6 +17,7 @@ import type {
   Iteration, Decision, AgentSnapshot, AgentSummary, IterationPhase,
   GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
   WikiSyncState, WikiPushRecord, LearningMetrics,
+  LLMConfig, LLMAnalysisResult, AdoptedSuggestion,
 } from '../types/ai'
 import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies, loadQTable, updateQTable, QTable } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
@@ -25,6 +26,8 @@ import {
   DEFAULT_WIKI_SYNC, inspectCodebase, saveWikiSyncState, applyPushToState,
   processPendingQueue, pushToWikiAsync, buildPackWikiMarkdown, buildChangesWikiMarkdown
 } from '../ai/wikiSync'
+import { DEFAULT_LLM_CONFIG, LLM_CONFIG_KEY, testLLMConnection } from '../ai/llmClient'
+import { analyzeWithLLM } from '../ai/llmAdvisor'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
 import { usePyodide } from './PyodideContext'
@@ -101,6 +104,17 @@ interface AIAgentContextValue {
   // pack28 超级进化：学习效果指标（Pyodide 验证闭环）
   learningMetrics: LearningMetrics | null
   runLearningValidation: () => Promise<LearningMetrics | null>
+
+  // pack30 LLM 进化：LLM 驱动的优化分析
+  llmConfig: LLMConfig
+  llmAnalysis: LLMAnalysisResult | null
+  adoptedSuggestions: AdoptedSuggestion[]
+  isLLMAnalyzing: boolean
+  runLLMAnalysis: () => Promise<LLMAnalysisResult | null>
+  updateLLMConfig: (patch: Partial<LLMConfig>) => void
+  applyLLMSuggestion: (suggestionId: string) => boolean
+  dismissLLMSuggestion: (suggestionId: string) => void
+  testLLM: () => Promise<{ ok: boolean; message: string; model?: string }>
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -186,6 +200,14 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   const [learningMetrics, setLearningMetrics] = useState<LearningMetrics | null>(null)
   // pack29 超级进化：Q-table（epsilon-greedy，meta参数真生效）
   const qTableRef = useRef<QTable>(loadQTable())
+  // pack30 LLM 进化：LLM 配置 + 分析结果 + 已采纳建议
+  const [llmConfig, setLlmConfig] = useState<LLMConfig>(() => {
+    const stored = safeParse(safeGet(LLM_CONFIG_KEY), DEFAULT_LLM_CONFIG)
+    return { ...DEFAULT_LLM_CONFIG, ...stored }
+  })
+  const [llmAnalysis, setLlmAnalysis] = useState<LLMAnalysisResult | null>(null)
+  const [adoptedSuggestions, setAdoptedSuggestions] = useState<AdoptedSuggestion[]>([])
+  const [isLLMAnalyzing, setIsLLMAnalyzing] = useState(false)
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -795,13 +817,49 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
     await sleep(300)
 
-    // 阶段 4: 全局适配分析（LLM 功能新增 + Agent 自优化协调）
-    newEntries.push(makeEntry(
-      'global-adapt',
-      `全局适配完成：LLM 功能新增与 Agent 自优化已协调`,
-      `本轮协调了 ${strategies.length} 个 Agent 策略，经验包模块 ${pack.modules.length} 个，约定 ${pack.conventions.length} 条已纳入考量`,
-      pack.modules.filter(m => m.category === 'ai' || m.category === 'context').map(m => m.id),
-    ))
+    // 阶段 4: 全局适配分析（pack30: 如果 LLM 启用则真实调 LLM 获取优化建议）
+    if (llmConfig.enabled && llmConfig.apiKey) {
+      newEntries.push(makeEntry(
+        'llm-feature',
+        `LLM 分析启动：模型=${llmConfig.model}`,
+        `综合分=${scores.overall}，性能=${scores.performance}，UX=${scores.ux}，稳定性=${scores.stability}`,
+      ))
+      const llmResult = await runLLMAnalysis()
+      if (llmResult && !llmResult.error && llmResult.suggestions.length > 0) {
+        newEntries.push(makeEntry(
+          'llm-feature',
+          `LLM 分析完成：${llmResult.suggestions.length} 条建议，置信度=${(llmResult.confidence * 100).toFixed(0)}%`,
+          llmResult.suggestions.map(s => `[${s.priority}] ${s.target}: ${s.fix}`).join(' | '),
+          ['ai-llm'],
+        ))
+        // 自动采纳 high 优先级且 risk < 0.3 的参数级建议
+        for (const s of llmResult.suggestions) {
+          if (s.priority === 'high' && s.risk < 0.3 && s.paramChanges) {
+            applyLLMSuggestion(s.id)
+            newEntries.push(makeEntry(
+              'llm-feature',
+              `LLM 建议自动采纳：${s.target}`,
+              s.fix,
+              ['ai-llm'],
+            ))
+          }
+        }
+      } else if (llmResult?.error) {
+        newEntries.push(makeEntry(
+          'llm-feature',
+          `LLM 分析失败：${llmResult.error}`,
+          undefined,
+          ['ai-llm'],
+        ))
+      }
+    } else {
+      newEntries.push(makeEntry(
+        'global-adapt',
+        `全局适配完成（LLM 未启用，使用 Q-table 策略）`,
+        `本轮协调了 ${strategies.length} 个 Agent 策略，经验包模块 ${pack.modules.length} 个`,
+        pack.modules.filter(m => m.category === 'ai' || m.category === 'context').map(m => m.id),
+      ))
+    }
 
     await sleep(200)
 
@@ -1011,6 +1069,113 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     return { localStorageCount: lsCount, sessionStorageCount: ssCount }
   }, [])
 
+  // ===== pack30: LLM 驱动的优化分析 =====
+
+  /** 更新 LLM 配置（持久化到 localStorage） */
+  const updateLLMConfig = useCallback((patch: Partial<LLMConfig>) => {
+    setLlmConfig(prev => {
+      const next = { ...prev, ...patch }
+      safeSet(LLM_CONFIG_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
+  /** 测试 LLM 连接 */
+  const testLLM = useCallback(async () => {
+    return testLLMConnection(llmConfig)
+  }, [llmConfig])
+
+  /** 运行 LLM 分析（采集当前指标 → 调 LLM → 返回建议） */
+  const runLLMAnalysis = useCallback(async (): Promise<LLMAnalysisResult | null> => {
+    if (!llmConfig.enabled) {
+      monitor.logEvent('warning', 'agent', 'LLM 分析跳过：未启用')
+      return null
+    }
+    if (!llmConfig.apiKey) {
+      monitor.logEvent('warning', 'agent', 'LLM 分析跳过：未配置 API Key')
+      return null
+    }
+
+    setIsLLMAnalyzing(true)
+    try {
+      const metrics = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
+      const scores = computeScores(metrics)
+      // monitor.summary.errorEvents 是 number（错误计数），不是数组
+      const recentErrors: string[] = metrics.errorCount > 0
+        ? [`最近 ${metrics.errorCount} 个错误`]
+        : []
+
+      monitor.logEvent('info', 'agent', `LLM 分析开始：模型=${llmConfig.model}，综合分=${scores.overall}`)
+
+      const result = await analyzeWithLLM(llmConfig, metrics, scores, params, recentErrors)
+      setLlmAnalysis(result)
+
+      if (result.error) {
+        monitor.logEvent('error', 'agent', `LLM 分析失败：${result.error}`)
+      } else {
+        monitor.logEvent('info', 'agent', `LLM 分析完成：${result.suggestions.length} 条建议，置信度=${(result.confidence * 100).toFixed(0)}%`)
+      }
+
+      return result
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      monitor.logEvent('error', 'agent', `LLM 分析异常：${errMsg}`)
+      const failResult: LLMAnalysisResult = {
+        timestamp: new Date().toISOString(),
+        reasoning: `LLM 分析异常: ${errMsg}`,
+        confidence: 0,
+        suggestions: [],
+        model: llmConfig.model,
+        error: errMsg,
+      }
+      setLlmAnalysis(failResult)
+      return failResult
+    } finally {
+      setIsLLMAnalyzing(false)
+    }
+  }, [llmConfig, params, monitor])
+
+  /** 采纳 LLM 建议（应用参数变更到 TunableParams） */
+  const applyLLMSuggestion = useCallback((suggestionId: string): boolean => {
+    if (!llmAnalysis) return false
+    const suggestion = llmAnalysis.suggestions.find(s => s.id === suggestionId)
+    if (!suggestion) return false
+    if (!suggestion.paramChanges || Object.keys(suggestion.paramChanges).length === 0) {
+      // 代码级建议：仅记录已采纳，不自动应用
+      setAdoptedSuggestions(prev => [
+        ...prev,
+        { suggestionId, timestamp: new Date().toISOString(), target: suggestion.target, applied: false },
+      ])
+      monitor.logEvent('info', 'agent', `LLM 建议已采纳（代码级，需手动应用）：${suggestion.target}`)
+      return false
+    }
+
+    // 参数级建议：应用到 params
+    setParams(prev => {
+      const next = { ...prev, ...suggestion.paramChanges! }
+      safeSet(AGENT_PARAMS_KEY, JSON.stringify(next))
+      return next
+    })
+    setAppliedOptimizations(prev => prev + 1)
+    setAdoptedSuggestions(prev => [
+      ...prev,
+      { suggestionId, timestamp: new Date().toISOString(), target: suggestion.target, applied: true, paramChanges: suggestion.paramChanges },
+    ])
+    monitor.logEvent('info', 'agent', `LLM 建议已采纳（参数级）：${suggestion.target} → ${JSON.stringify(suggestion.paramChanges)}`)
+    return true
+  }, [llmAnalysis, monitor])
+
+  /** 忽略 LLM 建议（从列表移除） */
+  const dismissLLMSuggestion = useCallback((suggestionId: string) => {
+    setLlmAnalysis(prev => {
+      if (!prev) return null
+      return {
+        ...prev,
+        suggestions: prev.suggestions.filter(s => s.id !== suggestionId),
+      }
+    })
+  }, [])
+
   const clearAgentRuntimeCache = useCallback(() => {
     let cleared = 0
     const lsKeys: string[] = []
@@ -1098,6 +1263,9 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     wikiSync, inspectAndPushToWiki, updateWikiSyncConfig,
     // pack28 超级进化：学习效果指标
     learningMetrics, runLearningValidation,
+    // pack30 LLM 进化：LLM 驱动的优化分析
+    llmConfig, llmAnalysis, adoptedSuggestions, isLLMAnalyzing,
+    runLLMAnalysis, updateLLMConfig, applyLLMSuggestion, dismissLLMSuggestion, testLLM,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>
