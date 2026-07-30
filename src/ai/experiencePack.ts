@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 13
+const PACK_BUILD = 14
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -620,6 +620,27 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: '用户说"加个登录方式" → ① 读 Skill 提示"按 Karpathy 四步执行" → ② 读经验包找 AuthContext module → ③ 写代码 → ④ 写回经验包（新增 conversationLog + patterns）→ ⑤ Skill 规则若需更新（如"OAuth 登录新流程"）也同步更新',
     badExample: '用户说"加个登录方式" → 只改代码 → 不更新 Skill 也不更新经验包 → 下次模型完全不知道这次发生了什么',
     consequence: 'Skill 与经验包脱节 → Skill 变成死规则 → 经验包变成死档案 → 两者失去协同进化的能力 → 项目失去"自我积累"的核心价值',
+  },
+  // —— pack14 新增：动态适配元规则（用户要求"动态调配、自动归类、反硬编码"） ——
+  { category: 'meta-workflow', rule: '动态适配元规则：禁止硬编码可变数据，所有统计/列表/按钮必须从数据源动态计算或从注册表动态读取',
+    description: '用户原话："对代码进行优化，进行动态调配，自动归类，举例子，如关卡数显示用监测获取，应用的skill根据安装的看，不要有难以适配的硬化代码"。核心原则：① 统计数字（关卡数、挑战数、skill数、主题数）必须从数据数组 .length 动态计算，禁止写死数字；② skill 列表必须从注册表（installedSkills.ts）动态读取，新增 skill = 追加 1 条记录，不改其他代码；③ 主页按钮必须遍历 webSkills 动态渲染，新增有 Web 入口的 skill 时自动出现按钮；④ 版本描述等可变文案不硬编码在组件中，从配置层读取；⑤ 添加 Web 新功能后，原有代码运行后的界面能根据新功能自动更新——不需要人工同步修改统计数字或按钮列表。验证标准：新增 1 条数据 → 对应统计值自动 +1 → 对应 UI 自动渲染 → 无需改其他代码。',
+    goodExample: '新增 skill "xxx" → 在 installedSkills.ts 追加 1 条记录（含 webIntegration）→ 主页自动出现新按钮 + 统计区 skillCount 自动 +1 → 不改 Home.tsx',
+    badExample: '新增 skill "xxx" → 在 Home.tsx 手动加 <a> 标签 + 在统计区手动改数字 + 在经验包对话日志手动改"已安装7个"为"已安装8个" → 3 处硬编码需同步',
+    consequence: '硬编码统计数字 → 新增数据后界面显示旧数字 → 用户以为没更新 → 信任崩塌；硬编码按钮列表 → 新增功能后用户找不到入口 → 功能断层',
+  },
+  // —— pack14 新增：用户思维模式元逻辑（可跨界迁移的经验） ——
+  { category: 'meta-workflow', rule: '用户思维模式元逻辑：将"动态调配→自动归类→举例子验证→跨界迁移→自动总结"的思维模式作为可复用元逻辑，适用于任何项目',
+    description: '用户的核心思维模式（可跨界迁移到任何项目）：① 动态调配 — 不硬编码可变值，让系统从数据源自动感知变化（举例：关卡数从 levels.length 取，不从经验包文本取）；② 自动归类 — 新增数据后系统自动归入正确分类，不需人工指定（举例：skill 按 category 自动归类，新增 skill 自动进入对应分类）；③ 举例子验证 — 用具体例子验证抽象规则是否生效（举例：新增 1 个 skill → 主页自动出现按钮 + 统计 +1 → 验证动态适配生效）；④ 跨界迁移 — 思维模式不绑定具体项目，可迁移到其他项目（举例：动态调配不仅适用于 skill 列表，也适用于关卡列表、主题列表、成就列表等任何可变数据）；⑤ 自动总结写入 — 每次对话后自动总结本轮做了什么，写入经验包 CONVERSATION_LOG + 提炼新规则写入 CONVENTIONS/PATTERNS，让经验包持续积累。这五步构成一个自我进化的闭环：动态调配确保数据准确 → 自动归类确保结构清晰 → 举例子验证确保规则有效 → 跨界迁移确保经验可复用 → 自动总结写入确保经验不丢失。',
+    goodExample: '用户说"加个新功能X" → ① 分析X的可变数据 → ② 创建注册表让X可动态扩展 → ③ 写完后举例子验证（新增1条X → 界面自动更新）→ ④ 总结"X的动态调配模式"可迁移到其他列表 → ⑤ 写入经验包',
+    badExample: '用户说"加个新功能X" → 直接硬编码写死 → 下次加同类功能Y时又从头写 → 无法复用经验 → 重复劳动',
+    consequence: '不提取思维模式元逻辑 → 每次对话都从零开始 → 经验无法积累 → AI 无法复用用户的思维框架 → 对话效率永远停留在初始水平',
+  },
+  // —— pack14 新增：自动总结写入规则（每次对话后自动总结并写入经验包） ——
+  { category: 'meta-workflow', rule: '每次对话结束后必须自动总结并写入经验包：① 追加 CONVERSATION_LOG 1 条 ② 若有新规则则追加 CONVENTIONS/PATTERNS ③ PACK_BUILD +1 ④ 更新 projectDocs.ts DOC_VERSION + DOC_CHANGES',
+    description: '用户原话："每次对话后自动总结并写入经验包"。这已在 pack5 的"读-执行-写回"元工作流中部分实现，但用户强调"自动总结"——即 AI 不能只被动执行用户指令，还必须主动提炼本轮对话的可复用经验（模式/规则/教训），写入经验包供下一个 AI 调用。自动总结的标准流程：① 本轮改了哪些文件 → filesModified[]；② 本轮引入了什么新模式/约定 → patternsAdded[]；③ 本轮是否有可跨界迁移的思维模式 → 若有则追加到 CONVENTIONS 元逻辑；④ 本轮是否有踩坑/发现 → 若有则追加到 LESSONS；⑤ 写完经验包后 PACK_BUILD +1 + 更新 DOC_VERSION。这一规则确保经验包的"经验密度"持续增长——每轮对话至少新增 1 条对话记录 + 0-N 条新模式/约定/教训。',
+    goodExample: '对话结束 → AI 主动总结"本轮发现 skill 列表硬编码问题 → 提炼动态适配元规则 + 用户思维模式元逻辑 → 写入 CONVENTIONS + CONVERSATION_LOG + PACK_BUILD +1',
+    badExample: '对话结束 → AI 只改了代码 → 不总结不写回经验包 → 下次 AI 完全不知道这次发生了什么 → 重复踩坑',
+    consequence: '不自动总结 → 经验包停滞 → 下一个 AI 接手时信息断层 → 无法继承前序对话的经验 → 每次都从零开始',
   },
 ]
 
@@ -1700,6 +1721,14 @@ const CONVERSATION_LOG = [
     summary: '用户要求安装 Graphify skill（90K+⭐ 代码库知识图谱工具），Web主页添加『知识图谱』按钮入口（链接到 /python-web-try/graphify/graph.html），并将所有已安装 Skill 写入经验包供下一个 AI 调用。已创建 public/graphify/ 目录及 README 说明文件。已安装 Skill 清单（7个）：Darwin/autoresearch/taste-skill/impeccable/python-quest-dev-process/Karpathy/Graphify',
     filesModified: ['src/pages/Home/Home.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts', 'public/graphify/README.md'],
     patternsAdded: ['Graphify 代码库知识图谱 Skill（tree-sitter AST + Leiden 算法 + 3秒生成交互式图谱 + Token 省降 71.5 倍）', '已安装 Skill 清单模式（外部 Skill 信息写入经验包供下一个 AI 调用）'],
+    date: '2026-07-30',
+  },
+  // —— pack14 新增：动态适配元规则 + 用户思维模式元逻辑 ——
+  {
+    id: 'conv-20260730-17',
+    summary: '用户要求代码动态调配、自动归类、反硬编码。创建了 src/config/installedSkills.ts skill注册表（7条skill记录+6个动态查询函数），主页按钮改为遍历 webSkills 动态渲染（新增skill自动出现按钮+统计区自动+1），统计区新增"已装Skill"计数。在经验包添加3条meta-workflow编码约定：动态适配元规则、用户思维模式元逻辑（可跨界迁移）、自动总结写入规则。消除分散硬编码，实现"新增skill=追加1条记录=全站自动感知"',
+    filesModified: ['src/config/installedSkills.ts', 'src/pages/Home/Home.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['skill注册表模式（installedSkills.ts 集中管理+动态查询函数+webIntegration自动渲染按钮）', '动态适配元规则（禁止硬编码可变数据，统计/列表/按钮从数据源动态计算）', '用户思维模式元逻辑（动态调配→自动归类→举例子验证→跨界迁移→自动总结写入，五步闭环可跨界复用）', '自动总结写入规则（每次对话后主动提炼可复用经验写入经验包）'],
     date: '2026-07-30',
   },
 ]

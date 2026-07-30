@@ -6,6 +6,7 @@ import { CURRENT_VERSION, getCurrentVersionInfo } from '../../config/versionMana
 import { levels } from '../../data/mockData'
 import { runoobTopics } from '../../data/runoobTopics'
 import { useMonitor } from '../../context/MonitorContext'
+import { getWebIntegratedSkills, getInstalledSkillCount } from '../../config/installedSkills'
 
 function Home() {
   const { registerGroup } = useMonitor()
@@ -17,20 +18,25 @@ function Home() {
   }, [registerGroup])
 
   // 自动计算统计数据（迭代新增关卡/卡片时自动更新）
-  const { totalLevels, totalChallenges, totalTopics, totalCategories } = useMemo(() => {
+  const { totalLevels, totalChallenges, totalTopics, totalCategories, skillCount } = useMemo(() => {
     const totalLevels = levels.length
     const totalChallenges = levels.reduce((s, l) => s + (l.challenges || 0), 0)
     const totalTopics = runoobTopics.length
     const categorySet = new Set(levels.map((l) => l.category))
     const totalCategories = categorySet.size
-    return { totalLevels, totalChallenges, totalTopics, totalCategories }
+    const skillCount = getInstalledSkillCount()
+    return { totalLevels, totalChallenges, totalTopics, totalCategories, skillCount }
   }, [])
+
+  // 动态获取有 Web 入口的 skill（主页按钮自动渲染，新增 skill 无需改这里）
+  const webSkills = useMemo(() => getWebIntegratedSkills(), [])
 
   const stats = [
     { value: String(totalLevels), label: '大关卡' },
     { value: String(totalChallenges) + '+', label: '编程挑战' },
     { value: String(totalTopics), label: '主题卡片' },
-    { value: String(totalCategories) + ' 类', label: '课程分类' }
+    { value: String(totalCategories) + ' 类', label: '课程分类' },
+    { value: String(skillCount), label: '已装Skill' }
   ]
 
   return (
@@ -62,19 +68,31 @@ function Home() {
             <Link to="/map" className="btn btn-primary btn-lg">
               开始冒险
             </Link>
-            <Link to="/source" className="btn btn-secondary btn-lg">
-              <span className="btn-icon">🔧</span>
-              源码探索
-            </Link>
-            <a
-              href="/python-web-try/graphify/graph.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary btn-lg"
-            >
-              <span className="btn-icon">🕸️</span>
-              知识图谱
-            </a>
+            {webSkills.map(skill => {
+              if (skill.webIntegration.type === 'route') {
+                return (
+                  <Link key={skill.id} to={skill.webIntegration.path} className="btn btn-secondary btn-lg">
+                    <span className="btn-icon">{skill.icon}</span>
+                    {skill.buttonText}
+                  </Link>
+                )
+              }
+              if (skill.webIntegration.type === 'external-href') {
+                return (
+                  <a
+                    key={skill.id}
+                    href={skill.webIntegration.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary btn-lg"
+                  >
+                    <span className="btn-icon">{skill.icon}</span>
+                    {skill.buttonText}
+                  </a>
+                )
+              }
+              return null
+            })}
           </div>
 
           <div className="hero-stats animate-fade-in delay-400">
