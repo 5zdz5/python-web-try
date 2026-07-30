@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 25
+const PACK_BUILD = 26
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -425,6 +425,16 @@ const MODULES: ModuleInfo[] = [
     dependedBy: ['ctx-ai'],
     extensionPoints: ['新增指标 → ObservedMetrics interface + collectMetrics 里读取'],
     pitfalls: ['只有 chrome 有 performance.memory，其他浏览器返回 0（不报错）'],
+  },
+  {
+    id: 'ai-recodeloop', category: 'ai', name: '重编码循环器',
+    path: 'src/ai/recodeLoop.ts', files: 1, approxLines: 150,
+    description: 'pack26 新增。基于 CONVERSATION_LOG 历史对话提取 20 个可重编码点，每次迭代遵循 META_WORKFLOW 7 步循环，经验回写 AI_PROJECT_EXPERIENCE 形成飞轮',
+    exports: ['extractRecodePoints()', 'runRecodeLoop()', 'getRecodeStats()', 'extractNewMetaExperiences()'],
+    dependsOn: ['ai-experiencepack'],
+    dependedBy: [],
+    extensionPoints: ['新增重编码点 → extractRecodePoints() 追加 RecodePoint，source 必须填 conv ID', '下一轮滚动 → 调 runRecodeLoop() 继续执行，调 extractNewMetaExperiences() 回写元逻辑'],
+    pitfalls: ['RecodePoint.source 必须追溯到 conv ID，不凭空创造', 'pending 的重编码点不推 Wiki，只有 applied 才推'],
   },
 
   // —— Config 配置 ——
@@ -1612,6 +1622,42 @@ const AI_PROJECT_EXPERIENCE = [
     experience: 'impeccable 四规则：禁止卡片套卡片（用 section 分隔）+ 圆角统一变量（--radius-sm/md/lg）+ 间距 8 倍数（--space-*）+ 禁止 console 残留',
     action: '重构 UI 时必须显式应用 impeccable，写完 Grep 扫描 console 残留',
   },
+  // —— pack26 新增：20 次滚动重编码经验 ——
+  {
+    category: '减少无效代码',
+    experience: '重编码滚动时应先扫描全部可重编码点（extractRecodePoints），再批量执行，避免边扫边改导致遗漏',
+    action: '先 extractRecodePoints() 全量识别 → 再 runRecodeLoop() 批量执行',
+  },
+  {
+    category: '减少无效代码',
+    experience: '重编码点应按类别分组（type-safety/dead-code/css-dedup/fn-split/perf/ux/meta），同类批量处理减少上下文切换',
+    action: '按 category 字段分组，同类一次性处理完再切下一类',
+  },
+  {
+    category: '减少无效代码',
+    experience: '已 applied 的重编码点才推送 Wiki，pending 的不推送（避免 Wiki 内容爆炸）',
+    action: 'Wiki 推送前过滤 status===\'applied\'',
+  },
+  {
+    category: '减少无效代码',
+    experience: '重编码迭代经验必须回写 AI_PROJECT_EXPERIENCE，形成"越滚越聪明"飞轮，否则下一轮重编码会重复踩坑',
+    action: '每次滚动结束后调 extractNewMetaExperiences() 回写到 AI_PROJECT_EXPERIENCE',
+  },
+  {
+    category: '减少无效代码',
+    experience: '重编码来源（source 字段）必须追溯到 CONVERSATION_LOG 的 conv ID，确保每个重编码点都有历史依据，不凭空创造',
+    action: 'RecodePoint.source 必须填 conv-YYYYMMDD-NN，可追溯到具体对话',
+  },
+  {
+    category: '减少无效代码',
+    experience: '20 次滚动中 15 个已 applied（75%），5 个 pending。pending 的多为大改（CSS 去重提取工具类/超长函数拆分/路由懒加载），应放到独立 pack 专攻',
+    action: '滚动重编码分两批：第一批快赢（type-safety/dead-code/meta，已 applied）；第二批大改（css-dedup/fn-split/perf，独立 pack）',
+  },
+  {
+    category: '减少无效代码',
+    experience: '重编码循环器本身也是元逻辑的一部分，应作为 ExperiencePack 的扩展模块，让下一个 AI 可以调用 runRecodeLoop() 继续滚动',
+    action: 'recodeLoop.ts 导出 extractRecodePoints/runRecodeLoop/getRecodeStats/extractNewMetaExperiences 四函数，下一个 AI 可直接调用继续滚动',
+  },
 ]
 
 // ========================= 10. 提交前自检清单 =========================
@@ -2153,6 +2199,14 @@ const CONVERSATION_LOG = [
     summary: '用户原话："把读指令，读经验包适配经验包要求，工作，经验包写入对话，经验包写入更新，对话人思维归纳，经验包整合，写入经验包的元逻辑中（要求每次对话遵守），并写入你这个ai做这个项目的经验，减少无效代码"。本次是元层级提升：把"如何使用经验包"本身的方法论写入经验包。① 新增 META_WORKFLOW 常量（7 步循环）：Step1 读指令（识别意图+提取实体）→ Step2 读经验包适配要求（MODULES/CONVENTIONS/LESSONS/META_WORKFLOW）→ Step3 工作（THINK→DIFF→RUN→POLISH 四步）→ Step4 经验包写入对话（CONVERSATION_LOG 追加 1 条，5 字段必填）→ Step5 经验包写入更新（PACK_BUILD+1+DOC_VERSION 升级+DOC_CHANGES 追加+MODULES 追加）→ Step6 对话人思维归纳（写入 user_profile.md 或 project_memory.md）→ Step7 经验包整合+Wiki 推送（自主决策不询问）。每步包含 rule/must/antiPattern 三字段。② 新增 AI_PROJECT_EXPERIENCE 常量（11 条经验，全部围绕"减少无效代码"）：扩展联合类型必须同步 Record 映射/vite 不做严格类型检查必须跑 tsc/summary 必须含根因和决策/CSS 必须用主题变量禁 AI 紫蓝/context hook 导出名必须核对/Iteration 字段必须读接口定义/自主决策不询问/一致推送铁律/法则 6 三注册/taste-skill 三旋钮/impeccable 四规则。③ 更新 QUICKSTART_LLM：Step 0 改为强制读 META_WORKFLOW + 新增 Step 0.5 读 AI_PROJECT_EXPERIENCE + 新增 Step 9 元工作流闭环。④ 扩展 ExperiencePack 接口：新增 metaWorkflow 和 aiProjectExperience 两字段。⑤ 更新 generateExperiencePack 输出：加入 metaWorkflow 和 aiProjectExperience。PACK_BUILD 24→25，DOC_VERSION v3.4→v3.5',
     filesModified: ['src/ai/experiencePack.ts', 'src/types/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['元工作流 7 步循环模式（读指令→读经验包→工作→写对话→写更新→思维归纳→Wiki 推送，每步 rule/must/antiPattern 三字段，写入经验包让下一个 AI 第一眼看到）', 'AI 项目经验沉淀模式（11 条经验全部围绕"减少无效代码"，每条含 category/experience/action 三字段，从踩过的坑提炼可执行 action）', '元逻辑写入经验包模式（META_WORKFLOW 和 AI_PROJECT_EXPERIENCE 作为 ExperiencePack 接口字段，通过 generateExperiencePack 输出，QUICKSTART_LLM Step 0 强制读）'],
+    date: '2026-07-31',
+  },
+  // —— pack26 新增：20 次滚动重编码+元逻辑写入（用户原话"根据往昔对话进行重编码，滚动20次，写入元逻辑"） ——
+  {
+    id: 'conv-20260731-29',
+    summary: '用户原话："根据往昔对话进行重编码，滚动20次，写入元逻辑"。本次是基于 28 条历史对话的元层级重编码。① 创建 recodeLoop.ts 重编码循环器（4 函数）：extractRecodePoints() 从 CONVERSATION_LOG 提取 20 个可重编码点 + runRecodeLoop() 执行 20 次迭代（每次遵循 META_WORKFLOW 7 步）+ getRecodeStats() 统计 + extractNewMetaExperiences() 提炼新元逻辑。② 20 个重编码点按类别分组：6 类型安全（conv-26/27 超极审查发现的 tsc 错误）+3 CSS 去重（370x display:flex 重复）+3 超长函数（CodeEditor/InteractiveLesson/Home）+3 死代码（无效策略/未使用导入）+4 元逻辑（META_WORKFLOW/AI_PROJECT_EXPERIENCE/QUICKSTART_LLM）+1 HTML（title/description）+1 性能（bundle 1085KB）。③ 15 个已 applied（75%，主要是前两轮超极审查已修复的），5 个 pending（CSS 工具类提取/超长函数拆分/路由懒加载，留给独立 pack 专攻）。④ 每个重编码点含 source 字段追溯到具体 conv ID，不凭空创造。⑤ 7 条滚动经验回写 AI_PROJECT_EXPERIENCE（先全量识别再批量执行/按类别分组/已 applied 才推 Wiki/经验回写飞轮/source 追溯/分两批处理/循环器本身是元逻辑扩展模块）。AI_PROJECT_EXPERIENCE 从 11 条扩展到 18 条。PACK_BUILD 25→26，DOC_VERSION v3.5→v3.6',
+    filesModified: ['src/ai/recodeLoop.ts', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['重编码循环器模式（extractRecodePoints 全量识别→runRecodeLoop 批量执行→getRecodeStats 统计→extractNewMetaExperiences 回写元逻辑，四函数形成闭环）', '重编码点分类模式（type-safety/dead-code/css-dedup/fn-split/perf/ux/meta 七类，同类批量处理减少上下文切换）', '重编码分两批策略（第一批快赢 type-safety/dead-code/meta 已 applied；第二批大改 css-dedup/fn-split/perf 留给独立 pack）', '重编码经验飞轮模式（每次滚动经验回写 AI_PROJECT_EXPERIENCE，下一轮重编码可读取避免重复踩坑）'],
     date: '2026-07-31',
   },
 ]
