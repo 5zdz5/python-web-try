@@ -16,10 +16,15 @@ import type {
   AgentState, AgentConfig, TunableParams, ObservedMetrics, HealthScores,
   Iteration, Decision, AgentSnapshot, AgentSummary, IterationPhase,
   GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
+  WikiSyncState, WikiPushRecord,
 } from '../types/ai'
 import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
 import { generateExperiencePack } from '../ai/experiencePack'
+import {
+  DEFAULT_WIKI_SYNC, inspectCodebase, pushPackToWiki, pushChangesToWiki,
+  loadWikiSyncState, saveWikiSyncState, applyPushToState,
+} from '../ai/wikiSync'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
 
@@ -29,6 +34,7 @@ const AGENT_CONFIG_KEY = 'python-quest-agent-config'
 const AGENT_SNAPSHOTS_KEY = 'python-quest-agent-snapshots'
 const AGENT_HISTORY_KEY = 'python-quest-agent-history'
 const AGENT_ORCHESTRATION_KEY = 'python-quest-agent-orchestration'
+const AGENT_WIKI_SYNC_KEY = 'python-quest-wiki-sync'  // pack21: Wiki 同步状态持久化
 const MAX_SNAPSHOTS = 8
 const MAX_HISTORY = 20
 const MAX_ORCHESTRATION_ENTRIES = 30
@@ -84,6 +90,11 @@ interface AIAgentContextValue {
   clearAgentRuntimeCache: () => number   // 清 Agent 自身缓存/指标，返回被清理项数
   safeFullReset: () => void              // 安全全量重置（仅 Agent 数据，不碰用户进度/认证）
   agentCacheStats: () => { localStorageCount: number; sessionStorageCount: number }
+
+  // Wiki 同步（pack21 新增：Agent 监察后推到 Wiki，更改也推到 Wiki）
+  wikiSync: WikiSyncState
+  inspectAndPushToWiki: () => Promise<WikiPushRecord[]>
+  updateWikiSyncConfig: (patch: Partial<Pick<WikiSyncState, 'autoPushEnabled'>>) => void
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -159,6 +170,11 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   const [orchestration, setOrchestration] = useState<GlobalOrchestrationState>(() =>
     safeParse(safeGet(AGENT_ORCHESTRATION_KEY), DEFAULT_ORCHESTRATION)
   )
+  // pack21: Wiki 同步状态（Agent 监察后推到 Wiki）
+  const [wikiSync, setWikiSync] = useState<WikiSyncState>(() => {
+    const stored = safeParse(safeGet(AGENT_WIKI_SYNC_KEY), DEFAULT_WIKI_SYNC)
+    return { ...DEFAULT_WIKI_SYNC, ...stored }
+  })
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -174,6 +190,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   useEffect(() => { safeSet(AGENT_HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY))) }, [history])
   useEffect(() => { safeSet(AGENT_SNAPSHOTS_KEY, JSON.stringify(snapshots.slice(0, MAX_SNAPSHOTS))) }, [snapshots])
   useEffect(() => { safeSet(AGENT_ORCHESTRATION_KEY, JSON.stringify({ ...orchestration, entries: orchestration.entries.slice(0, MAX_ORCHESTRATION_ENTRIES) })) }, [orchestration])
+  // pack21: Wiki 同步状态持久化
+  useEffect(() => { saveWikiSyncState(wikiSync) }, [wikiSync])
 
   // ===== 跟踪首页位置 =====
   useEffect(() => {
@@ -664,6 +682,66 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       monitor.logEvent('info', 'agent', `全局调配：经验包已写入`)
     }
 
+    await sleep(200)
+
+    // 阶段 6: 推送到 Wiki（pack21 新增：Agent 监察后推到 Wiki，更改也推到 Wiki）
+    if (wikiSync.autoPushEnabled) {
+      const monitorSummary = `综合分 ${scores.overall}，性能 ${scores.performance}，UX ${scores.ux}，稳定性 ${scores.stability}，内容 ${scores.content}；错误 ${metrics.errorCount}，崩溃 ${metrics.crashCount}`
+      const inspection = inspectCodebase(pack, wikiSync, monitorSummary)
+      const pushRecords: WikiPushRecord[] = []
+
+      // 6a. 经验包推送（仅当有新 PACK_BUILD 或新 DOC_VERSION 时）
+      if (inspection.hasNewPack || inspection.hasNewDocVersion) {
+        const packRecord = pushPackToWiki(pack, inspection)
+        pushRecords.push(packRecord)
+        newEntries.push(makeEntry(
+          'wiki-push',
+          `经验包已推送到 Wiki 队列：PACK_BUILD=${inspection.packBuild} DOC_VERSION=${inspection.docVersion}`,
+          packRecord.errorMessage || `内容哈希 ${packRecord.contentHash}，状态 ${packRecord.status}`,
+          ['ai-wikisync', 'ai-experiencepack'],
+        ))
+        monitor.logEvent('info', 'agent', `全局调配：经验包推送 Wiki（${packRecord.status}）`)
+      }
+
+      // 6b. 代码更改推送（本轮应用的策略作为更改摘要）
+      if (appliedNames.length > 0) {
+        const changesRecord = pushChangesToWiki(
+          appliedNames.map(name => `应用策略：${name}`),
+          {
+            iterationNumber: iterationCountRef.current,
+            appliedStrategies: appliedNames,
+            scoreAfter: scores.overall,
+          },
+        )
+        pushRecords.push(changesRecord)
+        newEntries.push(makeEntry(
+          'wiki-push',
+          `代码更改已推送到 Wiki 队列：${appliedNames.length} 项更改`,
+          changesRecord.errorMessage || `状态 ${changesRecord.status}`,
+          ['ai-wikisync'],
+        ))
+        monitor.logEvent('info', 'agent', `全局调配：代码更改推送 Wiki（${changesRecord.status}）`)
+      }
+
+      // 6c. 应用推送记录到 WikiSyncState
+      if (pushRecords.length > 0) {
+        setWikiSync(prev => {
+          let next = prev
+          for (const record of pushRecords) {
+            next = applyPushToState(next, record)
+          }
+          return next
+        })
+      } else if (inspection.hasNewPack === false && inspection.hasNewDocVersion === false) {
+        newEntries.push(makeEntry(
+          'wiki-push',
+          `Wiki 推送跳过：经验包与文档版本均未变更（PACK_BUILD=${inspection.packBuild} 已推送）`,
+          undefined,
+          ['ai-wikisync'],
+        ))
+      }
+    }
+
     // 提交所有记录
     setOrchestration(prev => ({
       ...prev,
@@ -673,11 +751,47 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       totalAdaptations: prev.totalAdaptations + 1,
     }))
     monitor.logEvent('info', 'agent', `全局调配完成（共 ${newEntries.length} 条记录）`)
-  }, [config, params, orchestration.autoWritePack, monitor])
+  }, [config, params, orchestration.autoWritePack, wikiSync, monitor])
 
   const clearOrchestrationEntries = useCallback(() => {
     setOrchestration(prev => ({ ...prev, entries: [], totalAdaptations: 0 }))
   }, [])
+
+  // ===== pack21: Wiki 同步 — Agent 监察后推到 Wiki =====
+
+  /** 监察代码状态并推送到 Wiki（独立调用入口，不依赖 runGlobalOrchestration） */
+  const inspectAndPushToWiki = useCallback(async (): Promise<WikiPushRecord[]> => {
+    const pack = generateExperiencePack({ generatedBy: 'ai-agent-wiki-sync' })
+    const monitorSummary = `错误 ${monitor.summary.errorEvents}，崩溃 ${monitor.summary.crashed ? '是' : '否'}`
+    const inspection = inspectCodebase(pack, wikiSync, monitorSummary)
+    const records: WikiPushRecord[] = []
+
+    // 经验包推送（有新版本才推）
+    if (inspection.hasNewPack || inspection.hasNewDocVersion) {
+      const r = pushPackToWiki(pack, inspection)
+      records.push(r)
+      monitor.logEvent('info', 'agent', `Wiki 推送：经验包 PACK_BUILD=${inspection.packBuild} DOC_VERSION=${inspection.docVersion}（${r.status}）`)
+    } else {
+      monitor.logEvent('info', 'agent', `Wiki 推送跳过：PACK_BUILD=${inspection.packBuild} 已推送`)
+    }
+
+    // 应用记录到状态
+    if (records.length > 0) {
+      setWikiSync(prev => {
+        let next = prev
+        for (const r of records) next = applyPushToState(next, r)
+        return next
+      })
+    }
+    return records
+  }, [wikiSync, monitor])
+
+  /** 更新 Wiki 同步配置 */
+  const updateWikiSyncConfig = useCallback((patch: Partial<Pick<WikiSyncState, 'autoPushEnabled'>>) => {
+    setWikiSync(prev => ({ ...prev, ...patch }))
+    monitor.logEvent('info', 'agent', `Wiki 同步配置更新：${JSON.stringify(patch)}`)
+  }, [monitor])
+
 
   // ===== 缓存与重置（安全，不碰用户进度/认证）=====
   // 只清理 `python-quest-agent-*` 前缀的 localStorage/sessionStorage
@@ -689,6 +803,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     'python-quest-agent-snapshots',
     'python-quest-agent-orchestration',
     'python-quest-agent-metrics-',
+    'python-quest-wiki-sync',      // pack21: Wiki 同步状态
+    'python-quest-wiki-pending',   // pack21: Wiki 待推送队列
   ]
 
   const agentCacheStats = useCallback(() => {
@@ -788,6 +904,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     currentMetrics, currentScores, strategies: STRATEGIES,
     orchestration, runGlobalOrchestration, clearOrchestrationEntries,
     clearAgentRuntimeCache, safeFullReset, agentCacheStats,
+    // pack21: Wiki 同步能力暴露给 Agent
+    wikiSync, inspectAndPushToWiki, updateWikiSyncConfig,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>

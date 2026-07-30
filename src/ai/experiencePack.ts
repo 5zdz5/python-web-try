@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 20
+const PACK_BUILD = 21
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -663,6 +663,13 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: 'git commit → git status(确认 clean + ahead by 1) → git push origin master → git log origin/master -n 1(确认 hash=本地 HEAD) → 总结写"已推送"',
     badExample: '① commit 后直接 push 不看 status → 工作树有未追踪文件遗漏提交；② push 时不指定分支 → 误推到其他分支；③ push 完不验证 → 推送静默失败但以为成功',
     consequence: '不自检 → 推送流程易在"工作树未 clean / 推到错分支 / 静默失败"三个环节出错 → 远程与本地脱节 → 后续 pull 冲突 → 团队协作灾难',
+  },
+  // —— pack21 新增：Agent 监察后推到 Wiki 规则（用户要求"把这项能力写入agent，让agent监察后推到Wiki，更改也推到Wiki"） ——
+  { category: 'meta-workflow', rule: 'Agent Wiki 同步铁律 — Agent 在 runGlobalOrchestration 阶段 6 必须监察代码状态并推送到 Wiki，经验包变更+代码更改双通道同步',
+    description: '用户 pack21 原话："把这项能力写入agent，让agent监察后推到Wiki，更改也推到Wiki"。Agent Wiki 同步流程：① 监察（inspectCodebase）— 读取当前 PACK_BUILD/DOC_VERSION/监测摘要，对比上次推送的 lastPackBuildPushed/lastDocVersionPushed，判断是否有新内容；② 经验包推送（pushPackToWiki）— 仅当 hasNewPack 或 hasNewDocVersion 为 true 时，构建经验包 Wiki markdown（元信息+模块清单+最近10条对话归档+监测摘要）推送到 Wiki 待推送队列；③ 代码更改推送（pushChangesToWiki）— 当本轮有应用策略时，构建代码更改 Wiki markdown（迭代号+策略清单+评分变化+更改清单）推送到 Wiki 待推送队列；④ 去重 — 基于 PACK_BUILD/DOC_VERSION/contentHash，已推送的版本不重复推；⑤ 消费 — 浏览器端写入 localStorage 待推送队列（python-quest-wiki-pending），由 TRAE IDE 中的 Agent 通过 lark-wiki skill 消费，或可选通过 GitHub API（fetch+token）直接更新 wiki 文件；⑥ 状态持久化 — WikiSyncState（lastPush/lastPackBuildPushed/lastDocVersionPushed/pushHistory/totalPushes/totalFailures）持久化到 localStorage（python-quest-wiki-sync）。Agent 暴露 inspectAndPushToWiki() 方法供独立调用，updateWikiSyncConfig() 供配置开关。本规则实现"代码变更→经验包更新→Wiki 同步"的完整闭环，让 Wiki 始终反映项目最新状态。',
+    goodExample: '全局调配阶段6 → inspectCodebase → hasNewPack=true → pushPackToWiki → 加入待推送队列 → TRAE IDE Agent 通过 lark-wiki skill 消费 → 飞书知识库更新',
+    badExample: '① 经验包更新了但不推 Wiki → Wiki 内容滞后 → 团队成员看到过期信息；② 每次都推不监察 → 重复推送相同版本 → 浪费配额；③ 推送失败不记录 → totalFailures 不增 → 无法发现推送管道问题',
+    consequence: '不同步 Wiki → 项目知识与 Wiki 脱节 → 团队成员/新 AI 模型从 Wiki 读到过期信息 → 决策基于错误前提 → 项目方向偏离；Agent Wiki 同步让 Wiki 成为"活档案"，与经验包+代码三向同步',
   },
   // —— pack12 新增：对话七步闭环规则（用户要求"回顾对话+适配+应用skill+局部监测对接agent+省察遗漏+与web无缝衔接"） ——
   { category: 'meta-workflow', rule: '对话七步闭环：每轮对话必须依次执行 ① 回顾历史对话 ② 逐条适配 ③ 应用 Skill ④ 设置代码局部监测 ⑤ 对接 Agent 运行 ⑥ 省察遗漏 ⑦ 与当前 Web 内容无缝衔接',
@@ -1970,6 +1977,14 @@ const CONVERSATION_LOG = [
     summary: '用户原话："以后一致推送，不准遗漏，编写一套规则，写入源码"。本次会话先提交 pack19（commit 7a593f0，30 files +6444/-32），用户追问"提交"后已 commit 但未 push（违反 pack11 原规则因有"用户说不推才跳过"例外）。用户遂要求升级推送规则为"一致推送不准遗漏"，取消一切例外。编写 2 条 meta-workflow 编码约定写入经验包：① pack11 升级版"一致推送规则"（commit 后必须立即 push，无例外，禁止延迟/被动/遗漏推送，用户主权保留为"不 commit"而非"commit 了不推"）② pack20 新增"推送前自检清单 4 项"（工作树 clean / 本地领先 origin N≥1 / push 目标 master / 推送后验证 origin/master HEAD=本地 HEAD）。同时补录 conv-22（pack19 经验包漏录的对话归档）。PACK_BUILD 19→20，DOC_VERSION v2.9→v3.0',
     filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['一致推送铁律（commit 后必须立即 push，无例外不准遗漏，取消"用户说不推才跳过"例外条款）', '推送前自检清单 4 项（工作树 clean / 本地领先 origin N≥1 / push 目标 master / 推送后验证 HEAD 一致）', '用户主权保留边界（用户可说"不 commit"，但不得要求"commit 了不推"的矛盾状态）'],
+    date: '2026-07-30',
+  },
+  // —— pack21 新增：Agent Wiki 同步能力（用户要求"把这项能力写入agent，让agent监察后推到Wiki，更改也推到Wiki"） ——
+  {
+    id: 'conv-20260730-24',
+    summary: '用户原话："检查一下之前遗漏，省察代码，最后把这项能力写入agent，让agnet监察后推到Wiki，更改也推到Wiki，你再改"。先省察 pack19/pack20 提交：路由/导航/监测注册三注册完整，无遗漏。然后创建 src/ai/wikiSync.ts（430 行）实现 Agent Wiki 同步核心能力：① inspectCodebase() 监察代码状态（PACK_BUILD/DOC_VERSION/模块数/约定数/对话归档数/监测摘要/待推送队列长度，对比上次推送判断 hasNewPack/hasNewDocVersion）② buildPackWikiMarkdown()/buildChangesWikiMarkdown() 构建经验包/代码更改的 Wiki markdown 文档 ③ pushPackToWiki()/pushChangesToWiki() 推送（浏览器端写入 localStorage 待推送队列，供 TRAE IDE Agent 通过 lark-wiki skill 消费；可选通过 GitHub API fetch+token 直接更新 wiki 文件）④ hashContent() djb2 哈希去重 ⑤ loadPendingQueue()/clearPendingQueue() 队列管理 ⑥ applyPushToState() 状态更新。扩展 src/types/ai.ts：OrchestrationEntryType 新增 wiki-push，新增 WikiPushTarget/WikiPushRecord/WikiSyncState 三接口。扩展 src/context/AIAgentContext.tsx：新增 wikiSync 状态 + 持久化 + inspectAndPushToWiki() 独立调用入口 + updateWikiSyncConfig() 配置开关，runGlobalOrchestration 新增阶段 6 Wiki 推送（6a 经验包推送+6b 代码更改推送+6c 状态应用），AGENT_KEY_PREFIXES 加入 wiki-sync/wiki-pending 两 key，value 暴露 wikiSync/inspectAndPushToWiki/updateWikiSyncConfig 三能力给 Agent。经验包新增 1 条 meta-workflow 编码约定"Agent Wiki 同步铁律"。PACK_BUILD 20→21，DOC_VERSION v3.0→v3.1',
+    filesModified: ['src/ai/wikiSync.ts', 'src/types/ai.ts', 'src/context/AIAgentContext.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['Agent Wiki 同步模式（inspect→build→push→dedupe 四步，浏览器端入队+TRAE IDE 消费+可选 GitHub API 直推三通道）', 'runGlobalOrchestration 阶段 6 Wiki 推送（经验包推送+代码更改推送双通道，基于 PACK_BUILD/DOC_VERSION 去重）', 'WikiSyncState 持久化模式（lastPackBuildPushed/lastDocVersionPushed 去重锚点 + pushHistory 审计轨迹 + totalPushes/totalFailures 健康度）', 'WikiPushRecord 状态机（pending→success/failed/skipped，contentHash 去重）'],
     date: '2026-07-30',
   },
 ]

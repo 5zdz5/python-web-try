@@ -170,6 +170,7 @@ export type OrchestrationEntryType =
   | 'llm-feature'        // LLM 驱动的功能新增
   | 'global-adapt'       // 全局适配（跨模块协调）
   | 'pack-write'         // 写入经验包
+  | 'wiki-push'          // 推送到 Wiki（经验包/代码更改同步）
 
 /** 单条调配记录 */
 export interface OrchestrationEntry {
@@ -190,4 +191,35 @@ export interface GlobalOrchestrationState {
   packReadEnabled: boolean           // 是否在每次开发前强制读取经验包
   autoWritePack: boolean             // 是否每次优化后自动写入经验包
   totalAdaptations: number           // 累计适配次数
+}
+
+// ===== Wiki 同步（pack21 新增：Agent 监察后推到 Wiki）=====
+
+/** Wiki 推送目标类型 */
+export type WikiPushTarget = 'experience-pack' | 'code-changes' | 'monitor-report'
+
+/** Wiki 推送状态 */
+export interface WikiPushRecord {
+  id: string                         // 记录 ID
+  timestamp: string                  // 推送时间 ISO
+  target: WikiPushTarget             // 推送目标
+  summary: string                    // 一句话摘要
+  detail?: string                    // 详细说明
+  packBuild?: number                 // 推送时的 PACK_BUILD
+  docVersion?: string                // 推送时的 DOC_VERSION
+  contentHash?: string               // 内容哈希（去重用）
+  status: 'pending' | 'success' | 'failed' | 'skipped'
+  errorMessage?: string              // 失败原因
+}
+
+/** Wiki 同步状态 */
+export interface WikiSyncState {
+  lastPush: string | null            // 上次推送时间 ISO
+  lastPackBuildPushed: number        // 上次已推送的 PACK_BUILD
+  lastDocVersionPushed: string       // 上次已推送的 DOC_VERSION
+  pushHistory: WikiPushRecord[]      // 推送历史（最新在前）
+  autoPushEnabled: boolean           // 是否自动推送（监察后自动推）
+  pendingChanges: string[]           // 待推送的更改摘要队列
+  totalPushes: number                // 累计推送次数
+  totalFailures: number              // 累计失败次数
 }
