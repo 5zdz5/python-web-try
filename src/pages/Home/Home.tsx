@@ -66,6 +66,15 @@ function Home() {
               <span className="btn-icon">🔧</span>
               源码探索
             </Link>
+            <a
+              href="/python-web-try/graphify/graph.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary btn-lg"
+            >
+              <span className="btn-icon">🕸️</span>
+              知识图谱
+            </a>
           </div>
 
           <div className="hero-stats animate-fade-in delay-400">

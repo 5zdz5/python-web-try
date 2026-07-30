@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 12
+const PACK_BUILD = 13
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -924,6 +924,33 @@ const METRICS = {
 // 每次修改后：跑3个独立验证 → 全过=保留 → 任一失败=git revert
 // 禁止自评（SkillLens: LLM自评准确率仅46.4%）`,
   },
+  // —— pack13 新增：Graphify 知识图谱 Skill ——
+  {
+    name: 'Graphify 代码库知识图谱 Skill',
+    category: 'external-skill',
+    filePattern: '外部 Skill: safishamsi/graphify (90K+ ⭐)',
+    where: '项目根目录运行 `/graphify .` 生成 graphify-out/',
+    description: 'Graphify 是面向 AI 编程助手的知识图谱 Skill，核心功能是将任意代码库转换成可查询的结构化知识图谱。技术栈：tree-sitter AST 本地解析 + Leiden 图算法社区发现。输出产物：① graph.html — 交互式可视化图谱（点节点可展开、筛选）② graph.json — 结构化数据 ③ graph_report.md — 总览报告。收益：① Token 省降 71.5 倍（相对原始上下文）② 视觉化代码理解（模块间关系一目了然）③ 可查询图谱（向 AI 提问代码结构）。支持平台：Claude Code、Codex、OpenCode、Cursor、Gemini CLI 等 50+ AI 工具',
+    whenToUse: '需要快速理解大型代码库结构、向 AI 提问代码架构、降低 token 成本、可视化模块依赖关系时。本 python-quest 项目已集成：主页"知识图谱"按钮 → /python-web-try/graphify/graph.html',
+    template:
+`# Graphify 安装与使用（本地运行）
+# 1. 安装（PyPI 包名双 y）
+pip install graphifyy
+
+# 2. 注册到 AI 编程助手
+graphify install
+
+# 3. 在项目根目录生成知识图谱（约 3 秒）
+cd python-quest
+graphify .
+
+# 4. 移动生成文件到 Web 可访问目录
+mv graphify-out/* public/graphify/
+
+# 5. Web 访问
+# https://5zdz5.github.io/python-web-try/graphify/graph.html
+`,
+  },
   {
     name: 'python-quest-dev-process Skill（网站开发过程 Skill）',
     category: 'content',
@@ -1665,6 +1692,14 @@ const CONVERSATION_LOG = [
     summary: '用户要求每轮对话执行七步闭环：①回顾CONVERSATION_LOG历史对话逐条理解 ②逐条适配本轮诉求与历史脉络 ③应用5个Skill(Karpathy/Darwin/autoresearch/taste/impeccable) ④代码内主动设置局部监测(registerGroup+reportHealth) ⑤对接AIAgentContext暴露可调参数 ⑥POLISH阶段省察7项遗漏(对话日志/包版本/DOC版本/DOC变更/项目内存/模块修改时间/主题同步) ⑦与Web现有内容无缝衔接(路由+导航+主题+Pyodide+Gist同步)。已将七步闭环规则写入 meta-workflow 编码约定',
     filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['对话七步闭环（回顾/适配/应用skill/局部监测/对接agent/省察遗漏/与web无缝衔接）', '遗漏扫描7项检查清单（CONVERSATION_LOG/PACK_BUILD/DOC_VERSION/DOC_CHANGES/project_memory/lastModified/主题同步）', '局部监测主动注册模式（改动文件必调registerGroup+reportHealth）', 'Agent 对接暴露模式（可调参数必暴露给AIAgentContext/Optimizer.ts）'],
+    date: '2026-07-30',
+  },
+  // —— pack13 新增：Graphify 知识图谱 Skill + 已安装 Skill 清单 ——
+  {
+    id: 'conv-20260730-16',
+    summary: '用户要求安装 Graphify skill（90K+⭐ 代码库知识图谱工具），Web主页添加『知识图谱』按钮入口（链接到 /python-web-try/graphify/graph.html），并将所有已安装 Skill 写入经验包供下一个 AI 调用。已创建 public/graphify/ 目录及 README 说明文件。已安装 Skill 清单（7个）：Darwin/autoresearch/taste-skill/impeccable/python-quest-dev-process/Karpathy/Graphify',
+    filesModified: ['src/pages/Home/Home.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts', 'public/graphify/README.md'],
+    patternsAdded: ['Graphify 代码库知识图谱 Skill（tree-sitter AST + Leiden 算法 + 3秒生成交互式图谱 + Token 省降 71.5 倍）', '已安装 Skill 清单模式（外部 Skill 信息写入经验包供下一个 AI 调用）'],
     date: '2026-07-30',
   },
 ]
