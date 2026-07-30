@@ -43,6 +43,7 @@ const DOMAIN_LABELS: Record<OptDomain, string> = {
   ux: '用户体验',
   content: '内容',
   stability: '稳定性',
+  meta: '元优化',
 }
 
 const PARAM_LABELS: Record<keyof TunableParams, string> = {
@@ -62,6 +63,11 @@ const PARAM_LABELS: Record<keyof TunableParams, string> = {
   enablePrefetch: '路由预取',
   enableLazyPyodide: 'Pyodide懒加载',
   enableErrorRecovery: '错误恢复',
+  enableEmptyLessonScan: '空关卡扫描',
+  enableBrokenImageCheck: '损坏图片检测',
+  contentRefreshInterval: '内容刷新(ms)',
+  agentLearningRate: 'Agent学习率',
+  strategyExplorationRate: '策略探索率',
 }
 
 const ORC_TYPE_LABELS: Record<OrchestrationEntryType, { label: string; icon: string; color: string }> = {
@@ -70,6 +76,7 @@ const ORC_TYPE_LABELS: Record<OrchestrationEntryType, { label: string; icon: str
   'llm-feature': { label: 'LLM功能', icon: '🧠', color: '#8b5cf6' },
   'global-adapt': { label: '全局适配', icon: '🌐', color: '#06b6d4' },
   'pack-write': { label: '写入经验包', icon: '📦', color: '#f59e0b' },
+  'wiki-push': { label: 'Wiki推送', icon: '📝', color: '#c4ff00' },
 }
 
 function formatTime(iso: string): string {

@@ -16,6 +16,7 @@
 export interface PackMetadata {
   schemaVersion: '1.0'           // 经验包自身 schema 版本
   packVersion: string             // 经验包版本号，如 "v1.3-pack4"
+  packBuild: number               // 经验包构建号（数字，如 24）
   generatedAt: string             // 生成时间 ISO
   generatedBy: 'ai-agent' | 'manual'
   appVersion: string              // 应用版本号 (CURRENT_VERSION)

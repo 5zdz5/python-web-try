@@ -21,7 +21,7 @@ import './EvolutionArchive.css'
 function EvolutionArchive() {
   const {
     history, summary, orchestration, wikiSync, snapshots,
-    state, config, currentIteration, currentScores,
+    state, currentIteration,
     startAgent, stopAgent, resetAgent, runGlobalOrchestration,
   } = useAIAgent()
   const { registerGroup, reportHealth } = useMonitor()

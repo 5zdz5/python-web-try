@@ -22,8 +22,8 @@
  */
 
 import type {
-  ExperiencePack, CodingConvention, DesignPattern,
-  LessonLearned, ConversationLogEntry,
+  CodingConvention, DesignPattern,
+  LessonLearned,
 } from '../types/experiencePack'
 import {
   PACK_SCHEMA_VERSION, PACK_BUILD,
@@ -162,7 +162,7 @@ export function generateConversationsPack() {
     topPatterns: (() => {
       const counts: Record<string, number> = {}
       CONVERSATION_LOG.forEach(c => {
-        (c.patternsAdded || []).forEach(p => { counts[p] = (counts[p] || 0) + 1 })
+        (c.patternsAdded || []).forEach((p: string) => { counts[p] = (counts[p] || 0) + 1 })
       })
       return Object.entries(counts)
         .sort((a, b) => b[1] - a[1])

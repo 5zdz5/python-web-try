@@ -17,7 +17,7 @@
 import type {
   ExperiencePack, ModuleInfo, CodingConvention, DesignPattern,
   LessonLearned, ReusableComponent, ExtensionRoadmap, BuildConstraints,
-  ArchitectureOverview, FileTreeNode,
+  ArchitectureOverview, FileTreeNode, ConversationLogEntry,
 } from '../types/experiencePack'
 import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '../config/versionManager'
 
@@ -2121,12 +2121,14 @@ export function generateExperiencePack(
     customNote: string
   }> = {}
 ): ExperiencePack {
-  const packVersion = `${CURRENT_VERSION}-pack${options.packBuild ?? PACK_BUILD}`
+  const packBuild = options.packBuild ?? PACK_BUILD
+  const packVersion = `${CURRENT_VERSION}-pack${packBuild}`
 
   return {
     meta: {
       schemaVersion: PACK_SCHEMA_VERSION,
       packVersion,
+      packBuild,
       generatedAt: new Date().toISOString(),
       generatedBy: options.generatedBy ?? 'manual',
       appVersion: CURRENT_VERSION,

@@ -23,7 +23,7 @@ import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } f
 import { generateExperiencePack } from '../ai/experiencePack'
 import {
   DEFAULT_WIKI_SYNC, inspectCodebase, pushPackToWiki, pushChangesToWiki,
-  loadWikiSyncState, saveWikiSyncState, applyPushToState,
+  saveWikiSyncState, applyPushToState,
 } from '../ai/wikiSync'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
@@ -761,7 +761,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
   /** 监察代码状态并推送到 Wiki（独立调用入口，不依赖 runGlobalOrchestration） */
   const inspectAndPushToWiki = useCallback(async (): Promise<WikiPushRecord[]> => {
-    const pack = generateExperiencePack({ generatedBy: 'ai-agent-wiki-sync' })
+    const pack = generateExperiencePack({ generatedBy: 'ai-agent' })
     const monitorSummary = `错误 ${monitor.summary.errorEvents}，崩溃 ${monitor.summary.crashed ? '是' : '否'}`
     const inspection = inspectCodebase(pack, wikiSync, monitorSummary)
     const records: WikiPushRecord[] = []
