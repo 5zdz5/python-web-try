@@ -1,23 +1,25 @@
 /**
- * LLM 驱动的优化分析器（pack30：Agent 向 LLM 方向进化）
+ * LLM 驱动的优化分析器（pack30+pack31：Agent 向 LLM 方向进化 + 结合 Skill 训练）
  *
  * 核心职责：
  *   1. 将 Agent 当前的监测指标、健康分数、可调参数打包为结构化 prompt
  *   2. 调用 LLM（OpenAI 兼容接口）获取优化建议
  *   3. 解析 LLM 返回的 JSON 为 LLMSuggestion[]
+ *   4. pack31: 将 Skill 规则注入 system prompt，让 LLM 成为"skill 训练过的顾问"
  *
  * 设计理念：
  *   - LLM 是"顾问"而非"执行者"：输出建议，人工确认后才应用
+ *   - Skill 规则 = few-shot 训练样本：正反例让 LLM 学会项目约定
  *   - 建议分两类：参数级（paramChanges）和代码级（codePatch）
  *   - 参数级建议可安全自动应用（有 BOUNDS 边界保护）
  *   - 代码级建议仅展示，需人工审查后手动应用
- *   - prompt 包含经验包摘要，让 LLM 理解项目上下文
  */
 import type {
   LLMConfig, LLMSuggestion, LLMAnalysisResult,
-  ObservedMetrics, HealthScores, TunableParams,
+  ObservedMetrics, HealthScores, TunableParams, SkillTrainingConfig, SkillCompliance,
 } from '../types/ai'
 import { callLLMJSON, type LLMMessage } from './llmClient'
+import { buildSkillTrainingPrompt, checkAllSuggestionsCompliance } from './skillTrainer'
 
 /** LLM 返回的 JSON schema */
 interface LLMResponseSchema {
@@ -212,14 +214,15 @@ function generateSuggestionId(suggestion: { target: string; problem: string; fix
 }
 
 /**
- * LLM 驱动的优化分析
+ * LLM 驱动的优化分析（pack31: 支持 Skill 训练）
  *
  * @param config LLM 配置
  * @param metrics 当前运行时指标
  * @param scores 当前健康度评分
  * @param params 当前可调参数
  * @param recentErrors 最近的错误记录（可选）
- * @returns LLM 分析结果（包含建议列表）
+ * @param skillTrainingConfig Skill 训练配置（可选，启用后注入 skill 规则到 prompt）
+ * @returns LLM 分析结果（包含建议列表 + 合规检测）
  */
 export async function analyzeWithLLM(
   config: LLMConfig,
@@ -227,33 +230,50 @@ export async function analyzeWithLLM(
   scores: HealthScores,
   params: TunableParams,
   recentErrors?: string[],
-): Promise<LLMAnalysisResult> {
+  skillTrainingConfig?: SkillTrainingConfig,
+): Promise<{ result: LLMAnalysisResult; compliance: SkillCompliance[] }> {
   const timestamp = new Date().toISOString()
 
   if (!config.enabled) {
     return {
-      timestamp,
-      reasoning: 'LLM 分析未启用',
-      confidence: 0,
-      suggestions: [],
-      model: config.model,
-      error: 'LLM 分析未启用，请在配置中开启',
+      result: {
+        timestamp,
+        reasoning: 'LLM 分析未启用',
+        confidence: 0,
+        suggestions: [],
+        model: config.model,
+        error: 'LLM 分析未启用，请在配置中开启',
+      },
+      compliance: [],
     }
   }
 
   if (!config.apiKey) {
     return {
-      timestamp,
-      reasoning: '未配置 API Key',
-      confidence: 0,
-      suggestions: [],
-      model: config.model,
-      error: '未配置 API Key，无法调用 LLM',
+      result: {
+        timestamp,
+        reasoning: '未配置 API Key',
+        confidence: 0,
+        suggestions: [],
+        model: config.model,
+        error: '未配置 API Key，无法调用 LLM',
+      },
+      compliance: [],
     }
   }
 
+  // pack31: 构建 skill 训练 prompt（如果启用）
+  const skillPrompt = skillTrainingConfig?.enabled
+    ? buildSkillTrainingPrompt(skillTrainingConfig)
+    : ''
+
+  // pack31: system prompt = 基础角色 prompt + skill 训练规则
+  const systemContent = skillPrompt
+    ? `${buildSystemPrompt()}\n${skillPrompt}`
+    : buildSystemPrompt()
+
   const messages: LLMMessage[] = [
-    { role: 'system', content: buildSystemPrompt() },
+    { role: 'system', content: systemContent },
     { role: 'user', content: buildUserPrompt(metrics, scores, params, recentErrors) },
   ]
 
@@ -279,28 +299,44 @@ export async function analyzeWithLLM(
       }
     })
 
+    // pack31: skill 合规检测
+    const compliance = skillTrainingConfig?.enabled
+      ? checkAllSuggestionsCompliance(suggestions, skillTrainingConfig)
+      : []
+
+    // pack31: 严格模式下过滤违规建议
+    const filteredSuggestions = skillTrainingConfig?.strictMode
+      ? suggestions.filter(s => !compliance.some(c => c.suggestionId === s.id && c.status === 'violation'))
+      : suggestions
+
     return {
-      timestamp,
-      reasoning: data.reasoning || 'LLM 未提供推理过程',
-      confidence: typeof data.confidence === 'number' ? Math.max(0, Math.min(1, data.confidence)) : 0.5,
-      suggestions,
-      model: raw.model,
-      tokenUsage: raw.usage
-        ? {
-            prompt: raw.usage.prompt_tokens,
-            completion: raw.usage.completion_tokens,
-            total: raw.usage.total_tokens,
-          }
-        : undefined,
+      result: {
+        timestamp,
+        reasoning: data.reasoning || 'LLM 未提供推理过程',
+        confidence: typeof data.confidence === 'number' ? Math.max(0, Math.min(1, data.confidence)) : 0.5,
+        suggestions: filteredSuggestions,
+        model: raw.model,
+        tokenUsage: raw.usage
+          ? {
+              prompt: raw.usage.prompt_tokens,
+              completion: raw.usage.completion_tokens,
+              total: raw.usage.total_tokens,
+            }
+          : undefined,
+      },
+      compliance,
     }
   } catch (err) {
     return {
-      timestamp,
-      reasoning: `LLM 分析失败: ${err instanceof Error ? err.message : String(err)}`,
-      confidence: 0,
-      suggestions: [],
-      model: config.model,
-      error: err instanceof Error ? err.message : String(err),
+      result: {
+        timestamp,
+        reasoning: `LLM 分析失败: ${err instanceof Error ? err.message : String(err)}`,
+        confidence: 0,
+        suggestions: [],
+        model: config.model,
+        error: err instanceof Error ? err.message : String(err),
+      },
+      compliance: [],
     }
   }
 }

@@ -295,3 +295,24 @@ export interface AdoptedSuggestion {
   paramChanges?: Partial<TunableParams>
 }
 
+// ===== Skill 训练（pack31：结合 Skill 进行 LLM 训练）=====
+
+/** Skill 训练配置 */
+export interface SkillTrainingConfig {
+  enabled: boolean                   // 是否启用 skill 训练
+  activeSkillIds: string[]           // 参与训练的 skill ID（空数组=所有已启用 skill）
+  strictMode: boolean                // 严格模式：违规建议自动拦截，不采纳
+}
+
+/** Skill 合规检测结果 */
+export interface SkillCompliance {
+  ruleId: string                     // 规则 ID
+  skillId: string                    // 所属 skill ID
+  skillName: string                  // 所属 skill 名称
+  ruleTitle: string                  // 规则标题
+  status: 'pass' | 'warn' | 'violation'  // pass=合规 warn=警告 violation=违规
+  reason: string                     // 原因说明
+  suggestionId: string               // 关联的建议 ID
+}
+
+

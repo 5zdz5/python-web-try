@@ -1215,3 +1215,94 @@
   font-family: var(--font-mono);
   color: var(--color-text-muted);
 }
+
+/* ===== pack31: Skill 训练 ===== */
+.aap-skill-training-config {
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aap-skill-training-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.aap-skill-list {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.aap-suggestion-compliance {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aap-compliance-detail {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.aap-compliance-violation {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+.aap-compliance-warn {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.aap-skill-compliance {
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+.aap-skill-compliance-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.aap-skill-compliance-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+}
+.aap-skill-compliance-item.aap-compliance-violation {
+  background: rgba(239, 68, 68, 0.08);
+}
+.aap-skill-compliance-item.aap-compliance-warn {
+  background: rgba(245, 158, 11, 0.08);
+}
+.aap-compliance-status {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.aap-compliance-rule {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+.aap-compliance-reason {
+  color: var(--color-text-primary);
+  flex: 1;
+}

@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react'
 import { useAIAgent } from '../context/AIAgentContext'
 import type { AgentState, TunableParams, OptDomain, OrchestrationEntryType, LLMSuggestion } from '../types/ai'
+import { getSkillTrainingSummary } from '../ai/skillTrainer'
 import './AIAgentPanel.css'
 
 const STATE_LABELS: Record<AgentState, string> = {
@@ -111,14 +112,16 @@ function ParamRow({ name, value }: { name: keyof TunableParams; value: string | 
   )
 }
 
-function SuggestionCard({ suggestion, adopted, onAdopt, onDismiss }: {
+function SuggestionCard({ suggestion, adopted, onAdopt, onDismiss, compliances }: {
   suggestion: LLMSuggestion
   adopted: boolean
   onAdopt: () => void
   onDismiss: () => void
+  compliances?: Array<{ status: string; reason: string; skillName: string; ruleTitle: string }>
 }) {
   const priorityColors: Record<string, string> = { high: '#ef4444', medium: '#f59e0b', low: '#6b7280' }
   const priorityLabels: Record<string, string> = { high: '高', medium: '中', low: '低' }
+  const hasViolation = compliances?.some(c => c.status === 'violation')
 
   return (
     <div className="aap-llm-suggestion" style={{ borderLeftColor: priorityColors[suggestion.priority] }}>
@@ -128,6 +131,9 @@ function SuggestionCard({ suggestion, adopted, onAdopt, onDismiss }: {
           {priorityLabels[suggestion.priority]}
         </span>
         <span className="aap-llm-suggestion-risk">风险 {Math.round(suggestion.risk * 100)}%</span>
+        {hasViolation && (
+          <span className="aap-badge" style={{ background: 'rgba(239,68,68,0.2)', color: '#ef4444' }}>Skill 违规</span>
+        )}
       </div>
       <div className="aap-llm-suggestion-problem">{suggestion.problem}</div>
       <div className="aap-llm-suggestion-fix">{suggestion.fix}</div>
@@ -141,10 +147,21 @@ function SuggestionCard({ suggestion, adopted, onAdopt, onDismiss }: {
       {suggestion.rationale && (
         <div className="aap-llm-suggestion-rationale">理由：{suggestion.rationale}</div>
       )}
+      {/* pack31: 该建议的 Skill 合规检测详情 */}
+      {compliances && compliances.length > 0 && (
+        <div className="aap-suggestion-compliance">
+          {compliances.map((c, i) => (
+            <div key={i} className={`aap-compliance-detail aap-compliance-${c.status}`}>
+              <span>{c.status === 'violation' ? '✗' : '⚠'}</span>
+              <span>{c.skillName}/{c.ruleTitle}: {c.reason}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="aap-llm-suggestion-actions">
         {!adopted ? (
           <>
-            <button className="aap-btn aap-btn-primary aap-btn-sm" onClick={onAdopt}>
+            <button className="aap-btn aap-btn-primary aap-btn-sm" onClick={onAdopt} disabled={hasViolation}>
               ✓ 采纳
             </button>
             <button className="aap-btn aap-btn-sm" onClick={onDismiss}>
@@ -169,6 +186,7 @@ function AIAgentPanel() {
     clearAgentRuntimeCache, safeFullReset, agentCacheStats,
     llmConfig, llmAnalysis, adoptedSuggestions, isLLMAnalyzing,
     runLLMAnalysis, updateLLMConfig, applyLLMSuggestion, dismissLLMSuggestion, testLLM,
+    skillTrainingConfig, skillCompliance, updateSkillTrainingConfig,
   } = useAIAgent()
 
   const [showParams, setShowParams] = useState(false)
@@ -741,6 +759,42 @@ function AIAgentPanel() {
                 </div>
 
                 {llmTestResult && <div className="aap-llm-test-result">{llmTestResult}</div>}
+
+                {/* pack31: Skill 训练配置 */}
+                <div className="aap-skill-training-config">
+                  <label className="aap-llm-toggle">
+                    <input
+                      type="checkbox"
+                      checked={skillTrainingConfig.enabled}
+                      onChange={e => updateSkillTrainingConfig({ enabled: e.target.checked })}
+                    />
+                    <span>启用 Skill 训练（将项目 Skill 规则注入 LLM prompt）</span>
+                  </label>
+                  {skillTrainingConfig.enabled && (
+                    <>
+                      <label className="aap-llm-toggle">
+                        <input
+                          type="checkbox"
+                          checked={skillTrainingConfig.strictMode}
+                          onChange={e => updateSkillTrainingConfig({ strictMode: e.target.checked })}
+                        />
+                        <span>严格模式（违规建议自动拦截）</span>
+                      </label>
+                      <div className="aap-skill-training-summary">
+                        {(() => {
+                          const s = getSkillTrainingSummary(skillTrainingConfig)
+                          return (
+                            <>
+                              <span className="aap-badge aap-badge-on">{s.totalSkills} 个 Skill</span>
+                              <span className="aap-badge">{s.totalRules} 条规则</span>
+                              <span className="aap-skill-list">{s.activeSkills.join(' · ')}</span>
+                            </>
+                          )
+                        })()}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* LLM 分析结果 */}
@@ -763,18 +817,51 @@ function AIAgentPanel() {
 
                       {llmAnalysis.suggestions.length > 0 ? (
                         <div className="aap-llm-suggestions">
-                          {llmAnalysis.suggestions.map(s => (
-                            <SuggestionCard
-                              key={s.id}
-                              suggestion={s}
-                              adopted={adoptedSuggestions.some(a => a.suggestionId === s.id)}
-                              onAdopt={() => applyLLMSuggestion(s.id)}
-                              onDismiss={() => dismissLLMSuggestion(s.id)}
-                            />
-                          ))}
+                          {llmAnalysis.suggestions.map(s => {
+                            // pack31: 查找该建议的合规检测结果
+                            const compliances = skillCompliance.filter(c => c.suggestionId === s.id)
+                            return (
+                              <SuggestionCard
+                                key={s.id}
+                                suggestion={s}
+                                adopted={adoptedSuggestions.some(a => a.suggestionId === s.id)}
+                                onAdopt={() => applyLLMSuggestion(s.id)}
+                                onDismiss={() => dismissLLMSuggestion(s.id)}
+                                compliances={compliances}
+                              />
+                            )
+                          })}
                         </div>
                       ) : (
                         <div className="aap-empty">LLM 认为当前状态健康，无需优化</div>
+                      )}
+
+                      {/* pack31: Skill 合规检测总览 */}
+                      {skillCompliance.length > 0 && (
+                        <div className="aap-skill-compliance">
+                          <div className="aap-skill-compliance-title">
+                            Skill 合规检测 ({skillCompliance.length} 项)
+                            {skillCompliance.filter(c => c.status === 'violation').length > 0 && (
+                              <span className="aap-badge" style={{ background: 'rgba(239,68,68,0.2)', color: '#ef4444' }}>
+                                {skillCompliance.filter(c => c.status === 'violation').length} 违规
+                              </span>
+                            )}
+                            {skillCompliance.filter(c => c.status === 'warn').length > 0 && (
+                              <span className="aap-badge" style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b' }}>
+                                {skillCompliance.filter(c => c.status === 'warn').length} 警告
+                              </span>
+                            )}
+                          </div>
+                          {skillCompliance.map((c, i) => (
+                            <div key={i} className={`aap-skill-compliance-item aap-compliance-${c.status}`}>
+                              <span className="aap-compliance-status">
+                                {c.status === 'violation' ? '✗' : '⚠'}
+                              </span>
+                              <span className="aap-compliance-rule">{c.skillName}/{c.ruleTitle}</span>
+                              <span className="aap-compliance-reason">{c.reason}</span>
+                            </div>
+                          ))}
+                        </div>
                       )}
                     </>
                   )}

@@ -17,7 +17,7 @@ import type {
   Iteration, Decision, AgentSnapshot, AgentSummary, IterationPhase,
   GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
   WikiSyncState, WikiPushRecord, LearningMetrics,
-  LLMConfig, LLMAnalysisResult, AdoptedSuggestion,
+  LLMConfig, LLMAnalysisResult, AdoptedSuggestion, SkillTrainingConfig, SkillCompliance,
 } from '../types/ai'
 import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies, loadQTable, updateQTable, QTable } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
@@ -28,6 +28,7 @@ import {
 } from '../ai/wikiSync'
 import { DEFAULT_LLM_CONFIG, LLM_CONFIG_KEY, testLLMConnection } from '../ai/llmClient'
 import { analyzeWithLLM } from '../ai/llmAdvisor'
+import { DEFAULT_SKILL_TRAINING_CONFIG, getSkillTrainingSummary } from '../ai/skillTrainer'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
 import { usePyodide } from './PyodideContext'
@@ -115,6 +116,10 @@ interface AIAgentContextValue {
   applyLLMSuggestion: (suggestionId: string) => boolean
   dismissLLMSuggestion: (suggestionId: string) => void
   testLLM: () => Promise<{ ok: boolean; message: string; model?: string }>
+  // pack31 Skill 训练：skill 规则注入 LLM + 合规检测
+  skillTrainingConfig: SkillTrainingConfig
+  skillCompliance: SkillCompliance[]
+  updateSkillTrainingConfig: (patch: Partial<SkillTrainingConfig>) => void
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -208,6 +213,9 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   const [llmAnalysis, setLlmAnalysis] = useState<LLMAnalysisResult | null>(null)
   const [adoptedSuggestions, setAdoptedSuggestions] = useState<AdoptedSuggestion[]>([])
   const [isLLMAnalyzing, setIsLLMAnalyzing] = useState(false)
+  // pack31 Skill 训练：skill 规则注入 LLM prompt + 合规检测
+  const [skillTrainingConfig, setSkillTrainingConfig] = useState<SkillTrainingConfig>(DEFAULT_SKILL_TRAINING_CONFIG)
+  const [skillCompliance, setSkillCompliance] = useState<SkillCompliance[]>([])
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -1085,7 +1093,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     return testLLMConnection(llmConfig)
   }, [llmConfig])
 
-  /** 运行 LLM 分析（采集当前指标 → 调 LLM → 返回建议） */
+  /** 运行 LLM 分析（采集当前指标 → 调 LLM → 返回建议；pack31: 含 skill 训练+合规检测） */
   const runLLMAnalysis = useCallback(async (): Promise<LLMAnalysisResult | null> => {
     if (!llmConfig.enabled) {
       monitor.logEvent('warning', 'agent', 'LLM 分析跳过：未启用')
@@ -1100,20 +1108,27 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     try {
       const metrics = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
       const scores = computeScores(metrics)
-      // monitor.summary.errorEvents 是 number（错误计数），不是数组
       const recentErrors: string[] = metrics.errorCount > 0
         ? [`最近 ${metrics.errorCount} 个错误`]
         : []
 
-      monitor.logEvent('info', 'agent', `LLM 分析开始：模型=${llmConfig.model}，综合分=${scores.overall}`)
+      // pack31: skill 训练摘要
+      const skillSummary = skillTrainingConfig.enabled
+        ? getSkillTrainingSummary(skillTrainingConfig)
+        : null
+      monitor.logEvent('info', 'agent', `LLM 分析开始：模型=${llmConfig.model}，综合分=${scores.overall}${skillSummary ? `，Skill训练=${skillSummary.totalSkills}个skill/${skillSummary.totalRules}条规则` : ''}`)
 
-      const result = await analyzeWithLLM(llmConfig, metrics, scores, params, recentErrors)
+      const { result, compliance } = await analyzeWithLLM(
+        llmConfig, metrics, scores, params, recentErrors, skillTrainingConfig,
+      )
       setLlmAnalysis(result)
+      setSkillCompliance(compliance)
 
       if (result.error) {
         monitor.logEvent('error', 'agent', `LLM 分析失败：${result.error}`)
       } else {
-        monitor.logEvent('info', 'agent', `LLM 分析完成：${result.suggestions.length} 条建议，置信度=${(result.confidence * 100).toFixed(0)}%`)
+        const violationCount = compliance.filter(c => c.status === 'violation').length
+        monitor.logEvent('info', 'agent', `LLM 分析完成：${result.suggestions.length} 条建议，置信度=${(result.confidence * 100).toFixed(0)}%${compliance.length > 0 ? `，合规检测=${compliance.length}项（${violationCount}违规）` : ''}`)
       }
 
       return result
@@ -1133,7 +1148,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLLMAnalyzing(false)
     }
-  }, [llmConfig, params, monitor])
+  }, [llmConfig, params, monitor, skillTrainingConfig])
 
   /** 采纳 LLM 建议（应用参数变更到 TunableParams） */
   const applyLLMSuggestion = useCallback((suggestionId: string): boolean => {
@@ -1174,6 +1189,11 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
         suggestions: prev.suggestions.filter(s => s.id !== suggestionId),
       }
     })
+  }, [])
+
+  /** pack31: 更新 Skill 训练配置 */
+  const updateSkillTrainingConfig = useCallback((patch: Partial<SkillTrainingConfig>) => {
+    setSkillTrainingConfig(prev => ({ ...prev, ...patch }))
   }, [])
 
   const clearAgentRuntimeCache = useCallback(() => {
@@ -1266,6 +1286,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     // pack30 LLM 进化：LLM 驱动的优化分析
     llmConfig, llmAnalysis, adoptedSuggestions, isLLMAnalyzing,
     runLLMAnalysis, updateLLMConfig, applyLLMSuggestion, dismissLLMSuggestion, testLLM,
+    // pack31 Skill 训练
+    skillTrainingConfig, skillCompliance, updateSkillTrainingConfig,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>

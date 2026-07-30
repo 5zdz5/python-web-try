@@ -33,9 +33,10 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v4.0'
+export const DOC_VERSION = 'v4.1'
 export const DOC_LAST_UPDATE = '2026-07-31'
 export const DOC_CHANGES = [
+  'v4.1 pack31：Agent结合Skill进行LLM训练 — 新建skillTrainer.ts（提取8个skill的22条规则构建few-shot训练prompt+合规检测：anti-slop默认值/console残留/LILA紫蓝色/spacing 8倍数）+llmAdvisor.ts注入skill规则到system prompt+严格模式自动拦截违规建议+AIAgentPanel新增Skill训练配置区和合规检测总览UI（SuggestionCard内嵌合规详情+违规建议采纳按钮disabled）',
   'v4.0 pack30：Agent向LLM方向进化 — 新建llmClient.ts（OpenAI兼容API客户端，超时+指数退避重试+JSON模式三重解析）+llmAdvisor.ts（LLM驱动分析器，21参数prompt+17项指标+参数变更安全校验）+AIAgentContext接入LLM分析闭环（runLLMAnalysis+applyLLMSuggestion人工确认+全局调配阶段4真实LLM调用+双模式回退）+AIAgentPanel新增LLM配置面板和建议展示UI（SuggestionCard组件+采纳/忽略按钮+已采纳历史）',
   'v3.9 pack29：Agent超级进化 — Q-table epsilon-greedy 真探索（meta域参数首次真实参与决策）+ Wiki异步真推送闭环（指数退避重试+每5分钟pending队列消费者+fire-and-forget修复）+ P0参数消费补全（autoSaveInterval云端同步节流/animationDuration输出面板动画，参数消费点扩展到3个：debounceMs+autoSaveInterval+animationDuration）',
   '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
