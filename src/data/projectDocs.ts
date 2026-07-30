@@ -33,7 +33,7 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v2.1'
+export const DOC_VERSION = 'v2.2'
 export const DOC_LAST_UPDATE = '2026-07-30'
 export const DOC_CHANGES = [
   '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
@@ -49,7 +49,8 @@ export const DOC_CHANGES = [
   'v1.8：20轮代码筛查与迭代 pack7 — tsc 类型错误 60→0、any 清理 40→约15（保留 API/性能相关）、CSS 硬编码色 33处→CSS 变量、localStorage 保护 3处加 try-catch、事件监听器 5个全有 cleanup、监测覆盖 7/7 页面、ErrorBoundary 全 app 覆盖、XSS 静态内容低风险。新增 VersionProgressData/LeaderboardEntry 类型接口、ConventionCategory/DesignPatternCategory 联合类型扩展、InteractiveStep 加 exercise/answer/explanation',
   'v1.9：按 taste-skill + impeccable 双 Skill 艺术风格优化 pack8 — LILA 紫蓝违规修复 60+处（ErrorBoundary/SourceExplorer/VersionHistory/PatrolButton）、圆角统一为 --radius-* 变量、字体反默认（--font-mono JetBrains Mono 提前）、去除 CSS 变量 fallback 硬编码色、rgba 紫蓝改用 color-mix(in srgb, ...) 表达式',
   'v2.0：接入 Darwin skill（alchaincyf/darwin-skill）与 autoresearch skill（karpathy/autoresearch）pack10 — 新增 6 条编码约定：3 条 darwin-ratchet（棘轮原则分数只升不降+git revert 禁 reset --hard / 独立评委原则禁自评 LLM 自评仅 46.4% / 单一变量原则一轮一维度）、2 条 autoresearch（单文件可修改原则其他只读 / 固定时间预算原则 90s 验证）、1 条 meta-workflow 双螺旋元规则（Skill 是"怎么做"的规则 + 经验包是"做了什么"的记录，两者交叉引用共同迭代进化）。新增 2 条设计模式：Darwin 棘轮+autoresearch 自主实验循环、python-quest-dev-process Skill（网站开发过程 Skill）。扩展 CodingConvention.category 联合类型新增 darwin-ratchet / autoresearch 两个分类。第 13 条对话归档 conv-20260730-13',
-  'v2.1：用户要求"每次对话都推"pack11 — 新增 meta-workflow 编码约定：每轮对话 POLISH 阶段 commit 完成后立即 git push origin master，不要等用户额外说"推送"；用户明确说"不推/本地调试先别推/等会儿推"才跳过。推送完成后在 5 句话总结里写明「已推送」+ commit range（如 198a46e..9e0eb65）+ GitHub Pages 重建提示（1-3分钟后上线）。第 14 条对话归档 conv-20260730-14。PACK_BUILD 10→11，DOC_VERSION v2.0→v2.1'
+  'v2.1：用户要求"每次对话都推"pack11 — 新增 meta-workflow 编码约定：每轮对话 POLISH 阶段 commit 完成后立即 git push origin master，不要等用户额外说"推送"；用户明确说"不推/本地调试先别推/等会儿推"才跳过。推送完成后在 5 句话总结里写明「已推送」+ commit range（如 198a46e..9e0eb65）+ GitHub Pages 重建提示（1-3分钟后上线）。第 14 条对话归档 conv-20260730-14。PACK_BUILD 10→11，DOC_VERSION v2.0→v2.1',
+  'v2.2：对话七步闭环规则 pack12 — 新增 meta-workflow 编码约定：每轮对话必须依次执行 ① 回顾 CONVERSATION_LOG 历史对话逐条理解（不允许跳读，Darwin 独立评委原则）② 逐条适配本轮诉求与历史脉络 ③ 应用 5 个 Skill（Karpathy 四步+Darwin 棘轮+autoresearch 单文件+taste-skill 三旋钮+impeccable 四模式+python-quest-dev-process）④ 代码内主动设置局部监测（useEffect 中 registerGroup + reportHealth）⑤ 对接 AIAgentContext 暴露可调参数给 Agent 自主迭代 ⑥ POLISH 阶段省察 7 项遗漏（CONVERSATION_LOG/PACK_BUILD/DOC_VERSION/DOC_CHANGES/project_memory/lastModified/主题同步）⑦ 与当前 Web 内容无缝衔接（路由注册+导航链接+样式跟随主题+Pyodide+Gist 同步）。第 15 条对话归档 conv-20260730-15。PACK_BUILD 11→12，DOC_VERSION v2.1→v2.2'
 ]
 
 // ===== 技术栈 =====

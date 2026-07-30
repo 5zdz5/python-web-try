@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 11
+const PACK_BUILD = 12
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -606,6 +606,13 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: '对话 POLISH 阶段完成 → git commit → git push origin master → 总结写"已推送 9e0eb65..xxxxxx 到 master，GitHub Pages 1-3分钟后上线"',
     badExample: '用户说"改个bug" → 改完代码 → commit → 告诉用户"要推送吗" → 等用户说推才推（违反默认推送规则）',
     consequence: '不推送 → 用户刷新线上页面看不到最新效果 → 用户以为没改 → 重复劳动；默认推送让用户零等待立即看到变化',
+  },
+  // —— pack12 新增：对话七步闭环规则（用户要求"回顾对话+适配+应用skill+局部监测对接agent+省察遗漏+与web无缝衔接"） ——
+  { category: 'meta-workflow', rule: '对话七步闭环：每轮对话必须依次执行 ① 回顾历史对话 ② 逐条适配 ③ 应用 Skill ④ 设置代码局部监测 ⑤ 对接 Agent 运行 ⑥ 省察遗漏 ⑦ 与当前 Web 内容无缝衔接',
+    description: '用户原话："在经验包之中写入每次对话要回顾我和你之前对话的内容并进行逐条了解，并对每次对话进行适配，并应用 skill，再进行设置代码局部监测，能对接到 agent 运行，并省察遗漏，与当前 web 内容进行无缝衔接"。七步闭环详解：① 回顾历史对话 — 读 CONVERSATION_LOG 数组（pack5 起已存在）从 conv-1 到最近一条，逐条理解每一轮"用户要了什么+AI做了什么+改了哪些文件+加了哪些模式"，不允许跳读（Darwin 独立评委原则：跳读=自评=46.4%准确率）；② 逐条适配 — 本轮用户诉求要与历史对话逐条对照，找出"延续上次的什么脉络/修正上次的什么决策/新增上次的什么功能"，不能孤立看待本轮需求；③ 应用 Skill — 按 Karpathy 四步流水线执行（最高优先级）+ Darwin 棘轮验证（保留改进+回滚退步）+ autoresearch 单文件修改（其他只读）+ taste-skill 三旋钮（anti-slop/字体反默认/LILA）+ impeccable 23 命令四模式 + python-quest-dev-process Skill 全流程；④ 设置代码局部监测 — 本轮改动涉及的文件/组件，要在代码内主动设置局部监测（如 useEffect 中调 useMonitor().registerGroup + reportHealth），让改动可被监测系统追踪到（参考 pack4 的"业务页面 useEffect 主动注册监测组"模式）；⑤ 对接 Agent 运行 — 若本轮改动涉及可调参数/优化策略/指标，要在 AIAgentContext 或 Optimizer.ts 中暴露给 Agent，让 Agent 自主迭代时能感知并利用本轮新增的能力；⑥ 省察遗漏 — POLISH 阶段额外做一次"遗漏扫描"：① CONVERSATION_LOG 是否追加了？② PACK_BUILD 是否+1了？③ DOC_VERSION 是否升级了？④ DOC_CHANGES 是否追加了？⑤ project_memory.md 硬约束是否需要同步？⑥ 相关 module 的 lastModified 是否更新？⑦ 与当前 Web 内容无缝衔接 — 本轮改动的 UI/数据/路由必须与现有 Web 页面无缝衔接：首页能进入、导航有链接、路由已注册、样式跟随主题、Pyodide 可加载、GitHub 同步不阻塞，不出现"改了功能但用户找不到入口"或"新功能与现有 UI 风格冲突"的断层。',
+    goodExample: '用户说"加个新页面X" → ① 读 CONVERSATION_LOG 看上次做过什么 → ② 判断X是否延续上次脉络（如上次加了主题系统，X是否要适配主题）→ ③ 按 Karpathy+Darwin+autoresearch+taste+impeccable 五个 Skill 执行 → ④ X.tsx 内 useEffect 调 registerGroup("X","页面X","src/pages/X/X.tsx") → ⑤ 若 X 有可调参数，暴露给 AIAgentContext → ⑥ POLISH 时扫描 7 项遗漏 → ⑦ X 在 App.tsx 注册路由 + Navbar 加链接 + 样式用 CSS 变量',
+    badExample: '用户说"加个新页面X" → 直接写 X.tsx → 不读历史对话 → 不注册监测组 → 不暴露给 Agent → 不扫描遗漏 → 不在 Navbar 加入口 → 用户找不到页面 → 与 Web 现有结构断层',
+    consequence: '跳过任一步 → 对话"做了但没做透"：回顾缺=方向偏、适配缺=孤立改、Skill 缺=质量低、监测缺=不可观测、Agent 缺=不可优化、省察缺=遗留坑、衔接缺=用户找不到入口 → 七步全跑才能算"对话真正完成"',
   },
   // —— pack10 新增：Skill 与经验包双螺旋迭代元规则（用户本轮核心诉求） ——
   { category: 'meta-workflow', rule: 'Skill 与经验包双螺旋：Skill 是"怎么做"的规则，经验包是"做了什么"的记录，两者交叉引用、共同迭代进化',
@@ -1650,6 +1657,14 @@ const CONVERSATION_LOG = [
     summary: '用户要求每轮对话 POLISH 阶段完成后自动 git push origin master（"每次对话都推"），不要等用户再说"推送"。推送范围：5zdz5/python-web-try 仓库 master 分支。已将 pack10 (9e0eb65) 推送到远程，并将"对话后默认自动推送+总结写明已推送+Pages重建提示+用户明确说不推才跳过"的规则写入 meta-workflow 编码约定，今后每轮对话末尾严格执行',
     filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['对话后默认自动推送规则（POLISH阶段commit后立即git push，不问用户）', '推送总结格式：已推送 xxx..yyy + Pages 1-3分钟重建提示', '用户明确说不推时才跳过推送的例外规则'],
+    date: '2026-07-30',
+  },
+  // —— pack12 新增：对话七步闭环规则（用户要求"回顾对话+适配+应用skill+局部监测对接agent+省察遗漏+与web无缝衔接"） ——
+  {
+    id: 'conv-20260730-15',
+    summary: '用户要求每轮对话执行七步闭环：①回顾CONVERSATION_LOG历史对话逐条理解 ②逐条适配本轮诉求与历史脉络 ③应用5个Skill(Karpathy/Darwin/autoresearch/taste/impeccable) ④代码内主动设置局部监测(registerGroup+reportHealth) ⑤对接AIAgentContext暴露可调参数 ⑥POLISH阶段省察7项遗漏(对话日志/包版本/DOC版本/DOC变更/项目内存/模块修改时间/主题同步) ⑦与Web现有内容无缝衔接(路由+导航+主题+Pyodide+Gist同步)。已将七步闭环规则写入 meta-workflow 编码约定',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['对话七步闭环（回顾/适配/应用skill/局部监测/对接agent/省察遗漏/与web无缝衔接）', '遗漏扫描7项检查清单（CONVERSATION_LOG/PACK_BUILD/DOC_VERSION/DOC_CHANGES/project_memory/lastModified/主题同步）', '局部监测主动注册模式（改动文件必调registerGroup+reportHealth）', 'Agent 对接暴露模式（可调参数必暴露给AIAgentContext/Optimizer.ts）'],
     date: '2026-07-30',
   },
 ]
