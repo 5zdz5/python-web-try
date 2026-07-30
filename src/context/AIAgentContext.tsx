@@ -18,12 +18,12 @@ import type {
   GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
   WikiSyncState, WikiPushRecord, LearningMetrics,
 } from '../types/ai'
-import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies } from '../ai/Optimizer'
+import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies, loadQTable, updateQTable, QTable } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
 import { generateExperiencePack } from '../ai/experiencePack'
 import {
-  DEFAULT_WIKI_SYNC, inspectCodebase, pushPackToWiki, pushChangesToWiki,
-  saveWikiSyncState, applyPushToState,
+  DEFAULT_WIKI_SYNC, inspectCodebase, saveWikiSyncState, applyPushToState,
+  processPendingQueue, pushToWikiAsync, buildPackWikiMarkdown, buildChangesWikiMarkdown
 } from '../ai/wikiSync'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
@@ -184,10 +184,14 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   })
   // pack28 超级进化：学习效果指标（Pyodide 验证闭环）
   const [learningMetrics, setLearningMetrics] = useState<LearningMetrics | null>(null)
+  // pack29 超级进化：Q-table（epsilon-greedy，meta参数真生效）
+  const qTableRef = useRef<QTable>(loadQTable())
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cleanupTrackingRef = useRef<(() => void) | null>(null)
+  // pack29: Wiki pending 队列消费者定时器（每 5 分钟跑一次）
+  const wikiConsumerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isOnHomepageRef = useRef(isOnHomepage())
   const startTimeRef = useRef(Date.now())
   // 使用 ref 打破循环依赖，始终指向最新的 runIteration
@@ -209,13 +213,34 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
-  // ===== 初始化交互监听 =====
+  // ===== 初始化交互监听 + Wiki pending 队列消费者 =====
   useEffect(() => {
     cleanupTrackingRef.current = initInteractionTracking()
+    // pack29: 每 5 分钟跑一次 pending 队列消费者，有 GitHub 凭证时真推送
+    wikiConsumerTimerRef.current = setInterval(() => {
+      if (!wikiSync.autoPushEnabled) return
+      processPendingQueue({ maxRetries: params.maxRetries, retryBaseDelayMs: params.retryBaseDelay })
+        .then(results => {
+          if (results.length > 0) {
+            const success = results.filter(r => r.status === 'success').length
+            const failed = results.filter(r => r.status === 'failed').length
+            monitor.logEvent('info', 'agent', `Wiki 队列消费者：${results.length} 条（成功 ${success}，失败 ${failed}）`)
+            setWikiSync(prev => {
+              let next = prev
+              for (const r of results) next = applyPushToState(next, r)
+              return next
+            })
+          }
+        })
+        .catch(err => {
+          monitor.logEvent('warning', 'agent', `Wiki 队列消费者异常：${err instanceof Error ? err.message : String(err)}`)
+        })
+    }, 5 * 60 * 1000)
     return () => {
       if (cleanupTrackingRef.current) cleanupTrackingRef.current()
+      if (wikiConsumerTimerRef.current) clearInterval(wikiConsumerTimerRef.current)
     }
-  }, [])
+  }, [wikiSync.autoPushEnabled, monitor, params.maxRetries, params.retryBaseDelay])
 
   // ===== 崩溃联动：监听 MonitorContext 崩溃事件 =====
   useEffect(() => {
@@ -478,12 +503,14 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     setState('deciding')
     iteration.phase = 'decide'
     const onHome = isOnHomepageRef.current
+    // pack29: 传 qTableRef.current 给 selectStrategies，启用 epsilon-greedy + Q-table 排序
     const strategies = selectStrategies(
       config.enabledDomains,
       config.homepageProtected && onHome,
       3,
       params,
       scoresBefore.overall,
+      qTableRef.current,
     )
     const decisions: Decision[] = []
     for (const s of strategies) {
@@ -610,6 +637,13 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       ))
       // 标记当前快照为稳定
       if (snapshot) markSnapshotStable(snapshot.id)
+      // pack29: 提交后更新 Q-table，把当次 gain 记入历史
+      qTableRef.current = updateQTable(
+        qTableRef.current,
+        strategies.map(s => s.id),
+        gain,
+        params.agentLearningRate,
+      )
       monitor.logEvent('info', 'agent', `迭代 ${iterNum} 提交（评分 ${scoresAfter.overall}，${gain >= 0 ? '+' : ''}${gain}）`)
     } else {
       // 显著下降：回溯
@@ -721,12 +755,14 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
     // 阶段 3: 协调优化策略（跨所有领域）
     const onHome = isOnHomepageRef.current
+    // pack29: 传 qTableRef.current 启用 Q-table + epsilon-greedy
     const strategies = selectStrategies(
       config.enabledDomains,
       config.homepageProtected && onHome,
       5,  // 全局调配选最多 5 个策略
       params,
       scores.overall,
+      qTableRef.current,
     )
     let newParams = { ...params }
     const appliedNames: string[] = []
@@ -782,7 +818,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
     await sleep(200)
 
-    // 阶段 6: 推送到 Wiki（pack21 新增：Agent 监察后推到 Wiki，更改也推到 Wiki）
+    // 阶段 6: 推送到 Wiki（pack21+pack29：异步真 await 推送，不再 fire-and-forget）
     if (wikiSync.autoPushEnabled) {
       const monitorSummary = `综合分 ${scores.overall}，性能 ${scores.performance}，UX ${scores.ux}，稳定性 ${scores.stability}，内容 ${scores.content}；错误 ${metrics.errorCount}，崩溃 ${metrics.crashCount}`
       const inspection = inspectCodebase(pack, wikiSync, monitorSummary)
@@ -790,7 +826,18 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
       // 6a. 经验包推送（仅当有新 PACK_BUILD 或新 DOC_VERSION 时）
       if (inspection.hasNewPack || inspection.hasNewDocVersion) {
-        const packRecord = pushPackToWiki(pack, inspection)
+        const packContent = buildPackWikiMarkdown(pack, inspection)
+        const packRecord = await pushToWikiAsync(
+          'experience-pack',
+          `经验包 PACK_BUILD=${inspection.packBuild} DOC_VERSION=${inspection.docVersion}`,
+          packContent,
+          {
+            packBuild: inspection.packBuild,
+            docVersion: inspection.docVersion,
+            maxRetries: params.maxRetries,
+            retryBaseDelayMs: params.retryBaseDelay,
+          },
+        )
         pushRecords.push(packRecord)
         newEntries.push(makeEntry(
           'wiki-push',
@@ -803,12 +850,21 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
       // 6b. 代码更改推送（本轮应用的策略作为更改摘要）
       if (appliedNames.length > 0) {
-        const changesRecord = pushChangesToWiki(
+        const changesContent = buildChangesWikiMarkdown(
           appliedNames.map(name => `应用策略：${name}`),
           {
             iterationNumber: iterationCountRef.current,
             appliedStrategies: appliedNames,
             scoreAfter: scores.overall,
+          },
+        )
+        const changesRecord = await pushToWikiAsync(
+          'code-changes',
+          `代码更改 ${appliedNames.length} 项：迭代 ${iterationCountRef.current}`,
+          changesContent,
+          {
+            maxRetries: params.maxRetries,
+            retryBaseDelayMs: params.retryBaseDelay,
           },
         )
         pushRecords.push(changesRecord)
@@ -857,7 +913,9 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
   // ===== pack21: Wiki 同步 — Agent 监察后推到 Wiki =====
 
-  /** 监察代码状态并推送到 Wiki（独立调用入口，不依赖 runGlobalOrchestration） */
+  /** 监察代码状态并推送到 Wiki（独立调用入口，不依赖 runGlobalOrchestration）
+   *  pack29: 改为使用 pushToWikiAsync 真 await GitHub 推送 + 指数退避重试，不再 fire-and-forget
+   */
   const inspectAndPushToWiki = useCallback(async (): Promise<WikiPushRecord[]> => {
     const pack = generateExperiencePack({ generatedBy: 'ai-agent' })
     const monitorSummary = `错误 ${monitor.summary.errorEvents}，崩溃 ${monitor.summary.crashed ? '是' : '否'}`
@@ -866,9 +924,43 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
     // 经验包推送（有新版本才推）
     if (inspection.hasNewPack || inspection.hasNewDocVersion) {
-      const r = pushPackToWiki(pack, inspection)
+      // pack29: 使用 params.maxRetries 和 params.retryBaseDelay 控制重试策略
+      const packContent = buildPackWikiMarkdown(pack, inspection)
+      const packSummary = `经验包推送 PACK_BUILD=${inspection.packBuild} DOC_VERSION=${inspection.docVersion}`
+      const r = await pushToWikiAsync(
+        'experience-pack',
+        packSummary,
+        packContent,
+        {
+          packBuild: inspection.packBuild,
+          docVersion: inspection.docVersion,
+          maxRetries: params.maxRetries,
+          retryBaseDelayMs: params.retryBaseDelay,
+        },
+      )
       records.push(r)
       monitor.logEvent('info', 'agent', `Wiki 推送：经验包 PACK_BUILD=${inspection.packBuild} DOC_VERSION=${inspection.docVersion}（${r.status}）`)
+
+      // pack29: 变更日志同步推送（用 CONVERSATION_LOG 最新 5 条 + lessons 最新 3 条拼 changes 数组）
+      const convChanges = pack.conversationLog.slice(-5).map(c => `[${c.id}] ${c.summary}`)
+      const lessonChanges = pack.lessons.slice(-3).map(l => `[${l.id}] ${l.title}：${l.problem}`)
+      const changesContent = buildChangesWikiMarkdown(
+        [...convChanges, ...lessonChanges],
+        { iterationNumber: iterationCountRef.current },
+      )
+      const changesSummary = `变更日志 PACK_BUILD=${inspection.packBuild} DOC_VERSION=${inspection.docVersion}`
+      const rc = await pushToWikiAsync(
+        'code-changes',
+        changesSummary,
+        changesContent,
+        {
+          packBuild: inspection.packBuild,
+          docVersion: inspection.docVersion,
+          maxRetries: params.maxRetries,
+          retryBaseDelayMs: params.retryBaseDelay,
+        },
+      )
+      records.push(rc)
     } else {
       monitor.logEvent('info', 'agent', `Wiki 推送跳过：PACK_BUILD=${inspection.packBuild} 已推送`)
     }
@@ -882,7 +974,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       })
     }
     return records
-  }, [wikiSync, monitor])
+  }, [wikiSync, monitor, params])
 
   /** 更新 Wiki 同步配置 */
   const updateWikiSyncConfig = useCallback((patch: Partial<Pick<WikiSyncState, 'autoPushEnabled'>>) => {

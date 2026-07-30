@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 28
+const PACK_BUILD = 29
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -2275,6 +2275,16 @@ const CONVERSATION_LOG = [
     summary: '用户原话"agent超级进化"。基于调研发现 Agent 架构完备但执行层空转（19个可调参数无人读取、Pyodide不接入验证、recodeLoop零调用、meta参数自指空转）。本次聚焦两个杠杆点落地：①P0参数真实消费 — 调整 main.tsx Provider 嵌套顺序（PyodideProvider 移到 AIAgentProvider 外层），CodeEditor 消费 params.debounceMs 做运行防抖，Agent 调 debounceMs 现在真实影响组件响应节奏。②P1 Pyodide验证闭环 — types/ai.ts 新增 learning-outcome 域 + LearningMetrics 接口 + ObservedMetrics 扩展 testPassRate/commonErrorPatterns/retryAfterHintRate 三字段；AIAgentContext 实现 runLearningValidation() 调用 Pyodide 跑各关卡挑战测试用例（限10关卡×2挑战），采集真实通过率/错误模式/高失败率关卡；迭代循环验证阶段接入学习验证，metricsAfter.testPassRate 填真实值；Optimizer 新增 scoreLearningOutcome() 评分函数 + 3条 learning-outcome 域策略（加强空关卡扫描/加快内容刷新/启用错误恢复），WEIGHTS 加入 learning-outcome:0.2；HealthScores 加 learningOutcome 可选字段；AIAgentPanel DOMAIN_LABELS 加学习效果映射。③tsc --noEmit 0错误（修复4个错误：AIAgentPanel缺域映射/useMemo未用/runLearningValidation声明顺序）。Agent 从"性能优化器"升级为"学习效果优化器"，验证阶段的 gain 终于基于真实学习数据',
     filesModified: ['src/types/ai.ts', 'src/ai/Optimizer.ts', 'src/ai/metrics.ts', 'src/context/AIAgentContext.tsx', 'src/main.tsx', 'src/components/CodeEditor/CodeEditor.tsx', 'src/components/AIAgentPanel.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['Pyodide验证闭环模式（runLearningValidation调Pyodide跑关卡测试→采集通过率/错误模式/高失败率关卡→填metricsAfter→影响综合分→触发learning-outcome域策略，形成"学员代码执行结果→Agent决策→学习体验优化"飞轮）', '参数真实消费模式（组件useAIAgent读params→params值直接控制组件行为如debounceMs防抖，Agent优化不再是数字游戏而是真实可观测的应用行为变化）', 'Provider嵌套顺序调整模式（PyodideProvider移到AIAgentProvider外层，让AIAgentContext能usePyodide，打破"AIAgent想用Pyodide但Pyodide在内层"的架构约束）', '学习效果评分模式（scoreLearningOutcome=通过率60%+错误模式数20%+提示后重试率20%，教育产品核心指标从纯DOM检测升级为真实代码执行结果）'],
+    date: '2026-07-31',
+  },
+  // —— pack29 新增：Agent 超级进化 P0参数消费 + P2 Q-table + P2 Wiki闭环 ——
+  // 用户原话："agent超级进化"
+  // conv-20260731-32 不触发 rhythm-roll（32 mod 5 !== 0）
+  {
+    id: 'conv-20260731-32',
+    summary: '用户原话"agent超级进化"（第二轮）。pack29 推进三个未落地的高价值点：①P0补全参数消费 — ProgressContext 用 params.autoSaveInterval 替换云端同步节流固定值 1500ms，CodeEditor 用 params.animationDuration 设置输出面板 transitionDuration，Agent 调 autoSaveInterval/animationDuration 现在真实影响云端同步节奏和 UI 动画。②P2 Q-table epsilon-greedy — Optimizer.ts 新增 QTable/QTableEntry 接口 + loadQTable/saveQTable 持久化 + optimisticEstimate UCB 乐观估计；selectStrategies 重写：以 ε=strategyExplorationRate 概率随机探索（优先未试过的策略），其余利用模式按 Q-table avgGain/risk 排序（替代硬编码 expectedGain）；新增 updateQTable() 在 Agent 每轮 commit 后调用，α=agentLearningRate 控制指数加权步长；AIAgentContext 在两处 selectStrategies 调用传 qTableRef.current，在提交阶段调用 updateQTable 写入当次 gain；meta 域从"自指空转"升级为真自适应核心。③P2 Wiki 真实闭环 — wikiSync.ts 新增 pushViaGithubApiWithRetry（指数退避 maxRetries+retryBaseDelay）、pushToWikiAsync（真 await 推送成功后立即从 pending 队列移除）、processPendingQueue（每批最多10条，失败项保留重试，结果回写 WikiSyncState）+ 拆分 loadPendingQueueRaw/loadPendingQueue 统一存储格式为 JSON 字符串数组；AIAgentContext 把 inspectAndPushToWiki 从同步版替换为 pushToWikiAsync（经验包+变更日志双通道异步真推送），runGlobalOrchestration 阶段 6 也替换为 pushToWikiAsync，新增每5分钟一次的 processPendingQueue 定时器（autoPushEnabled=true 时激活）；修复原 fire-and-forget 导致 record.status 永远 pending 的问题。④tsc --noEmit 0 错误。参数真实消费点从 1 个（pack28 debounceMs）扩展为 3 个：debounceMs + autoSaveInterval + animationDuration；meta 域 2 个参数首次参与真实决策；Wiki 推送从"异步写 pending 队列后立即返回"升级为"真 await GitHub API + 指数退避 + 成功去重 + 定时消费者"',
+    filesModified: ['src/context/ProgressContext.tsx', 'src/components/CodeEditor/CodeEditor.tsx', 'src/ai/Optimizer.ts', 'src/context/AIAgentContext.tsx', 'src/ai/wikiSync.ts', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['Q-table epsilon-greedy 真探索模式（QTableEntry{tries,totalGain,avgGain}+localStorage持久化；selectStrategies ε=20%探索未试策略，其余按历史avgGain/risk排序；commit后updateQTable以 agentLearningRate=α指数加权回写；expectedGain不再是硬编码常数）', '指数退避重试模式（pushViaGithubApiWithRetry：attempt 0..maxRetries，delay=retryBaseDelay×2^attempt，参数来自 TunableParams.maxRetries 和 retryBaseDelay）', 'Wiki异步真推送模式（pushToWikiAsync真await GitHub API → 成功则从pending队列移除 → record.status真的变成success/failed，替代原fire-and-forget永远pending）', 'pending队列消费者定时器模式（processPendingQueue每5分钟一批最多10条，失败项留队重试，autoPushEnabled=false时跳过，通过setInterval挂载在Provider useEffect）'],
     date: '2026-07-31',
   },
 ]

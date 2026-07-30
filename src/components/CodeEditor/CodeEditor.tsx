@@ -31,9 +31,10 @@ function CodeEditor({
   const [testResults, setTestResults] = useState<any[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { isLoading, runCode, runCodeWithTests } = usePyodide()
-  // pack28 超级进化：消费 Agent 的 debounceMs 参数，让 Agent 优化真正影响组件行为
+  // pack28-29 超级进化：消费 Agent 的 debounceMs + animationDuration，让 Agent 优化真实影响组件行为
   const { params } = useAIAgent()
   const debounceMs = params.debounceMs
+  const animationDuration = params.animationDuration
 
   useEffect(() => {
     setCode(initialCode)
@@ -156,7 +157,7 @@ function CodeEditor({
       </div>
 
       {showOutput && (
-        <div className="output-section">
+        <div className="output-section" style={{ transitionDuration: `${animationDuration}ms` }}>
           <div className="output-header">
             <span className="output-title">📤 输出结果</span>
             {testResults.length > 0 && (

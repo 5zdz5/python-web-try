@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react'
 import { useAuth } from './AuthContext'
+import { useAIAgent } from './AIAgentContext'
 import { readGist, writeGist } from '../config/github'
 import { achievements as allAchievements, AchievementStats } from '../data/achievements'
 import { levels as ALL_LEVELS } from '../data/mockData'
@@ -232,6 +233,8 @@ function makeId() {
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const { auth, isLoading: authLoading } = useAuth()
+  // pack29 超级进化：消费 Agent 的 autoSaveInterval 参数，让 Agent 调 autoSaveInterval 真实影响云端同步节流
+  const { params: agentParams } = useAIAgent()
   const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'syncing' | 'synced' | 'error'>('idle')
   const [syncError, setSyncError] = useState('')
   const [localSaveStatus, setLocalSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
@@ -348,6 +351,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     // 登录态 + 已同步过 -> 节流上传 Gist
     if (auth && auth.gistId && hasSyncedRef.current && syncStatus !== 'loading') {
       if (pendingSyncRef.current) clearTimeout(pendingSyncRef.current)
+      // pack29: 用 Agent 的 autoSaveInterval 替代固定 1500ms，Agent 调 autoSaveInterval 现在真实影响云端同步节流
       pendingSyncRef.current = setTimeout(() => {
         setSyncStatus('syncing')
         writeGist(auth.token, auth.gistId!, {
@@ -365,7 +369,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
             setSyncError(msg)
             setSyncStatus('error')
           })
-      }, 1500)
+      }, agentParams.autoSaveInterval)
     }
   // 注意：syncStatus 不放入依赖数组，避免 syncing→synced 状态变化触发无限循环
   }, [progress, auth])

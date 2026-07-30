@@ -333,6 +333,175 @@ async function pushViaGithubApi(
   }
 }
 
+/**
+ * pack29 超级进化：带指数退避重试的 pushViaGithubApi 包装
+ * 修复原实现 fire-and-forget（status 永远 pending）的问题
+ * @param maxRetries  最大重试次数（默认用 TunableParams.maxRetries）
+ * @param baseDelayMs 基础退避延迟（默认用 TunableParams.retryBaseDelay）
+ */
+export async function pushViaGithubApiWithRetry(
+  token: string,
+  repo: string,
+  path: string,
+  content: string,
+  commitMessage: string,
+  maxRetries = 2,
+  baseDelayMs = 2000,
+): Promise<void> {
+  let lastError: unknown
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      await pushViaGithubApi(token, repo, path, content, commitMessage)
+      return
+    } catch (err) {
+      lastError = err
+      if (attempt >= maxRetries) break
+      // 指数退避：delay = baseDelay × 2^attempt
+      await new Promise(r => setTimeout(r, baseDelayMs * Math.pow(2, attempt)))
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError))
+}
+
+/**
+ * pack29：异步版 pushToWiki（真 await pushViaGithubApi 并用 retry）
+ * 同步版 pushToWiki 因接口兼容保留，但浏览器端推荐调用这个
+ */
+export async function pushToWikiAsync(
+  target: WikiPushTarget,
+  summary: string,
+  content: string,
+  options: {
+    packBuild?: number
+    docVersion?: string
+    githubToken?: string
+    githubRepo?: string
+    githubPath?: string
+    maxRetries?: number
+    retryBaseDelayMs?: number
+  } = {},
+): Promise<WikiPushRecord> {
+  const record: WikiPushRecord = {
+    id: `wiki-${target}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    target,
+    summary,
+    status: 'pending',
+    contentHash: hashContent(content),
+    timestamp: new Date().toISOString(),
+    errorMessage: undefined,
+  }
+
+  // 总是写待推送队列（TRAE IDE 侧可消费）
+  const pending = loadPendingQueueRaw()
+  pending.push(JSON.stringify({
+    id: record.id,
+    target,
+    summary,
+    content,
+    contentHash: record.contentHash,
+    packBuild: options.packBuild,
+    docVersion: options.docVersion,
+    timestamp: record.timestamp,
+  }))
+  const trimmed = pending.slice(-MAX_PENDING_QUEUE)
+  if (!safeSet(WIKI_PENDING_KEY, JSON.stringify(trimmed))) {
+    record.status = 'failed'
+    record.errorMessage = '写入待推送队列失败（localStorage 不可用）'
+    return record
+  }
+
+  if (options.githubToken && options.githubRepo && options.githubPath) {
+    try {
+      // pack29: 真 await + 指数退避重试，不再 fire-and-forget
+      await pushViaGithubApiWithRetry(
+        options.githubToken,
+        options.githubRepo,
+        options.githubPath,
+        content,
+        summary,
+        options.maxRetries ?? 2,
+        options.retryBaseDelayMs ?? 2000,
+      )
+      record.status = 'success'
+      // 推送成功：把自己从 pending 队列移除（去重）
+      const left = loadPendingQueueRaw().filter(raw => {
+        try { const o = JSON.parse(raw) as PendingQueueItem; return o.id !== record.id } catch { return true }
+      })
+      safeSet(WIKI_PENDING_KEY, JSON.stringify(left))
+    } catch (err) {
+      record.status = 'failed'
+      record.errorMessage = err instanceof Error ? err.message : String(err)
+    }
+  } else {
+    record.status = 'pending'
+    record.errorMessage = '已加入待推送队列，等待 TRAE IDE Agent 通过 lark-wiki skill 消费'
+  }
+  return record
+}
+
+/**
+ * pack29：pending 队列消费者（Agent 启动后每 5 分钟执行一次，或手动触发）
+ * 依次处理队列中的每一条记录，有 GitHub 凭证时真推送并回写状态
+ * 返回所有推送结果
+ */
+export async function processPendingQueue(options: {
+  githubToken?: string
+  githubRepo?: string
+  githubPathPrefix?: string
+  maxRetries?: number
+  retryBaseDelayMs?: number
+  maxProcessPerBatch?: number
+} = {}): Promise<WikiPushRecord[]> {
+  const queue = loadPendingQueue()
+  if (queue.length === 0) return []
+  const maxProcess = options.maxProcessPerBatch ?? 10
+  const batch = queue.slice(0, maxProcess)
+  const results: WikiPushRecord[] = []
+  const remainingIds: string[] = []
+
+  for (const item of batch) {
+    const record: WikiPushRecord = {
+      id: item.id,
+      target: item.target,
+      summary: item.summary,
+      status: 'pending',
+      contentHash: item.contentHash,
+      timestamp: item.timestamp,
+    }
+    if (options.githubToken && options.githubRepo) {
+      const path = `${options.githubPathPrefix ?? 'wiki/'}${item.target}-${item.packBuild ?? 'latest'}.md`
+      try {
+        await pushViaGithubApiWithRetry(
+          options.githubToken,
+          options.githubRepo,
+          path,
+          item.content,
+          item.summary,
+          options.maxRetries ?? 2,
+          options.retryBaseDelayMs ?? 2000,
+        )
+        record.status = 'success'
+      } catch (err) {
+        record.status = 'failed'
+        record.errorMessage = err instanceof Error ? err.message : String(err)
+        // 失败的留在队列里下次重试（记录 id，最后重建队列时保留）
+        remainingIds.push(item.id)
+      }
+    } else {
+      record.errorMessage = '无 GitHub 凭证，保持 pending'
+      remainingIds.push(item.id)
+    }
+    results.push(record)
+  }
+  // 重建队列：批外剩余 + 批内失败的
+  const rest = queue.slice(maxProcess)
+  const failedItems = queue.filter(i => remainingIds.includes(i.id))
+  const rawItems: string[] = [...rest, ...failedItems]
+    .map(item => JSON.stringify(item))
+  safeSet(WIKI_PENDING_KEY, JSON.stringify(rawItems))
+  return results
+}
+
 // ===== 4. 高层 API =====
 
 /** 推送经验包到 Wiki */
@@ -384,13 +553,21 @@ export function saveWikiSyncState(state: WikiSyncState): boolean {
   }))
 }
 
-/** 读取待推送队列 */
-export function loadPendingQueue(): Array<{
+/** 队列项（解析后对象） */
+export type PendingQueueItem = {
   id: string; target: WikiPushTarget; summary: string;
   content: string; contentHash: string; packBuild?: number; docVersion?: string; timestamp: string;
-}> {
+}
+
+/** 读取待推送队列（返回 JSON 字符串数组，存储格式保持向后兼容） */
+export function loadPendingQueueRaw(): string[] {
   return safeParse<string[]>(safeGet(WIKI_PENDING_KEY), [])
-    .map(s => { try { return JSON.parse(s) } catch { return null } })
+}
+
+/** 读取待推送队列（解析后对象数组） */
+export function loadPendingQueue(): PendingQueueItem[] {
+  return loadPendingQueueRaw()
+    .map(s => { try { return JSON.parse(s) as PendingQueueItem } catch { return null } })
     .filter((x): x is NonNullable<typeof x> => x !== null)
 }
 

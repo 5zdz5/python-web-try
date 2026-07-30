@@ -415,16 +415,59 @@ export function getStrategiesByDomain(domain: OptDomain): OptimizationStrategy[]
   return STRATEGIES.filter(s => s.domain === domain)
 }
 
+// ===== pack29 超级进化：Q-table + epsilon-greedy（meta 域参数真生效） =====
+// 调研发现 agentLearningRate + strategyExplorationRate 自指空转：定义了参数但不参与决策
+// 实现闭环：Q-table 记录每条策略的历史平均收益 → epsilon-greedy 在"探索新策略"和"利用历史最优"间权衡
+// agentLearningRate 控制 Q-table 学习步长（α）和数值型策略的步长缩放
+
+export interface QTableEntry {
+  tries: number                     // 应用次数
+  totalGain: number                 // 累计 gain
+  avgGain: number                   // 平均 gain = totalGain / max(1, tries)
+  lastUpdated: string               // 最后更新时间 ISO
+}
+
+export type QTable = Record<string, QTableEntry>
+
+const Q_TABLE_KEY = 'python-quest-agent-qtable'
+
+/** 从 localStorage 加载 Q-table，丢失则新建 */
+export function loadQTable(): QTable {
+  try {
+    const raw = localStorage.getItem(Q_TABLE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return {}
+}
+
+/** 保存 Q-table 到 localStorage */
+export function saveQTable(table: QTable): void {
+  try {
+    localStorage.setItem(Q_TABLE_KEY, JSON.stringify(table))
+  } catch {}
+}
+
+/** 乐观估计（UCB）：对于没试过的策略，给一个高于平均分的乐观估计值，鼓励探索 */
+function optimisticEstimate(_table: QTable, globalAvg: number): number {
+  // 没数据时用全局平均的 1.2 倍（乐观），数据越多越收敛到真实 avg
+  if (globalAvg <= 0) return 0.15
+  return globalAvg * 1.2
+}
+
 /**
- * 选择本轮要应用的策略
- *  过滤器层级（从强到弱，每一层都减少无效策略）：
+ * 选择本轮要应用的策略（pack29 Q-table + epsilon-greedy）
+ *
+ * 过滤器层级（从强到弱）：
  *   1. 领域筛选（enabledDomains）
  *   2. 首页保护（homepageSafe）
  *   3. appliesTo 条件（参数是否还能改变）
  *   4. willChange 二次检测（apply 前后是否真的不同）
  *   5. 高评分减少策略：当 overall≥85 时最多 1 条，≥90 时直接跳过
- *   6. 按收益/风险排序
- *   7. maxPerIteration 限制
+ *   6. pack29 新增：epsilon-greedy 探索（ε=strategyExplorationRate，以 ε 概率随机抽新策略）
+ *   7. pack29 新增：按 Q-table 的 avgGain（结合 UCB）排序，替代硬编码 expectedGain
+ *   8. maxPerIteration 限制
+ *
+ * @param qTable  Q-table（pack29 新增），为 null 时退化到旧排序
  */
 export function selectStrategies(
   enabledDomains: OptDomain[],
@@ -432,6 +475,7 @@ export function selectStrategies(
   maxPerIteration = 3,
   params?: TunableParams,
   overallScore?: number,
+  qTable: QTable | null = null,
 ): OptimizationStrategy[] {
   // 过滤 5: 评分已很高时停止微调
   if (overallScore !== undefined && overallScore >= 90) return []
@@ -440,17 +484,83 @@ export function selectStrategies(
     : maxPerIteration
 
   const candidates = STRATEGIES.filter(s => {
-    // 1. 领域筛选
     if (!enabledDomains.includes(s.domain)) return false
-    // 2. 首页保护
     if (homepageProtected && !s.homepageSafe) return false
-    // 3. appliesTo 条件（可选）
     if (params && s.appliesTo && !s.appliesTo(params)) return false
-    // 4. willChange 二次检测（最严格的去无效优化）
     if (params && !willChange(params, s.apply)) return false
     return true
   })
+
+  // pack29: epsilon-greedy + Q-table 排序
+  if (qTable && params && candidates.length > 0) {
+    // 计算全局平均 avgGain，作为乐观估计的基准
+    const allAvg = Object.values(qTable).filter(e => e.tries > 0)
+    const globalAvg = allAvg.length > 0
+      ? allAvg.reduce((s, e) => s + e.avgGain, 0) / allAvg.length
+      : 0
+
+    // 6. epsilon-greedy 探索：以 ε=strategyExplorationRate 概率随机抽取 1 条
+    const epsilon = params.strategyExplorationRate
+    const shouldExplore = Math.random() < epsilon && candidates.length > 1
+
+    // 7. Q-table + UCB 排序：每条策略的有效得分 = (entry.avgGain 或 optimisticEstimate) / (risk + 0.1)
+    const scored = candidates.map(s => {
+      const entry = qTable[s.id]
+      const historical = entry && entry.tries > 0
+        ? entry.avgGain
+        : optimisticEstimate(qTable, globalAvg)
+      const score = historical / (s.risk + 0.1)
+      return { s, score, isNew: !entry || entry.tries === 0 }
+    })
+
+    if (shouldExplore && scored.some(x => x.isNew)) {
+      // 探索模式：优先随机选一个没试过的，剩下的按得分排序
+      const untested = scored.filter(x => x.isNew).map(x => x.s)
+      const explored = untested[Math.floor(Math.random() * untested.length)]
+      const rest = scored
+        .filter(x => x.s.id !== explored.id)
+        .sort((a, b) => b.score - a.score)
+        .map(x => x.s)
+      return [explored, ...rest].slice(0, effectiveMax)
+    }
+
+    // 利用模式：按 Q-table 得分排序
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.s)
+      .slice(0, effectiveMax)
+  }
+
+  // 降级：旧排序（无 Q-table 时）
   return candidates
     .sort((a, b) => (b.expectedGain / (b.risk + 0.1)) - (a.expectedGain / (a.risk + 0.1)))
     .slice(0, effectiveMax)
+}
+
+/**
+ * pack29: 更新 Q-table（Agent 每轮 commit 后调用，把当次真实 gain 记入历史）
+ * agentLearningRate 作为学习率 α 控制指数加权：newAvg = (1-α)×oldAvg + α×gain
+ */
+export function updateQTable(
+  table: QTable,
+  appliedIds: string[],
+  gain: number,
+  learningRate: number,
+): QTable {
+  const out: QTable = { ...table }
+  for (const id of appliedIds) {
+    const prev = out[id] || { tries: 0, totalGain: 0, avgGain: 0, lastUpdated: '' }
+    const alpha = Math.min(1, Math.max(0.01, learningRate))
+    const newAvg = prev.tries === 0
+      ? gain
+      : (1 - alpha) * prev.avgGain + alpha * gain
+    out[id] = {
+      tries: prev.tries + 1,
+      totalGain: prev.totalGain + gain,
+      avgGain: newAvg,
+      lastUpdated: new Date().toISOString(),
+    }
+  }
+  saveQTable(out)
+  return out
 }
