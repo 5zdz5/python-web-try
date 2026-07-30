@@ -19,7 +19,11 @@ import { STRATEGIES } from '../../ai/Optimizer'
 import './EvolutionArchive.css'
 
 function EvolutionArchive() {
-  const { history, summary, orchestration, wikiSync, snapshots } = useAIAgent()
+  const {
+    history, summary, orchestration, wikiSync, snapshots,
+    state, config, currentIteration, currentScores,
+    startAgent, stopAgent, resetAgent, runGlobalOrchestration,
+  } = useAIAgent()
   const { registerGroup, reportHealth } = useMonitor()
 
   useEffect(() => {
@@ -27,9 +31,14 @@ function EvolutionArchive() {
     reportHealth('EvolutionArchive', 'healthy', '进化档案页挂载成功')
   }, [registerGroup, reportHealth])
 
+  const isRunning = state === 'observing' || state === 'analyzing' || state === 'deciding' || state === 'acting' || state === 'verifying'
+  const progressPct = summary.totalIterations > 0
+    ? Math.min(100, (summary.currentIteration / summary.totalIterations) * 100)
+    : 0
+
   // 统计派生数据
   const stats = useMemo(() => {
-    const applied = history.filter(h => h.applied).length
+    const applied = history.filter(h => h.result === 'committed').length
     const skipped = history.length - applied
     const scoreMin = history.length > 0
       ? Math.min(...history.map(h => h.scoresBefore?.overall ?? 100))
@@ -118,6 +127,71 @@ function EvolutionArchive() {
         </p>
       </header>
 
+      {/* 进化控制台 — pack24 新增：真正可交互的进化入口 */}
+      <section className="ea-console">
+        <div className="ea-console-status">
+          <div className="ea-console-state">
+            <span className={`ea-state-badge ea-state-${state}`}>{state}</span>
+            <span className="ea-console-score">综合分: {summary.overallScore.toFixed(1)}</span>
+          </div>
+          <div className="ea-console-progress">
+            <div className="ea-progress-bar">
+              <div className="ea-progress-fill" style={{ width: `${progressPct}%` }} />
+            </div>
+            <span className="ea-progress-text">
+              {summary.currentIteration} / {summary.totalIterations} 轮
+            </span>
+          </div>
+        </div>
+        <div className="ea-console-actions">
+          <button
+            className="ea-btn ea-btn-primary"
+            onClick={() => startAgent()}
+            disabled={isRunning}
+            title="启动 Agent 自主迭代（观察→分析→决策→执行→验证）"
+          >
+            ▶ 启动进化
+          </button>
+          <button
+            className="ea-btn ea-btn-secondary"
+            onClick={() => stopAgent()}
+            disabled={!isRunning && state !== 'paused'}
+            title="停止 Agent 迭代"
+          >
+            ⏹ 停止
+          </button>
+          <button
+            className="ea-btn ea-btn-warn"
+            onClick={() => runGlobalOrchestration()}
+            disabled={orchestration.active}
+            title="触发全局调配（读经验包→优化→Wiki 推送）"
+          >
+            🌐 全局调配
+          </button>
+          <button
+            className="ea-btn ea-btn-danger"
+            onClick={() => {
+              if (window.confirm('确认重置 Agent？将清空所有迭代历史和参数。')) resetAgent()
+            }}
+            disabled={isRunning}
+            title="清空迭代历史，恢复默认参数"
+          >
+            ↺ 重置
+          </button>
+        </div>
+        {currentIteration && (
+          <div className="ea-console-current">
+            <span className="ea-current-label">当前迭代 #{currentIteration.iterationNumber}:</span>
+            <span className="ea-current-phase">阶段 {currentIteration.phase}</span>
+            <span className="ea-current-strategies">
+              策略: {currentIteration.appliedStrategies.length > 0
+                ? currentIteration.appliedStrategies.join(', ')
+                : '（无）'}
+            </span>
+          </div>
+        )}
+      </section>
+
       {/* 顶部统计卡 */}
       <section className="ea-stats-grid">
         <div className="ea-stat-card">
@@ -168,7 +242,7 @@ function EvolutionArchive() {
                 const range = maxScore - minScore || 1
                 const stepX = (w - pad * 2) / Math.max(scores.length - 1, 1)
                 const x = pad + i * stepX
-                const y = h - pad - ((it.scoresAfter?.overall ?? 0 - minScore) / range) * (h - pad * 2)
+                const y = h - pad - (((it.scoresAfter?.overall ?? 0) - minScore) / range) * (h - pad * 2)
                 return <circle key={i} cx={x} cy={y} r="3" fill="var(--color-accent-secondary, #00e5ff)" />
               })}
             </svg>
@@ -229,14 +303,14 @@ function EvolutionArchive() {
         {history.length > 0 ? (
           <div className="ea-iter-list">
             {history.slice(0, 10).map(it => (
-              <div key={it.id} className={`ea-iter-item ${it.applied ? 'applied' : 'skipped'}`}>
+              <div key={it.id} className={`ea-iter-item ${it.result === 'committed' ? 'applied' : 'skipped'}`}>
                 <div className="ea-iter-head">
                   <span className="ea-iter-id">#{it.iterationNumber}</span>
-                  <span className="ea-iter-status">{it.applied ? '✓ 已应用' : '○ 跳过'}</span>
+                  <span className="ea-iter-status">{it.result === 'committed' ? '✓ 已应用' : `○ ${it.result || 'skipped'}`}</span>
                   <span className="ea-iter-score">
                     {it.scoresBefore?.overall ?? '?'} → {it.scoresAfter?.overall ?? '?'}
                   </span>
-                  <span className="ea-iter-time">{new Date(it.timestamp).toLocaleTimeString()}</span>
+                  <span className="ea-iter-time">{it.startTime ? new Date(it.startTime).toLocaleTimeString() : '--'}</span>
                 </div>
                 <div className="ea-iter-strategies">
                   {(it.decisions || []).filter(d => d.applied).map(d => {

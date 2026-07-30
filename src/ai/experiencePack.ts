@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 23
+const PACK_BUILD = 24
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -2019,6 +2019,14 @@ const CONVERSATION_LOG = [
     summary: '用户原话："continue，疯狂进化"。① 扩展优化策略库 src/ai/Optimizer.ts：补全 content 域 3 策略（启用空关卡扫描/启用损坏图片检测/加快内容刷新）+ 新增 meta 域 3 策略（提升学习率/提升探索率/降低学习率精细微调），TunableParams 接口新增 enableEmptyLessonScan/enableBrokenImageCheck/contentRefreshInterval/agentLearningRate/strategyExplorationRate 五字段，DEFAULT_PARAMS 添加默认值，BOUNDS 新增参数边界，WEIGHTS 新增 meta 域权重。② 扩展 src/types/ai.ts：OptDomain 联合类型新增 \'meta\'，TunableParams 同步新增五字段。③ 扩展 src/context/AIAgentContext.tsx：DEFAULT_CONFIG.enabledDomains 加入 \'meta\'，Agent 现可应用 meta 域策略进行自我进化。④ 创建 src/pages/EvolutionArchive/EvolutionArchive.tsx + .css + index.ts（360 行）：三栏布局进化档案页（顶部统计卡 6 指标+中部策略频次 Top10+底部评分曲线 SVG 折线图+最近迭代列表+Wiki 推送历史），集成 useAIAgent 拉取 history/summary/orchestration/wikiSync/snapshots，严格应用 taste-skill（间距 8 倍数+JetBrains Mono 字体+主题色变量）和 impeccable（section 分隔不嵌套 card+--radius-* 圆角+无 console 残留）规则，双主题适配（pixel-spectrum 彩虹流动+pixel-crow 乌鸦虹彩）。⑤ 法则 6 三注册完成：App.tsx 路由 /evolution、Navbar 导航"进化档案"、projectDocs.ts DOC_VERSION v3.2→v3.3。⑥ 修复构建错误：EvolutionArchive.tsx 误用 useAgent（实际导出名 useAIAgent），更正后构建通过。⑦ 经验包写回：MODULES 追加 page-evolution 模块、CONVERSATION_LOG 追加 conv-26、DOC_CHANGES 追加 pack23 条目。PACK_BUILD 22→23，DOC_VERSION v3.2→v3.3',
     filesModified: ['src/ai/Optimizer.ts', 'src/types/ai.ts', 'src/context/AIAgentContext.tsx', 'src/pages/EvolutionArchive/EvolutionArchive.tsx', 'src/pages/EvolutionArchive/EvolutionArchive.css', 'src/pages/EvolutionArchive/index.ts', 'src/App.tsx', 'src/components/Navbar/Navbar.tsx', 'src/data/projectDocs.ts', 'src/ai/experiencePack.ts'],
     patternsAdded: ['优化策略库 5 域补全模式（performance/ux/content/stability/meta 五域全覆盖，meta 域实现 Agent 自适应进化）', '进化可视化三栏布局（统计卡+策略频次+评分曲线 SVG，从 useAIAgent 派生全量统计，history 为空时 0/空数组兜底）', 'context hook 导出名硬约束（实际导出 useAIAgent 而非 useAgent，import 时必须核对 value 暴露字段）'],
+    date: '2026-07-31',
+  },
+  // —— pack24 新增：进化控制台 + 3 bug 修复（用户原话"continue，疯狂进化"） ——
+  {
+    id: 'conv-20260731-27',
+    summary: '用户原话："continue，疯狂进化"。pack23 的 EvolutionArchive 是纯展示页，无交互入口——本次补齐"真正可交互的进化控制台"。① 在 EvolutionArchive.tsx 顶部 header 后新增进化控制台 section：状态徽章（idle/observing/analyzing/deciding/acting/verifying/committed/rolledback/paused 九态，运行态有 pulse 动画）+ 综合分实时显示 + 进度条（currentIteration/totalIterations，渐变填充+发光）+ 4 个 3D 像素立体按钮（▶启动进化 调 startAgent / ⏹停止 调 stopAgent / 🌐全局调配 调 runGlobalOrchestration / ↺重置 调 resetAgent 带 confirm 二次确认）+ 当前迭代信息条（迭代号+阶段+已应用策略）。按钮严格按用户偏好实现 3D stereoscopic 效果：inset 上亮下暗内阴影 + 外阴影做底座，hover 上移 1px 加深底座，active 下移 2px 模拟按压。② 修复 3 个 bug：bug1 第171行运算符优先级 `it.scoresAfter?.overall ?? 0 - minScore` 应为 `((it.scoresAfter?.overall ?? 0) - minScore)`（?? 优先级低于 -，导致先算 0-minScore 再 ?? 取左侧 overall，端点 y 坐标错误）；bug2 第239行字段名 `it.timestamp` 不存在（Iteration 接口实际字段为 `it.startTime`），导致渲染 undefined；bug3 stats 和 iter-item 误用不存在的 `h.applied`/`it.applied` 字段（Iteration 接口无 applied 字段，应使用 `result === \'committed\'` 判断已应用）。③ CSS 新增控制台样式：.ea-console 容器（accent-primary 高亮边框）/ .ea-state-badge 九态颜色映射 / .ea-progress-bar 渐变进度条 / .ea-btn 3D 像素按钮（4 变体 primary/secondary/warn/danger），严格应用 taste-skill（间距 8 倍数+JetBrains Mono+主题色变量，无 AI 紫蓝）和 impeccable（section 分隔不嵌套 card+--radius-* 圆角+无 console 残留）。PACK_BUILD 23→24，DOC_VERSION v3.3→v3.4',
+    filesModified: ['src/pages/EvolutionArchive/EvolutionArchive.tsx', 'src/pages/EvolutionArchive/EvolutionArchive.css', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['进化控制台交互模式（状态徽章九态映射+进度条+4 按钮 3D 像素立体+当前迭代信息条，从 useAIAgent 解构 startAgent/stopAgent/resetAgent/runGlobalOrchestration 四控制 API）', '3D 像素按钮 CSS 立体效果模式（inset 上亮下暗内阴影+外阴影底座，hover 上移加深，active 下移按压，transform 位移配合 box-shadow 变化）', 'Iteration 接口字段约束（无 applied 字段，用 result===\'committed\' 判断；时间字段是 startTime 非 timestamp；运算符优先级 ?? 低于 -，涉及 ?? 和算术运算必须加括号）'],
     date: '2026-07-31',
   },
 ]

@@ -88,6 +88,212 @@
   border-radius: var(--radius-lg, 8px);
 }
 
+/* ========================================
+   进化控制台（pack24 新增）
+   ======================================== */
+.ea-console {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--color-bg-secondary, #12121a);
+  border: 2px solid var(--color-accent-primary, #c4ff00);
+  border-radius: var(--radius-lg, 8px);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.04),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.ea-console-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ea-console-state {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ea-state-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid var(--color-border, #2a2a35);
+  background: var(--color-bg-primary, #0a0a0f);
+  color: var(--color-text-secondary, #8a8a9a);
+}
+
+.ea-state-badge.ea-state-observing,
+.ea-state-badge.ea-state-analyzing,
+.ea-state-badge.ea-state-deciding,
+.ea-state-badge.ea-state-acting,
+.ea-state-badge.ea-state-verifying {
+  color: var(--color-accent-secondary, #00e5ff);
+  border-color: var(--color-accent-secondary, #00e5ff);
+  animation: ea-state-pulse 1.2s ease-in-out infinite;
+}
+
+.ea-state-badge.ea-state-idle {
+  color: var(--color-text-muted, #555565);
+}
+
+.ea-state-badge.ea-state-committed {
+  color: var(--color-accent-primary, #c4ff00);
+  border-color: var(--color-accent-primary, #c4ff00);
+}
+
+.ea-state-badge.ea-state-rolledback {
+  color: var(--color-error, #ff2e63);
+  border-color: var(--color-error, #ff2e63);
+}
+
+.ea-state-badge.ea-state-paused {
+  color: var(--color-text-secondary, #8a8a9a);
+  border-color: var(--color-text-secondary, #8a8a9a);
+}
+
+@keyframes ea-state-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.ea-console-score {
+  font-size: 0.95rem;
+  color: var(--color-accent-primary, #c4ff00);
+  font-weight: bold;
+}
+
+.ea-console-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.ea-progress-bar {
+  flex: 1;
+  height: 12px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 2px solid var(--color-border, #2a2a35);
+  border-radius: var(--radius-sm, 4px);
+  overflow: hidden;
+}
+
+.ea-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-primary, #c4ff00), var(--color-accent-secondary, #00e5ff));
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px var(--color-accent-primary, #c4ff00);
+}
+
+.ea-progress-text {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #8a8a9a);
+  white-space: nowrap;
+}
+
+.ea-console-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.ea-btn {
+  padding: 10px 20px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.85rem;
+  font-weight: bold;
+  border: 2px solid;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: all 0.15s;
+  /* 3D 像素立体效果：上亮下暗内阴影 + 外阴影做底座 */
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.15),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+    3px 3px 0 rgba(0, 0, 0, 0.4);
+  background: var(--color-bg-primary, #0a0a0f);
+  color: var(--color-text-primary, #f0f0f5);
+}
+
+.ea-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.2),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+    4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.ea-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow:
+    inset 2px 2px 0 rgba(0, 0, 0, 0.35),
+    inset -2px -2px 0 rgba(255, 255, 255, 0.05),
+    1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.ea-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.05), inset -2px -2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.ea-btn-primary {
+  border-color: var(--color-accent-primary, #c4ff00);
+  color: var(--color-accent-primary, #c4ff00);
+}
+
+.ea-btn-secondary {
+  border-color: var(--color-text-secondary, #8a8a9a);
+  color: var(--color-text-secondary, #8a8a9a);
+}
+
+.ea-btn-warn {
+  border-color: var(--color-accent-tertiary, #ff2e63);
+  color: var(--color-accent-tertiary, #ff2e63);
+}
+
+.ea-btn-danger {
+  border-color: var(--color-error, #ff2e63);
+  color: var(--color-error, #ff2e63);
+}
+
+.ea-console-current {
+  padding: 12px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 1px solid var(--color-border-light, #3a3a4a);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.8rem;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ea-current-label {
+  color: var(--color-accent-secondary, #00e5ff);
+  font-weight: bold;
+}
+
+.ea-current-phase {
+  color: var(--color-accent-primary, #c4ff00);
+}
+
+.ea-current-strategies {
+  color: var(--color-text-secondary, #8a8a9a);
+  flex: 1;
+  min-width: 150px;
+}
+
 .ea-section-title {
   font-size: 1.1rem;
   margin: 0 0 16px 0;
