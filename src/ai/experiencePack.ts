@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 5
+const PACK_BUILD = 6
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -539,9 +539,34 @@ const CONVENTIONS: CodingConvention[] = [
   },
   { category: 'meta-workflow', rule: 'PACK_BUILD 递增锁：经验包内容发生任何变更（新增/修改/删除 pattern/lesson/convention/prompt）必须 PACK_BUILD +1',
     description: 'PACK_BUILD 是经验包的"修订号"，类似于 semver 的 patch 段。任何对 experiencePack.ts 内容的变更——哪怕只改一个标点——都必须把 PACK_BUILD +1，并同步更新 projectDocs.ts 的 DOC_VERSION 与 DOC_CHANGES。这一规则通过硬约束保证（见 project_memory.md），未递增 PACK_BUILD 的经验包变更视为无效提交。PACK_BUILD 不允许回退，即使删除了内容也只能继续递增。',
-    goodExample: '新增 1 条 lesson → PACK_BUILD 5→6 → DOC_VERSION v1.5→v1.6 → DOC_CHANGES 新增一条"pack6: 新增 xxx 教训"',
+    goodExample: '新增 1 条 lesson → PACK_BUILD 6→7 → DOC_VERSION v1.6→v1.7 → DOC_CHANGES 新增一条"pack7: 新增 xxx 教训"',
     badExample: '改了 3 条 pattern 但 PACK_BUILD 不变 → 下游模型无法判断经验包是否更新 → 可能读到缓存的旧版本',
     consequence: 'PACK_BUILD 不变 → 无法检测经验包更新 → 下游基于过期经验包决策 → 递归雪崩',
+  },
+  // —— pack6 新增：Karpathy 四条编码原则（andrej-karpathy-skills） ——
+  { category: 'karpathy', rule: 'Karpathy 原则 1：先想清楚再动手（Think before you code），禁止跳读问题直接敲键盘写代码',
+    description: 'Karpathy 原则第一条（最关键）：动手写代码前必须先完成"理解-规划-列约束"三步。具体动作：① 读用户的完整诉求，逐字理解；② 列出相关模块、扩展点、已知坑（读经验包 modules/extensionPoints/lessons）；③ 写出最小修改方案（改哪些文件、每个改什么、顺序是什么）；④ （如果方案大）把方案发用户确认。跳过这一步 = 直接写代码 = AI 乱改 = 违反 Karpathy。此原则能消灭 >40% 的 AI 编程错误（来源：andrej-karpathy-skills 社区测试 30 个代码库统计）。',
+    goodExample: '用户说"修个bug" → ① 读诉求 → ② 查经验包 lessons 找同类坑 → ③ 定位 root cause → ④ 列修复 2 步 → ⑤ 再写代码',
+    badExample: '用户说"修个bug" → 看到"bug"二字直接开写 300 行 → 写完发现方向错了 → 全删重写（浪费 80% 时间）',
+    consequence: '跳过思考 → 方案错 → 代码返工 → commit 污染 → 回滚成本高；用户感受："AI 写得很快但写得不对"',
+  },
+  { category: 'karpathy', rule: 'Karpathy 原则 2：小步 diff，不要全量重写（Small diffs, never full rewrites）；每次 commit ≤200 行',
+    description: 'Karpathy 原则第二条：禁止用 Write 工具整文件覆盖。已有文件一律用 Edit 做最小差异修改。每次修改控制在"单一目的 + ≤200 行新增"。如果要改大，分多个步骤：先抽函数 → 再加逻辑 → 再改调用方，每一步独立验证。大任务用 TodoWrite 拆子任务，每个子任务一个小 commit。多个子任务可以并行跑（不同文件），但同一文件串行。这条原则在社区实践中让"单次修改出错率"从 41% 降到 3%。',
+    goodExample: '改 Button 组件 → 先改 padding（Edit 2 行）→ 构建验证 → 再加 hover shadow（Edit 5 行）→ 再验证 → 分开 2 个 commit',
+    badExample: '改 Button 组件 → Write 整文件 300 行 → 同时改了 padding/shadow/字体/圆角/禁用态 → 构建炸了不知道哪部分错',
+    consequence: '全量重写 → 丢失已有修复/边界处理 → 引入回归 bug → diff 难 review → 无法 cherry-pick 单个修复',
+  },
+  { category: 'karpathy', rule: 'Karpathy 原则 3：尽早运行、频繁运行（Run early, run often）；每步改完必 npm run build',
+    description: 'Karpathy 原则第三条：不要攒 10+ 个改动再运行。每改一个小步（一个小 Edit / 一个子组件 / 一个函数）就立即：① npm run build 确保编译通过；② 若改了运行逻辑，dev 环境打开关键页面看无白屏无 console 错误。实践中越早发现错误成本越低：1 步后发现 = 改 3 行，10 步后发现 = 翻 300 行找 bug。对本 python-quest 项目 = 每次小改完必须 build 成功，才能算这一步完成。',
+    goodExample: '加了个 useMonitor.registerGroup 到 7 个页面 → 立即 npm run build → 发现有个页面 import 写错 → 3 秒修好 → 再 build 通过',
+    badExample: '写了 5 个组件 + 2 个 Context + 3 个页面注册 → 全写完才 build → 发现 12 个 TS 错误 → 排查 30 分钟才定位到第一个引入错误的位置',
+    consequence: '延迟运行 → 错误大量累积 → 回溯成本指数级增长 → 容易陷入"修一个 bug 冒三个新 bug"的死循环',
+  },
+  { category: 'karpathy', rule: 'Karpathy 原则 4：童子军准则（Leave code better than found）；改到哪顺手修到哪',
+    description: 'Karpathy 原则第四条（收尾的点睛之笔）：每次改代码时，在不影响本次任务前提下，顺手修复附近的 1-2 个小问题：拼写错误、未使用 import、any 类型缺泛型、缺失 key prop、console.log 忘删、空数组未提供 fallback、注释过时但还在。改动要小（每处 1-3 行），不能扩大 scope。不要把"顺手修"变成大规模重构——那违反原则 2。但小修必须做，让代码每次被触碰都变好一点。',
+    goodExample: '改 LevelDetail.tsx 注册监测组 → 顺手删了一个遗留的 console.log + 补了 .map 的 key prop → 共 +1-1 行',
+    badExample: '改 LevelDetail.tsx 注册监测组 → 顺手把整个文件改成了另一种架构 → 500 行改动 → 炸了 8 个依赖组件',
+    consequence: '不执行童子军准则 → 技术债按触碰次数线性累积 → 半年后每个文件都"不敢动" → 项目进入维护噩梦',
   },
 ]
 
@@ -786,6 +811,46 @@ function LevelMap() {
     where: '关卡系统的内容架构',
     description: '关卡内容采用三层数据结构：1) LevelMap 地图层 — 9 个关卡节点 + 路径连线，每个节点 onClick 跳转详情；2) LevelDetail 详情层 — 单个关卡的元数据（标题/描述/难度/预估时长）+ 视频播放器 + 编码挑战 + 进度记录；3) Course 课程层 — levels.ts 中每个关卡对象包含 id/title/description/difficulty/estimatedTime/videoUrl/challenges/lessons[]。三层用 useParams 解析 :levelId，用 useNavigate 跳转。进度数据存 ProgressContext，按关卡 id 维度记录完成情况',
     whenToUse: '所有"地图导航 → 详情页 → 课程学习"型教育/游戏化网站。数据集中在 data/ 下，页面只负责展示与交互，不持有源数据',
+  },
+  // —— pack6 新增：Karpathy 四原则流水线模式 ——
+  {
+    name: 'Karpathy 四步编码流水线（Think → Diff → Run → Polish）',
+    category: 'karpathy',
+    filePattern: '全局工作流：所有代码开发任务必执行',
+    where: '每次用户下达代码开发指令后立即执行',
+    description: '将 Karpathy 四条编码原则按顺序串成一条不可逆的流水线，严格按步骤执行：① THINK（思考阶段）→ ② DIFF（编码阶段）→ ③ RUN（验证阶段）→ ④ POLISH（收尾阶段）。四个阶段必须严格顺序执行，前一步不通过不得进入下一步。流水线保证每次开发都不会出现"先写再想/大步重写/攒错一堆/留坑走人"的四种 AI 编程流行病。每步结束时输出一句话证明该阶段真的执行了（不是口头说）。',
+    whenToUse: '所有涉及代码修改（加功能/修 bug/重构/配置）的用户任务，无例外。纯答疑可以只用 THINK+POLISH。',
+    template:
+`【Karpathy 流水线模板 — 每步必须有产出物证明】
+─────────────────────────────────────────────
+阶段 1：THINK（先想清楚再动手，不写一行代码）
+  1.1 通读用户诉求，用 ≤20 字重述目标（证明理解）
+  1.2 从经验包找：modules 相关模块 + conventions 约束 + lessons 已知坑 + patterns 可复用模式
+  1.3 列最小修改方案：改哪些文件 × 每个文件改什么 × 顺序
+  1.4 （大任务）给用户看方案，等用户确认
+  ⇒ 产出物：任务理解摘要 + 修改方案列表
+─────────────────────────────────────────────
+阶段 2：DIFF（小步 diff，不写全量，不超过 200 行/步）
+  2.1 大任务先 TodoWrite 拆子任务（≤10 个），每个单文件单一目的
+  2.2 多个独立文件并行跑子代理；单文件串行分步
+  2.3 已有文件必须用 Edit，不用 Write 覆盖；新文件才用 Write
+  2.4 每步提交 diff 控制在 ≤200 行新增；超了就继续拆
+  ⇒ 产出物：git diff 摘要（每个子任务 +N -M 行）
+─────────────────────────────────────────────
+阶段 3：RUN（尽早运行，每步必跑；不通过就回退/修复）
+  3.1 每完成一个子任务 → npm run build 必须通过
+  3.2 关键路径改了 → dev 环境 /#/ /#/map /#/monitor /#/source 四个页面无白屏
+  3.3 若有类型错误/构建错误/运行时错误 → 立即修复，不带到下一步
+  3.4 错误 ≥3 次还没修 → 回退到上一个稳定状态，重新 THINK
+  ⇒ 产出物：build 成功截图或 1 行 build 摘要
+─────────────────────────────────────────────
+阶段 4：POLISH（童子军准则；改到哪修到哪，不留坑）
+  4.1 扫一遍改动过的文件：顺手修 1-2 个小问题（未使用 import/拼写/缺 key/any 缺泛型/console.log）
+  4.2 经验包写回：追加 CONVERSATION_LOG 1 条 + 若有新模式/约定/教训也写入 + PACK_BUILD +1
+  4.3 同步 project_memory.md（如果变更了硬约束/工程约定）+ projectDocs.ts DOC_VERSION 升级
+  4.4 总结：给用户发 ≤5 句话总结（改了什么/怎么验证/产出物在哪）
+  ⇒ 产出物：对话总结（含版本号变更、经验包位置、构建结果）
+─────────────────────────────────────────────`,
   },
 ]
 
@@ -1265,6 +1330,112 @@ B. 严禁"读经验包跳过步骤1直接写代码"——跳过 READ 阶段等�
 C. 严禁"PACK_BUILD 不递增就提交经验包变更"——硬约束已写入 project_memory.md
 D. 严禁"conversationLog 字段缺失"——id/summary/filesModified/patternsAdded/date 五字段必填
 E. 递归规则：本"读-执行-写"工作流本身的"写入过程"也要被记录到 conversationLog`,
+  // —— pack6 新增：Karpathy 四原则工作流 Prompt ——
+  karpathyWorkflow: `【Karpathy 四原则编码工作流】（强制执行，所有代码修改任务必须先套这个）
+═══════════════════════════════════════════════
+适用：所有涉及代码修改（新增功能 / 修 bug / 重构 / 配置 / 优化 / UI 改动）的用户任务。
+不适用：纯答疑 / 纯对话 / 不产生代码 diff 的场景。
+═══════════════════════════════════════════════
+
+───────────────────────────────────────────────
+▌阶段 1  THINK — 先想清楚（不写一行代码）
+───────────────────────────────────────────────
+1.1 【用 ≤20 字重述用户目标】（证明不是跳读）
+     正确示例：用户要 "把 Karpathy skill 写入经验包并按它执行"
+     错误示例：用户要改代码（太空泛，等于没理解）
+
+1.2 【加载约束】从经验包读取四个维度：
+     - modules：找当前任务相关模块（路径+文件数+导出接口+依赖）
+     - conventions：相关分类的编码约定（anti-slop / LILA / meta-workflow / karpathy）
+     - lessons：找历史同类问题，避免踩已知坑
+     - patterns：找可复用模式（Context/Provider、三层数据结构等）
+     输出：2-3 句话摘要本次任务的硬约束
+
+1.3 【最小修改方案】列出 3 条信息，每条用 < 20 字：
+     a) 改哪些文件（用 [文件1, 文件2] 数组格式）
+     b) 每个文件改什么（不要写实现，写目的）
+     c) 修改顺序（先数据层 → 再状态层 → 再 UI 层 → 最后文档层）
+
+1.4 【大任务必须给用户确认】
+     如果改动文件 ≥ 5 个 或 行数 ≥ 500 行：先把 1.1+1.2+1.3 发给用户，
+     得到用户明确说"好的"再动手。不要自作主张开始写。
+
+───────────────────────────────────────────────
+▌阶段 2  DIFF — 小步 diff（不超过 200 行 / 步）
+───────────────────────────────────────────────
+2.1 【拆子任务】若任务 >1 个文件，用 TodoWrite 拆成 ≤10 个子任务，每个：
+     - 覆盖 1 个独立文件 或 1 个独立功能
+     - 有明确的"完成定义"（例如："npm run build 通过"）
+     - id/description/status/priority 四个字段齐全
+
+2.2 【并行加速】多个文件互不依赖 → 并行跑 general_purpose_task 子代理
+     同一文件的多步修改 → 必须串行（Edit 工具需要最新文件内容）
+
+2.3 【Edit 优先】已有 99% 的情况用 Edit；Write 工具仅限：
+     - 新建文件（无历史内容）
+     - 文件 ≤ 20 行 + 结构简单 + 100% 需要重写
+     任何情况禁止"因为怕 Edit 匹配失败就 Write 整文件"
+
+2.4 【Diff ≤200 行/步】每次 Edit / Write 新增行数 >200 → 回退重拆
+     单 commit 也 ≤ 200 行新增；大任务分多个小 commit
+     每次子任务结束：生成一条 git status 摘要
+
+───────────────────────────────────────────────
+▌阶段 3  RUN — 每步必跑（不通过不进下一步）
+───────────────────────────────────────────────
+3.1 【npm run build 必过】每个子任务完成后，必须立刻：
+     Set-ExecutionPolicy -Scope Process Bypass -Force ; npm run build
+     通过 → 继续下一个子任务
+     失败 → 立即修复 ≤3 次；≥3 次回退并重新 THINK
+
+3.2 【关键页面白屏检测】改了路由/页面/全局组件/全局样式时，dev 环境检查：
+     /#/ 首页（必须有 Logo + 导航 + 标题）
+     /#/map 关卡地图（8 个分类 Tab + 至少 1 个关卡卡）
+     /#/monitor 监测仪表盘（总览 Tab + 监测组 Tab 至少 1 条）
+     /#/source 源码探索（6 个 Tab 都能点不白屏）
+
+3.3 【错误 ≥3 次】连续 3 次构建或运行失败：
+     a) 立即把当前代码"就地保存"作为备份
+     b) 用 git stash 或 revert 回到上一个稳定状态
+     c) 从 THINK 阶段重新开始，缩小范围 / 改方案
+
+───────────────────────────────────────────────
+▌阶段 4  POLISH — 童子军准则（改到哪修到哪）
+───────────────────────────────────────────────
+4.1 【顺手修小坑】对改动过的每个文件各扫一遍，修 1-2 个小坑（不扩 scope）：
+     - import 写了但没用 → 删掉
+     - 中文/英文拼写错误 → 改
+     - .map 没 key prop → 加 id 做 key
+     - 裸 any 没泛型 → 加 <T> 或 用 unknown + 类型收窄
+     - 遗留的 console.log('debug...') → 删
+     小修合计 < 10 行，不计数在 2.4 的 200 行限制里
+
+4.2 【写回经验包】（pack5 递归规则）
+     a) 追加 1 条 CONVERSATION_LOG：id=conv-YYYYMMDD-N, summary, filesModified[], patternsAdded[], date
+     b) 如果本轮引入了新的模式/约定/教训 → 追加到 PATTERNS / CONVENTIONS / LESSONS
+     c) PACK_BUILD 必须 +1（哪怕只改了一个字）
+
+4.3 【同步元文档】
+     a) 如果加了硬约束 → 写入 project_memory.md Hard Constraints 段
+     b) 如果加了工程约定 → 写入 project_memory.md Engineering Conventions 段
+     c) projectDocs.ts：DOC_VERSION 升 1 段 + DOC_LAST_UPDATE 今天日期 + DOC_CHANGES 追加 1 条
+
+4.4 【给用户 5 句话总结】（不多不少 5 句以内）
+     ① 改了什么：核心产出一句话
+     ② 怎么验证：构建结果一句话
+     ③ 写回了什么：经验包 PACK_BUILD X→Y + CONVERSATION_LOG 几条 + PATTERNS/LESSONS 几条
+     ④ Git 信息：commit hash + 推送结果（成功/失败）
+     ⑤ 后续建议（可选）：下一轮可以做什么，用户可自选
+
+═══════════════════════════════════════════════
+★ 违规自动失败清单（任一条 = 本轮工作流执行不合格）：
+  ✓ 没做 1.1 就写代码（跳读→直接开干）
+  ✓ 用 Write 覆盖 20 行以上的已有文件
+  ✓ 单步 diff >200 行还没拆
+  ✓ 改了 3+ 个文件后才第一次 npm run build
+  ✓ 任务结束后 PACK_BUILD 没递增
+  ✓ 没有 CONVERSATION_LOG 新条目
+═══════════════════════════════════════════════`,
 }
 
 // ========================= 12. 对话历史归档（pack5 新增） =========================
@@ -1352,6 +1523,14 @@ const CONVERSATION_LOG = [
     summary: '将"每次对话读经验包→执行→写回经验包"的元工作流写入经验包 pack5（本条为递归规则，含其自身）',
     filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['经验包读-执行-写回元工作流', 'conversationLog 对话归档必填字段', 'PACK_BUILD 递增锁'],
+    date: '2026-07-30',
+  },
+  // —— pack6 新增：本次对话记录 ——
+  {
+    id: 'conv-20260730-10',
+    summary: '将 Andrej Karpathy Skill 四条核心编码原则写入经验包 pack6，并封装为 THINK→DIFF→RUN→POLISH 四步工作流 Prompt，后续所有对话按此工作流执行',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts', 'project_memory.md'],
+    patternsAdded: ['Karpathy 原则1 先想清楚再动手', 'Karpathy 原则2 小步diff不超200行', 'Karpathy 原则3 每步必跑build', 'Karpathy 原则4 童子军准则', 'Karpathy 四步编码流水线模式', 'karpathyWorkflow 工作流Prompt模板'],
     date: '2026-07-30',
   },
 ]
