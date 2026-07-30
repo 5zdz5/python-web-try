@@ -1,8 +1,10 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProgress } from '../../context/ProgressContext'
 import { levels } from '../../data/mockData'
 import { lessonSteps, challenges } from '../../data/lessonContent'
 import './LearningPath.css'
+import { useMonitor } from '../../context/MonitorContext'
 
 function formatTimeAgo(timestamp: string) {
   const diff = Date.now() - new Date(timestamp).getTime()
@@ -17,8 +19,13 @@ function formatTimeAgo(timestamp: string) {
 }
 
 function LearningPath() {
+  const { registerGroup } = useMonitor()
   const navigate = useNavigate()
   const { progress, stats, getLevelProgress, getOverallProgress, getRecentActivities } = useProgress()
+
+  useEffect(() => {
+    registerGroup('LearningPath', '学习路径', 'pages/LearningPath/LearningPath.tsx')
+  }, [registerGroup])
 
   const overall = getOverallProgress()
   const recent = getRecentActivities(20)

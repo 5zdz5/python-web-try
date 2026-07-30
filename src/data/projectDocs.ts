@@ -33,15 +33,16 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v1.3'
-export const DOC_LAST_UPDATE = '2026-07-29'
+export const DOC_VERSION = 'v1.4'
+export const DOC_LAST_UPDATE = '2026-07-30'
 export const DOC_CHANGES = [
   '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
   '对齐菜鸟教程10大教程全目录：Python3、FastAPI、Django、NumPy、Pandas、Matplotlib、Jupyter Notebook、Pillow、Python Qt、R 语言',
   '引入8大分类地图系统：基础、进阶、网络爬虫、数据科学、Web开发、工具、金融、系统编程，每类独立主题色',
   '主题卡片扩展至76张：新增 MongoDB、BeautifulSoup、Selenium、pyecharts、pip 包管理、venv 虚拟环境、CSV、logging、datetime 等细分主题，覆盖 Requests、Scrapy、正则表达式、MySQL、SQLite、Redis、Git、pytest、asyncio、scikit-learn、TensorFlow、PyTorch 全生态',
   '无敌模式覆盖全部60关，分类地图切换支持主题色动态变化',
-  '版本化存储 key 自动升级，旧版本数据冻结保留'
+  '版本化存储 key 自动升级，旧版本数据冻结保留',
+  '经验包集成两个外部 Skill：Leonxlnx/taste-skill（三旋钮设计+anti-slop反默认+字体反Inter反Serif+LILA反AI紫蓝规则）与 pbakaus/impeccable（四模式23命令+58检测规则），并新增两套 Prompt 工作流模板，PACK_BUILD 升至 pack3'
 ]
 
 // ===== 技术栈 =====

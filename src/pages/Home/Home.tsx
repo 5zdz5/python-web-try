@@ -1,14 +1,20 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
 import VersionHistory from '../../components/VersionHistory'
 import { CURRENT_VERSION, getCurrentVersionInfo } from '../../config/versionManager'
 import { levels } from '../../data/mockData'
 import { runoobTopics } from '../../data/runoobTopics'
+import { useMonitor } from '../../context/MonitorContext'
 
 function Home() {
+  const { registerGroup } = useMonitor()
   const [showVersionHistory, setShowVersionHistory] = useState(false)
   const versionInfo = getCurrentVersionInfo()
+
+  useEffect(() => {
+    registerGroup('Home', '首页', 'pages/Home/Home.tsx')
+  }, [registerGroup])
 
   // 自动计算统计数据（迭代新增关卡/卡片时自动更新）
   const { totalLevels, totalChallenges, totalTopics, totalCategories } = useMemo(() => {

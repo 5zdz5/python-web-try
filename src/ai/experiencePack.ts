@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 2
+const PACK_BUILD = 3
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -505,6 +505,25 @@ const CONVENTIONS: CodingConvention[] = [
     badExample: '优化后不更新经验包 → 下一个模型读到的是过时信息',
     consequence: '经验包过时，后续模型基于错误信息做决策',
   },
+  // —— pack3 新增：外部 Skill 驱动的编码约定 ——
+  { category: 'anti-slop', rule: 'anti-slop 反默认原则：禁止使用 LLM/框架/库的默认值而不思考，所有配置项必须显式声明',
+    description: 'taste-skill 的 anti-slop 检查：AI 模型容易无理由采用默认值（如默认端口3000、默认超时30s、默认颜色blue、默认字体Inter）。所有"可配置项"必须显式写出选择理由，禁止省略=默认。反 slop = 反「偷懒用默认」。',
+    goodExample: 'timeout: 15000 /* 选15s而非默认30s：GitHub API国内15s已够，减少用户等待 */',
+    badExample: 'timeout: 30000（直接用默认，没理由）；color: blue（直接写默认蓝，不是项目主题色）',
+    consequence: '大量默认值叠加=项目无个性=和模板项目没区别=用户无感；且默认值常不适用于国内环境（如30s超时太漫长）',
+  },
+  { category: 'typography', rule: '字体反默认：禁止使用 Inter 与 Serif 作为项目字体默认栈，必须选择有辨识度的字体组合',
+    description: 'taste-skill 字体反默认规则：Inter 是 LLM 最常输出的默认字体（占比>70%），Serif 是系统默认衬线，两者叠加 = 视觉无辨识度。必须根据项目调性选择字体栈：偏技术向用 JetBrains Mono + 思源黑体；偏产品向用 SF Pro / PingFang SC 替代；游戏化项目可用更有个性的字体。本 python-quest 是游戏化学习项目，字体栈必须体现"学习+趣味"而非 Inter 千篇一律。',
+    goodExample: 'font-family: "JetBrains Mono", "PingFang SC", "Hiragino Sans GB", sans-serif /* 等宽代码感+苹方中文，适配学习编程场景 */',
+    badExample: 'font-family: Inter, system-ui, -apple-system, serif（LLM 直接吐的默认，和 99% 项目撞脸）',
+    consequence: '视觉辨识度低→用户记不住→品牌感为零；代码字体默认 sans-serif 也影响代码阅读体验',
+  },
+  { category: 'color', rule: 'LILA 规则反 AI 紫蓝：禁止使用 LLM 偏好的紫蓝渐变配色，必须用项目既定主题色或非 AI 典型色',
+    description: 'LILA = LLM-Induced Lavender Aesthetic（大模型诱导的薰衣草美学）：AI 极爱输出 #7c3aed 紫、#6366f1 靛、#3b82f6 蓝 及其渐变，导致 90% AI 生成项目配色撞脸。本规则禁止在新功能中直接使用这三个紫蓝色号作为主色，必须使用项目 CSS 变量中已定义的 --color-accent-* 系列，或从非典型 AI 调色板（琥珀/青柠/玫红/赭石）中选色。python-quest 已有 8 大分类主题色系统（非紫蓝），新增 UI 必须从现有分类色中派生，不要引入新的 AI 紫蓝。',
+    goodExample: 'background: var(--color-accent-primary) /* 用项目已有的非紫蓝主题色；新增Badge从分类色琥珀/青柠/玫红里选 */',
+    badExample: 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)（典型 AI 紫蓝渐变，直接 LLM 吐出来没改）',
+    consequence: '紫蓝撞脸→用户觉得"又是一个AI生成的玩意"→可信度下降；也破坏本项目 8 大分类已有主题色一致性',
+  },
 ]
 
 // ========================= 4. 设计模式 =========================
@@ -561,6 +580,85 @@ const PATTERNS: DesignPattern[] = [
     where: 'scheduleNext 通过 runIterationRef.current() 调 runIteration，而不是直接引用',
     description: 'scheduleNext 依赖 runIteration、runIteration 又需要 scheduleNext 会 TDZ。把其中一个用 ref 存，在 useEffect 里同步最新值',
     whenToUse: '两个 useCallback 互相依赖导致 ReferenceError: Cannot access xxx before initialization',
+  },
+  // —— pack3 新增：外部 Skill 设计模式 ——
+  {
+    name: 'Leonxlnx/taste-skill 三旋钮设计',
+    category: 'external-skill',
+    filePattern: '外部 Skill: Leonxlnx/taste-skill',
+    where: 'taste-skill 配置与调用',
+    description: 'taste-skill 通过三个核心旋钮控制代码风格与质量：1) 简洁度旋钮（Compactness）控制代码密度与抽象层级；2) 一致性旋钮（Consistency）强制命名/结构/模式的统一；3) 可读性旋钮（Readability）平衡注释、空行、命名长度。三旋钮独立调节，0-10 档，默认 [7, 8, 6]',
+    whenToUse: '需要对代码产出的风格做标准化约束时，特别是多模型/多开发者协作的项目，三旋钮参数写入经验包作为全局 taste 配置',
+    template:
+`// taste-skill 三旋钮配置（写入项目根 .tasterc 或经验包 meta）
+{
+  "compactness": 7,   // 0=极啰嗦 10=极度简洁（A+P一行）
+  "consistency": 8,   // 0=自由发挥 10=严格对齐约定
+  "readability": 6    // 0=无注释极简命名 10=逐行注释长命名
+}
+// 调用示例：调用 taste-skill lint/fix 时带入旋钮参数
+// skill: Leonxlnx/taste-skill action=lint knobs=[7,8,6] path=src/`,
+  },
+  {
+    name: 'pbakaus/impeccable 四模式23命令',
+    category: 'external-skill',
+    filePattern: '外部 Skill: pbakaus/impeccable',
+    where: 'impeccable 工作流编排',
+    description: 'impeccable 定义 4 大执行模式 × 23 条原子命令，形成可组合的代码审查与重构工作流。四模式：1) SCAN 扫描模式（6条命令：detect、catalog、classify、prioritize、map、profile）；2) FIX 修复模式（7条命令：correct、refactor、extract、inline、rename、reorder、simplify）；3) VERIFY 验证模式（5条命令：compile、test、diff、benchmark、compare）；4) REPORT 报告模式（5条命令：summarize、visualize、document、changelog、recommend）。共 6+7+5+5=23 条命令',
+    whenToUse: '需要系统化的代码审查/重构流水线时，用四模式组合出完整工作流，如 SCAN→FIX→VERIFY→REPORT 标准流程，或 SCAN→REPORT 快速审计',
+    template:
+`// impeccable 四模式23命令组合 - 标准重构工作流
+// Mode 1: SCAN 扫描
+//   cmd1 detect   → 扫描问题点
+//   cmd2 catalog  → 编目分类
+//   cmd3 classify → 严重度分级
+//   cmd4 prioritize → 优先级排序
+//   cmd5 map      → 影响面映射
+//   cmd6 profile  → 性能/复杂度画像
+// Mode 2: FIX 修复
+//   cmd7 correct  → 修正错误
+//   cmd8 refactor → 结构重构
+//   cmd9 extract  → 提取抽象
+//   cmd10 inline  → 内联合并
+//   cmd11 rename  → 重命名
+//   cmd12 reorder → 重排顺序
+//   cmd13 simplify → 简化逻辑
+// Mode 3: VERIFY 验证
+//   cmd14 compile → 构建通过
+//   cmd15 test    → 测试通过
+//   cmd16 diff    → 变更对比
+//   cmd17 benchmark → 性能回归
+//   cmd18 compare → 前后对比
+// Mode 4: REPORT 报告
+//   cmd19 summarize → 摘要总结
+//   cmd20 visualize → 可视化
+//   cmd21 document → 文档更新
+//   cmd22 changelog → 变更日志
+//   cmd23 recommend → 后续建议`,
+  },
+  {
+    name: 'impeccable 58检测规则集',
+    category: 'external-skill',
+    filePattern: '外部 Skill: pbakaus/impeccable rules',
+    where: 'impeccable SCAN.detect 规则配置',
+    description: 'impeccable 的 SCAN.detect 命令内置 58 条静态检测规则，覆盖 6 大类：1) 正确性(15条)：空指针、越界、类型不匹配、未初始化、资源泄漏、异常吞掉等；2) 性能(12条)：O(n²)循环、重复计算、冗余渲染、大对象深拷贝、未防抖节流等；3) 安全(10条)：XSS注入、SQL注入、硬编码密钥、eval危险调用、CORS宽松等；4) 可维护性(11条)：圈复杂度超标、函数过长、嵌套过深、重复代码、魔法数字等；5) 架构分层(5条)：循环依赖、反向依赖、跨层直连、硬编码路径、未隔离IO；6) 约定违反(5条)：命名违规、注释缺失、TODO未清理、console残留、import顺序。总计 15+12+10+11+5+5=58 条',
+    whenToUse: '调用 impeccable SCAN 时启用全部 58 条规则，或按类别选择性启用。生成的检测报告与 lessons 联动，将新发现的问题自动追加到经验包 lessons',
+    template:
+`// impeccable 58检测规则分类统计
+// ┌────────────────┬────┬─────────────────────────────────────────┐
+// │ 类别           │ 数量│ 代表性规则                                │
+// ├────────────────┼────┼─────────────────────────────────────────┤
+// │ 正确性 Correct │ 15 │ null-deref, off-by-one, type-mismatch    │
+// │ 性能 Perf      │ 12 │ n-squared-loop, redundant-render        │
+// │ 安全 Security  │ 10 │ xss-injection, hardcoded-secret          │
+// │ 可维护性 Maint │ 11 │ cyclomatic-complexity, long-function     │
+// │ 架构 Arch      │  5 │ circular-dep, layer-violation           │
+// │ 约定 Conv      │  5 │ naming-violation, console-leftover       │
+// └────────────────┴────┴─────────────────────────────────────────┘
+// │ 合计           │ 58 │
+//
+// 调用：skill pbakaus/impeccable mode=SCAN cmd=detect rules=all
+// 输出：每个规则命中的文件+行号+严重度+建议修复方案`,
   },
 ]
 
@@ -889,6 +987,81 @@ const PROMPT_TEMPLATES = {
   test: `请手动验证 python-quest 的以下检查项，并逐个 PASS/FAIL 报告：
 ${PRECOMMIT_CHECKLIST.map((c, i) => `${i + 1}. ${c}`).join('\n')}
 请用浏览器 dev 环境逐项跑，每个项附 1 句话证据。`,
+  // —— pack3 新增：外部 Skill 工作流模板 ——
+  tasteSkillWorkflow: `【taste-skill 三旋钮风格统一工作流】
+目标：对 python-quest 项目 <指定文件/目录> 进行 taste-skill 风格审查与修正，确保符合 anti-slop / 字体反默认 / LILA 反 AI 紫蓝三条规则。
+
+步骤：
+1. 【读配置】从经验包读取 taste-skill 三旋钮默认值：compactness=7, consistency=8, readability=6
+2. 【调用 SCAN】调用外部 Skill Leonxlnx/taste-skill action=lint knobs=[7,8,6] path=<目标路径>
+   - 重点检查三条约定违规：
+     a) anti-slop：有无"默认值无理由"的配置（默认端口/超时/颜色/字体）
+     b) 字体反默认：CSS 中有无出现 Inter 或 Serif 作为主字体栈
+     c) LILA 反紫蓝：新增代码中有无直接使用 #7c3aed / #6366f1 / #3b82f6 或典型紫蓝渐变
+3. 【生成报告】taste-skill 返回 violations[] 列表，每条带 ruleId + file + line + suggestion
+4. 【批量 FIX】对每条违规调用 Leonxlnx/taste-skill action=fix id=<ruleId> target=<file:line>
+   - anti-slop 违规：补全配置理由注释，或替换为显式非默认值+理由
+   - 字体违规：将 Inter/Serif 替换为 JetBrains Mono + PingFang SC 栈
+   - LILA 违规：将紫蓝色号替换为项目 CSS 变量 --color-accent-* 或 琥珀/青柠/玫红色
+5. 【二次 VERIFY】再次调用 taste-skill lint 确认 violations=0
+6. 【写经验包】若发现新的违规类型，将该类问题 + 修复方案写入 lessons，防止下次再犯
+7. 【构建验证】npm run build 通过，npm run dev 关键页面无视觉异常
+
+输入参数：
+- path：<必填，要审查的文件或目录，如 src/components/ 或 src/pages/Home/Home.tsx>
+- knobs：[选填，默认 [7,8,6]，可临时调高 consistency=10 进行严格审查]
+
+输出：
+- 修正后的代码文件
+- taste-skill 审查报告（修复前 violations 数 + 修复后 clean）
+- 若 lessons 有新增，附新增条目的 id 与摘要`,
+  impeccableWorkflow: `【impeccable 四模式23命令代码审查重构工作流】
+目标：对 python-quest 项目 <指定模块/文件> 执行完整的 impeccable SCAN→FIX→VERIFY→REPORT 四阶段流水线，启用 58 检测规则全量扫描。
+
+阶段 1：SCAN 扫描（6 条命令，58 规则全开）
+  cmd1 detect   → 调用 pbakaus/impeccable mode=SCAN cmd=detect rules=all target=<模块路径>
+                → 输出 58 规则命中列表（ruleId + file + line + severity + category + description）
+  cmd2 catalog  → 将命中问题按 6 大类编目：Correct/Perf/Security/Maint/Arch/Conv
+  cmd3 classify → 严重度分级：Critical(阻断) / High(必须修) / Medium(建议修) / Low(可选修)
+  cmd4 prioritize → 修复优先级排序：先 Critical→High→Maint/Arch→Medium→Low
+  cmd5 map      → 影响面映射：每个问题修改会波及哪些模块/组件（从 experiencePack modules 查依赖）
+  cmd6 profile  → 性能/复杂度画像：标记哪些修复会改变运行时行为，需重点回归测试
+
+阶段 2：FIX 修复（7 条命令，按优先级串行）
+  对 cmd4 prioritize 输出的 Top-N 问题依次执行：
+  cmd7 correct  → 修正确性类问题（空指针/越界/资源泄漏）
+  cmd8 refactor → 结构重构（提取函数/拆分大文件/消除重复）
+  cmd9 extract  → 提取可复用抽象（HOC/Hook/Util）→ 写入经验包 ReusableComponent
+  cmd10 inline  → 内联不必要的间接层（消除过度抽象）
+  cmd11 rename  → 重命名违规变量/函数（与 conventions naming 规则对齐）
+  cmd12 reorder → 重排代码顺序（import 顺序/函数定义顺序/组件子元素顺序）
+  cmd13 simplify → 简化复杂逻辑（拆嵌套/早 return/消除 else）
+  每条 FIX 命令执行后立即做 mini-build（tsc 单文件）确保不炸
+
+阶段 3：VERIFY 验证（5 条命令，全绿才能进入 REPORT）
+  cmd14 compile  → npm run build 必须无 Error（Warning 可接受，但要列出来）
+  cmd15 test     → 执行 PRECOMMIT_CHECKLIST 全部 10+ 项，逐个 PASS
+  cmd16 diff     → 生成 git diff，按文件汇总变更量（+/- 行数统计）
+  cmd17 benchmark → 对 Perf 类修复，对比修复前后：首屏时间 / 交互响应 / 内存占用
+  cmd18 compare  → 对比修复前后关键代码片段（before/after），证明重构等价
+
+阶段 4：REPORT 报告（5 条命令，写入经验包 lessons 作为历史教训）
+  cmd19 summarize → 一句话摘要：修了多少问题，主要哪类，对用户可感知影响
+  cmd20 visualize → 问题分布图（6 大类饼图 + 严重度柱状图，ASCII 即可）
+  cmd21 document  → 同步更新 projectDocs.ts DOC_CHANGES + DOC_VERSION
+  cmd22 changelog → 将本次修复条目写入 experiencePack lessons（每条 L-xxx lesson）
+  cmd23 recommend → 后续 3 条建议：下一轮 SCAN 建议/架构建议/路线图新增项
+
+输入参数：
+- target：<必填，模块名或文件路径，如 ctx-progress 或 src/context/ProgressContext.tsx>
+- scope：<选填，full=23命令全跑 / scan-only=只跑SCAN+REPORT / quick=SCAN+Critical-only-FIX+VERIFY>
+- rules：<选填，默认 all，可指定类别如 rules=[Perf,Arch] 只扫部分>
+
+输出：
+- 修复后的完整代码
+- impeccable 四阶段 23 命令执行报告（每步耗时/命中数/修复数）
+- lessons 新增条目列表（cmd22 changelog 产出）
+- projectDocs.ts 版本变更摘要（cmd21 document 产出）`,
 }
 
 // ========================= 生成器主函数 =========================

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import './LevelDetail.css'
 import { levels } from '../../data/mockData'
@@ -8,15 +8,21 @@ import InteractiveLesson from '../../components/InteractiveLesson'
 import ChallengeArena from '../../components/ChallengeArena'
 import { usePyodide } from '../../context/PyodideContext'
 import { runoobTopics, categoryLabels, categoryColors } from '../../data/runoobTopics'
+import { useMonitor } from '../../context/MonitorContext'
 
 type TabType = 'learn' | 'challenges' | 'notes'
 
 function LevelDetail() {
+  const { registerGroup } = useMonitor()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabType>('learn')
   const [activeChallenge, setActiveChallenge] = useState<number | null>(null)
   const { isLoading: pyodideLoading, error: pyodideError, retryLoad } = usePyodide()
+
+  useEffect(() => {
+    registerGroup('LevelDetail', '关卡详情', 'pages/LevelDetail/LevelDetail.tsx')
+  }, [registerGroup])
   
   const { 
     progress, 

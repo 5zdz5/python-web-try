@@ -268,7 +268,7 @@ export const THEME_LIGHT_TECH: ThemePreset = {
   },
   fonts: {
     family: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
-    display: '"Inter", "Noto Sans SC", sans-serif',
+    display: '"Orbitron", "Noto Sans SC", sans-serif',
     mono: '"Courier New", "JetBrains Mono", monospace',
   },
   radii: {

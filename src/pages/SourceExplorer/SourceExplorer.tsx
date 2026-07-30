@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './SourceExplorer.css'
 import {
@@ -10,6 +10,7 @@ import { levels } from '../../data/mockData'
 import { runoobTopics } from '../../data/runoobTopics'
 import { CATEGORY_ORDER } from '../../config/categories'
 import ExperiencePackPanel from '../../components/ExperiencePackPanel'
+import { useMonitor } from '../../context/MonitorContext'
 
 type Tab = 'overview' | 'files' | 'features' | 'principles' | 'migration' | 'experience'
 
@@ -51,7 +52,12 @@ function getFileIcon(name: string): string {
 }
 
 function SourceExplorer() {
+  const { registerGroup } = useMonitor()
   const [activeTab, setActiveTab] = useState<Tab>('overview')
+
+  useEffect(() => {
+    registerGroup('SourceExplorer', '源码探索', 'pages/SourceExplorer/SourceExplorer.tsx')
+  }, [registerGroup])
 
   // 迭代适配：项目规模统计从实际数据自动计算，新增关卡/卡片/分类时无需改 UI
   const stats = useMemo(() => {

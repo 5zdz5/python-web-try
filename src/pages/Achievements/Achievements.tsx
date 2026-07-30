@@ -1,11 +1,17 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useProgress } from '../../context/ProgressContext'
 import { achievements, achievementCategories, rarityConfig } from '../../data/achievements'
 import './Achievements.css'
+import { useMonitor } from '../../context/MonitorContext'
 
 function Achievements() {
+  const { registerGroup } = useMonitor()
   const { progress, stats, isAchievementUnlocked, isAchievementClaimed, claimAchievement } = useProgress()
   const [activeCategory, setActiveCategory] = useState<string>('all')
+
+  useEffect(() => {
+    registerGroup('Achievements', '成就殿堂', 'pages/Achievements/Achievements.tsx')
+  }, [registerGroup])
 
   const totalUnlocked = progress.unlockedAchievements.length
   const totalAchievements = achievements.length

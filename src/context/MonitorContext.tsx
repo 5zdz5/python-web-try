@@ -118,8 +118,7 @@ export function MonitorProvider({ children }: { children: ReactNode }) {
   // ===== 汇报健康状态 =====
   const reportHealth = useCallback((groupId: string, status: 'healthy' | 'warning' | 'error' | 'crashed', detail?: string) => {
     setGroups(prev => {
-      const g = prev[groupId]
-      if (!g) return prev
+      const g = prev[groupId] || { id: groupId, name: groupId, status: 'healthy' as const, lastReport: new Date().toISOString(), checks: 0, errors: 0 }
       return {
         ...prev,
         [groupId]: {
@@ -273,13 +272,44 @@ export function MonitorProvider({ children }: { children: ReactNode }) {
 
     // 等待页面加载后检查
     patrolTimerRef.current = setTimeout(() => {
-      // 检查页面是否正常加载
       const bodyText = document.body?.innerText || ''
       const hasContent = bodyText.trim().length > 50
+
+      const h1Count = document.querySelectorAll('h1').length
+      const h2Count = document.querySelectorAll('h2').length
+      const headingCount = h1Count + h2Count
+      const buttonCount = document.querySelectorAll('button, [role="button"], .btn').length
+      const imgCount = document.querySelectorAll('img').length
+      const cardCount = document.querySelectorAll('[class*="card"], [class*="Card"]').length
+
+      const headingOk = headingCount >= 1
+      const buttonOk = buttonCount >= 1
+      const cardOk = cardCount >= 1
+
+      let status: 'pass' | 'fail' = 'pass'
+      let healthStatus: 'healthy' | 'warning' | 'error' = 'healthy'
+      let detail = ''
+
+      if (!hasContent) {
+        status = 'fail'
+        healthStatus = 'error'
+        detail = '页面内容为空（白屏）'
+      } else if (!headingOk || !buttonOk || !cardOk) {
+        status = 'pass'
+        healthStatus = 'warning'
+        const warnings: string[] = []
+        if (!headingOk) warnings.push(`标题不足(h1+h2=${headingCount})`)
+        if (!buttonOk) warnings.push(`按钮不足(${buttonCount})`)
+        if (!cardOk) warnings.push(`卡片不足(${cardCount})`)
+        detail = `关键元素偏低：${warnings.join('，')}（h1+h2=${headingCount}, button=${buttonCount}, img=${imgCount}, card=${cardCount}）`
+      } else {
+        detail = `页面正常加载（h1+h2=${headingCount}, button=${buttonCount}, img=${imgCount}, card=${cardCount}）`
+      }
+
       const result: PatrolStep & { status: 'pass' | 'fail'; detail: string } = {
         ...step,
-        status: hasContent ? 'pass' : 'fail',
-        detail: hasContent ? '页面正常加载' : '页面内容为空',
+        status,
+        detail,
       }
 
       setPatrol(prev => ({
@@ -288,8 +318,7 @@ export function MonitorProvider({ children }: { children: ReactNode }) {
         currentStep: prev.currentStep + 1,
       }))
 
-      // 汇报监测组状态
-      reportHealth(step.group, hasContent ? 'healthy' : 'error', result.detail)
+      reportHealth(step.group, healthStatus, result.detail)
     }, 2000) // 每步等待2秒
 
     return () => {

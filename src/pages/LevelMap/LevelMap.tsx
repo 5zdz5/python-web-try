@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './LevelMap.css'
 import { levels, currentLevelLessons } from '../../data/mockData'
@@ -11,11 +11,17 @@ import {
   filterLevelsByCategory,
   computeCategoryProgressPercent
 } from '../../config/categories'
+import { useMonitor } from '../../context/MonitorContext'
 
 function LevelMap() {
+  const { registerGroup } = useMonitor()
   const navigate = useNavigate()
   const [activeCategory, setActiveCategory] = useState<LevelCategory>('basic')
   const { progress, isLevelUnlocked, isLevelCompleted, isChallengeCompleted, getLevelProgress, godMode, toggleGodMode } = useProgress()
+
+  useEffect(() => {
+    registerGroup('LevelMap', '关卡地图', 'pages/LevelMap/LevelMap.tsx')
+  }, [registerGroup])
 
   // 所有关卡的状态
   const levelsWithStatus = useMemo(() => {

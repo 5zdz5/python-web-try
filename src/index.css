@@ -2,9 +2,9 @@
  *  Python Quest — ZZZ (绝区零) Design System
  *  赛博朋克 / 扁平大色块 / 霓虹荧光 / 几何斜切 / 扫描线
  * ============================================================ */
-/* 字体：Google Fonts — 载入简体中文 / Orbitron / Noto Serif SC / Inter，
-   保证所有主题都能用到对应 display / serif 字体。 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Orbitron:wght@500;700;900&family=Inter:wght@500;700;900&family=ZCOOL+XiaoWei&display=swap');
+/* 字体：Google Fonts — 载入简体中文 / Orbitron / Noto Serif SC / ZCOOL XiaoWei，
+   保证所有主题都能用到对应 display / serif 字体，所有字体启用 font-display=swap。 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Orbitron:wght@500;700;900&family=ZCOOL+XiaoWei&display=swap');
 
 /* ============================================================
  *  :root 默认值 — 作为"无 ThemeProvider 时"的回退（保持 ZZZ）

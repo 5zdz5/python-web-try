@@ -1,14 +1,20 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useProgress } from '../../context/ProgressContext'
 import { leaderboardMockData } from '../../data/achievements'
 import './Leaderboard.css'
+import { useMonitor } from '../../context/MonitorContext'
 
 type SortKey = 'xp' | 'streak' | 'levels'
 
 function Leaderboard() {
+  const { registerGroup } = useMonitor()
   const { progress, stats } = useProgress()
   const [sortKey, setSortKey] = useState<SortKey>('xp')
   const [period, setPeriod] = useState<'all' | 'week' | 'month'>('all')
+
+  useEffect(() => {
+    registerGroup('Leaderboard', '排行榜', 'pages/Leaderboard/Leaderboard.tsx')
+  }, [registerGroup])
 
   // 当前用户
   const myEntry = {
