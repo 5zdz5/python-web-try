@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 22
+const PACK_BUILD = 23
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -330,6 +330,17 @@ const MODULES: ModuleInfo[] = [
     dependedBy: ['core-app'],
     extensionPoints: ['新增页面级说明 → 在 footer 追加', '新增 Skill 入口 → SkillViewer 组件自动渲染'],
     pitfalls: ['页面壳保持轻量，核心逻辑在 SkillViewer 组件', '必须 defaultExpanded=true 让用户直接看到 Skill 列表'],
+  },
+  // —— pack23 新增：进化档案页面（用户原话"continue，疯狂进化"） ——
+  {
+    id: 'page-evolution', category: 'page', name: '进化档案页面',
+    path: 'src/pages/EvolutionArchive/', files: 3, approxLines: 360,
+    description: 'Agent 20 次迭代可视化页面：顶部统计卡（迭代总数/策略应用数/评分变化/Wiki 推送数/快照数/调配次数）+ 中部策略应用频次 Top10 + 评分曲线 SVG 折线图 + 最近迭代列表 + Wiki 推送历史。严格应用 taste-skill/impeccable 审美规则，双主题适配（pixel-spectrum 彩虹流动 + pixel-crow 乌鸦虹彩）',
+    exports: ['<EvolutionArchive />'],
+    dependsOn: ['ctx-aiagent'],
+    dependedBy: ['core-app'],
+    extensionPoints: ['新增可视化维度 → 在 stats 派生数据追加字段', '新增迭代子图 → 在 SVG 区域追加 path'],
+    pitfalls: ['history 为空时所有派生统计必须有 0/空数组兜底', 'SVG 路径生成必须处理 history.length===0 边界', '必须 useAIAgent 而非 useAgent（context 实际导出名）'],
   },
 
   // —— Data 数据层 ——
@@ -2001,6 +2012,14 @@ const CONVERSATION_LOG = [
     filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts', 'scripts/test-wikisync-iter.mjs'],
     patternsAdded: ['Wiki 同步自主决策边界模式（默认目标/默认格式/去重规则内不询问，非默认场景才询问，减少用户确认开销）', 'wikiSync 20 次迭代验证脚本模式（puppeteer 浏览器端运行，PACK_BUILD 递增模拟→监察→推送→去重→持久化全链路验证）', '飞书 Wiki 首次落地三流程（创建知识空间+创建 wiki 节点+用 lark-doc overwrite 写入正文）'],
     date: '2026-07-30',
+  },
+  // —— pack23 新增：疯狂进化（用户原话"continue，疯狂进化"） ——
+  {
+    id: 'conv-20260731-26',
+    summary: '用户原话："continue，疯狂进化"。① 扩展优化策略库 src/ai/Optimizer.ts：补全 content 域 3 策略（启用空关卡扫描/启用损坏图片检测/加快内容刷新）+ 新增 meta 域 3 策略（提升学习率/提升探索率/降低学习率精细微调），TunableParams 接口新增 enableEmptyLessonScan/enableBrokenImageCheck/contentRefreshInterval/agentLearningRate/strategyExplorationRate 五字段，DEFAULT_PARAMS 添加默认值，BOUNDS 新增参数边界，WEIGHTS 新增 meta 域权重。② 扩展 src/types/ai.ts：OptDomain 联合类型新增 \'meta\'，TunableParams 同步新增五字段。③ 扩展 src/context/AIAgentContext.tsx：DEFAULT_CONFIG.enabledDomains 加入 \'meta\'，Agent 现可应用 meta 域策略进行自我进化。④ 创建 src/pages/EvolutionArchive/EvolutionArchive.tsx + .css + index.ts（360 行）：三栏布局进化档案页（顶部统计卡 6 指标+中部策略频次 Top10+底部评分曲线 SVG 折线图+最近迭代列表+Wiki 推送历史），集成 useAIAgent 拉取 history/summary/orchestration/wikiSync/snapshots，严格应用 taste-skill（间距 8 倍数+JetBrains Mono 字体+主题色变量）和 impeccable（section 分隔不嵌套 card+--radius-* 圆角+无 console 残留）规则，双主题适配（pixel-spectrum 彩虹流动+pixel-crow 乌鸦虹彩）。⑤ 法则 6 三注册完成：App.tsx 路由 /evolution、Navbar 导航"进化档案"、projectDocs.ts DOC_VERSION v3.2→v3.3。⑥ 修复构建错误：EvolutionArchive.tsx 误用 useAgent（实际导出名 useAIAgent），更正后构建通过。⑦ 经验包写回：MODULES 追加 page-evolution 模块、CONVERSATION_LOG 追加 conv-26、DOC_CHANGES 追加 pack23 条目。PACK_BUILD 22→23，DOC_VERSION v3.2→v3.3',
+    filesModified: ['src/ai/Optimizer.ts', 'src/types/ai.ts', 'src/context/AIAgentContext.tsx', 'src/pages/EvolutionArchive/EvolutionArchive.tsx', 'src/pages/EvolutionArchive/EvolutionArchive.css', 'src/pages/EvolutionArchive/index.ts', 'src/App.tsx', 'src/components/Navbar/Navbar.tsx', 'src/data/projectDocs.ts', 'src/ai/experiencePack.ts'],
+    patternsAdded: ['优化策略库 5 域补全模式（performance/ux/content/stability/meta 五域全覆盖，meta 域实现 Agent 自适应进化）', '进化可视化三栏布局（统计卡+策略频次+评分曲线 SVG，从 useAIAgent 派生全量统计，history 为空时 0/空数组兜底）', 'context hook 导出名硬约束（实际导出 useAIAgent 而非 useAgent，import 时必须核对 value 暴露字段）'],
+    date: '2026-07-31',
   },
 ]
 

@@ -48,7 +48,7 @@ const DEFAULT_CONFIG: AgentConfig = {
   rollbackThreshold: 5,          // 综合分下降 5 分触发回溯
   homepageProtected: true,
   maxIterations: 20,
-  enabledDomains: ['performance', 'ux', 'content', 'stability'],
+  enabledDomains: ['performance', 'ux', 'content', 'stability', 'meta'],
 }
 
 // ===== Context 类型 =====

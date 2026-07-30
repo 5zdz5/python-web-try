@@ -9,7 +9,7 @@
  */
 
 /** 优化领域 */
-export type OptDomain = 'performance' | 'ux' | 'content' | 'stability'
+export type OptDomain = 'performance' | 'ux' | 'content' | 'stability' | 'meta'
 
 /** Agent 运行状态 */
 export type AgentState = 'idle' | 'observing' | 'analyzing' | 'deciding' | 'acting' | 'verifying' | 'committed' | 'rolledback' | 'paused'
@@ -90,6 +90,13 @@ export interface TunableParams {
   enablePrefetch: boolean         // 路由预取
   enableLazyPyodide: boolean      // 懒加载 Pyodide
   enableErrorRecovery: boolean    // 错误自动恢复
+  // 内容质量相关（pack23 新增）
+  enableEmptyLessonScan: boolean  // 启用空关卡扫描
+  enableBrokenImageCheck: boolean // 启用损坏图片检测
+  contentRefreshInterval: number  // 内容刷新间隔 (ms)
+  // 元优化相关（pack23 新增 — Agent 自适应）
+  agentLearningRate: number       // Agent 学习率（0-1，控制参数调整步长）
+  strategyExplorationRate: number // 策略探索率（0-1，epsilon-greedy 的 epsilon）
 }
 
 /** 决策记录 */

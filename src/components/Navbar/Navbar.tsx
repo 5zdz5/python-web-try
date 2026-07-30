@@ -89,6 +89,9 @@ function Navbar({ showUserInfo }: NavbarProps) {
             <Link to="/skills" className={`nav-link ${location.pathname === '/skills' ? 'active' : ''}`}>
               Skill 实验室
             </Link>
+            <Link to="/evolution" className={`nav-link ${location.pathname === '/evolution' ? 'active' : ''}`}>
+              进化档案
+            </Link>
           </div>
 
           <div className="navbar-actions">

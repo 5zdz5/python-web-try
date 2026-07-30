@@ -12,6 +12,7 @@ import SourceExplorer from './pages/SourceExplorer'
 import MonitorDashboard from './pages/MonitorDashboard/MonitorDashboard'
 import NibbleLevels from './pages/NibbleLevels'
 import SkillLab from './pages/SkillLab'
+import EvolutionArchive from './pages/EvolutionArchive'
 import './App.css'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/monitor" element={<MonitorDashboard />} />
           <Route path="/nibble" element={<NibbleLevels />} />
           <Route path="/skills" element={<SkillLab />} />
+          <Route path="/evolution" element={<EvolutionArchive />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

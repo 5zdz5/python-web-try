@@ -1,0 +1,367 @@
+/**
+ * 进化档案页样式
+ *
+ * 法则 5：主题同步双适配
+ *   - 颜色全用 var(--color-*)，圆角用 var(--radius-*)
+ *   - pixel-spectrum：彩虹流动边框
+ *   - pixel-crow：乌鸦虹彩光泽
+ *
+ * taste-skill 三旋钮：
+ *   - anti-slop：间距 8 倍数显式声明
+ *   - 字体反默认：var(--font-mono) JetBrains Mono
+ *   - LILA：用 var(--color-accent-*)，禁 AI 紫蓝
+ *
+ * impeccable：
+ *   - no-card-in-card：用 .ea-section 分隔
+ *   - radius-unified：var(--radius-*)
+ *   - spacing-scale：8 倍数
+ */
+
+.evolution-archive-page {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--color-text-primary, #f0f0f5);
+}
+
+/* 标题 */
+.ea-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--color-border, #2a2a35);
+}
+
+.ea-title {
+  font-size: 1.75rem;
+  margin: 0 0 8px 0;
+  color: var(--color-accent-primary, #c4ff00);
+}
+
+.ea-subtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #8a8a9a);
+  margin: 0;
+}
+
+/* 顶部统计卡 */
+.ea-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.ea-stat-card {
+  background: var(--color-bg-secondary, #12121a);
+  border: 2px solid var(--color-border, #2a2a35);
+  border-radius: var(--radius-md, 6px);
+  padding: 16px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.ea-stat-card:hover {
+  border-color: var(--color-accent-primary, #c4ff00);
+}
+
+.ea-stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-accent-primary, #c4ff00);
+  margin-bottom: 4px;
+}
+
+.ea-stat-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #8a8a9a);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 分区 */
+.ea-section {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--color-bg-tertiary, #1a1a25);
+  border: 2px solid var(--color-border, #2a2a35);
+  border-radius: var(--radius-lg, 8px);
+}
+
+.ea-section-title {
+  font-size: 1.1rem;
+  margin: 0 0 16px 0;
+  color: var(--color-accent-secondary, #00e5ff);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border, #2a2a35);
+}
+
+/* 评分曲线 */
+.ea-curve-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.ea-curve-svg {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+
+.ea-curve-legend {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #8a8a9a);
+  margin-top: 8px;
+}
+
+/* 策略列表 */
+.ea-strategy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ea-strategy-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 1px solid var(--color-border-light, #3a3a4a);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.85rem;
+}
+
+.ea-strategy-domain {
+  font-weight: bold;
+  min-width: 96px;
+}
+
+.ea-strategy-name {
+  flex: 1;
+  color: var(--color-text-primary, #f0f0f5);
+}
+
+.ea-strategy-count {
+  color: var(--color-accent-tertiary, #ff2e63);
+  font-weight: bold;
+}
+
+/* 域分布条 */
+.ea-domain-bar {
+  display: flex;
+  height: 32px;
+  border-radius: var(--radius-sm, 4px);
+  overflow: hidden;
+  border: 2px solid var(--color-border, #2a2a35);
+}
+
+.ea-domain-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: bold;
+  transition: width 0.3s;
+}
+
+/* 迭代列表 */
+.ea-iter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ea-iter-item {
+  padding: 12px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 1px solid var(--color-border-light, #3a3a4a);
+  border-radius: var(--radius-sm, 4px);
+  border-left: 4px solid var(--color-border, #2a2a35);
+}
+
+.ea-iter-item.applied {
+  border-left-color: var(--color-accent-primary, #c4ff00);
+}
+
+.ea-iter-item.skipped {
+  border-left-color: var(--color-text-muted, #555565);
+  opacity: 0.7;
+}
+
+.ea-iter-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.ea-iter-id {
+  font-weight: bold;
+  color: var(--color-accent-secondary, #00e5ff);
+  min-width: 32px;
+}
+
+.ea-iter-status {
+  color: var(--color-accent-primary, #c4ff00);
+  min-width: 72px;
+}
+
+.ea-iter-score {
+  color: var(--color-text-primary, #f0f0f5);
+  font-weight: bold;
+}
+
+.ea-iter-time {
+  margin-left: auto;
+  color: var(--color-text-muted, #555565);
+  font-size: 0.75rem;
+}
+
+.ea-iter-strategies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ea-iter-strategy-chip {
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.7rem;
+  background: var(--color-bg-secondary, #12121a);
+}
+
+.ea-iter-empty {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #555565);
+}
+
+/* Wiki 同步列表 */
+.ea-wiki-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ea-wiki-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 1px solid var(--color-border-light, #3a3a4a);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.8rem;
+}
+
+.ea-wiki-item.success { border-left: 3px solid var(--color-accent-primary, #c4ff00); }
+.ea-wiki-item.pending { border-left: 3px solid var(--color-accent-secondary, #00e5ff); }
+.ea-wiki-item.failed { border-left: 3px solid var(--color-error, #ff2e63); }
+.ea-wiki-item.skipped { border-left: 3px solid var(--color-text-muted, #555565); opacity: 0.6; }
+
+.ea-wiki-target {
+  color: var(--color-accent-secondary, #00e5ff);
+  font-weight: bold;
+  min-width: 140px;
+}
+
+.ea-wiki-summary {
+  flex: 1;
+  color: var(--color-text-primary, #f0f0f5);
+}
+
+.ea-wiki-status {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  background: var(--color-bg-secondary, #12121a);
+  border: 1px solid var(--color-border, #2a2a35);
+}
+
+.ea-wiki-time {
+  color: var(--color-text-muted, #555565);
+  font-size: 0.7rem;
+  min-width: 140px;
+  text-align: right;
+}
+
+/* 空状态 */
+.ea-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-muted, #555565);
+  font-size: 0.85rem;
+  background: var(--color-bg-primary, #0a0a0f);
+  border-radius: var(--radius-sm, 4px);
+}
+
+/* 页脚 */
+.ea-footer {
+  margin-top: 32px;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #555565);
+  border-top: 1px solid var(--color-border, #2a2a35);
+}
+
+/* ========================================
+   像素风主题双适配（法则 5）
+   ======================================== */
+
+/* pixel-spectrum：彩虹流动边框 */
+[data-theme="pixel-spectrum"] .ea-section {
+  border-color: var(--color-accent-primary, #00ff88);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.05),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="pixel-spectrum"] .ea-stat-card {
+  border-color: var(--color-accent-primary, #00ff88);
+}
+
+[data-theme="pixel-spectrum"] .ea-stat-card:hover {
+  border-color: var(--color-accent-secondary, #ff0080);
+  box-shadow: 3px 3px 0 var(--color-accent-secondary, #ff0080);
+}
+
+[data-theme="pixel-spectrum"] .ea-curve-svg path {
+  stroke: var(--color-accent-primary, #00ff88);
+  filter: drop-shadow(0 0 4px var(--color-accent-primary, #00ff88));
+}
+
+/* pixel-crow：乌鸦虹彩光泽 */
+[data-theme="pixel-crow"] .ea-section {
+  border-color: rgba(157, 78, 221, 0.4);
+  background: linear-gradient(135deg, rgba(15,15,30,0.95), rgba(26,10,46,0.92));
+}
+
+[data-theme="pixel-crow"] .ea-stat-card {
+  border-color: rgba(157, 78, 221, 0.4);
+  background: linear-gradient(135deg, rgba(15,15,30,0.95), rgba(26,10,46,0.9));
+}
+
+[data-theme="pixel-crow"] .ea-stat-card:hover {
+  border-color: rgba(157, 78, 221, 0.8);
+  box-shadow: 3px 3px 0 rgba(157, 78, 221, 0.5);
+}
+
+[data-theme="pixel-crow"] .ea-title {
+  background: linear-gradient(135deg, #9d4edd, #e94560, #00d4ff);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ea-crow-title 4s linear infinite;
+}
+
+@keyframes ea-crow-title {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}

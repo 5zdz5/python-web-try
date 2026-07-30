@@ -32,6 +32,13 @@ export const DEFAULT_PARAMS: TunableParams = {
   enablePrefetch: false,
   enableLazyPyodide: true,
   enableErrorRecovery: true,
+  // pack23: 内容质量默认配置
+  enableEmptyLessonScan: true,     // 默认开启空关卡扫描
+  enableBrokenImageCheck: true,    // 默认开启损坏图片检测
+  contentRefreshInterval: 30 * 60 * 1000, // 30 分钟刷新一次
+  // pack23: 元优化默认配置（Agent 自适应）
+  agentLearningRate: 0.3,          // 学习率 0.3，中等步长
+  strategyExplorationRate: 0.2,    // 探索率 0.2，20% 概率尝试新策略
 }
 
 // ===== 参数边界常量（优化前先检测是否可达，避免无效 apply）=====
@@ -49,6 +56,11 @@ const BOUNDS = {
   retryBaseDelay: { min: 1000, max: 10000 },
   snapshotInterval: { min: 60 * 1000, max: 60 * 60 * 1000 },
   errorThreshold: { min: 3, max: 50 },
+  // pack23: 内容质量边界
+  contentRefreshInterval: { min: 5 * 60 * 1000, max: 24 * 60 * 60 * 1000 },
+  // pack23: 元优化边界
+  agentLearningRate: { min: 0.05, max: 1.0 },
+  strategyExplorationRate: { min: 0, max: 0.5 },
 } as const
 
 /** 检测策略对当前参数是否还能改变（避免无效优化） */
@@ -201,15 +213,85 @@ export const STRATEGIES: OptimizationStrategy[] = [
     appliesTo: (p) => p.errorThreshold > BOUNDS.errorThreshold.min,
     apply: (p) => ({ ...p, errorThreshold: Math.max(p.errorThreshold - 2, BOUNDS.errorThreshold.min) }),
   },
+  // ===== 内容质量优化（pack23 新增 — 补全 4 域之 content）=====
+  {
+    id: 'content-enable-empty-scan',
+    domain: 'content',
+    name: '启用空关卡扫描',
+    description: '开启空关卡描述扫描，自动检测内容缺失，提升内容质量分。',
+    expectedGain: 0.2,
+    risk: 0.05,
+    homepageSafe: true,
+    appliesTo: (p) => !p.enableEmptyLessonScan,
+    apply: (p) => ({ ...p, enableEmptyLessonScan: true }),
+  },
+  {
+    id: 'content-enable-image-check',
+    domain: 'content',
+    name: '启用图片健康检测',
+    description: '开启损坏图片检测，自动发现 404 资源，提升内容完整度。',
+    expectedGain: 0.15,
+    risk: 0.05,
+    homepageSafe: true,
+    appliesTo: (p) => !p.enableBrokenImageCheck,
+    apply: (p) => ({ ...p, enableBrokenImageCheck: true }),
+  },
+  {
+    id: 'content-speedup-refresh',
+    domain: 'content',
+    name: '加快内容刷新',
+    description: '缩短内容刷新间隔，让用户更快看到内容更新。注意权衡网络开销。',
+    expectedGain: 0.1,
+    risk: 0.2,
+    homepageSafe: true,
+    appliesTo: (p) => p.contentRefreshInterval > BOUNDS.contentRefreshInterval.min,
+    apply: (p) => ({ ...p, contentRefreshInterval: Math.max(p.contentRefreshInterval / 2, BOUNDS.contentRefreshInterval.min) }),
+  },
+  // ===== 元优化（pack23 新增 — Agent 自适应进化）=====
+  {
+    id: 'meta-boost-learning-rate',
+    domain: 'meta',
+    name: '提升学习率',
+    description: '增大 Agent 学习率，让参数调整步长更大，加速收敛（但可能震荡）。',
+    expectedGain: 0.12,
+    risk: 0.4,
+    homepageSafe: false,
+    appliesTo: (p) => p.agentLearningRate < BOUNDS.agentLearningRate.max,
+    apply: (p) => ({ ...p, agentLearningRate: Math.min(p.agentLearningRate * 1.5, BOUNDS.agentLearningRate.max) }),
+  },
+  {
+    id: 'meta-boost-exploration',
+    domain: 'meta',
+    name: '提升探索率',
+    description: '增大策略探索率（epsilon-greedy），让 Agent 更多尝试新策略，避免陷入局部最优。',
+    expectedGain: 0.1,
+    risk: 0.3,
+    homepageSafe: false,
+    appliesTo: (p) => p.strategyExplorationRate < BOUNDS.strategyExplorationRate.max,
+    apply: (p) => ({ ...p, strategyExplorationRate: Math.min(p.strategyExplorationRate + 0.05, BOUNDS.strategyExplorationRate.max) }),
+  },
+  {
+    id: 'meta-decelerate-learning',
+    domain: 'meta',
+    name: '降低学习率（精细微调）',
+    description: '降低 Agent 学习率，进入精细微调阶段，减少震荡。适用于评分已较高（≥85）时。',
+    expectedGain: 0.08,
+    risk: 0.1,
+    homepageSafe: true,
+    appliesTo: (p) => p.agentLearningRate > BOUNDS.agentLearningRate.min,
+    apply: (p) => ({ ...p, agentLearningRate: Math.max(p.agentLearningRate * 0.7, BOUNDS.agentLearningRate.min) }),
+  },
 ]
 
 // ===== 健康度评分系统 =====
 // 各领域权重（综合分加权平均）
+// pack23: meta 域权重 0（元优化不参与综合分加权，但策略仍可应用）
 const WEIGHTS: Record<OptDomain, number> = {
   performance: 0.3,
   ux: 0.25,
   content: 0.2,
   stability: 0.25,
+  meta: 0,
 }
 
 /** 计算 0-100 的评分，越大越优 */
