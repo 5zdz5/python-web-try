@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 3
+const PACK_BUILD = 4
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -659,6 +659,114 @@ const PATTERNS: DesignPattern[] = [
 //
 // 调用：skill pbakaus/impeccable mode=SCAN cmd=detect rules=all
 // 输出：每个规则命中的文件+行号+严重度+建议修复方案`,
+  },
+  // —— pack4 新增：监测系统全局适配设计模式 ——
+  {
+    name: 'reportHealth 自动建组（防御式注册）',
+    category: 'monitor',
+    filePattern: 'src/context/MonitorContext.tsx reportHealth() L119-134',
+    where: 'MonitorContext 健康汇报函数',
+    description: '当 reportHealth 接收到未注册的 groupId 时，不应静默丢弃，而应自动用默认值初始化该组再写入状态。这样即使业务页面忘记 registerGroup，巡游或外部上报的健康数据仍能进入监测仪表盘。原 L122 `if (!g) return prev` 是 bug 源头，导致 7 个业务页的健康报告全部丢失',
+    whenToUse: '任何允许"先汇报后注册"或"外部模块上报"的健康监测/事件总线系统。在状态写入前用 `const g = prev[groupId] || defaultGroup` 兜底，而不是 return prev 丢弃事件',
+    template:
+`// ❌ 错误：组不存在就丢弃，巡游 reportHealth 全部静默失败
+const reportHealth = (groupId, status, detail) => {
+  setGroups(prev => {
+    const g = prev[groupId]
+    if (!g) return prev   // ← 静默丢弃，监测组永远为空
+    return { ...prev, [groupId]: { ...g, status, ... } }
+  })
+}
+// ✅ 正确：组不存在自动建组，数据不丢
+const reportHealth = (groupId, status, detail) => {
+  setGroups(prev => {
+    const g = prev[groupId] || {
+      id: groupId, name: groupId, status: 'healthy' as const,
+      lastReport: new Date().toISOString(), checks: 0, errors: 0,
+    }
+    return { ...prev, [groupId]: { ...g, status, detail,
+      lastReport: new Date().toISOString(), checks: g.checks + 1,
+      errors: status === 'error' || status === 'crashed' ? g.errors + 1 : g.errors,
+    }}
+  })
+}`,
+  },
+  {
+    name: '巡游三态检测（白屏/缺件/正常）',
+    category: 'monitor',
+    filePattern: 'src/context/MonitorContext.tsx runPatrolChecks() L273-322',
+    where: 'MonitorContext 自动巡游逻辑',
+    description: '巡游检测不能只看 body.innerText 长度 > 50 字符（只能发现白屏），必须统计关键 DOM 元素：h1+h2 标题数、button 按钮数、img 图片数、card 卡片数。三态判定：1) 白屏 = 正文 <50 字 → error；2) 有内容但任一关键元素为 0 → warning；3) 全部达标 → healthy。详情附带实际统计值便于定位问题页',
+    whenToUse: '所有自动巡游/健康检查机器人。比白屏检测更进一步，能发现"页面渲染了但关键组件没挂载"的功能性 bug，如 LevelMap 卡片没渲染、Achievements 徽章没显示等',
+    template:
+`// 巡游三态检测模板
+const bodyText = document.body?.innerText || ''
+const headingCount = document.querySelectorAll('h1, h2').length
+const buttonCount = document.querySelectorAll('button, [role="button"], .btn').length
+const imgCount = document.querySelectorAll('img').length
+const cardCount = document.querySelectorAll('[class*="card"], [class*="Card"]').length
+const hasContent = bodyText.trim().length > 50
+
+if (!hasContent) {
+  reportHealth(groupId, 'error', \`页面白屏：正文 \${bodyText.length} 字符\`)
+} else if (headingCount === 0 || buttonCount === 0 || cardCount === 0) {
+  reportHealth(groupId, 'warning',
+    \`关键元素偏低：h1+h2=\${headingCount} button=\${buttonCount} img=\${imgCount} card=\${cardCount}\`)
+} else {
+  reportHealth(groupId, 'healthy',
+    \`页面正常：h1+h2=\${headingCount} button=\${buttonCount} img=\${imgCount} card=\${cardCount}\`)
+}`,
+  },
+  {
+    name: '业务页面 useEffect 主动注册监测组',
+    category: 'monitor',
+    filePattern: 'src/pages/{Home,LevelMap,LevelDetail,LearningPath,Achievements,Leaderboard,SourceExplorer}/*.tsx',
+    where: '每个业务页面组件挂载时',
+    description: '7 个业务页面在 useEffect 中通过 useMonitor().registerGroup(id, name, sourceFile) 主动注册自己到监测系统。registerGroup 幂等（重复注册不覆盖），sourceFile 参数便于在监测面板快速跳转源码。配合 reportHealth 自动建组能力，形成"注册-汇报"完整闭环。注册时机：组件挂载后立即注册，不等巡游触发',
+    whenToUse: '所有业务页面（不只是路由级页面，复杂子组件也可注册）。最佳实践是在页面组件开头加一个 useEffect 调用 registerGroup，3 行代码完成接入',
+    template:
+`import { useMonitor } from '../../context/MonitorContext'
+import { useEffect } from 'react'
+
+function LevelMap() {
+  const { registerGroup } = useMonitor()
+  useEffect(() => {
+    registerGroup('LevelMap', '关卡地图', 'src/pages/LevelMap/LevelMap.tsx')
+  }, [registerGroup])
+  // ...
+}`,
+  },
+  {
+    name: '监测系统三层覆盖：JS 错误 + React 错误 + 巡游检测',
+    category: 'monitor',
+    filePattern: 'src/context/MonitorContext.tsx (window.onerror/unhandledrejection) + src/components/ErrorBoundary.tsx + MonitorContext.runPatrolChecks()',
+    where: '全局错误捕获 + React 错误边界 + 自动巡游',
+    description: '监测系统必须三层覆盖才能保证"全站"覆盖：1) 第一层 JS 层 — window.onerror + window.addEventListener("unhandledrejection") 捕获所有未 catch 的 Promise reject 与同步异常，挂载在 MonitorProvider 最外层 useEffect；2) 第二层 React 层 — ErrorBoundary 类组件包裹整棵树，componentDidCatch 捕获渲染异常并 logEvent("crash")；3) 第三层 巡游层 — runPatrolChecks 自动遍历 7 业务页 + 404 + 无效关卡路由，对每个页面调用 reportHealth。三层互补：JS 层抓同步/Promise 错误但抓不到 React 渲染错误；ErrorBoundary 抓渲染错误但抓不到 useEffect 中的异步错误；巡游层在功能层面验证"页面真的渲染出了该有的内容"',
+    whenToUse: '任何需要"全站监测"的中大型 SPA 项目。三层缺一不可，否则会漏：只有 JS 层会漏渲染错误，只有 ErrorBoundary 会漏异步错误，只有巡游会漏"没崩但功能没渲染"的隐性故障',
+  },
+  {
+    name: '监测仪表盘 6 Tab 结构',
+    category: 'monitor',
+    filePattern: 'src/pages/MonitorDashboard/MonitorDashboard.tsx',
+    where: '/#/monitor 路由的 6 个标签页',
+    description: '监测仪表盘采用 6 Tab 结构组织监测信息：1) 总览 — 4 个状态卡（healthy/warning/error/crashed）+ 巡游进度条；2) 监测组 — 7 个业务页 + 404 + 无效关卡；3) 事件流 — 时间倒序的所有事件（info/warning/error/crash）；4) 快照 — localStorage 版本快照，可恢复/删除/标记稳定；5) AI Agent — 自主优化代理控制面板（启动/暂停/重置/清缓存）；6) 经验包 — JSON 下载与可视化。6 Tab 把"看状态、查事件、做修复、存证据、改代码"全流程串起来',
+    whenToUse: '需要把"监控-诊断-修复-记录"闭环呈现给用户的运维/治理型界面。Tab 数量保持在 6-8 之间，太多会让用户迷失',
+  },
+  {
+    name: '主题系统与监测系统的解耦：CSS 变量优先于硬编码色',
+    category: 'design',
+    filePattern: 'src/context/ThemeContext.tsx + src/context/MonitorContext.tsx',
+    where: '所有 UI 组件',
+    description: '主题系统通过 ThemeContext 注入 documentElement.style 的 CSS 变量（--color-accent-primary 等），监测系统自身不读硬编码色，所有 UI（监测仪表盘、AI Agent 面板、经验包面板）全部走 var(--color-accent-primary) 等变量。这样切换主题时监测界面也跟着变色，而不是被锁定在某个固定配色。taste-skill 的 LILA 规则要求"反 AI 紫蓝默认"，主题系统让"反紫蓝"成为可配置项而非硬编码',
+    whenToUse: '所有有主题切换需求的 UI 组件，特别是工具型/治理型界面（监控、设置、调试面板）。不要在组件 CSS 里写 #c4ff00，要写 var(--color-accent-primary)',
+  },
+  {
+    name: '关卡页面三层数据：地图 → 详情 → 课程',
+    category: 'content',
+    filePattern: 'src/pages/LevelMap/LevelMap.tsx + src/pages/LevelDetail/LevelDetail.tsx + src/data/levels.ts',
+    where: '关卡系统的内容架构',
+    description: '关卡内容采用三层数据结构：1) LevelMap 地图层 — 9 个关卡节点 + 路径连线，每个节点 onClick 跳转详情；2) LevelDetail 详情层 — 单个关卡的元数据（标题/描述/难度/预估时长）+ 视频播放器 + 编码挑战 + 进度记录；3) Course 课程层 — levels.ts 中每个关卡对象包含 id/title/description/difficulty/estimatedTime/videoUrl/challenges/lessons[]。三层用 useParams 解析 :levelId，用 useNavigate 跳转。进度数据存 ProgressContext，按关卡 id 维度记录完成情况',
+    whenToUse: '所有"地图导航 → 详情页 → 课程学习"型教育/游戏化网站。数据集中在 data/ 下，页面只负责展示与交互，不持有源数据',
   },
 ]
 
