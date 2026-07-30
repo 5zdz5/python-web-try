@@ -187,6 +187,31 @@ export interface ConversationLogEntry {
   date: string
 }
 
+/** 元节奏单条规则（pack27 新增，对应用户原话分解） */
+export interface MetaRhythmRule {
+  id: string                       // 'rhythm-record' | 'rhythm-recode' | 'rhythm-roll'
+  name: string                     // 规则中文名
+  rule: string                     // 规则正文
+  trigger: string                  // 触发条件
+  action: string                   // 执行动作
+  antiPattern: string              // 反模式
+}
+
+/** 元节奏：记录/重编码/滚动适配的节奏控制器（pack27 新增） */
+export interface MetaRhythm {
+  /** 用户原话（不可篡改，作为元逻辑的源头） */
+  sourceQuote: string
+  /** 三条规则分解：记录每一次对话 / 根据往昔对话重编码 / 每5轮滚动适配 */
+  rules: MetaRhythmRule[]
+  /** 滚动适配触发条件 */
+  rollTrigger: {
+    interval: number               // 触发间隔（5）
+    condition: string              // 触发条件描述
+    examples: string[]             // 触发示例 convId 列表
+    nextTrigger: string            // 下一次触发点
+  }
+}
+
 /** 完整经验包 */
 export interface ExperiencePack {
   meta: PackMetadata
@@ -232,4 +257,6 @@ export interface ExperiencePack {
     experience: string
     action: string
   }[]
+  // pack27 新增：元节奏（用户原话写入，记录/重编码/滚动适配的节奏控制器）
+  metaRhythm: MetaRhythm
 }

@@ -17,14 +17,14 @@
 import type {
   ExperiencePack, ModuleInfo, CodingConvention, DesignPattern,
   LessonLearned, ReusableComponent, ExtensionRoadmap, BuildConstraints,
-  ArchitectureOverview, FileTreeNode, ConversationLogEntry,
+  ArchitectureOverview, FileTreeNode, ConversationLogEntry, MetaRhythm,
 } from '../types/experiencePack'
 import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '../config/versionManager'
 
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 26
+const PACK_BUILD = 27
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -1564,6 +1564,48 @@ const META_WORKFLOW = [
   },
 ]
 
+// ========================= 9.5.1 元节奏（用户原话写入，最高优先级） =========================
+// 用户原话："记录每一次对话，根据往昔对话进行重编码，经过每5轮对话进行一次滚动适配"
+// 这三条规则是 META_WORKFLOW 的节奏控制器，决定"何时记录、何时重编码、何时滚动适配"。
+const META_RHYTHM = {
+  // 用户原话（不可篡改，作为元逻辑的源头）
+  sourceQuote: '记录每一次对话，根据往昔对话进行重编码，经过每5轮对话进行一次滚动适配',
+  // 三条规则分解
+  rules: [
+    {
+      id: 'rhythm-record',
+      name: '记录每一次对话',
+      rule: '每一次对话（无论新功能/修bug/重构/审查/答疑）结束后必须向 CONVERSATION_LOG 追加 1 条记录，无例外',
+      trigger: '每次对话结束',
+      action: 'CONVERSATION_LOG 追加 1 条 ConversationLogEntry（id/summary/filesModified/patternsAdded/date 五字段必填）',
+      antiPattern: '纯答疑不记录 / 只记重要对话不记小修改 / summary 只写"修了bug"不写根因',
+    },
+    {
+      id: 'rhythm-recode',
+      name: '根据往昔对话进行重编码',
+      rule: '基于 CONVERSATION_LOG 历史对话提取可重编码点（调 recodeLoop.extractRecodePoints()），对现有代码做小步优化',
+      trigger: '每次对话结束（作为 Step 7 之后的延伸）',
+      action: 'extractRecodePoints() 识别可重编码点 → 对 applied 的点执行重编码 → extractNewMetaExperiences() 回写元逻辑',
+      antiPattern: '不读历史对话就动手 / 重编码点不追溯 conv ID / 重编码经验不回写 AI_PROJECT_EXPERIENCE',
+    },
+    {
+      id: 'rhythm-roll',
+      name: '每5轮对话进行一次滚动适配',
+      rule: '每累计 5 轮对话（conv ID 末尾数字 mod 5 === 0）触发一次滚动适配：全量重跑 recodeLoop + 更新 META_WORKFLOW + 更新 AI_PROJECT_EXPERIENCE + 推送 Wiki',
+      trigger: 'conv ID 末尾数字 mod 5 === 0（如 conv-5/conv-10/conv-15/conv-20/conv-25/conv-30）',
+      action: '① runRecodeLoop() 全量重跑 ② getRecodeStats() 统计 applied/pending ③ extractNewMetaExperiences() 回写 ④ 检查 META_WORKFLOW 是否需要更新 ⑤ 推送 Wiki',
+      antiPattern: '每轮都滚动适配（太频繁） / 超过 5 轮才滚动适配（遗漏） / 滚动适配时不更新元逻辑（飞轮断裂）',
+    },
+  ],
+  // 滚动适配触发条件（每5轮）
+  rollTrigger: {
+    interval: 5,                                    // 每5轮触发
+    condition: 'convId 末尾数字 mod 5 === 0',        // 触发条件
+    examples: ['conv-5', 'conv-10', 'conv-15', 'conv-20', 'conv-25', 'conv-30'],
+    nextTrigger: 'conv-30',                          // 下一次触发点（当前 conv-30）
+  },
+}
+
 // ========================= 9.6. AI 项目经验（本 AI 在本项目积累的经验） =========================
 // 这些是 AI 在维护 python-quest 过程中积累的"怎么做这个项目"的经验，减少无效代码和重复试错。
 const AI_PROJECT_EXPERIENCE = [
@@ -1657,6 +1699,12 @@ const AI_PROJECT_EXPERIENCE = [
     category: '减少无效代码',
     experience: '重编码循环器本身也是元逻辑的一部分，应作为 ExperiencePack 的扩展模块，让下一个 AI 可以调用 runRecodeLoop() 继续滚动',
     action: 'recodeLoop.ts 导出 extractRecodePoints/runRecodeLoop/getRecodeStats/extractNewMetaExperiences 四函数，下一个 AI 可直接调用继续滚动',
+  },
+  // —— pack27 新增：conv-30 滚动适配回写 ——
+  {
+    category: '减少无效代码',
+    experience: '新增元逻辑常量（如 META_RHYTHM）后必须四步打通才能生效：①types 接口定义 ②ExperiencePack 接口字段 ③generateExperiencePack() 接入 ④导出供外部读取。只定义不接入等于死常量，下一个 AI 读经验包 JSON 看不到',
+    action: '新增元逻辑常量后立即跑四步接入清单：types 加接口→ExperiencePack 加字段→generateExperiencePack 加返回→加 SPLIT_EXPORT_ 导出，最后 tsc --noEmit 验证',
   },
 ]
 
@@ -2209,6 +2257,16 @@ const CONVERSATION_LOG = [
     patternsAdded: ['重编码循环器模式（extractRecodePoints 全量识别→runRecodeLoop 批量执行→getRecodeStats 统计→extractNewMetaExperiences 回写元逻辑，四函数形成闭环）', '重编码点分类模式（type-safety/dead-code/css-dedup/fn-split/perf/ux/meta 七类，同类批量处理减少上下文切换）', '重编码分两批策略（第一批快赢 type-safety/dead-code/meta 已 applied；第二批大改 css-dedup/fn-split/perf 留给独立 pack）', '重编码经验飞轮模式（每次滚动经验回写 AI_PROJECT_EXPERIENCE，下一轮重编码可读取避免重复踩坑）'],
     date: '2026-07-31',
   },
+  // —— pack27 新增：META_RHYTHM 元节奏接入 + conv-30 滚动适配触发 ——
+  // 用户原话："记录每一次对话，根据往昔对话进行重编码，经过每5轮对话进行一次滚动适配"
+  // conv-30 触发 rhythm-roll（30 mod 5 === 0）
+  {
+    id: 'conv-20260731-30',
+    summary: '用户原话："记录每一次对话，根据往昔对话进行重编码，经过每5轮对话进行一次滚动适配"。本次完成 META_RHYTHM 元节奏从"死常量"到"经验包一等公民"的接入。① types/experiencePack.ts 新增 MetaRhythmRule + MetaRhythm 两个接口，ExperiencePack 接口添加 metaRhythm: MetaRhythm 字段。② experiencePack.ts 将 META_RHYTHM 接入 generateExperiencePack() 返回值，并新增 SPLIT_EXPORT_META_RHYTHM 导出（recodeLoop 读 rollTrigger 判断滚动适配触发、Agent 推 Wiki 时一并写出）。③ tsc --noEmit 0 错误。④ conv-30 触发 rhythm-roll 滚动适配（30 mod 5 === 0）：本次属轻量滚动（接入型变更，无新可重编码点），getRecodeStats 维持 15 applied/5 pending，META_WORKFLOW 无需更新，AI_PROJECT_EXPERIENCE 追加 1 条"元逻辑接入"经验',
+    filesModified: ['src/types/experiencePack.ts', 'src/ai/experiencePack.ts'],
+    patternsAdded: ['元节奏接入模式（META_RHYTHM 四步打通：类型定义→接口字段→生成器接入→导出，让下一个 AI 读经验包 JSON 时能看到记录/重编码/滚动适配三条规则与触发条件）', '滚动适配触发判定模式（convId 末尾数字 mod 5 === 0 触发，conv-30 为 pack27 首次触发点，触发时执行全量重跑+统计+回写+检查 META_WORKFLOW+推 Wiki 五步）'],
+    date: '2026-07-31',
+  },
 ]
 
 
@@ -2333,6 +2391,7 @@ export function generateExperiencePack(
     conversationLog: CONVERSATION_LOG,
     metaWorkflow: META_WORKFLOW,
     aiProjectExperience: AI_PROJECT_EXPERIENCE,
+    metaRhythm: META_RHYTHM,
   }
 }
 
@@ -2373,6 +2432,10 @@ export const SPLIT_EXPORT_QUICKSTART: string[] = QUICKSTART_LLM
 export const SPLIT_EXPORT_PRECOMMIT: string[] = PRECOMMIT_CHECKLIST
 export const SPLIT_EXPORT_PROMPTS: Record<string, string> = PROMPT_TEMPLATES
 export const SPLIT_EXPORT_MODULES: ModuleInfo[] = MODULES
+
+// pack27 导出：元节奏（记录/重编码/滚动适配的节奏控制器）
+// recodeLoop 读取 rollTrigger 判断是否触发滚动适配；Agent 推送 Wiki 时一并写出
+export const SPLIT_EXPORT_META_RHYTHM: MetaRhythm = META_RHYTHM
 
 // 原始导出（与 pack13 保持一致，不破坏外部引用）
 export { PACK_VERSION, PACK_SCHEMA_VERSION, PACK_BUILD }
