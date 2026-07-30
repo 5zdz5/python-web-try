@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 10
+const PACK_BUILD = 11
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -599,6 +599,13 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: '改 Optimizer.ts → 启动 90 秒计时 → tsc + build + 4 页面白屏检测 全跑完 < 90s → 通过 → commit',
     badExample: '改 Optimizer.ts → 反复修一个 TS 错误 → 30 分钟还没解决 → 还在硬刚 → 早就该 revert 重规划',
     consequence: '无时间预算 → agent 在错误方向上死循环 → 烧时间烧 token → 用户体验灾难',
+  },
+  // —— pack11 新增：对话后自动推送规则（用户要求"每次对话都推"） ——
+  { category: 'meta-workflow', rule: '每轮对话 POLISH 阶段完成后，必须自动 git push origin master 将本次 commit 推送到远程，触发 GitHub Pages 重建',
+    description: '用户原话："每次对话都推"。即在 Karpathy 四步流水线 POLISH 阶段写完经验包 + git commit 之后，紧接着执行 git push origin master，不要等待用户额外说"推送"。推送目标：远程 origin/master 分支（对应仓库 5zdz5/python-web-try）。推送完成后在给用户的 5 句话总结里写明"已推送"三个字 + commit range（如 198a46e..9e0eb65）+ GitHub Pages 重建提示（1-3分钟后上线）。用户未说明"不要推送"时一律默认推送；仅当用户明确说"本地调试先别推"或"等会儿再推"时才跳过推送步骤。',
+    goodExample: '对话 POLISH 阶段完成 → git commit → git push origin master → 总结写"已推送 9e0eb65..xxxxxx 到 master，GitHub Pages 1-3分钟后上线"',
+    badExample: '用户说"改个bug" → 改完代码 → commit → 告诉用户"要推送吗" → 等用户说推才推（违反默认推送规则）',
+    consequence: '不推送 → 用户刷新线上页面看不到最新效果 → 用户以为没改 → 重复劳动；默认推送让用户零等待立即看到变化',
   },
   // —— pack10 新增：Skill 与经验包双螺旋迭代元规则（用户本轮核心诉求） ——
   { category: 'meta-workflow', rule: 'Skill 与经验包双螺旋：Skill 是"怎么做"的规则，经验包是"做了什么"的记录，两者交叉引用、共同迭代进化',
@@ -1635,6 +1642,14 @@ const CONVERSATION_LOG = [
       'Darwin 棘轮原则（分数只升不降+git revert 禁 reset --hard）', 'Darwin 独立评委原则（禁自评，LLM 自评仅 46.4%）',
       'Darwin 单一变量原则（一轮一维度，加权短板优先）', 'autoresearch 单文件可修改原则（其他只读）',
       'autoresearch 固定时间预算原则（90s 验证预算）', 'Skill 与经验包双螺旋元规则'],
+    date: '2026-07-30',
+  },
+  // —— pack11 新增：对话后自动推送规则（用户说"每次对话都推"） ——
+  {
+    id: 'conv-20260730-14',
+    summary: '用户要求每轮对话 POLISH 阶段完成后自动 git push origin master（"每次对话都推"），不要等用户再说"推送"。推送范围：5zdz5/python-web-try 仓库 master 分支。已将 pack10 (9e0eb65) 推送到远程，并将"对话后默认自动推送+总结写明已推送+Pages重建提示+用户明确说不推才跳过"的规则写入 meta-workflow 编码约定，今后每轮对话末尾严格执行',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['对话后默认自动推送规则（POLISH阶段commit后立即git push，不问用户）', '推送总结格式：已推送 xxx..yyy + Pages 1-3分钟重建提示', '用户明确说不推时才跳过推送的例外规则'],
     date: '2026-07-30',
   },
 ]
