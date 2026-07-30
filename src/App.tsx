@@ -10,6 +10,8 @@ import Achievements from './pages/Achievements'
 import Leaderboard from './pages/Leaderboard'
 import SourceExplorer from './pages/SourceExplorer'
 import MonitorDashboard from './pages/MonitorDashboard/MonitorDashboard'
+import NibbleLevels from './pages/NibbleLevels'
+import SkillLab from './pages/SkillLab'
 import './App.css'
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/source" element={<SourceExplorer />} />
           <Route path="/monitor" element={<MonitorDashboard />} />
+          <Route path="/nibble" element={<NibbleLevels />} />
+          <Route path="/skills" element={<SkillLab />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

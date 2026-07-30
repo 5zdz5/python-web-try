@@ -391,3 +391,204 @@
   .stat-item:not(:last-child)::after { display: none; }
   .features-grid { grid-template-columns: 1fr; }
 }
+
+/* ========================================
+   像素风主题 - Home 页面特效
+   ======================================== */
+
+/* Pixel Spectrum 主题 - 英雄区域 */
+[data-theme="pixel-spectrum"] .hero-section {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 18, 0.95), rgba(18, 18, 31, 0.95)),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 136, 0.03) 2px, rgba(0, 255, 136, 0.03) 4px);
+}
+
+[data-theme="pixel-spectrum"] .hero-section::before {
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 128, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+[data-theme="pixel-spectrum"] .hero-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 52px;
+  text-shadow:
+    3px 3px 0 var(--color-accent-secondary, #ff0080),
+    6px 6px 0 var(--color-accent-tertiary, #00c8ff),
+    9px 9px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-spectrum"] .title-gradient {
+  background: linear-gradient(90deg, #ff0080, #ff8c00, #ffed00, #00ff88, #00c8ff, #8000ff);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow-flow 4s linear infinite;
+}
+
+[data-theme="pixel-spectrum"] .feature-card {
+  background: var(--color-bg-secondary, #12121f);
+  border: 3px solid var(--color-border, #3a3a5a);
+  border-radius: 0;
+  box-shadow:
+    4px 0 0 var(--color-accent-secondary, #ff0080),
+    0 4px 0 var(--color-accent-tertiary, #00c8ff),
+    8px 8px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.15s;
+}
+
+[data-theme="pixel-spectrum"] .feature-card:hover {
+  transform: translate(-2px, -4px);
+  box-shadow:
+    6px 0 0 var(--color-accent-secondary, #ff0080),
+    0 6px 0 var(--color-accent-tertiary, #00c8ff),
+    12px 12px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .cta-card {
+  border: 3px solid var(--color-accent-primary, #00ff88);
+  border-radius: 0;
+  clip-path: none;
+  box-shadow:
+    4px 0 0 var(--color-accent-secondary, #ff0080),
+    0 4px 0 var(--color-accent-tertiary, #00c8ff),
+    8px 8px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .cta-card::before {
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.08) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Pixel Crow 主题 - 英雄区域 */
+[data-theme="pixel-crow"] .hero-section {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 15, 0.98), rgba(15, 15, 30, 0.98)),
+    repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(157, 78, 221, 0.04) 3px, rgba(157, 78, 221, 0.04) 6px);
+}
+
+[data-theme="pixel-crow"] .hero-section::before {
+  background-image:
+    linear-gradient(rgba(157, 78, 221, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(233, 69, 96, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+[data-theme="pixel-crow"] .hero-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 52px;
+  text-shadow:
+    3px 3px 0 rgba(157, 78, 221, 0.8),
+    6px 6px 0 rgba(233, 69, 96, 0.5),
+    9px 9px 0 rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="pixel-crow"] .title-gradient {
+  background: linear-gradient(135deg, #9d4edd, #e94560, #00d4ff, #9d4edd);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: iridescent-shine 5s linear infinite;
+}
+
+[data-theme="pixel-crow"] .feature-card {
+  background: var(--color-bg-secondary, #0f0f1a);
+  border: 3px solid var(--color-accent-primary, #9d4edd);
+  border-radius: 0;
+  box-shadow:
+    4px 0 0 rgba(157, 78, 221, 0.6),
+    0 4px 0 rgba(233, 69, 96, 0.4),
+    8px 8px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.15s;
+}
+
+[data-theme="pixel-crow"] .feature-card:hover {
+  transform: translate(-2px, -4px);
+  box-shadow:
+    6px 0 0 rgba(157, 78, 221, 0.6),
+    0 6px 0 rgba(233, 69, 96, 0.4),
+    12px 12px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .cta-card {
+  background:
+    linear-gradient(135deg, rgba(157, 78, 221, 0.15), rgba(233, 69, 96, 0.1)),
+    var(--color-bg-card);
+  border: 3px solid var(--color-accent-primary, #9d4edd);
+  border-radius: 0;
+  clip-path: none;
+  box-shadow:
+    4px 0 0 rgba(157, 78, 221, 0.6),
+    0 4px 0 rgba(233, 69, 96, 0.4),
+    8px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .cta-card::before {
+  background-image:
+    linear-gradient(rgba(157, 78, 221, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(157, 78, 221, 0.08) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* 像素风主题 - 统计卡片 */
+[data-theme="pixel-spectrum"] .hero-stats,
+[data-theme="pixel-crow"] .hero-stats {
+  background: var(--color-bg-tertiary);
+  border: 3px solid var(--color-border);
+  border-radius: 0;
+  clip-path: none;
+  backdrop-filter: none;
+}
+
+[data-theme="pixel-spectrum"] .stat-value {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--color-accent-primary, #00ff88);
+  font-size: 28px;
+}
+
+[data-theme="pixel-crow"] .stat-value {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--color-accent-primary, #9d4edd);
+  font-size: 28px;
+}
+
+/* 像素风主题 - 徽章 */
+[data-theme="pixel-spectrum"] .hero-badge,
+[data-theme="pixel-crow"] .hero-badge {
+  border-radius: 0;
+  border: 2px solid var(--color-accent-primary);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 8px 16px;
+}
+
+/* 像素风主题 - 英雄子标题 */
+[data-theme="pixel-spectrum"] .hero-subtitle,
+[data-theme="pixel-crow"] .hero-subtitle {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: var(--color-text-secondary);
+}
+
+/* 像素风主题 - 区块标题 */
+[data-theme="pixel-spectrum"] .section-title,
+[data-theme="pixel-crow"] .section-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+[data-theme="pixel-spectrum"] .section-title::before,
+[data-theme="pixel-spectrum"] .section-title::after {
+  color: var(--color-accent-primary, #00ff88);
+}
+
+[data-theme="pixel-crow"] .section-title::before,
+[data-theme="pixel-crow"] .section-title::after {
+  color: var(--color-accent-primary, #9d4edd);
+}

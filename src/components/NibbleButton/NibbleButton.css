@@ -1,0 +1,359 @@
+/**
+ * 蚕食按钮样式
+ *
+ * 法则5：主题同步双适配
+ *   - 颜色全用 var(--color-*)，圆角用 var(--radius-*)
+ *   - pixel-spectrum（泰拉瑞亚微光）：彩虹流动进度条
+ *   - pixel-crow（乌鸦五彩斑斓黑）：虹彩光泽进度条
+ * 蚕食动画：按钮展开时进度条 + 像素块掉落
+ */
+
+.nibble-button-wrap {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 720px;
+}
+
+/* 触发按钮 */
+.nibble-trigger {
+  background: var(--color-bg-secondary, #12121a);
+  border: 3px solid var(--color-accent-primary, #c4ff00);
+  color: var(--color-text-primary, #f0f0f5);
+  padding: 14px 24px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-weight: bold;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius-md, 6px);
+  transition: all 0.15s ease;
+}
+
+.nibble-trigger:hover:not(:disabled) {
+  filter: brightness(1.15);
+  border-color: var(--color-accent-secondary, #00e5ff);
+}
+
+.nibble-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nibble-trigger-face {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nibble-icon {
+  font-size: 1.3rem;
+  display: inline-block;
+  animation: nibble-wiggle 1.2s ease-in-out infinite;
+}
+
+@keyframes nibble-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.05); }
+  75% { transform: rotate(8deg) scale(1.05); }
+}
+
+.nibble-caret {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  transition: transform 0.2s;
+}
+
+/* 展开面板 */
+.nibble-panel {
+  margin-top: 12px;
+  background: var(--color-bg-tertiary, #1a1a25);
+  border: 2px solid var(--color-border, #2a2a35);
+  border-radius: var(--radius-md, 6px);
+  padding: 18px;
+  animation: nibble-panel-open 0.3s ease-out;
+}
+
+@keyframes nibble-panel-open {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.9);
+    transform-origin: top center;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.nibble-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nibble-label-text {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #8a8a9a);
+  font-family: var(--font-mono, monospace);
+}
+
+.nibble-input-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nibble-input {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px 14px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 2px solid var(--color-border, #2a2a35);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--color-text-primary, #f0f0f5);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.9rem;
+  transition: border-color 0.15s;
+}
+
+.nibble-input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary, #c4ff00);
+  box-shadow: 0 0 0 2px var(--color-accent-glow, rgba(196, 255, 0, 0.2));
+}
+
+.nibble-input:disabled {
+  opacity: 0.6;
+}
+
+.nibble-go {
+  white-space: nowrap;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+}
+
+.nibble-go:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 进度条 + 像素块掉落 */
+.nibble-progress-track {
+  position: relative;
+  height: 18px;
+  background: var(--color-bg-primary, #0a0a0f);
+  border: 2px solid var(--color-border, #2a2a35);
+  border-radius: var(--radius-sm, 4px);
+  overflow: hidden;
+}
+
+.nibble-progress-fill {
+  height: 100%;
+  background: var(--color-accent-primary, #c4ff00);
+  transition: width 0.3s ease-out;
+  border-radius: 0;
+}
+
+.nibble-progress-bites {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bite {
+  position: absolute;
+  top: -6px;
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent-secondary, #00e5ff);
+  animation: bite-fall 0.8s linear infinite;
+}
+
+.bite-1 { left: 15%; animation-delay: 0s; }
+.bite-2 { left: 35%; animation-delay: 0.15s; background: var(--color-accent-tertiary, #ff2e63); }
+.bite-3 { left: 55%; animation-delay: 0.3s; }
+.bite-4 { left: 75%; animation-delay: 0.45s; background: var(--color-accent-tertiary, #ff2e63); }
+.bite-5 { left: 90%; animation-delay: 0.6s; }
+
+@keyframes bite-fall {
+  0% {
+    top: -6px;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    top: 22px;
+    opacity: 0;
+    transform: rotate(180deg);
+  }
+}
+
+/* 错误提示 */
+.nibble-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 46, 99, 0.1);
+  border: 2px solid var(--color-error, #ff2e63);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--color-error, #ff2e63);
+  font-size: 0.85rem;
+  font-family: var(--font-mono, monospace);
+}
+
+.nibble-error-text {
+  flex: 1;
+}
+
+.nibble-retry {
+  padding: 4px 12px;
+  background: var(--color-error, #ff2e63);
+  color: var(--color-bg-primary, #0a0a0f);
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.nibble-retry:hover {
+  filter: brightness(1.1);
+}
+
+/* 成功提示 */
+.nibble-success {
+  padding: 10px 12px;
+  background: var(--color-accent-glow, rgba(196, 255, 0, 0.1));
+  border: 2px solid var(--color-accent-primary, #c4ff00);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--color-accent-primary, #c4ff00);
+  font-size: 0.85rem;
+  font-family: var(--font-mono, monospace);
+}
+
+/* 示例网址 */
+.nibble-samples {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.nibble-samples-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #555565);
+  margin-right: 4px;
+}
+
+.nibble-sample-chip {
+  padding: 4px 10px;
+  background: var(--color-bg-secondary, #12121a);
+  border: 1px solid var(--color-border-light, #3a3a4a);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--color-text-secondary, #8a8a9a);
+  font-size: 0.78rem;
+  font-family: var(--font-mono, monospace);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.nibble-sample-chip:hover:not(:disabled) {
+  border-color: var(--color-accent-primary, #c4ff00);
+  color: var(--color-accent-primary, #c4ff00);
+}
+
+.nibble-sample-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   像素风主题双适配（法则5）
+   ======================================== */
+
+/* pixel-spectrum（泰拉瑞亚微光彩虹） */
+[data-theme="pixel-spectrum"] .nibble-trigger {
+  border-color: var(--color-accent-primary, #00ff88);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-spectrum"] .nibble-progress-fill {
+  background: linear-gradient(
+    90deg,
+    #ff0080, #ff8c00, #ffed00, #00ff88, #00c8ff, #8000ff, #ff0080
+  );
+  background-size: 200% 100%;
+  animation: rainbow-flow 2s linear infinite;
+}
+
+[data-theme="pixel-spectrum"] .nibble-panel {
+  border-color: var(--color-accent-primary, #00ff88);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.05),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="pixel-spectrum"] .nibble-go {
+  box-shadow:
+    3px 3px 0 var(--color-accent-secondary, #ff0080),
+    6px 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="pixel-spectrum"] .nibble-go:active {
+  box-shadow:
+    1px 1px 0 var(--color-accent-secondary, #ff0080);
+}
+
+/* pixel-crow（乌鸦五彩斑斓黑） */
+[data-theme="pixel-crow"] .nibble-trigger {
+  border-color: rgba(157, 78, 221, 0.6);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="pixel-crow"] .nibble-progress-fill {
+  background: linear-gradient(
+    135deg,
+    #9d4edd, #533483, #e94560, #00d4ff, #9d4edd
+  );
+  background-size: 300% 100%;
+  animation: crow-shine-flow 3s linear infinite;
+}
+
+@keyframes crow-shine-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+[data-theme="pixel-crow"] .nibble-panel {
+  border-color: rgba(157, 78, 221, 0.4);
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 100%);
+}
+
+[data-theme="pixel-crow"] .nibble-go {
+  background: linear-gradient(135deg, #9d4edd, #533483);
+  background-size: 200% 200%;
+  animation: crow-shine-flow 4s linear infinite;
+  box-shadow:
+    3px 3px 0 rgba(157, 78, 221, 0.6),
+    6px 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .nibble-go:active {
+  box-shadow:
+    1px 1px 0 rgba(157, 78, 221, 0.6);
+}
+
+[data-theme="pixel-crow"] .nibble-sample-chip:hover:not(:disabled) {
+  border-color: rgba(157, 78, 221, 0.8);
+  color: #c89cf0;
+}

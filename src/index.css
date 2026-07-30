@@ -6,6 +6,12 @@
    保证所有主题都能用到对应 display / serif 字体，所有字体启用 font-display=swap。 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Orbitron:wght@500;700;900&family=ZCOOL+XiaoWei&display=swap');
 
+/* 像素字体 — 用于像素风主题 */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+/* 像素风核心样式 */
+@import './styles/pixel-art.css';
+
 /* ============================================================
  *  :root 默认值 — 作为"无 ThemeProvider 时"的回退（保持 ZZZ）
  *  在有 ThemeProvider 运行时，这些值会被 documentElement

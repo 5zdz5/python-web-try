@@ -289,6 +289,118 @@ export const THEME_LIGHT_TECH: ThemePreset = {
 }
 
 // ============================================================
+// 6. 像素彩虹 Pixel Spectrum — 反射七彩光 / 泰拉瑞亚微光液体
+// ============================================================
+export const THEME_PIXEL_SPECTRUM: ThemePreset = {
+  meta: {
+    id: 'pixel-spectrum',
+    name: '像素彩虹 Pixel Spectrum',
+    author: 'Python Quest',
+    description: '像素方块风格 + 泰拉瑞亚式微光液体彩虹流动，立体3D按钮，柱子升起动画。',
+    tags: ['像素风', '立体', '彩虹', '动态', '3D'],
+    palette: ['#ff0080', '#ff8c00', '#ffed00', '#00ff88', '#00c8ff', '#8000ff', '#ff00ff'],
+    version: '2.0.0',
+  },
+  colors: {
+    bgPrimary: '#0a0a12',
+    bgSecondary: '#12121f',
+    bgTertiary: '#1a1a2e',
+    bgCard: '#141428',
+    accentPrimary: '#00ff88',
+    accentSecondary: '#ff0080',
+    accentTertiary: '#00c8ff',
+    accentGlow: 'rgba(0, 255, 136, 0.40)',
+    accentGlowCyan: 'rgba(255, 0, 128, 0.35)',
+    textPrimary: '#f0f0ff',
+    textSecondary: '#a0a0c0',
+    textMuted: '#606080',
+    border: '#3a3a5a',
+    borderLight: '#4a4a6a',
+    borderAccent: 'rgba(0, 255, 136, 0.40)',
+    warning: '#ffed00',
+    error: '#ff3366',
+    success: '#00ff88',
+    locked: '#3a3a4a',
+  },
+  fonts: {
+    family: '"Press Start 2P", "VT323", "Courier New", monospace',
+    display: '"Press Start 2P", "VT323", monospace',
+    mono: '"VT323", "Press Start 2P", monospace',
+  },
+  radii: {
+    sm: '0px',
+    md: '0px',
+    lg: '0px',
+    xl: '0px',
+  },
+  decoration: {
+    clipPath: 'none',
+    clipPathSm: 'none',
+    scanline: true,
+    glitchEffect: false,
+    neonGlow: true,
+    bgPattern:
+      'linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 20, 40, 0.95)), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 136, 0.02) 2px, rgba(0, 255, 136, 0.02) 4px)',
+  },
+}
+
+// ============================================================
+// 7. 像素乌鸦 Pixel Crow — 五彩斑斓的黑 / 乌鸦虹彩
+// ============================================================
+export const THEME_PIXEL_CROW: ThemePreset = {
+  meta: {
+    id: 'pixel-crow',
+    name: '像素乌鸦 Pixel Crow',
+    author: 'Python Quest',
+    description: '像素方块风格 + 乌鸦五彩斑斓的黑，深邃背景中流动着虹彩光泽，神秘高贵。',
+    tags: ['像素风', '立体', '乌鸦', '虹彩', '神秘'],
+    palette: ['#1a1a2e', '#16213e', '#0f3460', '#533483', '#e94560'],
+    version: '2.0.0',
+  },
+  colors: {
+    bgPrimary: '#08080f',
+    bgSecondary: '#0f0f1a',
+    bgTertiary: '#161625',
+    bgCard: '#0c0c18',
+    accentPrimary: '#9d4edd',
+    accentSecondary: '#e94560',
+    accentTertiary: '#00d4ff',
+    accentGlow: 'rgba(157, 78, 221, 0.45)',
+    accentGlowCyan: 'rgba(233, 69, 96, 0.35)',
+    textPrimary: '#e8e8f0',
+    textSecondary: '#9090a8',
+    textMuted: '#505068',
+    border: '#2a2a40',
+    borderLight: '#3a3a50',
+    borderAccent: 'rgba(157, 78, 221, 0.40)',
+    warning: '#ffa500',
+    error: '#e94560',
+    success: '#4ade80',
+    locked: '#2a2a38',
+  },
+  fonts: {
+    family: '"Press Start 2P", "VT323", "Courier New", monospace',
+    display: '"Press Start 2P", "VT323", monospace',
+    mono: '"VT323", "Press Start 2P", monospace',
+  },
+  radii: {
+    sm: '0px',
+    md: '0px',
+    lg: '0px',
+    xl: '0px',
+  },
+  decoration: {
+    clipPath: 'none',
+    clipPathSm: 'none',
+    scanline: true,
+    glitchEffect: false,
+    neonGlow: true,
+    bgPattern:
+      'linear-gradient(180deg, rgba(8, 8, 15, 0.98), rgba(15, 15, 30, 0.98)), repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(157, 78, 221, 0.03) 3px, rgba(157, 78, 221, 0.03) 6px)',
+  },
+}
+
+// ============================================================
 // 主题注册表 — 默认顺序
 // ============================================================
 export const ALL_THEMES: ThemePreset[] = [
@@ -297,8 +409,10 @@ export const ALL_THEMES: ThemePreset[] = [
   THEME_STARRAIL,
   THEME_CYBERPUNK2077,
   THEME_LIGHT_TECH,
+  THEME_PIXEL_SPECTRUM,
+  THEME_PIXEL_CROW,
 ]
 
-export const DEFAULT_THEME_ID = 'zzz'
+export const DEFAULT_THEME_ID = 'pixel-spectrum'
 
-export const STORAGE_KEY = 'python-quest-theme@v1.0'
+export const STORAGE_KEY = 'python-quest-theme@v2.0'

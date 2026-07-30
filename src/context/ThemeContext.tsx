@@ -98,8 +98,25 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // 3. 应用到根元素（document.documentElement）
   useEffect(() => {
     const root = document.documentElement
+    const targetThemeId = theme.meta.id
+    
     // 标记 data-theme（供未来高级定制）
-    root.setAttribute('data-theme', theme.meta.id)
+    root.setAttribute('data-theme', targetThemeId)
+    
+    // 创建 MutationObserver 监控并保持正确的 data-theme
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+          const currentValue = root.getAttribute('data-theme')
+          if (currentValue !== targetThemeId) {
+            console.warn('[ThemeContext] data-theme was changed externally, restoring to:', targetThemeId)
+            root.setAttribute('data-theme', targetThemeId)
+          }
+        }
+      })
+    })
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] })
+    
     // 写入 CSS 变量
     const vars = themeToCssVars(theme)
     Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v))
@@ -114,6 +131,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     body.classList.toggle('theme-scanline', !!theme.decoration.scanline)
     body.classList.toggle('theme-glitch', !!theme.decoration.glitchEffect)
     body.classList.toggle('theme-neon', !!theme.decoration.neonGlow)
+    
+    // 清理函数
+    return () => {
+      observer.disconnect()
+    }
   }, [theme])
 
   const value = useMemo<ThemeContextValue>(

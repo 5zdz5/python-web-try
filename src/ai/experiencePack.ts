@@ -24,18 +24,18 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 14
+const PACK_BUILD = 19
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
 const OVERVIEW: Omit<ArchitectureOverview, 'fileTree'> = {
-  totalFiles: 77,
-  totalTsFiles: 56,
-  totalCssFiles: 21,
-  totalLines: 34559,
-  totalRoutes: 9,
+  totalFiles: 87,
+  totalTsFiles: 61,
+  totalCssFiles: 25,
+  totalLines: 35759,
+  totalRoutes: 11,
   totalLevels: 60,
-  totalComponents: 13,
+  totalComponents: 15,
   totalContexts: 5,
   totalAIModules: 4,
   // 分层图（从稳定到不稳定）
@@ -68,9 +68,9 @@ const MODULES: ModuleInfo[] = [
   {
     id: 'core-app', category: 'core', name: '路由与外壳',
     path: 'src/App.tsx', files: 1, approxLines: 37,
-    description: '9个路由注册 + Navbar/Main/Footer 外壳 + PatrolButton 全局悬浮',
+    description: '11个路由注册 + Navbar/Main/Footer 外壳 + PatrolButton 全局悬浮',
     exports: ['<App />'],
-    dependsOn: ['page-home', 'page-levelmap', 'page-leveldetail', 'page-source', 'page-monitor', 'page-path', 'page-achievements', 'page-leaderboard', 'comp-navbar', 'comp-footer', 'comp-patrol'],
+    dependsOn: ['page-home', 'page-levelmap', 'page-leveldetail', 'page-source', 'page-monitor', 'page-path', 'page-achievements', 'page-leaderboard', 'page-nibblelevels', 'page-skilllab', 'comp-navbar', 'comp-footer', 'comp-patrol'],
     dependedBy: ['core-main'],
     extensionPoints: ['新增页面 → <Route path="/xxx" element={<XxxPage />}>', '新增全局悬浮组件 → 和 PatrolButton 并列放末尾'],
     pitfalls: ['GitHub Pages 必须用 HashRouter 不能用 BrowserRouter', '所有静态资源路径必须相对或带 base=/python-web-try/'],
@@ -209,6 +209,26 @@ const MODULES: ModuleInfo[] = [
     extensionPoints: [],
     pitfalls: ['老版本数据冻结在独立 storage key（@vX），切换时不要覆盖新版本'],
   },
+  {
+    id: 'comp-nibblebutton', category: 'component', name: '蚕食爬取按钮',
+    path: 'src/components/NibbleButton/', files: 2, approxLines: 200,
+    description: '网页内容爬取交互入口：URL 输入 + fetching/parsing/done/error 五态机 + 监测主动注册（registerGroup + reportHealth）+ 像素风 3D 按钮 + 主题双适配（pixel-spectrum/pixel-crow）',
+    exports: ['<NibbleButton />'],
+    dependsOn: ['ctx-monitor', 'data-nibblelevels'],
+    dependedBy: ['page-nibblelevels'],
+    extensionPoints: ['新增爬取状态 → status 联合类型扩展 + 对应 UI 块', '新增主题适配 → [data-theme=xxx] 选择器追加'],
+    pitfalls: ['法则 4 监测主动注册：useEffect 中必须 registerGroup + reportHealth', '法则 5 主题双适配：必须同时支持 pixel-spectrum 和 pixel-crow', '按钮事件必须 useCallback 包裹避免重渲染'],
+  },
+  {
+    id: 'comp-skillviewer', category: 'component', name: 'Skill 查看实验室',
+    path: 'src/components/SkillViewer/', files: 2, approxLines: 320,
+    description: 'Skill 实验室面板：双栏布局（左列表 + 右详情），每个 Skill 展示核心规则（含正反例）+ 调用命令一键复制 + 调用示例 + Web 入口跳转。严格应用 taste-skill（anti-slop/字体反默认/LILA 反紫蓝）+ impeccable（no-card-in-card/radius-unified/spacing-scale）+ 主题双适配',
+    exports: ['<SkillViewer />'],
+    dependsOn: ['ctx-monitor', 'cfg-installedskills'],
+    dependedBy: ['page-skilllab'],
+    extensionPoints: ['新增 Skill 规则 → installedSkills.ts 对应 skill 的 rules[] 追加 SkillRule', '新增主题适配 → [data-theme=xxx] 选择器追加'],
+    pitfalls: ['taste-skill LILA 反紫蓝：禁止用 #7c3aed/#6366f1/#3b82f6，必须用 var(--color-accent-*)', 'impeccable no-card-in-card：面板内用 .skill-section 分隔，不嵌套 .card', '字体必须用 var(--font-mono) JetBrains Mono，禁用 Inter', '间距必须用 8 倍数，圆角必须用 var(--radius-*)'],
+  },
 
   // —— Pages 页面 ——
   {
@@ -291,6 +311,26 @@ const MODULES: ModuleInfo[] = [
     extensionPoints: ['真实排行榜 → 从 Gist 读取所有 Progress 公开数据后排序'],
     pitfalls: [],
   },
+  {
+    id: 'page-nibblelevels', category: 'page', name: '蚕食关卡化页面',
+    path: 'src/pages/NibbleLevels/', files: 2, approxLines: 250,
+    description: '展示爬取后关卡化内容：双栏布局（关卡列表 + 详情）+ 步骤指示器 + 挑战展示 + 代码块渲染 + 主题双适配',
+    exports: ['<NibbleLevels />'],
+    dependsOn: ['comp-nibblebutton', 'data-nibblelevels'],
+    dependedBy: ['core-app'],
+    extensionPoints: ['新增关卡详情子区块 → 在 activeLevel 渲染区追加', '新增挑战交互 → 在 challenges.map 内扩展'],
+    pitfalls: ['法则 3 动态适配禁止硬编码：所有关卡/步骤/挑战必须通过 .map 动态渲染', '空状态必须处理（levels.length === 0 时显示引导提示）'],
+  },
+  {
+    id: 'page-skilllab', category: 'page', name: 'Skill 实验室页面',
+    path: 'src/pages/SkillLab/', files: 3, approxLines: 100,
+    description: '承载 SkillViewer 组件的页面壳：标题 + SkillViewer（默认展开）+ 底部使用提示。应用 taste-skill/impeccable 审美规则',
+    exports: ['<SkillLab />'],
+    dependsOn: ['comp-skillviewer'],
+    dependedBy: ['core-app'],
+    extensionPoints: ['新增页面级说明 → 在 footer 追加', '新增 Skill 入口 → SkillViewer 组件自动渲染'],
+    pitfalls: ['页面壳保持轻量，核心逻辑在 SkillViewer 组件', '必须 defaultExpanded=true 让用户直接看到 Skill 列表'],
+  },
 
   // —— Data 数据层 ——
   {
@@ -342,6 +382,16 @@ const MODULES: ModuleInfo[] = [
     dependedBy: ['page-monitor'],
     extensionPoints: ['新增代码组讲解 → 追加一条'],
     pitfalls: ['源码片段不要放完整实现，保留关键结构+注释即可'],
+  },
+  {
+    id: 'data-nibblelevels', category: 'data', name: '蚕食爬取数据层',
+    path: 'src/data/nibbleLevels.ts', files: 1, approxLines: 200,
+    description: '网页内容爬取+关卡化核心：fetchHtml（3 个 CORS 代理 fallback：allorigins/corsproxy/thingproxy + 15s 超时）+ nibbleToLevels（DOMParser 解析 + h2/h3 标题分割算法）+ NibbleLevel/NibbleStep/NibbleChallenge 三层类型',
+    exports: ['NibbleLevel', 'NibbleStep', 'NibbleChallenge', 'NibbleResult', 'fetchHtml()', 'nibbleToLevels()', 'nibbleWebsite()'],
+    dependsOn: [],
+    dependedBy: ['comp-nibblebutton', 'page-nibblelevels'],
+    extensionPoints: ['新增 CORS 代理 → PROXIES 数组追加 + URL 模板', '新增内容分割策略 → 在 nibbleToLevels 内追加选择器分支（如按 p 段落、按 section 等）', '新增步骤类型 → NibbleStep.type 联合类型扩展'],
+    pitfalls: ['CORS 代理可能失效，必须保留多 fallback', 'DOMParser 只能在浏览器端运行，SSR 环境会报错', '某些网站 CSP 会拦截代理响应，需要 try-catch + 错误降级'],
   },
 
   // —— AI 层 ——
@@ -641,6 +691,86 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: '对话结束 → AI 主动总结"本轮发现 skill 列表硬编码问题 → 提炼动态适配元规则 + 用户思维模式元逻辑 → 写入 CONVENTIONS + CONVERSATION_LOG + PACK_BUILD +1',
     badExample: '对话结束 → AI 只改了代码 → 不总结不写回经验包 → 下次 AI 完全不知道这次发生了什么 → 重复踩坑',
     consequence: '不自动总结 → 经验包停滞 → 下一个 AI 接手时信息断层 → 无法继承前序对话的经验 → 每次都从零开始',
+  },
+  // —— pack15 新增：经验包拆分不破坏原则 ——
+  { category: 'meta-workflow', rule: '经验包拆分不破坏原则：拆分大经验包时旧接口100%兼容，新拆分仅提供额外导出函数，绝不修改旧调用方的签名和返回值',
+    description: '用户原话："在有主经验包的情况下加新的经验包，作为经验包的拆分，可以解决主经验包过大难读取的问题，注意不要因为逻辑断裂减弱读取功能，保持相同的效用"。核心规则：① 主包 generateExperiencePack() 保持不变（返回值、字段名、schema全部兼容）；② 新子包以不同函数名并行提供（generateConventionsPack、generatePatternsPack 等），不替代主包；③ 子包动态懒加载主包内部数据（require + 缓存），不复制主包常量避免双份维护；④ 子包从主包自动归类统计，分类新增时子包 categoryStats 自动 +1，无硬编码。举例：pack15 拆分后，旧代码 import generateExperiencePack 继续 100% 工作，新代码可 import generateUserLogicPack() 单独拉取 5-10KB 精简包。',
+    goodExample: '主经验包 137KB 拆成 6 个子包（10-30KB/个）→ generateExperiencePack() 原样不动 + 新增 generateConventionsPack() 等 6 个函数 → 旧调用零改动，新调用按需读取',
+    badExample: '拆分时把 CONVENTIONS 数组移到新文件再让 experiencePack.ts import → 但忘记同步更新 generateExperiencePack 内部引用 → 返回值空数组 → 全站经验包面板空白',
+    consequence: '拆分破坏旧接口 → 引用 generateExperiencePack 的组件/页面报错或空显示 → 用户以为网站崩溃 → 拆分比不拆还糟糕',
+  },
+  // —— pack15 新增：用户思维模式动态归纳模式 ——
+  { category: 'meta-workflow', rule: '用户思维模式必须动态归纳并在主页可直达：创建 UserLogicPanel 组件从 generateUserLogicPack() 实时读取，不写死内容',
+    description: '用户原话："对我的逻辑进行动态归纳，显示在主页面按钮中"。核心实现：① 在主页 hero-actions 放"🧠 思维模式归纳"按钮，点击弹 UserLogicPanel；② Panel 内部用 import(...).then() 动态懒加载 packSplits.ts → generateUserLogicPack()；③ 内容分为 4 Tab：5步核心框架（动态调配→自动归类→举例子验证→跨界迁移→自动总结写入）+ 具体洞察（每条洞察含跨界迁移举例+4步可执行步骤）+ 关键词云（基于对话+约定文本词频计算权重）+ 硬约束清单（提取所有含必须/禁止的语句）；④ 新增任何 meta-workflow 约定或对话记录后，重新打开 Panel 内容自动变化，无需改组件代码。',
+    goodExample: '新增 meta-workflow 约定"经验包拆分不破坏" → generateUserLogicPack() 的 insights 自动追加 1 条 → 打开主页点"🧠思维模式归纳"→ 自动显示新洞察 + 关键词云权重更新',
+    badExample: '思维模式内容在 Panel.tsx 里硬编码写死 3 条 → 新增约定后用户点按钮看不到新内容 → 归纳和实际规则脱节',
+    consequence: '思维模式写死在组件 → 新增规则后"思维模式归纳"展示过时内容 → 用户误以为AI不理解自己 → 信任崩塌',
+  },
+  // —— pack16 新增：版块实时更新规则 ——
+  { category: 'meta-workflow', rule: '经验包各版块必须按实时变化更新，每个版块有独立的更新触发条件，通过 generatePackOverview() 实时追踪版块状态并在主页展示',
+    description: '用户原话："对经验包增加更新规则，根据每个版块实时变化进行更新，并增加经验包展示说明按钮，都能实时更新"。核心规则：① 12个版块各自有独立更新规则（conventions=新增规则时追加+PACK_BUILD+1，patterns=发现新模式时追加，lessons=踩坑时追加，conversations=每次对话结束必须追加等）② generatePackOverview() 函数从实际数据数组 .length 实时计算条目数+分类分布+最近更新pack号，不硬编码统计 ③ ExperiencePackOverview 组件从 generatePackOverview() 动态读取并展示，主包变更后面板自动同步 ④ 新增版块时只需在 sections 数组追加一条记录，面板自动渲染新版块',
+    goodExample: '新增 1 条编码约定 → CONVENTIONS.length 自动+1 → generatePackOverview() 的 sections[conventions].itemCount 自动+1 → 打开"📦经验包展示"面板 → 编码约定版块显示更新后的条目数+分类分布',
+    badExample: '在面板组件里硬编码"编码约定 25 条" → 新增 1 条约定后面板仍显示 25 → 用户以为没更新 → 经验包展示与实际脱节',
+    consequence: '版块统计写死在 UI → 新增条目后展示数字不变化 → 用户无法判断哪个版块需要更新 → 经验包维护流程断裂',
+  },
+  // —— pack16 新增：经验包展示说明必须实时可访问 ——
+  { category: 'meta-workflow', rule: '经验包展示说明必须在主页有独立按钮直达，展示12版块实时状态+更新规则，内容从 generatePackOverview() 动态生成不写死',
+    description: '用户要求"增加经验包展示说明按钮，都能实时更新"。实现：① 主页 hero-actions 区域新增"📦经验包展示"按钮 ② ExperiencePackOverview 组件含 2 Tab：版块详情（12版块可展开卡片：说明/更新规则/分类分布/数据源）+ 更新规则汇总 ③ 所有数字从实际数组 .length 计算 ④ 主包任何版块内容变更后，重新打开面板即显示最新状态',
+    goodExample: '新增对话记录 → conversations 版块 itemCount 自动+1 → 打开"📦经验包展示"→ 对话归档版块数字正确更新 → 更新规则 Tab 显示该版块的更新触发条件',
+    badExample: '面板内容在组件里写死"12个版块"的统计 → 新增版块后面板不显示 → 必须手动改组件代码 → 违反动态调配原则',
+    consequence: '展示面板写死 → 经验包结构演进后面板内容过时 → 用户无法获取当前经验包的完整状态 → 经验包的可维护性下降',
+  },
+
+  // ========================= pack17 新增：新功能适配法则（8 条） =========================
+  // 用户原话："给我对源码项目进行分配，编写一套新功能适配法则"
+  // 目的：让下一个 AI 模型在新增任何功能时，有明确的"放哪层 / 怎么扩展 / 怎么不破坏现有架构"的决策规则
+  { category: 'feature-adaptation', rule: '法则 1【分层归属决策】新功能必须先判定归属层：纯静态数据→data/、跨组件共享状态→context/、可复用 UI 片段→components/、整页面→pages/、配置常量→config/、AI 逻辑→ai/、类型定义→types/。禁止跨层反向依赖（page 不能被 component import，context 不能 import component，data 绝不 import React/Context/组件）',
+    description: '项目分 9 大类 30+ 模块（见 MODULES 数组），依赖方向严格自上而下：data → context → component → page → App。新增功能的第一步不是写代码，而是判定它属于哪一层。判定决策树见 PATTERNS 中的"新功能分层归属决策树"。一旦放错层，后续所有依赖都会反向，重构成本指数级上升',
+    goodExample: '用户说"加个新功能：学习日历" → 判定：跨页面共享状态（首页+成就页都要用） → 放 context/CalendarContext.tsx → 数据放 data/calendarData.ts → UI 放 components/Calendar/ → 路由集成到 pages/Home/',
+    badExample: '把"学习日历"的状态直接写在 pages/Home/Home.tsx 里 → 其他页面要用时必须 import Home → page 互相 import → 循环依赖 → 重构时必须改 Home 才能复用',
+    consequence: '放错层 → 反向依赖 → 循环依赖 → 重构成本爆炸 → 一个新功能污染多个模块',
+  },
+  { category: 'feature-adaptation', rule: '法则 2【扩展点优先】新增功能前必须先查 MODULES 数组中目标模块的 extensionPoints 字段，按其指引扩展；若目标模块没有对应 extensionPoints，必须先在经验包补 extensionPoints 再写代码',
+    description: '每个 MODULE 条目都有 extensionPoints 数组，明确告诉新模型"新增 X 功能应该改哪里"。例如新增全局 Provider → 看 core-main 的 extensionPoints："新增全局 Provider 时在此注册，顺序必须先稳定后不稳定"；新增 Python 包 → 看 ctx-pyodide 的 extensionPoints："下载 whl 到 public/pyodide/ 并在 loadPyodide 时加载"。这是项目预留的"合法扩展入口"，不按 extensionPoints 扩展等于绕过架构',
+    goodExample: '用户说"加个排行榜云同步" → 查 MODULES 找 page-leaderboard → 看 extensionPoints → 按指引在 ProgressContext 的 syncToGist 追加 leaderboard 字段 → 在 Leaderboard.tsx 用 useProgress() 读取',
+    badExample: '不看 extensionPoints → 直接在 Leaderboard.tsx 里写 fetch Gist 逻辑 → 绕过 ProgressContext 的双通道持久化 → 数据不同步、无防抖、无重试',
+    consequence: '绕过 extensionPoints → 绕过架构预留入口 → 重复造轮子 → 双通道持久化/监测/主题等基础设施全部失效',
+  },
+  { category: 'feature-adaptation', rule: '法则 3【动态适配禁止硬编码】新增的列表/菜单/按钮/统计/Tab 必须从数据源动态计算（.map 渲染、installedSkills 注册表、levels.reduce、generatePackOverview），不允许在 JSX 中写死 N 份重复结构',
+    description: '这是 v2.4 动态适配元规则在新功能场景的具体化。任何"现在有 3 个，以后可能变成 5 个"的 UI 都必须数据驱动：导航菜单遍历 links 数组、Skill 按钮遍历 webSkills、关卡卡片遍历 levels.filter、统计数字用 stats.length。新增一条数据 = 改一处数据源 = 全站自动感知，不允许"加一个就要改 N 处 UI"',
+    goodExample: '新增 Skill → 在 installedSkills.ts 追加 1 条记录 → 主页按钮自动 +1 → 统计区自动 +1 → 不改任何 JSX',
+    badExample: '新增 Skill → 在 Home.tsx 复制粘贴一份 <button> → 在统计区手动改"7个"为"8个" → 在 Navbar 加一个链接 → 3 处改动且容易漏',
+    consequence: '硬编码 → 新增一条要改 N 处 → 漏改一处就 UI 不一致 → 维护成本随功能数线性爆炸',
+  },
+  { category: 'feature-adaptation', rule: '法则 4【监测主动注册】新增页面/组件必须在 useEffect 中调用 registerGroup(groupId, groupName, filePath) + reportHealth(groupId, status, detail)，否则巡游三态检测会判为 warning（有内容但缺监测组）',
+    description: '项目监测系统是"防御式注册"（reportHealth 自动建组），但不注册的页面在巡游时只能靠"白屏/缺件/正常"三态被动判定，无法主动汇报业务状态。新功能必须在挂载时主动注册监测组并定期/事件触发时 reportHealth。监测组 id 命名规则：页面用 PageName（如 SourceExplorer），组件用 CompName（如 ExperiencePackPanel）',
+    goodExample: '新增 LearningPath 页面 → useEffect(() => { registerGroup("LearningPath", "学习路径", "src/pages/LearningPath/LearningPath.tsx"); reportHealth("LearningPath", "healthy", "页面挂载成功") }, [registerGroup])',
+    badExample: '新增页面不调 registerGroup → 巡游时 reportHealth 自动建组但 name=groupId（丑） → 监测仪表盘显示无组织的 id 而非中文名 → 运维难以定位',
+    consequence: '不主动注册 → 巡游三态检测降级为被动判断 → 业务异常无法主动上报 → 监测仪表盘信息不全',
+  },
+  { category: 'feature-adaptation', rule: '法则 5【主题同步双适配】新增 UI 必须使用 --color-* / --radius-* / --font-* / --bg-* 等 CSS 变量，禁止硬编码色值；像素风主题需同时适配 [data-theme="pixel-rainbow"]（泰拉瑞亚微光）和 [data-theme="pixel-crow"]（乌鸦五彩斑斓黑）两个选择器，确保切换主题不破版',
+    description: '项目有像素彩虹 + 像素乌鸦两套像素风主题，通过 ThemeContext 切换 data-theme 属性。所有颜色/圆角/字体必须走 CSS 变量（--color-primary 等），不允许 #3b82f6 这种硬编码。新功能的 CSS 若涉及主题差异化样式（如彩虹流动 vs 乌鸦虹彩），必须用 [data-theme="pixel-rainbow"] 和 [data-theme="pixel-crow"] 两个属性选择器分别写，禁止用 JS 判断主题',
+    goodExample: '.new-card { background: var(--color-surface); border-radius: var(--radius-md); } [data-theme="pixel-rainbow"] .new-card { animation: rainbow-flow 8s linear infinite; } [data-theme="pixel-crow"] .new-card { animation: crow-iridescence 6s ease-in-out infinite; }',
+    badExample: '.new-card { background: #1a1a2e; border-radius: 8px; } → 切换主题颜色不变 → 与项目主题脱节 → 视觉不统一',
+    consequence: '硬编码色值 → 切换主题不生效 → UI 与项目视觉脱节 → 用户感知到"拼凑感"',
+  },
+  { category: 'feature-adaptation', rule: '法则 6【路由+导航+文档三注册】新增页面必须同步完成三处注册：① App.tsx 的 <Routes> 追加 <Route path="/xxx" element={<XxxPage />} />；② Navbar 的 links 数组追加导航项；③ projectDocs.ts 的 FILE_TREE 追加文档节点。三者缺一不可',
+    description: '路由注册保证页面可访问，导航注册保证用户能找到入口，文档注册保证下一个 AI 模型能理解这个页面。三处注册是新页面的"完整入场券"。若仅注册路由不注册导航 → 用户找不到入口；若不注册文档 → 下一个 AI 在 FILE_TREE 里看不到这个页面 → 误判为"不存在"而重复创建',
+    goodExample: '新增 MonitorDashboard 页面 → ① App.tsx 加 <Route path="/monitor" element={<MonitorDashboard />} /> ② Navbar links 加 { to: "/monitor", label: "监测" } ③ FILE_TREE 加 { name: "MonitorDashboard", type: "file", path: "src/pages/MonitorDashboard", desc: "监测仪表盘" }',
+    badExample: '只注册路由 → 用户在 Navbar 找不到入口 → 以为没做 → 重复开发',
+    consequence: '漏注册一处 → 用户/AI 找不到入口 → 误判功能缺失 → 重复造轮子',
+  },
+  { category: 'feature-adaptation', rule: '法则 7【经验包写回闭环】新功能完成后必须按"5+1"写回经验包：① MODULES 追加新模块条目（含 extensionPoints/pitfalls）② 若有新模式追加 PATTERNS ③ 若有踩坑追加 LESSONS ④ CONVERSATION_LOG 追加一条 ⑤ PACK_BUILD+1 + DOC_VERSION 升级 + DOC_CHANGES 追加一条 ⑥ 若涉及新 Skill 追加 installedSkills.ts',
+    description: '这是 v1.6 经验包元工作流的"新功能场景具体化"。新功能不止是写代码，还要把"这个功能是什么/怎么扩展/有什么坑"写回经验包，让下一个 AI 模型能在 30 秒内理解。未写回经验包的新功能等于"不存在"——下一个 AI 看不到它的 extensionPoints，会绕过它或重复造轮子。PACK_BUILD+1 是硬约束（见 project_memory.md），不递增的变更视为无效提交',
+    goodExample: '新增 Scrapling Skill → ① installedSkills.ts 加 1 条记录 ② MODULES 不动（Skill 不算模块）③ CONVERSATION_LOG 加 conv-20260730-20 ④ PACK_BUILD 17→18 ⑤ DOC_VERSION v2.7→v2.8 ⑥ DOC_CHANGES 加"pack18: 接入 Scrapling Skill"',
+    badExample: '新增 Skill 只改代码不改经验包 → 下一个 AI 看不到这个 Skill → 以为没装 → 重复安装或绕过',
+    consequence: '不写回经验包 → 下一个 AI 看不到新功能 → 误判为不存在 → 重复造轮子或绕过架构',
+  },
+  { category: 'feature-adaptation', rule: '法则 8【Karpathy 四步流水线】新功能必须按 THINK→DIFF→RUN→POLISH 四步执行：THINK（读经验包+查 MODULES extensionPoints+规划分层归属）→ DIFF（小步改 ≤200 行/commit）→ RUN（npm run build 验证不破构建）→ POLISH（童子军准则顺手修到哪+git push origin master）',
+    description: '这是 Karpathy 四原则在新功能场景的具体流水线。THINK 阶段必须先调 generateExperiencePack() 或读 experiencePack.ts 的 MODULES 找 extensionPoints，不允许跳读直接敲键盘。DIFF 阶段每 commit ≤200 行（小步 diff 不全量重写）。RUN 阶段必须 npm run build 通过（vite build，不要 tsc -b && vite build 因 Pyodide node 模块 TS 报错可忽略）。POLISH 阶段按童子军准则顺手清理路过代码 + 自动 git push origin master（除非用户说"不推"）',
+    goodExample: 'THINK: 读经验包发现新增 Skill 应改 installedSkills.ts → DIFF: 只改 installedSkills.ts 追加 1 条 + Home.tsx 不动（动态渲染）→ RUN: npm run build 通过 → POLISH: 顺手发现 installedSkills.ts 有重复 import 删除 + git push',
+    badExample: '跳过 THINK 直接改 5 个文件共 600 行 → RUN 时 tsc 报错不知道哪个文件引起 → POLISH 阶段放弃 → 留下半成品',
+    consequence: '跳过四步 → 大量代码一次性提交 → 出错难定位 → POLISH 阶段无法收尾 → 半成品进 master',
   },
 ]
 
@@ -989,6 +1119,62 @@ mv graphify-out/* public/graphify/
 4. WRITE：写回经验包（CONVERSATION_LOG +1 条 + PACK_BUILD +1）+ 更新本 Skill
 5. ITERATE：本 Skill 和经验包一起迭代优化——每次对话都可能新增/修改 Skill 规则
    Skill 是"怎么做"的规则，经验包是"做了什么"的记录，两者交叉引用互相进化`,
+  },
+  // —— pack17 新增：新功能适配设计模式 ——
+  {
+    name: '新功能分层归属决策树',
+    category: 'feature-adaptation',
+    filePattern: 'src/* 全部目录（新功能第一决策点）',
+    where: '经验包 MODULES 数组（30+ 模块按 9 大类归类）',
+    description: '新功能来了先走决策树判定归属层，再写代码。决策树：1) 是纯静态数据（关卡/课程/成就定义）？→ data/；2) 是跨页面/跨组件共享状态（登录/进度/主题）？→ context/；3) 是可复用 UI 片段（按钮/卡片/编辑器）？→ components/；4) 是整页面（路由级）？→ pages/；5) 是配置常量（GitHub API/版本号/分类元数据）？→ config/；6) 是 AI 逻辑（优化策略/指标收集）？→ ai/；7) 是类型定义？→ types/。依赖方向严格自上而下：data → context → component → page → App，禁止反向',
+    whenToUse: '用户说"加个新功能 X"时的第一步。配合法则 1【分层归属决策】使用。决策树走完后，再查目标模块的 extensionPoints（法则 2）确认扩展入口',
+    template:
+`// 新功能分层归属决策树（按顺序判断，命中即停）
+function decideLayer(feature: string): Layer {
+  if (isPureStaticData(feature))    return 'data'        // 关卡/课程/成就定义
+  if (isSharedState(feature))       return 'context'     // 跨页面共享
+  if (isReusableUI(feature))        return 'components'   // 可复用片段
+  if (isWholePage(feature))         return 'pages'        // 路由级
+  if (isConfigConstant(feature))    return 'config'       // GitHub API/版本号
+  if (isAILogic(feature))           return 'ai'           // 优化策略/指标
+  if (isTypeDefinition(feature))    return 'types'        // 接口定义
+  throw new Error('无法判定归属层，需拆解功能')
+}
+// 示例："学习日历" → 跨页面共享状态 → context/CalendarContext.tsx
+//       + 数据 data/calendarData.ts + UI components/Calendar/ + 路由集成 pages/Home/`,
+  },
+  {
+    name: '新功能五维适配检查清单',
+    category: 'feature-adaptation',
+    filePattern: '新功能提交前自检（pre-commit）',
+    where: '配合 PRECOMMIT_CHECKLIST 使用，聚焦新功能的 5 个适配维度',
+    description: '每个新功能提交前必须过一遍五维检查：① 架构维——放对层了吗？依赖方向对吗？（法则 1）② 数据维——硬编码了吗？列表/统计是否数据驱动？（法则 3）③ 监测维——registerGroup+reportHealth 调了吗？（法则 4）④ 主题维——用 CSS 变量了吗？两套像素主题适配了吗？（法则 5）⑤ 文档维——MODULES/PATTERNS/DOC_CHANGES/CONVERSATION_LOG 更新了吗？PACK_BUILD+1 了吗？（法则 7）。五维全过才能提交',
+    whenToUse: '新功能 POLISH 阶段、git commit 之前。与 PRECOMMIT_CHECKLIST 互补：PRECOMMIT 是通用检查，五维是新功能专项检查',
+    template:
+`# 新功能五维适配检查清单（提交前过一遍）
+## ① 架构维
+  [ ] 已按决策树判定归属层（data/context/component/page/config/ai/types）
+  [ ] 依赖方向正确（data→context→component→page→App，无反向）
+  [ ] 已查目标模块 extensionPoints 并按其指引扩展
+## ② 数据维
+  [ ] 列表/菜单/按钮/Tab 用 .map 渲染，非硬编码 N 份 JSX
+  [ ] 统计数字用 .length / .reduce 计算，非写死数字
+  [ ] 新增可变数据有注册表（如 installedSkills.ts）而非散落硬编码
+## ③ 监测维
+  [ ] 页面/组件 useEffect 中调了 registerGroup(groupId, name, file)
+  [ ] 关键事件调了 reportHealth(groupId, status, detail)
+  [ ] groupId 用 PageName/CompName 而非随机字符串
+## ④ 主题维
+  [ ] 颜色用 var(--color-*)，圆角用 var(--radius-*)，字体用 var(--font-*)
+  [ ] 无硬编码色值（#xxxxxx / rgb / 命名色）
+  [ ] 像素风差异样式用 [data-theme="pixel-rainbow"] 和 [data-theme="pixel-crow"] 分别写
+## ⑤ 文档维
+  [ ] MODULES 追加新模块条目（含 extensionPoints/pitfalls）
+  [ ] PATTERNS 追加新模式（如有）
+  [ ] CONVERSATION_LOG 追加一条
+  [ ] PACK_BUILD +1 + DOC_VERSION 升级 + DOC_CHANGES 追加一条
+  [ ] installedSkills.ts 追加（如涉及新 Skill）
+  [ ] FILE_TREE 追加文档节点（如涉及新页面）`,
   },
 ]
 
@@ -1731,6 +1917,38 @@ const CONVERSATION_LOG = [
     patternsAdded: ['skill注册表模式（installedSkills.ts 集中管理+动态查询函数+webIntegration自动渲染按钮）', '动态适配元规则（禁止硬编码可变数据，统计/列表/按钮从数据源动态计算）', '用户思维模式元逻辑（动态调配→自动归类→举例子验证→跨界迁移→自动总结写入，五步闭环可跨界复用）', '自动总结写入规则（每次对话后主动提炼可复用经验写入经验包）'],
     date: '2026-07-30',
   },
+  // —— pack15 新增：经验包拆分 + 思维模式归纳面板 ——
+  {
+    id: 'conv-20260730-18',
+    summary: '用户要求在主经验包基础上新增拆分的子包，解决主包过大难读取问题且不破坏原有读取功能。创建 src/ai/packSplits.ts：6个领域子包（conventions/patterns/lessons/conversations/user-logic/quickstart），旧接口 generateExperiencePack() 100%不变，新增 generateConventionsPack() 等6个函数，子包懒加载主包数据避免双份维护。创建 UserLogicPanel 组件（4Tab：5步核心框架+8个可点击展开洞察+词频关键词云+所有硬约束清单），在主页新增"🧠思维模式归纳"按钮直达。在经验包追加2条meta-workflow约定：经验包拆分不破坏原则、用户思维模式动态归纳模式。PACK_BUILD 14→15',
+    filesModified: ['src/ai/packSplits.ts', 'src/components/UserLogicPanel/UserLogicPanel.tsx', 'src/components/UserLogicPanel/UserLogicPanel.css', 'src/pages/Home/Home.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['经验包拆分模式（旧接口不动+新增子包导出函数+懒加载主包数据+无重复维护）', '用户思维模式动态归纳（4Tab面板从generateUserLogicPack实时读取，新增约定自动同步到UI）', '5步自我进化闭环（动态调配→自动归类→举例子验证→跨界迁移→自动总结写入）'],
+    date: '2026-07-30',
+  },
+  // —— pack16 新增：版块实时更新规则 + 经验包展示说明面板 ——
+  {
+    id: 'conv-20260730-19',
+    summary: '用户要求对经验包增加更新规则，根据每个版块实时变化进行更新，并增加经验包展示说明按钮都能实时更新。在 packSplits.ts 新增 generatePackOverview() 函数：12个版块（架构总览/功能模块/编码约定/设计模式/历史教训/可复用组件/路线图/构建约束/快速上手/提交前自检/Prompt模板/对话归档）各含独立更新规则+分类分布+数据源标注，所有统计从实际数组 .length 实时计算不硬编码。创建 ExperiencePackOverview 组件（2Tab：版块详情12个可展开卡片+更新规则汇总），主页新增"📦经验包展示"按钮直达。在经验包追加2条meta-workflow约定：版块实时更新规则、经验包展示说明必须实时可访问。PACK_BUILD 15→16',
+    filesModified: ['src/ai/packSplits.ts', 'src/components/ExperiencePackOverview/ExperiencePackOverview.tsx', 'src/components/ExperiencePackOverview/ExperiencePackOverview.css', 'src/pages/Home/Home.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['版块实时更新追踪模式（generatePackOverview从实际数据动态计算12版块状态+更新规则+分类分布）', '经验包展示说明面板（2Tab：版块详情+更新规则，从generatePackOverview实时读取）', '版块独立更新规则（每版块有明确更新触发条件，变更后自动反映到面板）'],
+    date: '2026-07-30',
+  },
+  // —— pack17 新增：新功能适配法则 8 条 + 设计模式 2 条 ——
+  {
+    id: 'conv-20260730-20',
+    summary: '用户要求"给我对源码项目进行分配，编写一套新功能适配法则"。基于现有 MODULES 数组（30+模块9大类）和 CodingConvention/DesignPattern 格式，扩展类型联合新增 feature-adaptation 分类，编写 8 条新功能适配法则（分层归属决策/扩展点优先/动态适配禁止硬编码/监测主动注册/主题同步双适配/路由导航文档三注册/经验包写回闭环/Karpathy四步流水线）+ 2 条设计模式（新功能分层归属决策树+新功能五维适配检查清单）。法则覆盖从"放哪层"到"怎么扩展"到"怎么不破坏架构"到"怎么写回经验包"的完整决策链。PACK_BUILD 16→17',
+    filesModified: ['src/types/experiencePack.ts', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['新功能分层归属决策树（7 层判定：data/context/component/page/config/ai/types，依赖方向自上而下）', '新功能五维适配检查清单（架构维/数据维/监测维/主题维/文档维，pre-commit 专项检查）', 'feature-adaptation 法则分类（8 条法则覆盖新功能全生命周期决策）'],
+    date: '2026-07-30',
+  },
+  // —— pack18 新增：蚕食爬取按钮落地（法则 1-8 全链路应用） ——
+  {
+    id: 'conv-20260730-21',
+    summary: '用户要求"编写一个蚕食按钮，根据 scrapling 对网站进行内容爬取，将爬取内容关卡化处理使用户易于学习"。新增 3 个文件落地法则 1-8 全链路：① src/data/nibbleLevels.ts 数据层（fetchHtml 多 CORS 代理 fallback：allorigins/corsproxy/thingproxy + 15s 超时；nibbleToLevels h2/h3 标题分割算法；NibbleLevel/NibbleStep/NibbleChallenge 三层类型）② src/components/NibbleButton/NibbleButton.tsx 组件层（监测主动注册 + URL 输入 + fetching/parsing/done/error 五态机 + 像素风 3D 按钮）③ src/pages/NibbleLevels/NibbleLevels.tsx 页面层（双栏布局 + 步骤指示器 + 挑战展示）。法则 6 三注册完成：App.tsx 路由 /nibble、Navbar 导航"蚕食爬取"、projectDocs.ts FILE_TREE 追加节点。法则 5 主题双适配：CSS 同时支持 [data-theme=pixel-spectrum] 彩虹流动 + [data-theme=pixel-crow] 乌鸦虹彩。PACK_BUILD 17→18',
+    filesModified: ['src/data/nibbleLevels.ts', 'src/components/NibbleButton/NibbleButton.tsx', 'src/components/NibbleButton/NibbleButton.css', 'src/pages/NibbleLevels/NibbleLevels.tsx', 'src/pages/NibbleLevels/NibbleLevels.css', 'src/App.tsx', 'src/components/Navbar/Navbar.tsx', 'src/data/projectDocs.ts', 'src/ai/experiencePack.ts'],
+    patternsAdded: ['蚕食爬取架构模式（数据层 fetchHtml+关卡化 / 组件层五态机+监测注册 / 页面层双栏布局，三层解耦）', '多 CORS 代理 fallback 模式（PROXIES 数组 + for 循环 + try-catch + 15s 超时，单代理失效自动切换）', 'h2/h3 标题分割关卡化算法（DOMParser 解析 + querySelectorAll 遍历 + 按 heading 切块 + 提取 p/code/ul 为步骤）', '法则 5 主题双适配实战（[data-theme=pixel-spectrum] 彩虹流动 + [data-theme=pixel-crow] 乌鸦虹彩，单 CSS 文件双选择器）'],
+    date: '2026-07-30',
+  },
 ]
 
 
@@ -1762,6 +1980,7 @@ function buildFileTree(): FileTreeNode[] {
           { name: 'InteractiveLesson/', type: 'dir' },
           { name: 'LoginModal/', type: 'dir' },
           { name: 'Navbar/', type: 'dir' },
+          { name: 'NibbleButton/', type: 'dir' },
           { name: 'VersionHistory/', type: 'dir' },
         ]},
         { name: 'config', type: 'dir', children: [
@@ -1780,6 +1999,7 @@ function buildFileTree(): FileTreeNode[] {
           { name: 'achievements.ts', type: 'file', lines: 60 },
           { name: 'lessonContent.ts', type: 'file', lines: 12000 },
           { name: 'mockData.ts', type: 'file', lines: 1200 },
+          { name: 'nibbleLevels.ts', type: 'file', lines: 200 },
           { name: 'projectDocs.ts', type: 'file', lines: 1200 },
           { name: 'runoobTopics.ts', type: 'file', lines: 400 },
           { name: 'sourceCodeData.ts', type: 'file', lines: 600 },
@@ -1787,7 +2007,7 @@ function buildFileTree(): FileTreeNode[] {
         { name: 'pages', type: 'dir', children: [
           { name: 'Home/', type: 'dir' }, { name: 'LevelMap/', type: 'dir' }, { name: 'LevelDetail/', type: 'dir' },
           { name: 'LearningPath/', type: 'dir' }, { name: 'Achievements/', type: 'dir' }, { name: 'Leaderboard/', type: 'dir' },
-          { name: 'SourceExplorer/', type: 'dir' }, { name: 'MonitorDashboard/', type: 'dir' },
+          { name: 'SourceExplorer/', type: 'dir' }, { name: 'MonitorDashboard/', type: 'dir' }, { name: 'NibbleLevels/', type: 'dir' },
         ]},
         { name: 'types', type: 'dir', children: [
           { name: 'index.ts', type: 'file', lines: 80 },
@@ -1876,4 +2096,20 @@ export function estimatePackSizeKb(): number {
   }
 }
 
+// 导出主数据数组，供 packSplits.ts 动态拆分读取
+// 注意：这些常量只读，外部修改会被主包忽略（生成器内部还是用本地的 const）
+export const SPLIT_EXPORT_CONVENTIONS: CodingConvention[] = CONVENTIONS
+export const SPLIT_EXPORT_PATTERNS: DesignPattern[] = PATTERNS
+export const SPLIT_EXPORT_LESSONS: LessonLearned[] = LESSONS
+export const SPLIT_EXPORT_COMPONENTS: unknown[] = COMPONENTS
+export const SPLIT_EXPORT_ROADMAP: unknown[] = ROADMAP
+export const SPLIT_EXPORT_BUILD: unknown = BUILD
+export const SPLIT_EXPORT_CONVERSATIONS: ConversationLogEntry[] = CONVERSATION_LOG
+export const SPLIT_EXPORT_QUICKSTART: string[] = QUICKSTART_LLM
+export const SPLIT_EXPORT_PRECOMMIT: string[] = PRECOMMIT_CHECKLIST
+export const SPLIT_EXPORT_PROMPTS: Record<string, string> = PROMPT_TEMPLATES
+export const SPLIT_EXPORT_MODULES: ModuleInfo[] = MODULES
+
+// 原始导出（与 pack13 保持一致，不破坏外部引用）
 export { PACK_VERSION, PACK_SCHEMA_VERSION, PACK_BUILD }
+

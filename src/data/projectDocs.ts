@@ -33,7 +33,7 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v2.4'
+export const DOC_VERSION = 'v2.9'
 export const DOC_LAST_UPDATE = '2026-07-30'
 export const DOC_CHANGES = [
   '扩展至60关：新增网络编程、系统模块、PyQt、FastAPI、Django、NumPy/Pandas/Matplotlib/Jupyter/Pillow 进阶、R 语言、内置函数与数学模块、爬虫与自动化、FastAPI/Django 实战项目、R 数据 IO 与绘图',
@@ -52,7 +52,12 @@ export const DOC_CHANGES = [
   'v2.1：用户要求"每次对话都推"pack11 — 新增 meta-workflow 编码约定：每轮对话 POLISH 阶段 commit 完成后立即 git push origin master，不要等用户额外说"推送"；用户明确说"不推/本地调试先别推/等会儿推"才跳过。推送完成后在 5 句话总结里写明「已推送」+ commit range（如 198a46e..9e0eb65）+ GitHub Pages 重建提示（1-3分钟后上线）。第 14 条对话归档 conv-20260730-14。PACK_BUILD 10→11，DOC_VERSION v2.0→v2.1',
   'v2.2：对话七步闭环规则 pack12 — 新增 meta-workflow 编码约定：每轮对话必须依次执行 ① 回顾 CONVERSATION_LOG 历史对话逐条理解（不允许跳读，Darwin 独立评委原则）② 逐条适配本轮诉求与历史脉络 ③ 应用 5 个 Skill（Karpathy 四步+Darwin 棘轮+autoresearch 单文件+taste-skill 三旋钮+impeccable 四模式+python-quest-dev-process）④ 代码内主动设置局部监测（useEffect 中 registerGroup + reportHealth）⑤ 对接 AIAgentContext 暴露可调参数给 Agent 自主迭代 ⑥ POLISH 阶段省察 7 项遗漏（CONVERSATION_LOG/PACK_BUILD/DOC_VERSION/DOC_CHANGES/project_memory/lastModified/主题同步）⑦ 与当前 Web 内容无缝衔接（路由注册+导航链接+样式跟随主题+Pyodide+Gist 同步）。第 15 条对话归档 conv-20260730-15。PACK_BUILD 11→12，DOC_VERSION v2.1→v2.2',
   'v2.3：安装 Graphify 知识图谱 Skill pack13 — 主页新增『知识图谱』按钮（链接到 /python-web-try/graphify/graph.html）。Graphify (90K+⭐) 是面向 AI 编程助手的代码库知识图谱工具，使用 tree-sitter AST + Leiden 算法，3秒生成交互式可视化图谱（graph.html）+ 结构化数据（graph.json）+ 总览报告（graph_report.md）。Token 省降 71.5 倍。已安装 Skill 清单（7个）：Darwin/autoresearch/taste-skill/impeccable/python-quest-dev-process/Karpathy/Graphify。创建 public/graphify/ 目录存放生成产物。第 16 条对话归档 conv-20260730-16。PACK_BUILD 12→13，DOC_VERSION v2.2→v2.3',
-  'v2.4：动态调配元规则 + 用户思维模式元逻辑 pack14 — 创建 src/config/installedSkills.ts skill注册表（7条skill记录+6个动态查询函数），主页按钮改为遍历 webSkills 动态渲染（新增skill自动出现按钮+统计区自动+1），统计区新增"已装Skill"计数。经验包新增3条meta-workflow编码约定：①动态适配元规则（禁止硬编码可变数据）②用户思维模式元逻辑（动态调配→自动归类→举例子验证→跨界迁移→自动总结写入，五步闭环可跨界复用）③自动总结写入规则（每次对话后主动提炼可复用经验写入经验包）。消除分散硬编码，实现"新增skill=追加1条记录=全站自动感知"。第 17 条对话归档 conv-20260730-17。PACK_BUILD 13→14，DOC_VERSION v2.3→v2.4'
+  'v2.4：动态调配元规则 + 用户思维模式元逻辑 pack14 — 创建 src/config/installedSkills.ts skill注册表（7条skill记录+6个动态查询函数），主页按钮改为遍历 webSkills 动态渲染（新增skill自动出现按钮+统计区自动+1），统计区新增"已装Skill"计数。经验包新增3条meta-workflow编码约定：①动态适配元规则（禁止硬编码可变数据）②用户思维模式元逻辑（动态调配→自动归类→举例子验证→跨界迁移→自动总结写入，五步闭环可跨界复用）③自动总结写入规则（每次对话后主动提炼可复用经验写入经验包）。消除分散硬编码，实现"新增skill=追加1条记录=全站自动感知"。第 17 条对话归档 conv-20260730-17。PACK_BUILD 13→14，DOC_VERSION v2.3→v2.4',
+  'v2.5：经验包拆分 + 用户思维模式动态归纳 pack15 — 创建 src/ai/packSplits.ts：6个领域子包并行导出（conventions/patterns/lessons/conversations/user-logic/quickstart），主包 generateExperiencePack() 接口完全不变，子包懒加载主包内部数据避免双份维护，主包137KB拆成6个10-30KB精包子包按需读取。创建 UserLogicPanel 组件（4Tab：5步自我进化闭环+8个可展开洞察+词频关键词云+硬约束清单），主页新增"🧠思维模式归纳"按钮直达。经验包追加2条meta-workflow约定：经验包拆分不破坏原则、用户思维模式动态归纳模式。第 18 条对话归档 conv-20260730-18。PACK_BUILD 14→15，DOC_VERSION v2.4→v2.5',
+  'v2.6：版块实时更新规则 + 经验包展示说明面板 pack16 — 在 packSplits.ts 新增 generatePackOverview() 函数：12个版块（架构总览/功能模块/编码约定/设计模式/历史教训/可复用组件/路线图/构建约束/快速上手/提交前自检/Prompt模板/对话归档）各含独立更新规则+分类分布+数据源标注+最近更新pack号，所有统计从实际数组 .length 实时计算不硬编码。创建 ExperiencePackOverview 组件（2Tab：版块详情12个可展开卡片含说明/更新规则/分类分布/数据源 + 更新规则汇总），主页新增"📦经验包展示"按钮直达。经验包追加2条meta-workflow约定：版块实时更新规则、经验包展示说明必须实时可访问。第 19 条对话归档 conv-20260730-19。PACK_BUILD 15→16，DOC_VERSION v2.5→v2.6',
+  'v2.7：新功能适配法则 pack17 — 用户要求"对源码项目进行分配，编写一套新功能适配法则"。基于现有 MODULES 数组（30+模块9大类）扩展 CodingConvention.category 和 DesignPattern.category 联合类型新增 feature-adaptation 分类，编写 8 条新功能适配法则（①分层归属决策 ②扩展点优先 ③动态适配禁止硬编码 ④监测主动注册 ⑤主题同步双适配 ⑥路由+导航+文档三注册 ⑦经验包写回闭环 ⑧Karpathy四步流水线）+ 2 条设计模式（新功能分层归属决策树 7 层判定 + 新功能五维适配检查清单 架构/数据/监测/主题/文档维）。法则覆盖从"放哪层→怎么扩展→怎么不破坏架构→怎么写回经验包"的完整决策链，让下一个 AI 模型新增功能时有明确规则可依。第 20 条对话归档 conv-20260730-20。PACK_BUILD 16→17，DOC_VERSION v2.6→v2.7',
+  'v2.8：蚕食爬取按钮 pack18 — 用户要求"编写一个蚕食按钮，根据 scrapling 对网站进行内容爬取，将爬取内容关卡化处理使用户易于学习"。新增 3 个文件落地法则 1-8 全链路：① src/data/nibbleLevels.ts 数据层（fetchHtml 多 CORS 代理 fallback + nibbleToLevels h2/h3 标题分割算法 + NibbleLevel/NibbleStep/NibbleChallenge 三层类型）② src/components/NibbleButton/NibbleButton.tsx 组件层（监测主动注册 + URL输入 + fetching/parsing/done/error 五态 + 像素风 3D 按钮）③ src/pages/NibbleLevels/NibbleLevels.tsx 页面层（双栏布局 + 步骤指示器 + 挑战展示）。法则 6 三注册完成：App.tsx 路由 /nibble、Navbar 导航"蚕食爬取"、projectDocs.ts FILE_TREE 追加 NibbleButton+NibbleLevels 节点。法则 5 主题双适配：NibbleButton.css 和 NibbleLevels.css 同时支持 [data-theme=pixel-spectrum] 彩虹流动 + [data-theme=pixel-crow] 乌鸦虹彩。第 21 条对话归档 conv-20260730-21。PACK_BUILD 17→18，DOC_VERSION v2.7→v2.8',
+  'v2.9：Skill 实验室 + taste-skill/impeccable 审美落地 pack19 — 用户批评"重构UI与界面时完全没有调用 taste skill 与另一个，审美低下"。新增 4 个文件：① src/components/SkillViewer/SkillViewer.tsx + .css（双栏实验室面板：左列表 + 右详情，每个 Skill 展示核心规则含正反例 + 调用命令一键复制 + 调用示例 + Web 入口跳转）② src/pages/SkillLab/SkillLab.tsx + .css（承载 SkillViewer 的页面壳）③ 扩展 src/config/installedSkills.ts：InstalledSkill 接口新增 rules/invokeCommand/invokeExample 三字段，8 个 Skill 全部补全核心规则（共 18 条规则，含 taste-skill 三旋钮 anti-slop/字体反默认/LILA + impeccable 四规则 no-card-in-card/radius-unified/spacing-scale/console-leftover + Karpathy 三原则 + Darwin 三原则 + autoresearch 二原则 + dev-process 二原则 + graphify/scrapling 各一原则）。严格应用 taste-skill：所有间距用 8 倍数显式声明、字体用 var(--font-mono) JetBrains Mono（非 Inter）、颜色全用 var(--color-accent-*)（非 #7c3aed/#6366f1/#3b82f6 紫蓝）。严格应用 impeccable：面板内用 .skill-section 分隔不嵌套 .card、圆角全用 var(--radius-*)、间距全用 8 倍数、无 console 残留。法则 6 三注册：App.tsx 路由 /skills、Navbar 导航"Skill 实验室"、projectDocs.ts FILE_TREE 追加 SkillViewer+SkillLab 节点。法则 5 主题双适配：pixel-spectrum 彩虹流动边框 + pixel-crow 乌鸦虹彩光泽。第 22 条对话归档 conv-20260730-22。PACK_BUILD 18→19，DOC_VERSION v2.8→v2.9'
 ]
 
 // ===== 技术栈 =====
@@ -88,7 +93,9 @@ export const FILE_TREE: FileNode[] = [
           { name: 'ChallengeArena', type: 'file', path: 'src/components/ChallengeArena', desc: '挑战竞技场（代码提交 + 测试验证）' },
           { name: 'LoginModal', type: 'file', path: 'src/components/LoginModal', desc: 'GitHub PAT 登录弹窗（含 Token 获取指南）' },
           { name: 'VersionHistory', type: 'file', path: 'src/components/VersionHistory', desc: '版本历史查看（只读快照 + 关卡进度）' },
-          { name: 'Button', type: 'file', path: 'src/components/Button', desc: '通用按钮组件' }
+          { name: 'Button', type: 'file', path: 'src/components/Button', desc: '通用按钮组件' },
+          { name: 'NibbleButton', type: 'file', path: 'src/components/NibbleButton', desc: '蚕食爬取按钮（URL输入 + 多CORS代理fallback + 进度展示 + 监测主动注册）' },
+          { name: 'SkillViewer', type: 'file', path: 'src/components/SkillViewer', desc: 'Skill 查看按钮（双栏实验室面板 + 规则正反例 + 调用命令复制 + 主题双适配）' }
         ]
       },
       {
@@ -137,7 +144,10 @@ export const FILE_TREE: FileNode[] = [
           { name: 'Achievements', type: 'file', path: 'src/pages/Achievements', desc: '成就页面' },
           { name: 'Leaderboard', type: 'file', path: 'src/pages/Leaderboard', desc: '排行榜页面' },
           { name: 'LearningPath', type: 'file', path: 'src/pages/LearningPath', desc: '学习路径页面' },
-          { name: 'SourceExplorer', type: 'file', path: 'src/pages/SourceExplorer', desc: '源码探索页面（本页面）' }
+          { name: 'SourceExplorer', type: 'file', path: 'src/pages/SourceExplorer', desc: '源码探索页面（本页面）' },
+          { name: 'MonitorDashboard', type: 'file', path: 'src/pages/MonitorDashboard', desc: '监测仪表盘页面（健康/性能/经验包/AI Agent 4 Tab）' },
+          { name: 'NibbleLevels', type: 'file', path: 'src/pages/NibbleLevels', desc: '蚕食关卡化页面（双栏布局 + 步骤导航 + 挑战展示 + 双主题适配）' },
+          { name: 'SkillLab', type: 'file', path: 'src/pages/SkillLab', desc: 'Skill 实验室页面（承载 SkillViewer + 规则查阅 + 调用命令复制）' }
         ]
       },
       { name: 'App.tsx', type: 'file', path: 'src/App.tsx', desc: '根组件（路由表 + Navbar + Footer）' },
@@ -214,6 +224,18 @@ export const FEATURES: FeatureItem[] = [
     title: '响应式设计',
     desc: 'CSS 变量主题系统，移动端适配，无第三方 UI 库依赖',
     files: ['src/index.css', 'src/App.css', '各组件CSS文件']
+  },
+  {
+    icon: '🐛',
+    title: '蚕食爬取关卡化',
+    desc: '基于 Scrapling 思路的网页内容爬取按钮，多 CORS 代理 fallback（allorigins/corsproxy/thingproxy）+ DOMParser 解析 + h2/h3 标题分割算法，自动将网页内容关卡化为 NibbleLevel/NibbleStep/NibbleChallenge 三层数据结构，每关含讲解/示例/挑战，让用户像吃桑叶一样逐关消化网页知识',
+    files: ['src/components/NibbleButton/NibbleButton.tsx', 'src/data/nibbleLevels.ts', 'src/pages/NibbleLevels/NibbleLevels.tsx']
+  },
+  {
+    icon: '🧪',
+    title: 'Skill 实验室',
+    desc: '让 8 个已安装 Skill 真正能被查看和使用：双栏实验室面板（左列表 + 右详情），每个 Skill 展示核心规则（含正反例对照）+ 调用命令（一键复制到剪贴板）+ 调用示例代码 + Web 入口跳转。严格应用 taste-skill 三旋钮（anti-slop/字体反默认/LILA 反紫蓝）+ impeccable 规则（no-card-in-card/radius-unified/spacing-scale），双主题适配（pixel-spectrum 彩虹流动 + pixel-crow 乌鸦虹彩）',
+    files: ['src/components/SkillViewer/SkillViewer.tsx', 'src/components/SkillViewer/SkillViewer.css', 'src/pages/SkillLab/SkillLab.tsx', 'src/config/installedSkills.ts']
   }
 ]
 

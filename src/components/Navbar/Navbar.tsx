@@ -83,6 +83,12 @@ function Navbar({ showUserInfo }: NavbarProps) {
             <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>
               排行榜
             </Link>
+            <Link to="/nibble" className={`nav-link ${location.pathname === '/nibble' ? 'active' : ''}`}>
+              蚕食爬取
+            </Link>
+            <Link to="/skills" className={`nav-link ${location.pathname === '/skills' ? 'active' : ''}`}>
+              Skill 实验室
+            </Link>
           </div>
 
           <div className="navbar-actions">

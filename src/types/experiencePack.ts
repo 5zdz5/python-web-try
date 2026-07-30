@@ -90,7 +90,7 @@ export interface FileTreeNode {
 export interface CodingConvention {
   category: 'naming' | 'structure' | 'pattern' | 'state' | 'style' | 'import'
     | 'anti-slop' | 'typography' | 'color' | 'meta-workflow' | 'karpathy'
-    | 'darwin-ratchet' | 'autoresearch'
+    | 'darwin-ratchet' | 'autoresearch' | 'feature-adaptation'
   rule: string
   description: string
   // 正例/反例
@@ -104,7 +104,7 @@ export interface CodingConvention {
 export interface DesignPattern {
   name: string
   category: 'context' | 'component' | 'state' | 'data' | 'error-handling' | 'snapshot'
-    | 'external-skill' | 'monitor' | 'design' | 'content' | 'karpathy'
+    | 'external-skill' | 'monitor' | 'design' | 'content' | 'karpathy' | 'feature-adaptation'
   filePattern: string             // 哪类文件使用
   where: string                   // 示例位置
   description: string
