@@ -45,7 +45,7 @@
   /* 字体 */
   --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: 'Orbitron', 'Rajdhani', 'Noto Sans SC', sans-serif;
-  --font-mono: 'Courier New', 'JetBrains Mono', 'Consolas', monospace;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Courier New', 'Consolas', monospace;
 
   /* 圆角 */
   --radius-sm: 2px;

@@ -27,7 +27,7 @@
 
 .patrol-fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-accent-secondary) 50%, transparent);
 }
 
 .patrol-fab.active {
@@ -36,8 +36,8 @@
 }
 
 @keyframes patrol-pulse {
-  0%, 100% { box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5); }
-  50% { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.8); }
+  0%, 100% { box-shadow: 0 4px 12px color-mix(in srgb, var(--color-error) 50%, transparent); }
+  50% { box-shadow: 0 4px 20px color-mix(in srgb, var(--color-error) 80%, transparent); }
 }
 
 .patrol-progress-ring {

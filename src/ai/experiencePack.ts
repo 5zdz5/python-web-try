@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 7
+const PACK_BUILD = 8
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -1540,6 +1540,14 @@ const CONVERSATION_LOG = [
     summary: '按 Karpathy 四步流水线对全项目进行20轮筛查迭代：类型安全(60→0错误)、any清理(40处→约15处可接受的API/性能相关)、CSS硬编码色(33处→CSS变量)、localStorage保护(3处加try-catch)、事件监听器(5个全有cleanup)、监测覆盖(7/7页面)、ErrorBoundary(全app)、XSS(静态内容低风险)',
     filesModified: ['src/types/experiencePack.ts', 'src/ai/experiencePack.ts', 'src/data/lessonContent.ts', 'src/data/achievements.ts', 'src/context/AIAgentContext.tsx', 'src/context/AuthContext.tsx', 'src/context/MonitorContext.tsx', 'src/context/ProgressContext.tsx', 'src/config/github.ts', 'src/config/versionManager.ts', 'src/components/ExperiencePackPanel.tsx', 'src/components/AIAgentPanel.tsx', 'src/components/VersionHistory/VersionHistory.tsx', 'src/components/InteractiveLesson/InteractiveLesson.tsx', 'src/components/ChallengeArena/ChallengeArena.css', 'src/components/PatrolButton.css', 'src/components/ExperiencePackPanel.css', 'src/pages/Achievements/Achievements.css', 'src/pages/Leaderboard/Leaderboard.css', 'src/components/LoginModal/LoginModal.css', 'src/components/CodeEditor/CodeEditor.css', 'src/index.ts', 'src/pages/LearningPath/LearningPath.tsx', 'src/pages/Leaderboard/Leaderboard.tsx', 'src/data/projectDocs.ts'],
     patternsAdded: ['VersionProgressData 类型接口', 'LeaderboardEntry 类型接口', 'sanitizeProgress/migrateProgress 用 unknown 替代 any', 'CSS 硬编码色→CSS变量 33处', 'saveAuth/clearAuth/createSnapshot try-catch 保护', 'InteractiveStep 加 exercise/answer/explanation 类型', 'ConventionCategory 扩展 anti-slop/typography/color/meta-workflow/karpathy', 'DesignPatternCategory 扩展 external-skill/monitor/design/content/karpathy'],
+    date: '2026-07-30',
+  },
+  // —— pack8 新增：按 Skill 进行艺术风格优化 ——
+  {
+    id: 'conv-20260730-12',
+    summary: '按 taste-skill + impeccable 双 Skill 对全项目 CSS 进行艺术风格优化：修复 LILA 紫蓝违规(ErrorBoundary 18处/SourceExplorer 30+处/VersionHistory 10+处/PatrolButton 3处)、圆角统一为 --radius-* 变量、字体反默认(--font-mono JetBrains Mono 提前)、去除 CSS 变量 fallback 硬编码色',
+    filesModified: ['src/index.css', 'src/components/ErrorBoundary.css', 'src/pages/SourceExplorer/SourceExplorer.css', 'src/components/VersionHistory/VersionHistory.css', 'src/components/PatrolButton.css', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
+    patternsAdded: ['LILA 紫蓝色→CSS变量+color-mix 替换模式', '圆角硬编码→--radius-* 变量统一', 'CSS 变量 fallback 去除规则', '--font-mono 字体栈顺序修正(JetBrains Mono优先)'],
     date: '2026-07-30',
   },
 ]
