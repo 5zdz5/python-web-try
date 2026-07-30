@@ -384,8 +384,8 @@ export function generateQuickstartPack() {
     quickstart: QUICKSTART_LLM,
     precommitChecklist: PRECOMMIT_CHECKLIST,
     promptTemplates: PROMPT_TEMPLATES,
-    modules: (MODULES as unknown[]).map((m: any) => ({ id: m.id, name: m.name, path: m.path })),
-    components: (COMPONENTS as unknown[]).map((c: any) => ({ id: c.id, name: c.name })),
+    modules: (MODULES as unknown as {id: string; name: string; path: string}[]).map((m) => ({ id: m.id, name: m.name, path: m.path })),
+    components: (COMPONENTS as unknown as {id: string; name: string}[]).map((c) => ({ id: c.id, name: c.name })),
     roadmap: ROADMAP,
     buildConstraints: BUILD,
   }
