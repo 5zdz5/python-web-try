@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 21
+const PACK_BUILD = 22
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -670,6 +670,13 @@ const CONVENTIONS: CodingConvention[] = [
     goodExample: '全局调配阶段6 → inspectCodebase → hasNewPack=true → pushPackToWiki → 加入待推送队列 → TRAE IDE Agent 通过 lark-wiki skill 消费 → 飞书知识库更新',
     badExample: '① 经验包更新了但不推 Wiki → Wiki 内容滞后 → 团队成员看到过期信息；② 每次都推不监察 → 重复推送相同版本 → 浪费配额；③ 推送失败不记录 → totalFailures 不增 → 无法发现推送管道问题',
     consequence: '不同步 Wiki → 项目知识与 Wiki 脱节 → 团队成员/新 AI 模型从 Wiki 读到过期信息 → 决策基于错误前提 → 项目方向偏离；Agent Wiki 同步让 Wiki 成为"活档案"，与经验包+代码三向同步',
+  },
+  // —— pack22 新增：Wiki 同步自主决策铁律（用户原话："下次不用问"） ——
+  { category: 'meta-workflow', rule: 'Wiki 同步自主决策：Agent 监察代码后若发现新 PACK_BUILD/DOC_VERSION/代码更改，直接推送到飞书 Wiki，不询问用户',
+    description: '用户 pack22 原话："下次不用问"（指 Wiki 推送确认）。本规则是 pack21"Agent Wiki 同步铁律"的补充，用于界定 Agent 在 Wiki 推送场景下的自主决策边界：① 自主推送边界内不询问 — 以下场景直接推送，不等待用户确认：默认目标空间「Python Quest 经验包」下的文档更新、默认格式 markdown 写入、按 PACK_BUILD/DOC_VERSION 去重的常规迭代推送；② 需询问边界（仅当出现时才问）：目标空间变更（推到其他知识库）、文档格式变更（如 XML/画板而非默认 markdown）、推送连续失败≥3次需要排查、用户明确说"确认一下再推"；③ 本规则自动适用后续所有迭代，无需每次在对话中重复确认"要不要推"；④ 与 pack20"一致推送铁律"精神一致：都是减少用户"口头确认开销"，让 Agent 在边界内自主闭环，不把用户当人工交换机。',
+    goodExample: 'runGlobalOrchestration 阶段6 → hasNewPack=true → pushPackToWiki → 完成后在对话总结里写"已推送 Wiki：PACK_BUILD=22 经验包总览节点"',
+    badExample: '① hasNewPack=true 但还是问用户"要推 Wiki 吗"（违反自主决策，增加用户负担）；② 目标空间变更但不询问 → 推错知识库导致信息泄露；③ 连错3次不报告 → 用户以为推成功但实际失败',
+    consequence: '缺乏自主决策边界 → 每次推送都要用户点确认 → 20 次迭代要确认 20 次 → 用户被当作人工流程节点，体验灾难；自主决策铁律在保证安全（非默认场景才询问）的前提下，把确认开销降为 0，让 Agent 真正"能干活、自己闭环"',
   },
   // —— pack12 新增：对话七步闭环规则（用户要求"回顾对话+适配+应用skill+局部监测对接agent+省察遗漏+与web无缝衔接"） ——
   { category: 'meta-workflow', rule: '对话七步闭环：每轮对话必须依次执行 ① 回顾历史对话 ② 逐条适配 ③ 应用 Skill ④ 设置代码局部监测 ⑤ 对接 Agent 运行 ⑥ 省察遗漏 ⑦ 与当前 Web 内容无缝衔接',
@@ -1985,6 +1992,14 @@ const CONVERSATION_LOG = [
     summary: '用户原话："检查一下之前遗漏，省察代码，最后把这项能力写入agent，让agnet监察后推到Wiki，更改也推到Wiki，你再改"。先省察 pack19/pack20 提交：路由/导航/监测注册三注册完整，无遗漏。然后创建 src/ai/wikiSync.ts（430 行）实现 Agent Wiki 同步核心能力：① inspectCodebase() 监察代码状态（PACK_BUILD/DOC_VERSION/模块数/约定数/对话归档数/监测摘要/待推送队列长度，对比上次推送判断 hasNewPack/hasNewDocVersion）② buildPackWikiMarkdown()/buildChangesWikiMarkdown() 构建经验包/代码更改的 Wiki markdown 文档 ③ pushPackToWiki()/pushChangesToWiki() 推送（浏览器端写入 localStorage 待推送队列，供 TRAE IDE Agent 通过 lark-wiki skill 消费；可选通过 GitHub API fetch+token 直接更新 wiki 文件）④ hashContent() djb2 哈希去重 ⑤ loadPendingQueue()/clearPendingQueue() 队列管理 ⑥ applyPushToState() 状态更新。扩展 src/types/ai.ts：OrchestrationEntryType 新增 wiki-push，新增 WikiPushTarget/WikiPushRecord/WikiSyncState 三接口。扩展 src/context/AIAgentContext.tsx：新增 wikiSync 状态 + 持久化 + inspectAndPushToWiki() 独立调用入口 + updateWikiSyncConfig() 配置开关，runGlobalOrchestration 新增阶段 6 Wiki 推送（6a 经验包推送+6b 代码更改推送+6c 状态应用），AGENT_KEY_PREFIXES 加入 wiki-sync/wiki-pending 两 key，value 暴露 wikiSync/inspectAndPushToWiki/updateWikiSyncConfig 三能力给 Agent。经验包新增 1 条 meta-workflow 编码约定"Agent Wiki 同步铁律"。PACK_BUILD 20→21，DOC_VERSION v3.0→v3.1',
     filesModified: ['src/ai/wikiSync.ts', 'src/types/ai.ts', 'src/context/AIAgentContext.tsx', 'src/ai/experiencePack.ts', 'src/data/projectDocs.ts'],
     patternsAdded: ['Agent Wiki 同步模式（inspect→build→push→dedupe 四步，浏览器端入队+TRAE IDE 消费+可选 GitHub API 直推三通道）', 'runGlobalOrchestration 阶段 6 Wiki 推送（经验包推送+代码更改推送双通道，基于 PACK_BUILD/DOC_VERSION 去重）', 'WikiSyncState 持久化模式（lastPackBuildPushed/lastDocVersionPushed 去重锚点 + pushHistory 审计轨迹 + totalPushes/totalFailures 健康度）', 'WikiPushRecord 状态机（pending→success/failed/skipped，contentHash 去重）'],
+    date: '2026-07-30',
+  },
+  // —— pack22 新增：Wiki 自主决策 + 20 次迭代验证通过（用户原话"继续"+"下次不用问"） ——
+  {
+    id: 'conv-20260730-25',
+    summary: '用户原话："测试迭代20次"→完成后用户说"下次不用问"→"继续"。① 创建 scripts/test-wikisync-iter.mjs 自动化测试脚本（puppeteer 连接浏览器，20 次迭代模拟 PACK_BUILD 22→41 递增，验证 inspectCodebase 监察+pushPackToWiki 去重+pushChangesToWiki 推送+applyPushToState 状态更新+localStorage 持久化），20/20 迭代全部通过，经验包推送 20/20，代码更改推送 20/20，totalFailures=0，pushHistoryLen=30（上限自动淘汰），localStorage wiki-sync 8 字段+wiki-pending 队列 40 条全部正确持久化，测试报告保存在 test-reports/。② 用户说"下次不用问"→新增 pack22 meta-workflow 编码约定"Wiki 同步自主决策铁律"：默认目标空间「Python Quest 经验包」+默认 markdown 格式+按去重规则的常规推送，Agent 自主决策直接推不询问；仅目标空间变更/格式变更/连错≥3次/用户明确说要确认 这四类场景才询问。③ 首次飞书 Wiki 推送落地：创建知识空间「Python Quest 经验包」(space_id=7668337248428903362) + wiki 节点「经验包总览 (pack21, v3.1)」(node_token=GYBew6WWLimAgZkezy9cOU5cnsc, doc_token=U0U2d005Iov5JIxpssoc1ArenBg)，写入 pack21 经验包 markdown 正文，revision_id=3 成功，访问链接 https://jcnb0xfc41jh.feishu.cn/wiki/GYBew6WWLimAgZkezy9cOU5cnsc 。PACK_BUILD 21→22，DOC_VERSION v3.1→v3.2',
+    filesModified: ['src/ai/experiencePack.ts', 'src/data/projectDocs.ts', 'scripts/test-wikisync-iter.mjs'],
+    patternsAdded: ['Wiki 同步自主决策边界模式（默认目标/默认格式/去重规则内不询问，非默认场景才询问，减少用户确认开销）', 'wikiSync 20 次迭代验证脚本模式（puppeteer 浏览器端运行，PACK_BUILD 递增模拟→监察→推送→去重→持久化全链路验证）', '飞书 Wiki 首次落地三流程（创建知识空间+创建 wiki 节点+用 lark-doc overwrite 写入正文）'],
     date: '2026-07-30',
   },
 ]
