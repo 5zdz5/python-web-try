@@ -27,7 +27,7 @@ import {
   processPendingQueue, pushToWikiAsync, buildPackWikiMarkdown, buildChangesWikiMarkdown
 } from '../ai/wikiSync'
 import { DEFAULT_LLM_CONFIG, LLM_CONFIG_KEY, testLLMConnection } from '../ai/llmClient'
-import { analyzeWithLLM } from '../ai/llmAdvisor'
+import { analyzeWithLLM, computeLLMGain } from '../ai/llmAdvisor'
 import { DEFAULT_SKILL_TRAINING_CONFIG, getSkillTrainingSummary } from '../ai/skillTrainer'
 import { CURRENT_VERSION } from '../config/versionManager'
 import { useMonitor } from './MonitorContext'
@@ -120,6 +120,15 @@ interface AIAgentContextValue {
   skillTrainingConfig: SkillTrainingConfig
   skillCompliance: SkillCompliance[]
   updateSkillTrainingConfig: (patch: Partial<SkillTrainingConfig>) => void
+  // pack32 LLM 训练统计
+  llmTrainingStats: {
+    totalAnalysis: number
+    totalSuggestions: number
+    adoptedCount: number
+    violatedCount: number
+    qTableFeedbackCount: number
+    lastGain: number
+  }
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -216,6 +225,16 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   // pack31 Skill 训练：skill 规则注入 LLM prompt + 合规检测
   const [skillTrainingConfig, setSkillTrainingConfig] = useState<SkillTrainingConfig>(DEFAULT_SKILL_TRAINING_CONFIG)
   const [skillCompliance, setSkillCompliance] = useState<SkillCompliance[]>([])
+  // pack32 LLM 训练统计：采纳率/违规率/Q-table 反馈
+  const [llmTrainingStats, setLlmTrainingStats] = useState({
+    totalAnalysis: 0,          // LLM 分析总次数
+    totalSuggestions: 0,       // LLM 输出的建议总数
+    adoptedCount: 0,           // 被采纳的建议数
+    violatedCount: 0,          // 被合规检测拦截的建议数
+    qTableFeedbackCount: 0,    // Q-table 反馈次数
+    lastGain: 0,               // 最近一次反馈的 gain
+  })
+  const llmAutoTrainTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -1124,10 +1143,18 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       setLlmAnalysis(result)
       setSkillCompliance(compliance)
 
+      // pack32: 更新 LLM 训练统计
+      const violationCount = compliance.filter(c => c.status === 'violation').length
+      setLlmTrainingStats(prev => ({
+        ...prev,
+        totalAnalysis: prev.totalAnalysis + 1,
+        totalSuggestions: prev.totalSuggestions + result.suggestions.length,
+        violatedCount: prev.violatedCount + violationCount,
+      }))
+
       if (result.error) {
         monitor.logEvent('error', 'agent', `LLM 分析失败：${result.error}`)
       } else {
-        const violationCount = compliance.filter(c => c.status === 'violation').length
         monitor.logEvent('info', 'agent', `LLM 分析完成：${result.suggestions.length} 条建议，置信度=${(result.confidence * 100).toFixed(0)}%${compliance.length > 0 ? `，合规检测=${compliance.length}项（${violationCount}违规）` : ''}`)
       }
 
@@ -1150,18 +1177,48 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     }
   }, [llmConfig, params, monitor, skillTrainingConfig])
 
-  /** 采纳 LLM 建议（应用参数变更到 TunableParams） */
+  // pack32: LLM 自动迭代训练定时器（每 10 分钟自动调 LLM 分析，需放在 runLLMAnalysis 定义之后）
+  useEffect(() => {
+    if (!llmConfig.enabled || !llmConfig.apiKey) {
+      if (llmAutoTrainTimerRef.current) {
+        clearInterval(llmAutoTrainTimerRef.current)
+        llmAutoTrainTimerRef.current = null
+      }
+      return
+    }
+    llmAutoTrainTimerRef.current = setInterval(() => {
+      runLLMAnalysis().catch(err => {
+        monitor.logEvent('warning', 'agent', `LLM 自动训练异常：${err instanceof Error ? err.message : String(err)}`)
+      })
+    }, 10 * 60 * 1000)
+    return () => {
+      if (llmAutoTrainTimerRef.current) clearInterval(llmAutoTrainTimerRef.current)
+    }
+  }, [llmConfig.enabled, llmConfig.apiKey, runLLMAnalysis, monitor])
+
+  /** 采纳 LLM 建议（应用参数变更到 TunableParams；pack32: 反馈到 Q-table） */
   const applyLLMSuggestion = useCallback((suggestionId: string): boolean => {
     if (!llmAnalysis) return false
     const suggestion = llmAnalysis.suggestions.find(s => s.id === suggestionId)
     if (!suggestion) return false
-    if (!suggestion.paramChanges || Object.keys(suggestion.paramChanges).length === 0) {
+
+    // pack32: 采纳前记录当前分数（用于 gain 计算）
+    const currentMetrics = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
+    const scoreBefore = computeScores(currentMetrics).overall
+
+    const isParamSuggestion = suggestion.paramChanges && Object.keys(suggestion.paramChanges).length > 0
+
+    if (!isParamSuggestion) {
       // 代码级建议：仅记录已采纳，不自动应用
       setAdoptedSuggestions(prev => [
         ...prev,
         { suggestionId, timestamp: new Date().toISOString(), target: suggestion.target, applied: false },
       ])
       monitor.logEvent('info', 'agent', `LLM 建议已采纳（代码级，需手动应用）：${suggestion.target}`)
+      // pack32: 代码级建议也反馈 Q-table（基础 gain）
+      const gain = computeLLMGain(scoreBefore, scoreBefore, 'code')
+      qTableRef.current = updateQTable(qTableRef.current, [`llm:${suggestionId}`], gain, params.agentLearningRate)
+      setLlmTrainingStats(prev => ({ ...prev, adoptedCount: prev.adoptedCount + 1, qTableFeedbackCount: prev.qTableFeedbackCount + 1, lastGain: gain }))
       return false
     }
 
@@ -1176,9 +1233,15 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       ...prev,
       { suggestionId, timestamp: new Date().toISOString(), target: suggestion.target, applied: true, paramChanges: suggestion.paramChanges },
     ])
-    monitor.logEvent('info', 'agent', `LLM 建议已采纳（参数级）：${suggestion.target} → ${JSON.stringify(suggestion.paramChanges)}`)
+
+    // pack32: 反馈到 Q-table（LLM 建议作为"策略"参与 Q-table 学习）
+    const gain = computeLLMGain(scoreBefore, scoreBefore, 'param')
+    qTableRef.current = updateQTable(qTableRef.current, [`llm:${suggestionId}`], gain, params.agentLearningRate)
+    setLlmTrainingStats(prev => ({ ...prev, adoptedCount: prev.adoptedCount + 1, qTableFeedbackCount: prev.qTableFeedbackCount + 1, lastGain: gain }))
+
+    monitor.logEvent('info', 'agent', `LLM 建议已采纳（参数级）：${suggestion.target} → ${JSON.stringify(suggestion.paramChanges)}，Q-table gain=${gain.toFixed(3)}`)
     return true
-  }, [llmAnalysis, monitor])
+  }, [llmAnalysis, monitor, params.agentLearningRate])
 
   /** 忽略 LLM 建议（从列表移除） */
   const dismissLLMSuggestion = useCallback((suggestionId: string) => {
@@ -1288,6 +1351,8 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     runLLMAnalysis, updateLLMConfig, applyLLMSuggestion, dismissLLMSuggestion, testLLM,
     // pack31 Skill 训练
     skillTrainingConfig, skillCompliance, updateSkillTrainingConfig,
+    // pack32 LLM 训练统计
+    llmTrainingStats,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>

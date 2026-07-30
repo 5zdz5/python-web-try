@@ -32,6 +32,7 @@ interface LLMResponseSchema {
     priority: 'high' | 'medium' | 'low'
     risk: number
     paramChanges?: Record<string, number | boolean>
+    codePatch?: string               // pack32: LLM 输出的代码补丁（diff 格式或代码片段）
     rationale?: string
   }>
 }
@@ -295,6 +296,7 @@ export async function analyzeWithLLM(
         priority: s.priority || 'medium',
         risk: typeof s.risk === 'number' ? Math.max(0, Math.min(1, s.risk)) : 0.5,
         paramChanges: Object.keys(validated).length > 0 ? validated : undefined,
+        codePatch: typeof s.codePatch === 'string' && s.codePatch.trim().length > 0 ? s.codePatch.trim() : undefined,
         rationale: s.rationale,
       }
     })
@@ -339,4 +341,23 @@ export async function analyzeWithLLM(
       compliance: [],
     }
   }
+}
+
+/**
+ * pack32: 计算 LLM 建议的 gain（用于反馈到 Q-table）
+ *
+ * gain = (scoreAfter - scoreBefore) / 100 + 基础奖励
+ *   - 参数级建议被采纳：基础奖励 0.05（鼓励参数优化）
+ *   - 代码级建议被采纳：基础奖励 0.1（代码改动价值更高）
+ *   - 分数提升：额外加分
+ *   - 分数下降：扣分（但基础奖励保底，避免负增益抑制探索）
+ */
+export function computeLLMGain(
+  scoreBefore: number,
+  scoreAfter: number,
+  suggestionType: 'param' | 'code',
+): number {
+  const baseReward = suggestionType === 'code' ? 0.1 : 0.05
+  const scoreDelta = (scoreAfter - scoreBefore) / 100
+  return Math.max(baseReward * 0.5, baseReward + scoreDelta) // 保底：基础奖励的一半
 }

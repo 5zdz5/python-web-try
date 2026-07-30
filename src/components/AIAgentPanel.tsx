@@ -147,6 +147,13 @@ function SuggestionCard({ suggestion, adopted, onAdopt, onDismiss, compliances }
       {suggestion.rationale && (
         <div className="aap-llm-suggestion-rationale">理由：{suggestion.rationale}</div>
       )}
+      {/* pack32: 代码补丁展示 */}
+      {suggestion.codePatch && (
+        <div className="aap-llm-suggestion-codepatch">
+          <div className="aap-codepatch-label">📋 代码补丁（需人工审查后应用）</div>
+          <pre className="aap-codepatch-content">{suggestion.codePatch}</pre>
+        </div>
+      )}
       {/* pack31: 该建议的 Skill 合规检测详情 */}
       {compliances && compliances.length > 0 && (
         <div className="aap-suggestion-compliance">
@@ -187,6 +194,7 @@ function AIAgentPanel() {
     llmConfig, llmAnalysis, adoptedSuggestions, isLLMAnalyzing,
     runLLMAnalysis, updateLLMConfig, applyLLMSuggestion, dismissLLMSuggestion, testLLM,
     skillTrainingConfig, skillCompliance, updateSkillTrainingConfig,
+    llmTrainingStats,
   } = useAIAgent()
 
   const [showParams, setShowParams] = useState(false)
@@ -881,6 +889,47 @@ function AIAgentPanel() {
                       <span className="aap-llm-adopted-time">{formatTime(a.timestamp).split(' ')[1]}</span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* pack32: LLM 训练统计 */}
+              {llmTrainingStats.totalAnalysis > 0 && (
+                <div className="aap-llm-training-stats">
+                  <div className="aap-llm-stats-title">LLM 训练统计</div>
+                  <div className="aap-llm-stats-grid">
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">{llmTrainingStats.totalAnalysis}</span>
+                      <span className="aap-llm-stat-label">分析次数</span>
+                    </div>
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">{llmTrainingStats.totalSuggestions}</span>
+                      <span className="aap-llm-stat-label">建议总数</span>
+                    </div>
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">{llmTrainingStats.adoptedCount}</span>
+                      <span className="aap-llm-stat-label">已采纳</span>
+                    </div>
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">
+                        {llmTrainingStats.totalSuggestions > 0
+                          ? `${((llmTrainingStats.adoptedCount / llmTrainingStats.totalSuggestions) * 100).toFixed(0)}%`
+                          : '-'}
+                      </span>
+                      <span className="aap-llm-stat-label">采纳率</span>
+                    </div>
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">{llmTrainingStats.violatedCount}</span>
+                      <span className="aap-llm-stat-label">违规拦截</span>
+                    </div>
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">{llmTrainingStats.qTableFeedbackCount}</span>
+                      <span className="aap-llm-stat-label">Q-table 反馈</span>
+                    </div>
+                    <div className="aap-llm-stat-item">
+                      <span className="aap-llm-stat-value">{llmTrainingStats.lastGain > 0 ? llmTrainingStats.lastGain.toFixed(3) : '-'}</span>
+                      <span className="aap-llm-stat-label">最近 gain</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
