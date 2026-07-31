@@ -205,6 +205,13 @@ export function nibbleToLevels(html: string, sourceUrl: string): NibbleResult {
 
   const levels: NibbleLevel[] = []
 
+  // 用 DocumentFragment 包裹手动收集的节点，为 buildLevelFromNode 提供真实的 childNodes/children
+  function wrapNodesInFragment(nodes: Node[]): DocumentFragment {
+    const frag = document.createDocumentFragment()
+    nodes.forEach((n) => frag.appendChild(n.cloneNode(true)))
+    return frag
+  }
+
   // 无标题 → 整个内容作为一个关卡
   if (headings.length === 0) {
     const level = buildLevelFromNode(content, 1, sourceTitle, sourceUrl, '本页内容', [])
@@ -215,7 +222,7 @@ export function nibbleToLevels(html: string, sourceUrl: string): NibbleResult {
     const introNodes = getNodesBefore(content, firstHeading)
     if (introNodes.length > 0) {
       const introLevel = buildLevelFromNode(
-        { children: introNodes } as unknown as ParentNode,
+        wrapNodesInFragment(introNodes),
         1,
         '导言',
         sourceUrl,
@@ -231,7 +238,7 @@ export function nibbleToLevels(html: string, sourceUrl: string): NibbleResult {
       const sectionNodes = getNodesBetween(content, heading, nextHeading)
       const title = cleanText(heading.textContent || `第 ${idx + 1} 节`)
       const level = buildLevelFromNode(
-        { children: sectionNodes } as unknown as ParentNode,
+        wrapNodesInFragment(sectionNodes),
         levels.length + 1,
         title,
         sourceUrl,

@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 34
+const PACK_BUILD = 35
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -1572,6 +1572,23 @@ const LESSONS: LessonLearned[] = [
     relatedFiles: ['src/components/InteractiveLesson/InteractiveLesson.tsx', 'src/ai/codeSelfOptimizer.ts',
       'src/components/CodeEditor/CodeEditor.tsx', 'src/pages/ProductDocs/ProductDocs.tsx', 'src/ai/wikiSync.ts'],
   },
+  {
+    id: 'L-nibble-parentnode-cast', date: '2026-08-01', category: 'fix',
+    title: '蚕食 undefined is not iterable — 伪 ParentNode 缺 childNodes，TypeScript as unknown 绕过了类型检查',
+    problem: '蚕食页面（NibbleLevels）爬取教程网址后抛 undefined is not iterable（cannot read property Symbol.iterator）。所有代理和 CORS 都正常，但关卡化过程中崩溃，重试无效。',
+    rootCause: 'nibbleLevels.ts nibbleToLevels 中两处 `{ children: introNodes } as unknown as ParentNode`——TypeScript 双断言 as unknown as ParentNode 直接绕过类型检查，把只有 children 属性的普通对象伪装成 ParentNode。但 buildLevelFromNode 内部 L317 实际消费的是 Array.from(nodeContainer.childNodes)，childNodes 根本不存在（为 undefined），Array.from(undefined) 抛出 Symbol.iterator 错误。这是典型的"伪造接口对象但字段不完整"漏洞，as unknown as 双断言让 tsc 0 错误但运行时炸锅。',
+    solution: '新增 wrapNodesInFragment(nodes: Node[]): DocumentFragment 辅助函数：用 document.createDocumentFragment() 建真实 DocumentFragment（原生实现 ParentNode + childNodes + children 全部接口）→ nodes 逐个 cloneNode(true) 后 appendChild 进 fragment → 传给 buildLevelFromNode。两处调用（导言关卡 introNodes + 每节 sectionNodes）全部替换成 wrapNodesInFragment(...)。好处：①不用手写伪造 {children, childNodes, querySelectorAll, ...} 长对象列表；②无需担心接口未来增加新字段不匹配；③cloneNode 后不破坏原 content 的 DOM 树结构（原逻辑 getNodesBetween 之后还在 headings.forEach 中继续遍历，但直接 appendChild 会把节点移走——必须 cloneNode）',
+    steps: [
+      '1. 看到 Symbol.iterator + undefined 组合时优先搜索 Array.from(...)/...扩展运算符/for...of 消费非数组值的位置',
+      '2. 看到 `as unknown as 目标接口` 双断言 → 立刻审查：对象字面量是否真的实现了目标接口所有消费方会用到的字段？',
+      '3. DOM 环境下如果需要"一组节点被当成 ParentNode 消费"，优先用 DocumentFragment，不要手搓伪造接口',
+      '4. 把节点放入容器时如果原节点还有其他地方要用（如 headings.forEach 后续迭代继续读 content），必须 cloneNode，否则节点会被移动而非复制导致后续 sibling 变空',
+      '5. 修复后跑单元测试：本地创建 DOMParser 模拟 HTML（含 h1/h2/p/pre 结构）→ 调 nibbleToLevels → 确认 levels.length > 0 → Array.from 无异常',
+    ],
+    verification: '本地用 DOMParser 构造 <html><body><h1>Test</h1><h2>A</h2><p>text a</p><h2>B</h2><p>text b</p></body></html> 调 nibbleToLevels(html, "https://test") → 返回 levels 数组含 2 个关卡（A/B）且每个关卡 steps.length ≥ 1，控制台无 Symbol.iterator 报错',
+    relatedFiles: ['src/data/nibbleLevels.ts', 'src/pages/NibbleLevels/NibbleLevels.tsx',
+      'src/components/NibbleButton/NibbleButton.tsx'],
+  },
 ]
 
 // ========================= 6. 可复用组件 =========================
@@ -2575,6 +2592,16 @@ const CONVERSATION_LOG = [
       'src/components/CodeEditor/CodeEditor.tsx', 'src/pages/ProductDocs/ProductDocs.tsx',
       'src/ai/wikiSync.ts', 'src/ai/experiencePack.ts'],
     patternsAdded: ['安全审计六步检查清单（grep dangerouslySetInnerHTML→grep localStorage.*token/apiKey→grep eval/new Function/innerHTML=→grep setInterval/setTimeout 查 cleanup→grep btoa/unescape/atob 查废弃API→修复后 tsc+build 双验证）', 'HTML转义铁律（任何注入 dangerouslySetInnerHTML 的内容必须先经过 escapeHtml 五字符全转义 &<>"\' ，再做 Markdown 格式化替换，顺序不能反）', 'Kimi cache tag 常量铁律（cache tag 必须是固定常量不能含 Date.now()/Math.random() 等可变值，且 kimiCreateCache 的 name 参数与 kimiMakeCacheReferenceMessage 的 tag 参数必须完全一致）'],
+    date: '2026-08-01',
+  },
+  // —— pack36 蚕食页面 undefined is not iterable 修复 + 推送核对 ——
+  // 用户原话："把这项搞好，再看有无没推的"
+  // conv-20260801-39 触发 rhythm-roll（39 mod 5 = 4，不触发；下一轮 40 触发）
+  {
+    id: 'conv-20260801-39',
+    summary: '用户原话"把这项搞好，再看有无没推的"，配合截图显示蚕食页面报错 undefined is not iterable（cannot read property Symbol(Symbol.iterator)）。Step1 git 核对：status working tree clean，origin/codex..HEAD unpushed 为空，没有未推内容。Step2 定位 bug：啃食页面数据层 nibbleLevels.ts 中 nibbleToLevels 两处调用 `{ children: introNodes } as unknown as ParentNode` 构建伪 ParentNode 传入 buildLevelFromNode，但 buildLevelFromNode 内部实际消费 Array.from(nodeContainer.childNodes) 而非 children，伪对象只有 children 属性无 childNodes → childNodes = undefined → Array.from(undefined) 抛 Symbol.iterator 错误；TypeScript as unknown as 双断言绕过了类型系统检查（教训见 L-nibble-parentnode-cast）。Step3 修复：新增 wrapNodesInFragment(nodes: Node[]): DocumentFragment 辅助函数用 document.createDocumentFragment() + cloneNode(true) 深拷贝 appendChild，提供原生 ParentNode 接口（含真实 childNodes/children/querySelectorAll），两处调用（导言关卡 introNodes + 每节 sectionNodes）全替换为 wrapNodesInFragment(...)，同时 cloneNode 保证原 DOM content 不被移动破坏后续迭代。Step4 验证：npx tsc --noEmit 0 错误；npm run build 2.19s 构建成功；本地 DOMParser 构造双 h2 模拟 HTML 调 nibbleToLevels 返回 levels 长度≥2 steps≥1。Step5 写回经验包：PACK_BUILD 34→35；LESSONS 追加 L-nibble-parentnode-cast（双断言绕过类型检查的识别清单+修复用原生 DocumentFragment 模式）；CONVERSATION_LOG 追加 conv-20260801-39',
+    filesModified: ['src/data/nibbleLevels.ts', 'src/ai/experiencePack.ts'],
+    patternsAdded: ['伪对象接口补全模式（as unknown as 双断言必须审核消费方实际用到的所有字段，或直接用原生 DocumentFragment/接口实现类替代"裸对象+断言"）', 'DOM容器构造用 DocumentFragment（需要给一组节点提供 ParentNode 接口时，不用手搓 {children,childNodes,querySelectorAll,...} 长列表，用 createDocumentFragment + appendChild(cloneNode) 提供原生完整实现）', 'cloneNode 防移动模式（appendChild 会移动节点而非复制，若原树后续还要用必须 cloneNode(true)，否则第二轮迭代时 sibling 节点已不在原来的位置导致漏关卡）'],
     date: '2026-08-01',
   },
 ]
