@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 33
+const PACK_BUILD = 34
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -1554,6 +1554,24 @@ const LESSONS: LessonLearned[] = [
     verification: '浏览器打开 /#/monitor → AI Agent Tab → 点「构建索引」→ 控制台无 TypeError: fs is not defined → 索引面板显示 totalFiles ≥ 90 且 fileSummaries 有具体路径',
     relatedFiles: ['src/ai/codebaseIndexer.ts', 'src/ai/localLLMCore.ts', 'vite.config.ts'],
   },
+  {
+    id: 'L-security-audit-pack35', date: '2026-08-01', category: 'security',
+    title: '安全审计5项漏洞修复（XSS + 缓存失效 + 定时器泄漏 + 转义不全 + 废弃API）',
+    problem: 'pack34 完成后做安全审计发现5项漏洞：①InteractiveLesson formatContent 未转义HTML直接注入dangerouslySetInnerHTML（CRITICAL XSS）；②codeSelfOptimizer Kimi cacheTag 用 Date.now()/60000 每分钟变化致缓存永不命中，且 cacheTag 与 cache name 不匹配（HIGH）；③CodeEditor runTimerRef 无 useEffect cleanup，组件卸载后 setTimeout 回调仍 setState（MEDIUM 内存泄漏）；④ProductDocs escapeHtml 缺 " 和 \' 转义（LOW 防御深度）；⑤wikiSync 用废弃的 btoa(unescape(encodeURIComponent())) 编码 UTF-8（LOW 废弃API）',
+    rootCause: '①formatContent 先做格式化再做替换，但跳过了 HTML 转义步骤——正确顺序是先 escapeHtml 再做 Markdown 替换；②cacheTag 用动态时间戳违反了 L-kimi-context-caching 铁律"tag 必须固定不变"，且 kimiCreateCache 的 name 参数与 kimiMakeCacheReferenceMessage 的 tag 参数不一致；③React 组件用 setTimeout/useRef 时忘记配对 useEffect cleanup；④escapeHtml 只转义 < > & 但漏了引号，若后续 Markdown 渲染器扩展支持属性（如 href）会成为真实 XSS；⑤unescape() 已被 MDN 标记 deprecated，部分环境可能移除',
+    solution: '5项修复：①formatContent 新增 escapeHtml 函数（&<>"\' 五字符全转义），先 escapeHtml(content) 再做 \\n\\n/<code>/<strong> 替换；②cacheTag 改为常量 KIMI_EXPERIENCE_CACHE_TAG="coding-experience-pack34"，kimiCreateCache 的 name 参数也用同一常量，确保 tag+name 完全一致；③CodeEditor 新增 useEffect cleanup 清理 runTimerRef，且 runTimerRef 声明在 useEffect 之前避免 TDZ；④ProductDocs escapeHtml 追加双引号和单引号转义；⑤wikiSync 新增 bytesToBase64(bytes: Uint8Array) 函数用 TextEncoder + btoa 替代 btoa(unescape(encodeURIComponent()))',
+    steps: [
+      '1. 全项目 grep dangerouslySetInnerHTML 找到所有使用点，逐个检查其内容是否经过 HTML 转义',
+      '2. grep localStorage.*token/apiKey 检查敏感数据存储是否安全（本次确认 token 只在 header 中传输不在 URL 中，OK）',
+      '3. grep eval/new Function/\.innerHTML= 确认无代码注入（本次 0 匹配，OK）',
+      '4. grep setInterval/setTimeout 检查定时器是否都有 cleanup（本次发现 CodeEditor 缺 cleanup，修复）',
+      '5. grep btoa/unescape/atob 检查废弃 API 使用（本次发现 wikiSync 用 unescape，修复）',
+      '6. 修复后跑 npx tsc --noEmit 确认 0 错误 + npm run build 确认构建通过',
+    ],
+    verification: 'npx tsc --noEmit 0 errors；npm run build 成功；grep "dangerouslySetInnerHTML" 确认所有使用点的内容都经过 escapeHtml；grep "unescape(" 确认 0 匹配',
+    relatedFiles: ['src/components/InteractiveLesson/InteractiveLesson.tsx', 'src/ai/codeSelfOptimizer.ts',
+      'src/components/CodeEditor/CodeEditor.tsx', 'src/pages/ProductDocs/ProductDocs.tsx', 'src/ai/wikiSync.ts'],
+  },
 ]
 
 // ========================= 6. 可复用组件 =========================
@@ -2545,6 +2563,18 @@ const CONVERSATION_LOG = [
       'src/ai/experiencePack.ts', 'src/data/projectDocs.ts',
       'src/config/versionManager.ts'],
     patternsAdded: ['代码补丁唯一匹配模式（CodePatch.oldSnippet 必须在目标文件 rawContent 中 match count === 1，0=不匹配拒绝，>1=多匹配歧义拒绝，绝不"模糊查找"或"近似替换"——这是补丁安全的根基）', 'Kimi Context Caching 双消息模式（第一步 kimiBuildExperienceCacheMessages 把 22 条经验包装成带 cache_control 标记的消息 kimiCreateCache 建缓存 → 第二步推理时 kimiMakeCacheReferenceMessage(cache) 用 1 条引用消息替代，引用不收费 + token 节省 60%+）', 'LLM JSON 三重清洗模式（sanitizeLLMJSON：先代码块提取 → 首尾截取 → 尾逗号清理 → JSON.parse，覆盖 95% 的 LLM 返回非标准 JSON 情况，解析成功率接近 100%）', '插件页统一外壳模式（PluginShell 组件统一返回按钮+标题+Mock 提示条+主题同步+像素风 CSS 变量，10 个插件页只需要写各自的业务内容，避免每个页面重复写导航头+主题切换+像素风适配）'],
+    date: '2026-08-01',
+  },
+  // —— pack35 安全审计：5项漏洞修复 ——
+  // 用户原话："找漏洞，修"
+  // conv-20260801-38 不触发 rhythm-roll（38 mod 5 = 3，不触发）
+  {
+    id: 'conv-20260801-38',
+    summary: '用户原话"找漏洞，修"。pack35 对全项目做安全审计，发现并修复5项漏洞：①CRITICAL XSS — InteractiveLesson.tsx formatContent 未转义HTML直接注入dangerouslySetInnerHTML，修复：新增 escapeHtml 函数（五字符全转义），先 escapeHtml(content) 再做 Markdown 替换。②HIGH 缓存永不命中 — codeSelfOptimizer.ts Kimi cacheTag 用 Date.now()/60000 每分钟变化，且 cacheTag 与 kimiCreateCache 的 name 参数不匹配，修复：改为常量 KIMI_EXPERIENCE_CACHE_TAG=coding-experience-pack34，name 参数也用同一常量。③MEDIUM 内存泄漏 — CodeEditor.tsx runTimerRef 无 useEffect cleanup，组件卸载后 setTimeout 回调仍 setState，修复：新增 useEffect cleanup 清理定时器，runTimerRef 声明在 useEffect 之前避免 TDZ。④LOW 防御深度 — ProductDocs.tsx escapeHtml 缺双引号和单引号转义，修复：追加双引号和单引号的 HTML 实体转义。⑤LOW 废弃API — wikiSync.ts 用 btoa(unescape(encodeURIComponent())) 编码 UTF-8，unescape 已被 MDN 标记 deprecated，修复：新增 bytesToBase64(bytes: Uint8Array) 函数用 TextEncoder + btoa 替代。审计过程：grep dangerouslySetInnerHTML→检查所有使用点→grep localStorage.*token→确认安全→grep eval/new Function→0匹配→grep setTimeout→发现CodeEditor缺cleanup→grep btoa/unescape→发现wikiSync废弃API。tsc --noEmit 0错误，npm run build 2.23s成功。PACK_BUILD 33→34',
+    filesModified: ['src/components/InteractiveLesson/InteractiveLesson.tsx', 'src/ai/codeSelfOptimizer.ts',
+      'src/components/CodeEditor/CodeEditor.tsx', 'src/pages/ProductDocs/ProductDocs.tsx',
+      'src/ai/wikiSync.ts', 'src/ai/experiencePack.ts'],
+    patternsAdded: ['安全审计六步检查清单（grep dangerouslySetInnerHTML→grep localStorage.*token/apiKey→grep eval/new Function/innerHTML=→grep setInterval/setTimeout 查 cleanup→grep btoa/unescape/atob 查废弃API→修复后 tsc+build 双验证）', 'HTML转义铁律（任何注入 dangerouslySetInnerHTML 的内容必须先经过 escapeHtml 五字符全转义 &<>"\' ，再做 Markdown 格式化替换，顺序不能反）', 'Kimi cache tag 常量铁律（cache tag 必须是固定常量不能含 Date.now()/Math.random() 等可变值，且 kimiCreateCache 的 name 参数与 kimiMakeCacheReferenceMessage 的 tag 参数必须完全一致）'],
     date: '2026-08-01',
   },
 ]

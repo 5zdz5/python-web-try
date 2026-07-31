@@ -54,6 +54,15 @@ function safeParse<T>(raw: string | null, fallback: T): T {
   try { return JSON.parse(raw) as T } catch { return fallback }
 }
 
+/** 将 Uint8Array 编码为 base64 字符串（替代废弃的 btoa(unescape(encodeURIComponent(...)))） */
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
+
 /** 简易哈希（djb2 算法，用于内容去重） */
 export function hashContent(text: string): string {
   let hash = 5381
@@ -314,7 +323,7 @@ async function pushViaGithubApi(
   // 2. 更新或创建文件
   const body = {
     message: commitMessage,
-    content: btoa(unescape(encodeURIComponent(content))),  // UTF-8 base64
+    content: bytesToBase64(new TextEncoder().encode(content)),  // UTF-8 base64
     ...(sha ? { sha } : {}),
     branch: 'master',
   }

@@ -95,17 +95,19 @@ export async function prepareSelfOptimizeContext(opts: {
   const codeContext = buildLLMCodeContext(index, 150)
 
   // 可选：Kimi 经验缓存（若 provider=kimi 且用户希望启用）
+  // 铁律：tag 必须固定不变（参考 L-kimi-context-caching），否则缓存永不命中
+  const KIMI_EXPERIENCE_CACHE_TAG = 'coding-experience-pack34'
   let cacheTag: string | null = null
   let cacheReferenceMessage: LLMMessage | null = null
   if (useKimiCacheForExperience && detectProvider(llmConfig) === 'kimi' && llmConfig.apiKey) {
-    cacheTag = `coding-exp-pack34-${Math.floor(Date.now() / 60000)}`
+    cacheTag = KIMI_EXPERIENCE_CACHE_TAG
     try {
       const cacheMsgs = kimiBuildExperienceCacheMessages(experiences.slice(0, 60))
       await kimiCreateCache(llmConfig, {
         model: 'moonshot-v1',
         messages: cacheMsgs,
         ttl: 900,
-        name: 'coding-experience-pack34',
+        name: KIMI_EXPERIENCE_CACHE_TAG,
         metadata: { category: 'self-optimize', pack: 'pack34' },
       })
       cacheReferenceMessage = kimiMakeCacheReferenceMessage(cacheTag, 300)

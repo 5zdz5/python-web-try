@@ -119,7 +119,7 @@ export interface DesignPattern {
 export interface LessonLearned {
   id: string
   date: string
-  category: 'pitfall' | 'constraint' | 'fix' | 'deployment'
+  category: 'pitfall' | 'constraint' | 'fix' | 'deployment' | 'security'
   title: string
   problem: string
   rootCause?: string

@@ -42,6 +42,14 @@ function CodeEditor({
 
   // pack28: 用 debounceMs 做运行防抖，Agent 调整 debounceMs 会真实影响组件响应节奏
   const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 卸载时清理防抖定时器，防止 setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (runTimerRef.current) clearTimeout(runTimerRef.current)
+    }
+  }, [])
+
   const handleRun = async () => {
     if (isLoading || isRunning) return
     // 防抖：debounceMs 内重复点击只执行最后一次

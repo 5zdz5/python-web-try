@@ -357,8 +357,19 @@ function InteractiveLesson({ title: _title, steps, onComplete }: InteractiveLess
   )
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function formatContent(content: string): string {
-  return content
+  // 先转义 HTML，再应用格式化（防止 XSS 注入）
+  const escaped = escapeHtml(content)
+  return escaped
     .replace(/\n\n/g, '</p><p>')
     .replace(/^/g, '<p>')
     .replace(/$/g, '</p>')
