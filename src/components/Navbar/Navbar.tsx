@@ -92,8 +92,8 @@ function Navbar({ showUserInfo }: NavbarProps) {
             <Link to="/evolution" className={`nav-link ${location.pathname === '/evolution' ? 'active' : ''}`}>
               进化档案
             </Link>
-            <Link to="/typing" className={`nav-link ${location.pathname === '/typing' ? 'active' : ''}`}>
-              打字大战
+            <Link to="/games" className={`nav-link ${location.pathname.startsWith('/games') ? 'active' : ''}`}>
+              游戏中心
             </Link>
             <Link to="/plugins" className={`nav-link ${location.pathname.startsWith('/plugins') ? 'active' : ''}`}>
               插件中心

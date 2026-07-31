@@ -77,7 +77,12 @@ function difficultyScore(d: 'easy' | 'medium' | 'hard'): number {
   return d === 'easy' ? 10 : d === 'medium' ? 25 : 50
 }
 
-function CodeTypingArena() {
+interface CodeTypingArenaProps {
+  /** 嵌入插件壳模式：隐藏大标题，与 PluginShell 的标题保持层级清晰 */
+  embedMode?: boolean
+}
+
+function CodeTypingArena({ embedMode = false }: CodeTypingArenaProps = {}) {
   const [game, setGame] = useState<GameState>({
     status: 'ready',
     score: 0,
@@ -255,11 +260,13 @@ function CodeTypingArena() {
   const comboMultiplier = 1 + Math.floor(game.combo / 5) * 0.5
 
   return (
-    <div className="cta-page">
-      <div className="cta-header hero-anim">
-        <h1 className="cta-title rainbow-text">像素打字大战</h1>
-        <p className="cta-subtitle">Python 代码从天而降，正确输入即可消除。连击越高，倍率越大。</p>
-      </div>
+    <div className={`cta-page ${embedMode ? 'cta-embed' : ''}`}>
+      {!embedMode && (
+        <div className="cta-header hero-anim">
+          <h1 className="cta-title rainbow-text">像素打字大战</h1>
+          <p className="cta-subtitle">Python 代码从天而降，正确输入即可消除。连击越高，倍率越大。</p>
+        </div>
+      )}
 
       {/* ===== HUD 状态栏 ===== */}
       <div className="cta-hud pixel-rise-container">

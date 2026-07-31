@@ -24,7 +24,7 @@ import { CURRENT_VERSION, CURRENT_VERSION_LABEL, CURRENT_VERSION_DESC } from '..
 // 经验包 schema 版本（升级格式时改这个）
 const PACK_SCHEMA_VERSION = '1.0'
 // 经验包版本号：每 1 个 commit / 重大变更递增 1
-const PACK_BUILD = 35
+const PACK_BUILD = 36
 const PACK_VERSION = `${CURRENT_VERSION}-pack${PACK_BUILD}`
 
 // ========================= 1. 架构总览 =========================
@@ -633,6 +633,37 @@ const MODULES: ModuleInfo[] = [
     dependedBy: ['core-app', 'page-pluginshub'],
     extensionPoints: ['新增文档模板 → DOC_TEMPLATES[] 追加 sections'],
     pitfalls: ['Markdown 渲染要用 textarea 预显示而非直接 dangerouslySetInnerHTML（防 XSS）', '长文档分段滚动时要 sticky 住左侧目录'],
+  },
+  // —— pack36 新增：游戏中心 + 代码打字（路由复用）+ 插件代码打字
+  {
+    id: 'page-gamecenter', category: 'page', name: '游戏中心聚合页',
+    path: 'src/pages/GameCenter/', files: 6, approxLines: 900,
+    description: '3 款游戏聚合入口（代码打字 / 代码输出猜谜 / 算法闪卡），GAMES[] 数据驱动渲染卡片，顶部统计概览（总游戏数/已掌握/总题库数/总难度），严格像素风 + 主题双适配，Navbar 有入口 → /games',
+    exports: ['GAMES[]', '<GameCenter />', '<CodeOutputQuiz />', '<AlgorithmFlashcards />'],
+    dependsOn: ['ctx-monitor', 'ctx-theme'],
+    dependedBy: ['core-app'],
+    extensionPoints: ['新增游戏 → GAMES[] 追加一条 + App.tsx /games/xxx Route 注册 + index.ts 命名导出', '新分类 → GAMES[].category 联合扩展 + GameCenter.tsx 筛选按钮自动派生（数据驱动）'],
+    pitfalls: ['GAMES[].path 必须和 App.tsx Route 完全一致，否则卡片点击 404', '新增小游戏必须用 useMonitor 注册 Game-* 监测组 + reportHealth，否则监测系统认为页面"死亡"'],
+  },
+  {
+    id: 'page-codetypingarena', category: 'page', name: '代码打字竞技场游戏页',
+    path: 'src/pages/CodeTypingArena/', files: 3, approxLines: 450,
+    description: '三种题库（Python/TS/React）按难度 1-5 分级，LANGS[] 数据驱动语言切换，LEVELS[] 数据驱动代码文本，WPM（每分钟字数）+ 准确率 + 连击（combo）实时统计，最佳成绩 localStorage 存档。支持 embedMode 属性（嵌入插件模式下隐藏大标题和返回按钮，缩小间距，避免 PluginShell 里出现双重标题）。',
+    exports: ['LANGS[]', '<CodeTypingArena embedMode? />'],
+    dependsOn: ['ctx-monitor'],
+    dependedBy: ['core-app', 'page-gamecenter', 'page-plugin-codetyping'],
+    extensionPoints: ['新增题库 → LANGS[].levels 追加一条 code 文本', '新统计维度（如"最高连击"）→ stats 对象加字段 + useEffect 存 localStorage'],
+    pitfalls: ['embedMode 必须是可选 prop（默认 false），原 /typing 独立路由要正常显示大标题', 'code 文本不要包含 backtick 或模板字符串语法，否则 JSX 字符串字面量解析炸'],
+  },
+  {
+    id: 'page-plugin-codetyping', category: 'page', name: '插件-代码打字竞技场',
+    path: 'src/pages/PluginsHub/CodeTyping/', files: 2, approxLines: 80,
+    description: '插件中心代码打字插件页（/plugins/code-typing 路由）：外部 PluginShell 提供统一返回按钮+标题+vendor+version，内部嵌入 <CodeTypingArena embedMode />，避免 CodeTypingArena 重复写导航头。PluginsHub 分类已扩展 game 类（All/AI生成/数据可视化/飞书/工作流/GitHub/设计/代码训练/游戏），卡片点击 navigate 到此。',
+    exports: ['<CodeTypingPlugin />'],
+    dependsOn: ['comp-pluginshell', 'page-codetypingarena'],
+    dependedBy: ['page-pluginshub', 'core-app'],
+    extensionPoints: ['新插件 → 拷贝同目录结构：plugins-shared.css + PluginShell + 复用内部业务组件 + App.tsx Route 注册 + PluginsHub PLUGINS[] 追加', 'PluginShell 缺的 props（图标/色条）→ comp-pluginshell props 扩展'],
+    pitfalls: ['不要自己写 PluginShell 不支持的 props（如 description/backPath/mockHint/bannerColor 这 4 个在 pack36 都不存在，tsc 会报 Prop type error）→ 实际传 subtitle/vendor/version/icon 这 4 个，其他去掉', '组件复用用 embed 模式，不要复制粘贴游戏 TSX 到插件目录 → 否则下次打字逻辑修改插件不更新（DRY 反模式）'],
   },
 ]
 
@@ -1588,6 +1619,37 @@ const LESSONS: LessonLearned[] = [
     verification: '本地用 DOMParser 构造 <html><body><h1>Test</h1><h2>A</h2><p>text a</p><h2>B</h2><p>text b</p></body></html> 调 nibbleToLevels(html, "https://test") → 返回 levels 数组含 2 个关卡（A/B）且每个关卡 steps.length ≥ 1，控制台无 Symbol.iterator 报错',
     relatedFiles: ['src/data/nibbleLevels.ts', 'src/pages/NibbleLevels/NibbleLevels.tsx',
       'src/components/NibbleButton/NibbleButton.tsx'],
+  },
+  // —— pack36 新教训 ——
+  {
+    id: 'L-plugin-shell-prop-mismatch', date: '2026-08-01', category: 'fix',
+    title: '插件页传了 PluginShell 根本不接受的 props（description/backPath/mockHint/bannerColor）→ TS2322 类型错误',
+    problem: '写完 PluginsHub/CodeTyping/CodeTyping.tsx 后运行 npx tsc --noEmit 报错：Type { children: Element; title: string; description: string; backPath: string; mockHint: string; bannerColor: string } is not assignable to PluginShellProps — Property "description" does not exist。',
+    rootCause: '照搬了老的 PluginShell 使用样例（pack2x 某条经验写了 exports: ["<PluginShell title description backPath children mockHint bannerColor>"]），但实际当前 src/components/PluginShell.tsx 的 interface PluginShellProps 只接受 6 个 props：icon/title/subtitle/vendor/version/children，另外 4 个 props 早就被删了或从没实现过，导致类型不匹配。',
+    solution: '先读 PluginShell.tsx 真实 interface，再用实际支持的 props：传 icon="⌨️" title="代码打字竞技场" subtitle="..." vendor="内置插件" version="1.0.0"，删除 description/backPath/mockHint/bannerColor 四个不实的 props。教训："不要凭经验/注释/exports 字段写调用，先读源文件的真实 interface 或组件签名"。',
+    steps: [
+      '1. tsc 报 Prop 不存在 → 立刻打开对应组件 .tsx 文件的 interface / function 参数列表核对，而不是翻旧注释',
+      '2. 传 props 前优先看 TS 智能提示或源文件，不要抄 exports: ["<Foo bar baz>"] 这种文档描述（文档可能滞后）',
+      '3. 用 defaultProps/可选 props 兼容老调用：如果某 prop 是可选就不要假设一定有',
+      '4. 修复后立刻 tsc --noEmit 验证，再 build',
+    ],
+    verification: 'tsc --noEmit：0 errors；npm run build：0 errors（只有 chunk size 警告正常）',
+    relatedFiles: ['src/pages/PluginsHub/CodeTyping/CodeTyping.tsx', 'src/components/PluginShell.tsx'],
+  },
+  {
+    id: 'L-double-title-in-embed-mode', date: '2026-08-01', category: 'pitfall',
+    title: '复用组件嵌入 PluginShell 时出现「PluginShell 标题 + 业务组件自身大标题」双重标题',
+    problem: '插件页代码打字竞技场：PluginShell 顶部已经渲染 h1 标题「代码打字竞技场」，而 CodeTypingArena 内部又有一个 40px h1 大标题 + 返回游戏中心按钮 + 副标题 → 视觉重复，高度浪费 120px+。',
+    rootCause: '可复用组件默认假设"我在自己的独立路由页面里运行"，没考虑"被外层容器（PluginShell / Modal / Drawer / Tab）嵌入"的场景。',
+    solution: '给 CodeTypingArena 增加可选的 embedMode?: boolean 属性；当 embedMode=true 时：①隐藏组件自己的 h1 大标题和副标题 ②隐藏返回按钮 ③减小 section 间距。外层 PluginShell 只负责统一导航标题栏，嵌入组件只负责内容（职责分离，单一职责）。',
+    steps: [
+      '1. 判断组件是否会被多个场景复用：独立路由 + 插件嵌入 + 弹窗？ → 引入 embedMode/inlineMode/dialogMode 枚举',
+      '2. 用可选 prop + 默认值 false（保证老调用方 / 独立路由 100% 兼容）',
+      '3. 条件隐藏"页面专属"UI（大标题/返回按钮/页脚版权说明），保留"内容专属"UI（答题区/统计栏/输入框）',
+      '4. 外层壳和内层组件都要有监测组：Plugin Shell 组（Plugin-*）+ 业务游戏组（Game-*），不要因为复用就只注册一次',
+    ],
+    verification: '访问 /plugins/code-typing：只有 PluginShell 顶部的一份标题，下方没有重复大标题；访问 /typing：依然显示完整大标题+返回按钮，独立路由体验不变',
+    relatedFiles: ['src/pages/CodeTypingArena/CodeTypingArena.tsx', 'src/pages/PluginsHub/CodeTyping/CodeTyping.tsx'],
   },
 ]
 
@@ -2602,6 +2664,29 @@ const CONVERSATION_LOG = [
     summary: '用户原话"把这项搞好，再看有无没推的"，配合截图显示蚕食页面报错 undefined is not iterable（cannot read property Symbol(Symbol.iterator)）。Step1 git 核对：status working tree clean，origin/codex..HEAD unpushed 为空，没有未推内容。Step2 定位 bug：啃食页面数据层 nibbleLevels.ts 中 nibbleToLevels 两处调用 `{ children: introNodes } as unknown as ParentNode` 构建伪 ParentNode 传入 buildLevelFromNode，但 buildLevelFromNode 内部实际消费 Array.from(nodeContainer.childNodes) 而非 children，伪对象只有 children 属性无 childNodes → childNodes = undefined → Array.from(undefined) 抛 Symbol.iterator 错误；TypeScript as unknown as 双断言绕过了类型系统检查（教训见 L-nibble-parentnode-cast）。Step3 修复：新增 wrapNodesInFragment(nodes: Node[]): DocumentFragment 辅助函数用 document.createDocumentFragment() + cloneNode(true) 深拷贝 appendChild，提供原生 ParentNode 接口（含真实 childNodes/children/querySelectorAll），两处调用（导言关卡 introNodes + 每节 sectionNodes）全替换为 wrapNodesInFragment(...)，同时 cloneNode 保证原 DOM content 不被移动破坏后续迭代。Step4 验证：npx tsc --noEmit 0 错误；npm run build 2.19s 构建成功；本地 DOMParser 构造双 h2 模拟 HTML 调 nibbleToLevels 返回 levels 长度≥2 steps≥1。Step5 写回经验包：PACK_BUILD 34→35；LESSONS 追加 L-nibble-parentnode-cast（双断言绕过类型检查的识别清单+修复用原生 DocumentFragment 模式）；CONVERSATION_LOG 追加 conv-20260801-39',
     filesModified: ['src/data/nibbleLevels.ts', 'src/ai/experiencePack.ts'],
     patternsAdded: ['伪对象接口补全模式（as unknown as 双断言必须审核消费方实际用到的所有字段，或直接用原生 DocumentFragment/接口实现类替代"裸对象+断言"）', 'DOM容器构造用 DocumentFragment（需要给一组节点提供 ParentNode 接口时，不用手搓 {children,childNodes,querySelectorAll,...} 长列表，用 createDocumentFragment + appendChild(cloneNode) 提供原生完整实现）', 'cloneNode 防移动模式（appendChild 会移动节点而非复制，若原树后续还要用必须 cloneNode(true)，否则第二轮迭代时 sibling 节点已不在原来的位置导致漏关卡）'],
+    date: '2026-08-01',
+  },
+  // —— pack36 游戏中心 + 插件中心补全
+  // 用户原话："游戏，插件呢"
+  // conv-20260801-40：40 mod 5 = 0 → 触发 rhythm-roll（滚动适配 + 模式凝练）
+  {
+    id: 'conv-20260801-40',
+    summary: "用户原话「游戏，插件呢」。本轮补齐两个中心的未完成项：①插件中心（Pack34 规划的游戏类插件未落地）：PluginsHub 扩展 category 新增 game 类（9 个分类），新增 PLUGINS[id=code-typing] 卡片；新建 src/pages/PluginsHub/CodeTyping/CodeTyping.tsx 作为插件页，用 PluginShell 做统一外壳，内部复用已有 CodeTypingArena 组件（传 embedMode=true 避免双重标题）；App.tsx 注册 Route /plugins/code-typing。②游戏中心（Pack35 只有规划没有具体小游戏）：新建 src/pages/GameCenter/CodeOutputQuiz.tsx + CodeOutputQuiz.css（8 题 4 选 1，涵盖 Python/TS/React 三分类，WPM+准确率+详解，分类筛选，useMonitor 注册 Game-CodeOutputQuiz 监测组）；新建 AlgorithmFlashcards.tsx + AlgorithmFlashcards.css（12 张算法闪卡，5 大分类，3D 翻转卡，复杂度 TC/SC/核心思路/识别模式 4 栏反面详情，掌握进度追踪，注册 Game-AlgoFlashcards 监测组）；更新 GameCenter.tsx GAMES[] 补充 /games/code-output、/games/algo-flashcards 两张卡片元数据；App.tsx 补 3 个 /games/* Route（/games /games/typing /games/code-output /games/algo-flashcards）+ 3 个对应 import（GameCenter/CodeOutputQuiz/AlgorithmFlashcards/PluginCodeTyping）；Navbar 把原「打字大战」单入口升级为「游戏中心」聚合入口 + 高亮规则 pathname.startsWith('/games')。③蚕食漏洞二次排查：确认 nibbleLevels 目录下源码 grep as unknown as ParentNode / wrapNodesInFragment 等旧模式 0 匹配，源码中已用真实 DocumentFragment 替代（旧文字仅残留于经验包描述中）。④经验包写回：PACK_BUILD 35→36；MODULES 追加 page-gamecenter / page-codetypingarena / page-plugin-codetyping 3 条新模块说明（含 extensionPoints + pitfalls）；LESSONS 追加 L-plugin-shell-prop-mismatch（PluginShell 实际支持 6 个 props，别写 description/backPath/mockHint/bannerColor）和 L-double-title-in-embed-mode（复用组件嵌入壳时加 embedMode 隐藏独立路由的大标题/返回按钮，避免双重标题）2 条教训；CONVERSATION_LOG 追加 conv-20260801-40（本对话）。⑤TypeScript + 构建双验证：npx tsc --noEmit → 0 errors（修复 CodeTyping 插件页传不存在的 props 类型错误 1 次）；npm run build → 构建 2.30s 成功（仅 chunk size 警告无错误）。⑥Navbar 入口更新：Navbar.tsx 用「游戏中心」取代原「打字大战」导航项，startsWith 判断 /games 高亮，保留 /typing 作为兼容路由（App.tsx 中老 /typing Route 不动，防止收藏夹失效）。",
+    filesModified: [
+      'src/pages/GameCenter/CodeOutputQuiz.tsx', 'src/pages/GameCenter/CodeOutputQuiz.css',
+      'src/pages/GameCenter/AlgorithmFlashcards.tsx', 'src/pages/GameCenter/AlgorithmFlashcards.css',
+      'src/pages/PluginsHub/CodeTyping/CodeTyping.tsx',
+      'src/App.tsx', 'src/components/Navbar/Navbar.tsx',
+      'src/ai/experiencePack.ts',
+    ],
+    patternsAdded: [
+      '游戏中心聚合模式（GAMES[] 数据驱动 + /games 路由 + Navbar 入口 + 每个小游戏注册 Game-* 监测组，法则3法则4双遵守）',
+      '插件复用业务组件 DRY 模式（插件壳 PluginShell + 内部嵌入业务组件传 embedMode=true，不复制粘贴 TSX，统一维护 1 份游戏逻辑）',
+      '算法闪卡 3D 翻转模式（perspective + preserve-3d + rotateY 180deg + backface-visibility: hidden，正面题目难度分类，反面TC/SC/核心思路/识别模式 4 栏）',
+      '4 选 1 题库判题模式（4 个 option button + state 存 selected + showExplain 三态：未提交/提交正确/提交错误 + 过滤分类按题目 category 派生，数据数组驱动 8 题不用写 8 份 JSX）',
+      'Navbar 入口升级策略（先把独立路由 /typing 升级为聚合入口 /games，在 App.tsx 保留老 Route 防止链接失效 + 新路由 /games/typing 也指向同一组件 CodeTypingArena，平滑切换零风险）',
+      '经验包 rhythm-roll 触发机制（conv-id 末尾数字 mod 5 = 0 时，总结新增模式+扩展 pitfalls + 模块 extensionPoints，形成"每 5 次对话一次经验回灌"飞轮）',
+    ],
     date: '2026-08-01',
   },
 ]

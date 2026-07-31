@@ -1,0 +1,232 @@
+/* AlgorithmFlashcards 算法闪卡 样式（像素风+主题双适配） */
+
+.afc-page { padding: 32px 0 80px; }
+
+.afc-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 16px 0 28px;
+}
+@media (max-width: 760px) {
+  .afc-header { grid-template-columns: 1fr; }
+}
+.afc-back-btn {
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-secondary);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-secondary);
+  text-decoration: none;
+  align-self: start;
+}
+.afc-back-btn:hover {
+  color: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+}
+.afc-title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: 0.5px;
+}
+.afc-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+.afc-progress {
+  padding: 14px 18px;
+  min-width: 160px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.afc-p-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.afc-p-val { font-weight: 700; font-size: 15px; color: var(--color-text-primary); }
+.afc-p-right { color: var(--color-accent-success); }
+
+.afc-cats {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-bottom: 24px;
+}
+.afc-cat {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-secondary);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  transition: all var(--transition-fast);
+}
+.afc-cat:hover { color: var(--color-accent-primary); border-color: var(--color-accent-primary); }
+.afc-cat.active {
+  background: color-mix(in srgb, var(--color-accent-primary) 18%, transparent);
+  color: var(--color-accent-primary);
+  border-color: color-mix(in srgb, var(--color-accent-primary) 55%, transparent);
+}
+.afc-page-num {
+  margin-left: auto;
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  padding: 4px 10px;
+}
+
+/* ====== 翻卡 3D ====== */
+.afc-card-wrap {
+  perspective: 1800px;
+  margin-bottom: 28px;
+  cursor: pointer;
+  min-height: 420px;
+}
+.afc-card {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(.4,.2,.2,1);
+}
+.afc-flipped { transform: rotateY(180deg); }
+.afc-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border-secondary);
+  display: flex;
+  flex-direction: column;
+}
+.afc-back { transform: rotateY(180deg); }
+
+.afc-face-head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin-bottom: 18px;
+}
+.afc-cat-chip {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent-primary) 14%, transparent);
+  color: var(--color-accent-primary);
+  border: 1px solid color-mix(in srgb, var(--color-accent-primary) 40%, transparent);
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+}
+.afc-cat-chip-back {
+  background: color-mix(in srgb, var(--color-accent-success) 14%, transparent);
+  color: var(--color-accent-success);
+  border-color: color-mix(in srgb, var(--color-accent-success) 40%, transparent);
+}
+.afc-diff-chip {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  border: 1px solid;
+  background: transparent;
+}
+.afc-known-chip {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent-success) 12%, transparent);
+  color: var(--color-accent-success);
+  border: 1px solid color-mix(in srgb, var(--color-accent-success) 36%, transparent);
+  font-size: 12px;
+  font-family: var(--font-family-mono);
+}
+.afc-card-title {
+  font-size: 22px;
+  margin: 0 0 10px;
+  color: var(--color-text-primary);
+  letter-spacing: 0.2px;
+}
+.afc-card-problem {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  padding: 14px 16px;
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-md);
+  margin: 0 0 auto;
+}
+.afc-hint {
+  margin-top: 14px;
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  color: var(--color-text-disabled);
+  text-align: center;
+}
+
+/* 反面内容 */
+.afc-complex {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 560px) {
+  .afc-complex { grid-template-columns: 1fr 1fr; }
+}
+.afc-complex-item {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-secondary);
+  display: flex; flex-direction: column; gap: 4px;
+  font-family: var(--font-family-mono);
+}
+.afc-complex-item span {
+  font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.5px;
+}
+.afc-complex-item code {
+  font-size: 13px; color: var(--color-accent-primary); font-weight: 600;
+}
+.afc-sec-title {
+  font-size: 13px;
+  margin: 0 0 6px;
+  color: var(--color-accent-primary);
+  font-family: var(--font-family-mono);
+  letter-spacing: 0.3px;
+}
+.afc-keyidea {
+  margin-bottom: 16px;
+}
+.afc-keyidea p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  padding: 12px 14px;
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-accent-primary);
+}
+.afc-pattern-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding-top: 4px;
+}
+.afc-p-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-warning) 12%, transparent);
+  color: var(--color-accent-warning);
+  border: 1px solid color-mix(in srgb, var(--color-accent-warning) 38%, transparent);
+  font-size: 12px;
+  font-family: var(--font-family-mono);
+}
+
+.afc-actions {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+}

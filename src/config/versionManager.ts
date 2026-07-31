@@ -26,9 +26,9 @@ export interface VersionSnapshot {
 }
 
 // 当前活跃版本（每次迭代更新此值）
-export const CURRENT_VERSION = 'v1.3'
-export const CURRENT_VERSION_LABEL = 'Kimi超级进化·代码自优化+插件中心版'
-export const CURRENT_VERSION_DESC = 'pack33 超级进化（8类资源调配总线+14条元逻辑规则引擎+本地离线LLM内核TF-IDF兜底+自编码器3模式参数自适应）· pack34 Kimi超级升级（代码级自优化补丁闭环prepare→generate→dryRun→apply→validate→revert + 22条编码经验注入system prompt + Kimi Context Caching引用消息节省60%token + Vite glob前端安全读源码）· 10插件中心（PluginShell统一外壳+PlugginsHub 10卡7分类+Seedream图生/Seedance视频/VizLab10图表/ProductDocs文档 + 6占位页）· 60关完整内容 + 10大教程全目录对齐 + 8大分类地图 + 76张主题卡片'
+export const CURRENT_VERSION = 'v1.4'
+export const CURRENT_VERSION_LABEL = '游戏中心·3款小游戏 + 插件中心补全版'
+export const CURRENT_VERSION_DESC = 'pack33 超级进化（8类资源调配总线+14条元逻辑规则引擎+本地离线LLM内核TF-IDF兜底+自编码器3模式参数自适应）· pack34 Kimi超级升级（代码级自优化补丁闭环prepare→generate→dryRun→apply→validate→revert + 22条编码经验注入system prompt + Kimi Context Caching引用消息节省60%token + Vite glob前端安全读源码）· 10插件中心（PluginShell统一外壳+PluginsHub 10卡7分类+Seedream图生/Seedance视频/VizLab10图表/ProductDocs文档 + 6占位页 + code-typing 代码打字插件）· pack36 游戏中心3款小游戏（代码打字竞技场/代码输出猜谜8题/算法闪卡12张3D翻转卡）+ Navbar游戏中心入口· 60关完整内容 + 10大教程全目录对齐 + 8大分类地图 + 76张主题卡片'
 
 // 版本注册表 key（全局唯一，不随版本变化）
 const REGISTRY_KEY = 'python-quest-version-registry'

@@ -10,7 +10,7 @@ interface PluginMeta {
   icon: string
   desc: string
   path: string
-  category: 'ai' | 'data' | 'collab' | 'design' | 'dev' | 'automation'
+  category: 'ai' | 'data' | 'collab' | 'design' | 'dev' | 'automation' | 'game'
   tags: string[]
   featured?: boolean
 }
@@ -130,6 +130,18 @@ const PLUGINS: PluginMeta[] = [
     category: 'dev',
     tags: ['脚手架', '调试', '性能'],
   },
+  {
+    id: 'code-typing',
+    name: '代码打字竞技场',
+    vendor: 'stark + typing-game',
+    version: '1.0.0',
+    icon: '⌨️',
+    desc: '代码手感训练营：Python/TS/React 三种题库按难度分级，WPM 速度 + 准确率统计，连击效果，像素风动态打字热区。',
+    path: '/plugins/code-typing',
+    category: 'game',
+    tags: ['WPM', '代码手感', '训练营', '连击'],
+    featured: true,
+  },
 ]
 
 const CATEGORIES = [
@@ -140,6 +152,7 @@ const CATEGORIES = [
   { id: 'design', label: '设计' },
   { id: 'dev', label: '开发' },
   { id: 'automation', label: '自动化' },
+  { id: 'game', label: '游戏训练' },
 ] as const
 
 function PluginsHub() {

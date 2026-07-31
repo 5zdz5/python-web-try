@@ -25,6 +25,10 @@ import LarkSuite from './pages/LarkSuite'
 import DesignStudio from './pages/DesignStudio'
 import BrowserStudio from './pages/BrowserStudio'
 import WebDevTools from './pages/WebDevTools'
+import GameCenter from './pages/GameCenter'
+import CodeOutputQuiz from './pages/GameCenter/CodeOutputQuiz'
+import AlgorithmFlashcards from './pages/GameCenter/AlgorithmFlashcards'
+import PluginCodeTyping from './pages/PluginsHub/CodeTyping/CodeTyping'
 import './App.css'
 
 function App() {
@@ -45,6 +49,11 @@ function App() {
           <Route path="/skills" element={<SkillLab />} />
           <Route path="/evolution" element={<EvolutionArchive />} />
           <Route path="/typing" element={<CodeTypingArena />} />
+          {/* 游戏中心 */}
+          <Route path="/games" element={<GameCenter />} />
+          <Route path="/games/typing" element={<CodeTypingArena />} />
+          <Route path="/games/code-output" element={<CodeOutputQuiz />} />
+          <Route path="/games/algo-flashcards" element={<AlgorithmFlashcards />} />
           {/* 插件中心 */}
           <Route path="/plugins" element={<PluginsHub />} />
           <Route path="/plugins/image-gen" element={<ImageGen />} />
@@ -57,6 +66,7 @@ function App() {
           <Route path="/plugins/design-studio" element={<DesignStudio />} />
           <Route path="/plugins/browser-studio" element={<BrowserStudio />} />
           <Route path="/plugins/web-dev" element={<WebDevTools />} />
+          <Route path="/plugins/code-typing" element={<PluginCodeTyping />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
