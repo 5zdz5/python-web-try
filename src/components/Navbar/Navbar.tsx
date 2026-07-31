@@ -92,6 +92,12 @@ function Navbar({ showUserInfo }: NavbarProps) {
             <Link to="/evolution" className={`nav-link ${location.pathname === '/evolution' ? 'active' : ''}`}>
               进化档案
             </Link>
+            <Link to="/typing" className={`nav-link ${location.pathname === '/typing' ? 'active' : ''}`}>
+              打字大战
+            </Link>
+            <Link to="/plugins" className={`nav-link ${location.pathname.startsWith('/plugins') ? 'active' : ''}`}>
+              插件中心
+            </Link>
           </div>
 
           <div className="navbar-actions">

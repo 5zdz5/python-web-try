@@ -315,4 +315,349 @@ export interface SkillCompliance {
   suggestionId: string               // 关联的建议 ID
 }
 
+// ===== 超级进化（pack33+：Agent 作为资源调配中心 + 本地 LLM 内核）=====
+
+/** 资源类型（调配总线统一调度） */
+export type ResourceType =
+  | 'plugin'        // 插件功能
+  | 'skill'         // Skill 规则
+  | 'level'         // 关卡
+  | 'monitor'       // 监查
+  | 'experience'    // 经验包
+  | 'wiki'          // Wiki 同步
+  | 'llm'           // LLM 内核
+  | 'pyodide'       // Python 执行环境
+
+/** 资源调配请求 */
+export interface ResourceCall {
+  id: string
+  resource: ResourceType
+  action: string                    // 动作名（如 'invoke-plugin'、'run-level-test'）
+  args?: Record<string, unknown>    // 调用参数
+  timestamp: string
+  result?: 'success' | 'failed' | 'skipped'
+  detail?: string
+}
+
+/** 资源调配总线状态 */
+export interface ResourceBusState {
+  totalCalls: number
+  successCalls: number
+  failedCalls: number
+  recentCalls: ResourceCall[]       // 最近 N 次调用
+  availableResources: ResourceType[]
+}
+
+/** 元逻辑规则（编码经验库） */
+export interface MetaLogicRule {
+  id: string
+  category: 'workflow' | 'param-tuning' | 'ui-preference' | 'safety' | 'comprehension' | 'self-coding'
+  title: string
+  description: string
+  // 触发条件：返回 true 时执行 apply
+  condition: (ctx: MetaLogicContext) => boolean
+  // 应用动作：返回参数变更 + 日志
+  apply: (ctx: MetaLogicContext) => MetaLogicAction
+  priority: number                  // 优先级（高优先）
+}
+
+/** 元逻辑上下文（每轮迭代传入） */
+export interface MetaLogicContext {
+  params: TunableParams
+  scores: HealthScores
+  metrics: ObservedMetrics
+  iteration: number
+  history: Iteration[]
+  // 资源调配能力
+  dispatch: (resource: ResourceType, action: string, args?: Record<string, unknown>) => Promise<unknown>
+  // 理解度
+  comprehension: ComprehensionState
+}
+
+/** 元逻辑执行动作 */
+export interface MetaLogicAction {
+  paramChanges?: Partial<TunableParams>
+  resourceCalls?: { resource: ResourceType; action: string; args?: Record<string, unknown> }[]
+  log: string
+  confidence: number                // 0-1
+}
+
+/** 元逻辑执行结果 */
+export interface MetaLogicResult {
+  appliedRules: string[]
+  paramChanges: Partial<TunableParams>
+  logs: string[]
+  resourceCalls: ResourceCall[]
+  confidence: number
+}
+
+/** 需求理解度状态 */
+export interface ComprehensionState {
+  level: number                     // 0-100，理解度评分
+  factors: {
+    intentClarity: number           // 意图清晰度
+    contextRichness: number         // 上下文丰富度
+    historyAlignment: number        // 与历史决策一致性
+    resourceUtilization: number     // 资源利用率
+  }
+  lastUpdate: string
+}
+
+/** 自编码方案（根据理解度生成的参数调整代码） */
+export interface SelfCodePlan {
+  id: string
+  timestamp: string
+  comprehensionLevel: number
+  intent: string                    // 推断的意图
+  paramChanges: Partial<TunableParams>
+  reasoning: string                 // 推理过程
+  confidence: number
+  source: 'local-llm' | 'meta-logic' | 'q-table' | 'hybrid'
+}
+
+/** 本地 LLM 内核推理结果（离线，无需外部 API） */
+export interface LocalLLMOutput {
+  timestamp: string
+  intent: string                    // 推断意图
+  reasoning: string                 // 推理链
+  suggestions: LLMSuggestion[]      // 建议（复用 LLM 建议结构）
+  comprehension: ComprehensionState
+  confidence: number
+  source: 'ngram' | 'pattern' | 'experience-retrieval' | 'heuristic'
+}
+
+/** 超级进化统计 */
+export interface SuperEvolutionStats {
+  metaLogicRuns: number             // 元逻辑执行次数
+  localLLMRuns: number              // 本地 LLM 推理次数
+  selfCodePlans: number             // 自编码方案数
+  resourceDispatches: number        // 资源调配次数
+  avgComprehension: number          // 平均理解度
+  lastComprehension: number         // 最近一次理解度
+  evolutionLevel: number            // 进化等级（0-100，综合指标）
+}
+
+// ===== pack34 代码级自优化 + Kimi 超级升级 + 编码经验注入 =====
+
+/** LLM 提供商（支持 Kimi 升级） */
+export type LLMProvider = 'openai-compatible' | 'kimi' | 'deepseek' | 'custom'
+
+/** 代码文件条目 */
+export interface CodeFileEntry {
+  path: string
+  content: string
+  language: 'typescript' | 'tsx' | 'javascript' | 'jsx' | 'css' | 'json' | 'markdown' | 'html' | 'other'
+  sizeBytes: number
+  lineCount: number
+  lastModified?: string
+  /** 内容哈希，用于变更检测 */
+  hash: string
+  /** 关键词标签（自动提取） */
+  tags: string[]
+  /** 关键词数组（与 tags 同义，UI 侧更直观） */
+  keywords: string[]
+}
+
+/** 代码库索引 */
+export interface CodebaseIndex {
+  indexedAt: string
+  totalFiles: number
+  totalLines: number
+  totalSizeBytes: number
+  files: CodeFileEntry[]
+  /** 关键词倒排：关键词 → 文件路径数组 */
+  keywordIndex: Record<string, string[]>
+  /** 文件路径 → 摘要 */
+  fileSummaries: Record<string, string>
+  /** 摘要总行数（UI 展示用） */
+  summaryLines: number
+  /** 关键词总数（UI 展示用） */
+  totalKeywords: number
+}
+
+/** 编码经验条目（注入 LLM 训练） */
+export interface CodingExperienceEntry {
+  id: string
+  category: 'workflow' | 'pattern' | 'anti-pattern' | 'debugging' | 'optimization' | 'security' | 'ui-preference' | 'architecture' | 'comprehension' | 'user-defined'
+  title: string
+  description: string
+  /** 触发条件（自然语言） */
+  trigger: string
+  /** 推荐做法（代码级） */
+  practice: string
+  /** 反例（不要这么做） */
+  antiExample?: string
+  /** 正例（推荐这么做） */
+  positiveExample?: string
+  priority: 1 | 2 | 3  // 1=最高
+  /** 来源：karpathy-workflow / user-preference / project-history / skill / default */
+  source: 'karpathy' | 'user' | 'history' | 'skill' | 'default'
+  timestamp: string
+}
+
+/** LLM 编码经验注入结果 */
+export interface ExperienceInjectionResult {
+  timestamp: string
+  injectedCount: number
+  categories: Record<string, number>
+  systemPrompt: string
+  fewShotCount: number
+  estimatedTokenBudget: number
+}
+
+/** 单一文件的代码补丁（diff 风格） */
+export interface CodePatch {
+  id: string
+  filePath: string
+  /** 旧代码片段（唯一匹配） */
+  oldSnippet: string
+  /** 新代码片段 */
+  newSnippet: string
+  /** 变更理由 */
+  reason: string
+  /** 风险等级 0-1 */
+  risk: number
+  /** 影响领域 */
+  domain: string
+  /** 预期收益描述 */
+  expectedGain: string
+  /** LLM 生成的理由说明 */
+  rationale?: string
+}
+
+/** 代码自优化计划（包含多个补丁 + 验证步骤） */
+export interface CodeSelfOptimizePlan {
+  id: string
+  timestamp: string
+  title: string
+  description: string
+  /** 生成补丁的 LLM 来源 */
+  llmSource: LLMProvider
+  /** 补丁列表 */
+  patches: CodePatch[]
+  /** 需要运行的验证命令 */
+  validationCommands: string[]
+  /** 编码经验注入数量 */
+  experienceUsed: number
+  /** 风险评估 */
+  riskAssessment: 'low' | 'medium' | 'high'
+  /** 置信度 0-1 */
+  confidence: number
+  /** 推断意图 */
+  intent: string
+}
+
+/** 补丁执行结果 */
+export interface PatchExecutionResult {
+  patchId: string
+  filePath: string
+  status: 'pending' | 'applied' | 'match-failed' | 'validation-failed' | 'rolledback'
+  errorMessage?: string
+  /** 备份快照 ID（应用前） */
+  backupId?: string
+  appliedAt?: string
+  rolledbackAt?: string
+}
+
+/** 代码自优化执行记录 */
+export interface CodeSelfOptimizeRun {
+  id: string
+  timestamp: string
+  plan: CodeSelfOptimizePlan
+  patchResults: PatchExecutionResult[]
+  overallStatus: 'pending' | 'running' | 'success' | 'partial' | 'failed' | 'rolledback'
+  validationOutput?: string
+  validationExitCode?: number
+  /** 备份快照（应用前整库） */
+  backupSnapshotId?: string
+  durationMs?: number
+  summary: string
+  /** 基本语法检查结果（dry-run 内存模拟） */
+  syntaxOk: boolean
+  /** 语法错误信息（若有） */
+  syntaxErrors?: string[]
+}
+
+/** 代码自优化统计 */
+export interface CodeSelfOptimizeStats {
+  totalRuns: number
+  successfulRuns: number
+  failedRuns: number
+  rolledBackRuns: number
+  totalPatches: number
+  appliedPatches: number
+  rollbackPatches: number
+  filesModified: string[]
+  lastRunId?: string
+  lastStatus?: string
+  /** 应用补丁后编译通过的累计次数 */
+  compilePassCount: number
+}
+
+/** Kimi API 能力特征（Kimi 升级：长上下文 + 深度代码理解） */
+export interface KimiCapabilities {
+  maxContextTokens: number           // Kimi: 128k/2M
+  supportsCodePatch: boolean
+  supportsFileTree: boolean
+  supportsFewShot: boolean
+  recommendedTemperature: number
+  recommendedTopP: number
+}
+
+/** 代码自优化配置 */
+export interface CodeSelfOptimizeConfig {
+  enabled: boolean
+  /** 每次最大补丁数（避免一次改太多） */
+  maxPatchesPerRun: number
+  /** 自动应用补丁（false 则仅生成需手动确认） */
+  autoApply: boolean
+  /** 应用前强制备份 */
+  forceBackup: boolean
+  /** 应用后自动运行 tsc 验证 */
+  autoValidate: boolean
+  /** 验证失败自动回溯 */
+  autoRollback: boolean
+  /** 允许修改的文件白名单（空=全部允许） */
+  allowedFilePatterns: string[]
+  /** 禁止修改的文件黑名单（正则） */
+  forbiddenPatterns: string[]
+  /** 最高允许风险 */
+  maxAllowedRisk: number
+  /** 使用的 LLM 提供商 */
+  preferredProvider: LLMProvider
+}
+
+/** 默认代码自优化配置 */
+export const DEFAULT_CODE_SELF_OPTIMIZE: CodeSelfOptimizeConfig = {
+  enabled: false,
+  maxPatchesPerRun: 3,
+  autoApply: false,
+  forceBackup: true,
+  autoValidate: true,
+  autoRollback: true,
+  allowedFilePatterns: ['**/*.ts', '**/*.tsx', '**/*.css'],
+  forbiddenPatterns: [
+    'node_modules/',
+    'dist/',
+    '.git/',
+    // 首页受保护
+    'src/pages/Home/',
+    // 包配置不自动改
+    'package.json',
+    'tsconfig.json',
+  ],
+  maxAllowedRisk: 0.5,
+  preferredProvider: 'kimi',
+}
+
+/** Kimi 官方能力特征（开源/文档公开的能力） */
+export const DEFAULT_KIMI_CAPABILITIES: KimiCapabilities = {
+  maxContextTokens: 128000,
+  supportsCodePatch: true,
+  supportsFileTree: true,
+  supportsFewShot: true,
+  recommendedTemperature: 0.2,  // 代码改动偏保守
+  recommendedTopP: 0.9,
+}
+
 

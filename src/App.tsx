@@ -13,6 +13,18 @@ import MonitorDashboard from './pages/MonitorDashboard/MonitorDashboard'
 import NibbleLevels from './pages/NibbleLevels'
 import SkillLab from './pages/SkillLab'
 import EvolutionArchive from './pages/EvolutionArchive'
+import CodeTypingArena from './pages/CodeTypingArena'
+import PluginsHub from './pages/PluginsHub'
+import ImageGen from './pages/ImageGen'
+import VideoGen from './pages/VideoGen'
+import VizLab from './pages/VizLab'
+import Workbench from './pages/Workbench'
+import ProductDocs from './pages/ProductDocs'
+import GitHubHub from './pages/GitHubHub'
+import LarkSuite from './pages/LarkSuite'
+import DesignStudio from './pages/DesignStudio'
+import BrowserStudio from './pages/BrowserStudio'
+import WebDevTools from './pages/WebDevTools'
 import './App.css'
 
 function App() {
@@ -32,6 +44,19 @@ function App() {
           <Route path="/nibble" element={<NibbleLevels />} />
           <Route path="/skills" element={<SkillLab />} />
           <Route path="/evolution" element={<EvolutionArchive />} />
+          <Route path="/typing" element={<CodeTypingArena />} />
+          {/* 插件中心 */}
+          <Route path="/plugins" element={<PluginsHub />} />
+          <Route path="/plugins/image-gen" element={<ImageGen />} />
+          <Route path="/plugins/video-gen" element={<VideoGen />} />
+          <Route path="/plugins/viz-lab" element={<VizLab />} />
+          <Route path="/plugins/workbench" element={<Workbench />} />
+          <Route path="/plugins/product-docs" element={<ProductDocs />} />
+          <Route path="/plugins/github-hub" element={<GitHubHub />} />
+          <Route path="/plugins/lark-suite" element={<LarkSuite />} />
+          <Route path="/plugins/design-studio" element={<DesignStudio />} />
+          <Route path="/plugins/browser-studio" element={<BrowserStudio />} />
+          <Route path="/plugins/web-dev" element={<WebDevTools />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

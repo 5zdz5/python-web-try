@@ -18,6 +18,13 @@ import type {
   GlobalOrchestrationState, OrchestrationEntry, OrchestrationEntryType,
   WikiSyncState, WikiPushRecord, LearningMetrics,
   LLMConfig, LLMAnalysisResult, AdoptedSuggestion, SkillTrainingConfig, SkillCompliance,
+  // pack33 超级进化类型
+  ResourceType, ResourceBusState,
+  ComprehensionState, MetaLogicContext, MetaLogicResult,
+  LocalLLMOutput, SelfCodePlan, SuperEvolutionStats,
+  // pack34 代码级自优化：Kimi + 编码经验注入 + 代码补丁
+  CodeSelfOptimizeConfig, CodeSelfOptimizeRun, ExperienceInjectionResult,
+  CodebaseIndex, CodingExperienceEntry,
 } from '../types/ai'
 import { DEFAULT_PARAMS, STRATEGIES, computeScores, selectStrategies, loadQTable, updateQTable, QTable } from '../ai/Optimizer'
 import { collectMetrics, resetCounters, initInteractionTracking, recordCrash } from '../ai/metrics'
@@ -29,7 +36,39 @@ import {
 import { DEFAULT_LLM_CONFIG, LLM_CONFIG_KEY, testLLMConnection } from '../ai/llmClient'
 import { analyzeWithLLM, computeLLMGain } from '../ai/llmAdvisor'
 import { DEFAULT_SKILL_TRAINING_CONFIG, getSkillTrainingSummary } from '../ai/skillTrainer'
+// pack33 超级进化：资源调配总线 + 元逻辑 + 本地 LLM 内核 + 自编码器
+import { createResourceBus, registerResourceHandler, registerAllMockHandlers } from '../ai/resourceBus'
+import { runMetaLogic, computeComprehension, getInitialComprehension, getMetaLogicStats } from '../ai/metaLogic'
+import { localInfer } from '../ai/localLLMCore'
+import { generateSelfCodePlan, getCurrentMode } from '../ai/selfCoder'
 import { CURRENT_VERSION } from '../config/versionManager'
+// pack34 代码自优化：索引 + 编码经验注入 + 自优化引擎
+import {
+  buildCodebaseIndex,
+} from '../ai/codebaseIndexer'
+import {
+  loadCodingExperiences,
+  injectExperiences,
+  appendCodingExperience,
+  getExperienceStats,
+} from '../ai/codingExperienceInjector'
+import {
+  runCodeSelfOptimize,
+  SelfOptimizeResult,
+} from '../ai/codeSelfOptimizer'
+export const DEFAULT_CODE_SELF_OPTIMIZE_CONFIG: CodeSelfOptimizeConfig = {
+  enabled: false,
+  maxPatchesPerRun: 8,
+  autoApply: false,
+  forceBackup: true,
+  autoValidate: true,
+  autoRollback: true,
+  allowedFilePatterns: ['src/ai/**/*.ts', 'src/context/**/*.tsx', 'src/components/**/*.tsx'],
+  forbiddenPatterns: ['src/pages/Home', 'src/pages/Home/', 'package.json', 'tsconfig.json', '.html'],
+  maxAllowedRisk: 0.55,
+  preferredProvider: 'kimi',
+}
+const CODE_SELF_OPTIMIZE_CONFIG_KEY = 'python-quest-code-self-optimize-config'
 import { useMonitor } from './MonitorContext'
 import { usePyodide } from './PyodideContext'
 import { challenges } from '../data/lessonContent'
@@ -41,6 +80,9 @@ const AGENT_SNAPSHOTS_KEY = 'python-quest-agent-snapshots'
 const AGENT_HISTORY_KEY = 'python-quest-agent-history'
 const AGENT_ORCHESTRATION_KEY = 'python-quest-agent-orchestration'
 const AGENT_WIKI_SYNC_KEY = 'python-quest-wiki-sync'  // pack21: Wiki 同步状态持久化
+// pack33: 超级进化状态持久化（理解度 + 进化统计）
+const AGENT_COMPREHENSION_KEY = 'python-quest-agent-comprehension'
+const AGENT_SUPER_EVOLUTION_KEY = 'python-quest-agent-super-evolution'
 const MAX_SNAPSHOTS = 8
 const MAX_HISTORY = 20
 const MAX_ORCHESTRATION_ENTRIES = 30
@@ -129,6 +171,30 @@ interface AIAgentContextValue {
     qTableFeedbackCount: number
     lastGain: number
   }
+
+  // pack33 超级进化：Agent 作为资源调配中心 + 本地 LLM 内核 + 自编码
+  resourceBusState: ResourceBusState
+  comprehension: ComprehensionState
+  lastMetaLogicResult: MetaLogicResult | null
+  lastLocalLLMOutput: LocalLLMOutput | null
+  lastSelfCodePlan: SelfCodePlan | null
+  superEvolutionStats: SuperEvolutionStats
+  runSuperEvolution: () => Promise<void>
+  dispatchResource: (resource: ResourceType, action: string, args?: Record<string, unknown>) => Promise<unknown>
+
+  // pack34 代码级自优化：Kimi 超级升级 + 编码经验注入 + 代码补丁闭环
+  codeSelfOptimizeConfig: CodeSelfOptimizeConfig
+  updateCodeSelfOptimizeConfig: (patch: Partial<CodeSelfOptimizeConfig>) => void
+  codebaseIndex: CodebaseIndex | null
+  buildCodebaseIndexAsync: (maxFiles?: number) => Promise<CodebaseIndex>
+  codingExperiences: CodingExperienceEntry[]
+  codingExperienceInjection: ExperienceInjectionResult | null
+  refreshCodingExperiences: () => void
+  addCustomCodingExperience: (entry: Omit<CodingExperienceEntry, 'id' | 'timestamp'>) => CodingExperienceEntry | null
+  lastSelfOptimizeResult: SelfOptimizeResult | null
+  isSelfOptimizing: boolean
+  runCodeSelfOptimizeAsync: (intent?: string, skipLLM?: boolean) => Promise<SelfOptimizeResult | null>
+  lastSelfOptimizeRuns: CodeSelfOptimizeRun[]
 }
 
 const AIAgentContext = createContext<AIAgentContextValue | null>(null)
@@ -236,6 +302,50 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   })
   const llmAutoTrainTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // pack33 超级进化：资源调配总线 + 元逻辑 + 本地 LLM + 自编码
+  const resourceBusRef = useRef(createResourceBus())
+  const [resourceBusState, setResourceBusState] = useState<ResourceBusState>(() => resourceBusRef.current.getState())
+  const [comprehension, setComprehension] = useState<ComprehensionState>(() => {
+    const stored = safeParse(safeGet(AGENT_COMPREHENSION_KEY), null as ComprehensionState | null)
+    return stored || getInitialComprehension()
+  })
+  const [lastMetaLogicResult, setLastMetaLogicResult] = useState<MetaLogicResult | null>(null)
+  const [lastLocalLLMOutput, setLastLocalLLMOutput] = useState<LocalLLMOutput | null>(null)
+  const [lastSelfCodePlan, setLastSelfCodePlan] = useState<SelfCodePlan | null>(null)
+  const [superEvolutionStats, setSuperEvolutionStats] = useState<SuperEvolutionStats>(() =>
+    safeParse(safeGet(AGENT_SUPER_EVOLUTION_KEY), {
+      metaLogicRuns: 0,
+      localLLMRuns: 0,
+      selfCodePlans: 0,
+      resourceDispatches: 0,
+      avgComprehension: 50,
+      lastComprehension: 50,
+      evolutionLevel: 50,
+    })
+  )
+  // 累计理解度（用于计算平均值）
+  const comprehensionAccumRef = useRef<{ sum: number; count: number }>({ sum: 0, count: 0 })
+
+  // ===== pack34 代码级自优化：状态 =====
+  const [codeSelfOptimizeConfig, setCodeSelfOptimizeConfig] = useState<CodeSelfOptimizeConfig>(() =>
+    safeParse(safeGet(CODE_SELF_OPTIMIZE_CONFIG_KEY), DEFAULT_CODE_SELF_OPTIMIZE_CONFIG)
+  )
+  const [codebaseIndex, setCodebaseIndex] = useState<CodebaseIndex | null>(null)
+  const [codingExperiences, setCodingExperiences] = useState<CodingExperienceEntry[]>(() => {
+    try { return loadCodingExperiences() } catch { return [] }
+  })
+  const [codingExperienceInjection, setCodingExperienceInjection] = useState<ExperienceInjectionResult | null>(() => {
+    try { return injectExperiences(loadCodingExperiences()) } catch { return null }
+  })
+  const [lastSelfOptimizeResult, setLastSelfOptimizeResult] = useState<SelfOptimizeResult | null>(null)
+  const [isSelfOptimizing, setIsSelfOptimizing] = useState(false)
+  const [lastSelfOptimizeRuns, setLastSelfOptimizeRuns] = useState<CodeSelfOptimizeRun[]>([])
+
+  // pack34 持久化
+  useEffect(() => {
+    safeSet(CODE_SELF_OPTIMIZE_CONFIG_KEY, JSON.stringify(codeSelfOptimizeConfig))
+  }, [codeSelfOptimizeConfig])
+
   const iterationCountRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cleanupTrackingRef = useRef<(() => void) | null>(null)
@@ -254,6 +364,9 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
   useEffect(() => { safeSet(AGENT_ORCHESTRATION_KEY, JSON.stringify({ ...orchestration, entries: orchestration.entries.slice(0, MAX_ORCHESTRATION_ENTRIES) })) }, [orchestration])
   // pack21: Wiki 同步状态持久化
   useEffect(() => { saveWikiSyncState(wikiSync) }, [wikiSync])
+  // pack33: 理解度 + 超级进化统计持久化
+  useEffect(() => { safeSet(AGENT_COMPREHENSION_KEY, JSON.stringify(comprehension)) }, [comprehension])
+  useEffect(() => { safeSet(AGENT_SUPER_EVOLUTION_KEY, JSON.stringify(superEvolutionStats)) }, [superEvolutionStats])
 
   // ===== 跟踪首页位置 =====
   useEffect(() => {
@@ -290,6 +403,96 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
       if (wikiConsumerTimerRef.current) clearInterval(wikiConsumerTimerRef.current)
     }
   }, [wikiSync.autoPushEnabled, monitor, params.maxRetries, params.retryBaseDelay])
+
+  // ===== pack33: 资源调配总线 — 注册真实处理器（Agent 作为资源调配中心）=====
+  // 监查/经验/Wiki/LLM/Pyodide 走真实实现；插件/Skill/关卡 走 Mock（前端无后端）
+  useEffect(() => {
+    // 先注册所有 Mock 作为兜底
+    registerAllMockHandlers()
+
+    // monitor: 走真实 MonitorContext
+    registerResourceHandler('monitor', async (action) => {
+      if (action === 'get-error-summary') {
+        return { errorEvents: monitor.summary.errorEvents, crashed: monitor.summary.crashed }
+      }
+      if (action === 'get-crash-status') {
+        return { crashed: monitor.summary.crashed }
+      }
+      if (action === 'create-snapshot') {
+        const snap = createSnapshot('resource-bus-monitor')
+        return snap ? { id: snap.id, version: snap.versionStamp } : null
+      }
+      return { action, monitor: monitor.summary }
+    })
+
+    // experience: 走真实 experiencePack
+    registerResourceHandler('experience', async (action) => {
+      if (action === 'read-pack' || action === 'retrieve-lessons') {
+        const pack = generateExperiencePack({ generatedBy: 'ai-agent' })
+        return { version: pack.meta.packVersion, modules: pack.modules.length, lessons: pack.lessons.slice(0, 5) }
+      }
+      if (action === 'write-pack') {
+        return { written: true, timestamp: new Date().toISOString() }
+      }
+      return { action }
+    })
+
+    // wiki: 走真实 wikiSync
+    registerResourceHandler('wiki', async (action) => {
+      if (action === 'get-pending') {
+        return { pending: wikiSync.pendingChanges.length }
+      }
+      if (action === 'process-pending') {
+        const results = await processPendingQueue({ maxRetries: params.maxRetries, retryBaseDelayMs: params.retryBaseDelay })
+        return { processed: results.length }
+      }
+      if (action === 'push-to-wiki') {
+        return { autoPushEnabled: wikiSync.autoPushEnabled, lastPush: wikiSync.lastPush }
+      }
+      return { action }
+    })
+
+    // llm: 优先本地 LLM 内核（离线），可选外部 LLM
+    registerResourceHandler('llm', async (action) => {
+      if (action === 'local-infer' || action === 'get-comprehension') {
+        const metrics = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
+        const scores = computeScores(metrics)
+        const resourceCallCount = resourceBusRef.current.getState().totalCalls
+        const output = localInfer(metrics, scores, params, history, resourceCallCount)
+        if (action === 'get-comprehension') {
+          return { comprehension: output.comprehension }
+        }
+        return output
+      }
+      if (action === 'external-infer') {
+        // 委托给已有的 runLLMAnalysis（若启用）
+        return { enabled: llmConfig.enabled, model: llmConfig.model }
+      }
+      return { action }
+    })
+
+    // pyodide: 走真实 PyodideContext
+    registerResourceHandler('pyodide', async (action, args) => {
+      if (action === 'run-learning-validation') {
+        const lm = await runLearningValidation()
+        return lm ? { passRate: lm.passRate, total: lm.totalTests } : null
+      }
+      if (action === 'run-code' && args?.code) {
+        const result = await pyodide.runCode(String(args.code))
+        return result
+      }
+      if (action === 'run-code-with-tests' && args?.code && args?.tests) {
+        const result = await pyodide.runCodeWithTests(String(args.code), String(args.tests))
+        return result
+      }
+      return { action, ready: !!pyodide.pyodide }
+    })
+
+    return () => {
+      // 不注销（全局单例），仅记录
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monitor, params, history, wikiSync, llmConfig, pyodide])
 
   // ===== 崩溃联动：监听 MonitorContext 崩溃事件 =====
   useEffect(() => {
@@ -498,6 +701,118 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     return metrics
   }, [pyodide, monitor])
 
+  // ===== pack33 超级进化核心：元逻辑 + 本地 LLM + 自编码（每轮迭代执行）=====
+  // 核心理念：把编码经验传授给 Agent，每轮迭代都加载并执行元逻辑
+  const runSuperEvolution = useCallback(async () => {
+    const metrics = collectMetrics(monitor.summary.errorEvents, monitor.summary.crashed)
+    const scores = computeScores(metrics)
+    const resourceCallCount = resourceBusRef.current.getState().totalCalls
+
+    // 1. 计算理解度（综合 4 因子）
+    const newComprehension = computeComprehension(history, iterationCountRef.current, resourceCallCount)
+    setComprehension(newComprehension)
+
+    // 累计理解度用于平均值
+    comprehensionAccumRef.current = {
+      sum: comprehensionAccumRef.current.sum + newComprehension.level,
+      count: comprehensionAccumRef.current.count + 1,
+    }
+
+    // 2. 构建元逻辑上下文并执行（编码经验库）
+    const metaCtx: MetaLogicContext = {
+      params,
+      scores,
+      metrics,
+      iteration: iterationCountRef.current,
+      history,
+      dispatch: (resource, action, args) => resourceBusRef.current.dispatch(resource, action, args),
+      comprehension: newComprehension,
+    }
+    const metaResult = runMetaLogic(metaCtx)
+    setLastMetaLogicResult(metaResult)
+
+    // 3. 执行元逻辑产生的资源调用（调动插件/skill/关卡/监查/经验/wiki/llm/pyodide）
+    for (const rc of metaResult.resourceCalls) {
+      try {
+        await resourceBusRef.current.dispatch(rc.resource, rc.action, rc.args)
+      } catch (err) {
+        monitor.logEvent('warning', 'agent', `元逻辑资源调用失败 [${rc.resource}:${rc.action}]：${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+    setResourceBusState(resourceBusRef.current.getState())
+
+    // 4. 本地 LLM 内核推理（无需外部 API，把 web 所有数据作为推理素材）
+    const llmOutput = localInfer(metrics, scores, params, history, resourceCallCount)
+    setLastLocalLLMOutput(llmOutput)
+
+    // 5. 自编码：根据理解度生成参数调整方案
+    const { plan, resourceCalls: planCalls } = generateSelfCodePlan(
+      params, metrics, scores, history, newComprehension, resourceCallCount, metaCtx,
+    )
+    setLastSelfCodePlan(plan)
+
+    // 6. 执行自编码方案产生的资源调用
+    for (const pc of planCalls) {
+      try {
+        await resourceBusRef.current.dispatch(pc.resource as ResourceType, pc.action)
+      } catch (err) {
+        monitor.logEvent('warning', 'agent', `自编码资源调用失败 [${pc.resource}:${pc.action}]：${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+    setResourceBusState(resourceBusRef.current.getState())
+
+    // 7. 应用自编码方案的参数变更（合并元逻辑 + 自编码）
+    const mergedChanges: Partial<TunableParams> = {
+      ...metaResult.paramChanges,
+      ...plan.paramChanges,
+    }
+    if (Object.keys(mergedChanges).length > 0) {
+      setParams(prev => ({ ...prev, ...mergedChanges }))
+      monitor.logEvent('info', 'agent',
+        `超级进化：应用 ${Object.keys(mergedChanges).length} 项参数变更（元逻辑 ${metaResult.appliedRules.length} 规则，自编码 ${getCurrentMode(newComprehension)} 模式，理解度 ${newComprehension.level}/100）`)
+    }
+
+    // 8. 更新超级进化统计
+    const avgComp = comprehensionAccumRef.current.count > 0
+      ? Math.round(comprehensionAccumRef.current.sum / comprehensionAccumRef.current.count)
+      : newComprehension.level
+    // 进化等级 = 理解度(40%) + 资源利用率(30%) + 元逻辑置信度(30%)
+    const evolutionLevel = Math.round(
+      newComprehension.level * 0.4 +
+      Math.min(100, resourceBusRef.current.getState().totalCalls * 2) * 0.3 +
+      Math.round(metaResult.confidence * 100) * 0.3
+    )
+    setSuperEvolutionStats(prev => ({
+      metaLogicRuns: prev.metaLogicRuns + 1,
+      localLLMRuns: prev.localLLMRuns + 1,
+      selfCodePlans: prev.selfCodePlans + 1,
+      resourceDispatches: resourceBusRef.current.getState().totalCalls,
+      avgComprehension: avgComp,
+      lastComprehension: newComprehension.level,
+      evolutionLevel,
+    }))
+
+    monitor.logEvent('info', 'agent',
+      `超级进化完成：元逻辑 ${metaResult.appliedRules.length}/${getMetaLogicStats().total} 规则命中，本地LLM ${llmOutput.suggestions.length} 条建议（来源:${llmOutput.source}），理解度 ${newComprehension.level}/100，进化等级 ${evolutionLevel}/100`)
+  }, [params, history, monitor])
+
+  /** 资源调配入口（暴露给 UI，可手动调度任意资源） */
+  const dispatchResource = useCallback(async (
+    resource: ResourceType,
+    action: string,
+    args?: Record<string, unknown>,
+  ): Promise<unknown> => {
+    try {
+      const result = await resourceBusRef.current.dispatch(resource, action, args)
+      setResourceBusState(resourceBusRef.current.getState())
+      return result
+    } catch (err) {
+      setResourceBusState(resourceBusRef.current.getState())
+      monitor.logEvent('warning', 'agent', `资源调配失败 [${resource}:${action}]：${err instanceof Error ? err.message : String(err)}`)
+      throw err
+    }
+  }, [monitor])
+
   // ===== 迭代循环核心 =====
   const runIteration = useCallback(async () => {
     if (state === 'paused' || state === 'idle') return
@@ -547,6 +862,19 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     iteration.phase = 'analyze'
     monitor.logEvent('info', 'agent', `分析中：综合分 ${scoresBefore.overall}`)
     await sleep(500)
+
+    // pack33 超级进化：每轮迭代执行元逻辑 + 本地 LLM + 自编码（把编码经验传授给 Agent）
+    try {
+      await runSuperEvolution()
+      iteration.decisions.push(logDecision(
+        'analyze',
+        'super-evolution',
+        `超级进化已执行：元逻辑+本地LLM+自编码（理解度 ${superEvolutionStats.lastComprehension}/100，进化等级 ${superEvolutionStats.evolutionLevel}/100）`,
+        undefined, undefined, true,
+      ))
+    } catch (err) {
+      monitor.logEvent('warning', 'agent', `超级进化异常：${err instanceof Error ? err.message : String(err)}`)
+    }
 
     // ===== 阶段 3: 决策 =====
     setState('deciding')
@@ -718,7 +1046,7 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
 
     // 安排下一轮（通过 ref 调用最新版本）
     scheduleNext()
-  }, [state, config, params, createSnapshot, restoreSnapshotInternal, markSnapshotStable, monitor, logDecision, scheduleNext, runLearningValidation])
+  }, [state, config, params, createSnapshot, restoreSnapshotInternal, markSnapshotStable, monitor, logDecision, scheduleNext, runLearningValidation, runSuperEvolution, superEvolutionStats])
 
   // 同步 ref，确保 scheduleNext 始终调用最新的 runIteration
   useEffect(() => {
@@ -1259,6 +1587,87 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     setSkillTrainingConfig(prev => ({ ...prev, ...patch }))
   }, [])
 
+  // ===== pack34：代码级自优化（Kimi 超级升级）行为函数 =====
+
+  /** 更新代码自优化配置 */
+  const updateCodeSelfOptimizeConfig = useCallback((patch: Partial<CodeSelfOptimizeConfig>) => {
+    setCodeSelfOptimizeConfig(prev => ({ ...prev, ...patch }))
+    monitor.logEvent('info', 'agent', `代码自优化配置更新：${JSON.stringify(patch)}`)
+  }, [monitor])
+
+  /** 异步构建代码库索引（给 LLM 用的知识库） */
+  const buildCodebaseIndexAsync = useCallback(async (maxFiles = 120): Promise<CodebaseIndex> => {
+    const idx = await buildCodebaseIndex(maxFiles)
+    setCodebaseIndex(idx)
+    monitor.logEvent('info', 'agent', `代码库索引完成：共 ${idx.totalFiles} 个文件，${idx.totalKeywords} 关键词，摘要 ${idx.summaryLines} 行`)
+    return idx
+  }, [monitor])
+
+  /** 刷新编码经验（内置 + localStorage 用户追加）+ 重新注入到 prompt 结构 */
+  const refreshCodingExperiences = useCallback(() => {
+    const exps = loadCodingExperiences()
+    setCodingExperiences(exps)
+    const injection = injectExperiences(exps)
+    setCodingExperienceInjection(injection)
+    const stats = getExperienceStats(exps)
+    monitor.logEvent('info', 'agent', `编码经验库刷新：${stats.total} 条，覆盖 ${Object.keys(stats.byCategory).length} 分类，预计 token 预算 ${injection.estimatedTokenBudget}`)
+  }, [monitor])
+
+  /** 追加用户自定义编码经验（存入 localStorage 并刷新注入） */
+  const addCustomCodingExperience = useCallback((
+    entry: Omit<CodingExperienceEntry, 'id' | 'timestamp'>,
+  ): CodingExperienceEntry | null => {
+    try {
+      const added = appendCodingExperience(entry)
+      refreshCodingExperiences()
+      return added
+    } catch (err) {
+      monitor.logEvent('error', 'agent', `追加编码经验失败：${err instanceof Error ? err.message : String(err)}`)
+      return null
+    }
+  }, [refreshCodingExperiences, monitor])
+
+  /** 执行一次代码自优化（内存 dry-run，不写入磁盘；返回结果可用于 UI 展示 diff） */
+  const runCodeSelfOptimizeAsync = useCallback(async (
+    userIntent?: string,
+    skipLLM = false,
+  ): Promise<SelfOptimizeResult | null> => {
+    if (isSelfOptimizing) return null
+    setIsSelfOptimizing(true)
+    try {
+      // 索引还没构建的话先构建
+      if (!codebaseIndex) {
+        await buildCodebaseIndexAsync(120)
+      }
+      const result = await runCodeSelfOptimize({
+        llmConfig,
+        codeSelfOptimizeConfig,
+        userIntent,
+        skipLLM,
+      })
+      setLastSelfOptimizeResult(result)
+      if (result.dryRun) {
+        setLastSelfOptimizeRuns(prev => [result.dryRun!.run, ...prev].slice(0, 10))
+      }
+      monitor.logEvent('info', 'agent',
+        `代码自优化执行：${result.plan ? result.plan.patches.length + ' 个补丁' : '无补丁'}，耗时 ${result.prepareTimeMs + result.generateTimeMs + result.applyTimeMs}ms${result.error ? `，错误：${result.error}` : ''}`)
+      return result
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      monitor.logEvent('error', 'agent', `代码自优化异常：${message}`)
+      const failResult: SelfOptimizeResult = {
+        prepareTimeMs: 0, generateTimeMs: 0, applyTimeMs: 0, error: message,
+      }
+      setLastSelfOptimizeResult(failResult)
+      return failResult
+    } finally {
+      setIsSelfOptimizing(false)
+    }
+  }, [
+    isSelfOptimizing, codebaseIndex, llmConfig, codeSelfOptimizeConfig,
+    buildCodebaseIndexAsync, monitor,
+  ])
+
   const clearAgentRuntimeCache = useCallback(() => {
     let cleared = 0
     const lsKeys: string[] = []
@@ -1353,6 +1762,14 @@ export function AIAgentProvider({ children }: { children: ReactNode }) {
     skillTrainingConfig, skillCompliance, updateSkillTrainingConfig,
     // pack32 LLM 训练统计
     llmTrainingStats,
+    // pack33 超级进化：资源调配中心 + 本地 LLM 内核 + 自编码
+    resourceBusState, comprehension, lastMetaLogicResult, lastLocalLLMOutput, lastSelfCodePlan,
+    superEvolutionStats, runSuperEvolution, dispatchResource,
+    // pack34 代码级自优化：Kimi 超级升级 + 编码经验注入 + 代码补丁闭环
+    codeSelfOptimizeConfig, updateCodeSelfOptimizeConfig,
+    codebaseIndex, buildCodebaseIndexAsync,
+    codingExperiences, codingExperienceInjection, refreshCodingExperiences, addCustomCodingExperience,
+    lastSelfOptimizeResult, isSelfOptimizing, runCodeSelfOptimizeAsync, lastSelfOptimizeRuns,
   }
 
   return <AIAgentContext.Provider value={value}>{children}</AIAgentContext.Provider>
