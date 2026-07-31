@@ -33,9 +33,11 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v4.2'
-export const DOC_LAST_UPDATE = '2026-07-31'
+export const DOC_VERSION = 'v4.3'
+export const DOC_LAST_UPDATE = '2026-08-01'
 export const DOC_CHANGES = [
+  'v4.3 pack34：Kimi超级升级 + 代码级自优化 + 22条编码经验注入 + 10插件中心 — llmClient.ts升级为Kimi三Provider版（detectProvider自动识别+kimiCreateCache Context Caching+kimiMakeCacheReferenceMessage引用消息+kimiUploadAndExtract超长安抽取+KIMI_CODE_SELF_OPTIMIZE_TOOLS Function Calling+sanitizeLLMJSON三重清洗）；codeSelfOptimizer.ts补丁闭环（准备→生成补丁→Dry Run唯一匹配检查→自动备份→按风险升序应用→语法验证→失败逆序回溯）；codebaseIndexer.ts Vite import.meta.glob前端安全索引（rawGlob懒加载+normalizePath去前导/）；codingExperienceInjector.ts 22条编码经验（system prompt+3个few-shot正例+token估算）；AIAgentPanel新增代码级自优化板块（配置/索引/经验/优化结果4个可折叠面板）；插件中心PlugginsHub 10插件卡+7分类筛选+PluginShell统一外壳+Seedream图生/Seedance视频/VizLab10图表/ProductDocs6文档4个独立插件页；TSC 19项错误全修复，0错误。PACK_BUILD 32→33',
+  'v4.3 pack33：超级进化（资源调配总线+元逻辑引擎+本地离线LLM内核+自编码器参数自适应）— resourceBus.ts 8类资源统一调度（allocate/lock/release/schedule四操作+优先级加权+冲突检测+死锁超时释放）；metaLogic.ts 14条META_RULES覆盖6类经验（evaluate()无副作用只给confidence+action建议，供AIAgentContext统一决策）；localLLMCore.ts离线兜底（TF-IDF倒排+规则生成+决策树打分，严格限低风险补丁）；selfCoder.ts四因素量化理解度→3模式切换→selfTuneParameters自动覆盖TunableParams；PACK_BUILD 31→32',
   'v4.2 pack32：LLM训练反馈闭环 — computeLLMGain计算建议增益+applyLLMSuggestion采纳后updateQTable反馈（llm:前缀策略ID+agentLearningRate步长）+codePatch代码补丁解析展示（SuggestionCard pre代码块+人工审查标注）+LLM自动迭代训练定时器（每10分钟runLLMAnalysis形成observe→analyze→adopt→verify闭环）+LLM训练统计面板（分析次数/建议总数/采纳率/违规拦截/Q-table反馈/最近gain）',
   'v4.1 pack31：Agent结合Skill进行LLM训练 — 新建skillTrainer.ts（提取8个skill的22条规则构建few-shot训练prompt+合规检测：anti-slop默认值/console残留/LILA紫蓝色/spacing 8倍数）+llmAdvisor.ts注入skill规则到system prompt+严格模式自动拦截违规建议+AIAgentPanel新增Skill训练配置区和合规检测总览UI（SuggestionCard内嵌合规详情+违规建议采纳按钮disabled）',
   'v4.0 pack30：Agent向LLM方向进化 — 新建llmClient.ts（OpenAI兼容API客户端，超时+指数退避重试+JSON模式三重解析）+llmAdvisor.ts（LLM驱动分析器，21参数prompt+17项指标+参数变更安全校验）+AIAgentContext接入LLM分析闭环（runLLMAnalysis+applyLLMSuggestion人工确认+全局调配阶段4真实LLM调用+双模式回退）+AIAgentPanel新增LLM配置面板和建议展示UI（SuggestionCard组件+采纳/忽略按钮+已采纳历史）',
