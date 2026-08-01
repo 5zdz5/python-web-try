@@ -1,0 +1,870 @@
+const n=`/* ============================================================
+ *  LarkSuite — 飞书套件 Mock 全场景
+ *  像素风 · 复用项目 CSS 变量
+ * ============================================================ */
+
+.lark-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+/* ============ 左侧导航 ============ */
+.lark-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-sm);
+  position: sticky;
+  top: var(--spacing-sm);
+}
+
+.lark-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 2px solid transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.12s;
+  text-align: left;
+}
+
+.lark-nav-item:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.lark-nav-item.active {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+  color: var(--color-accent-primary);
+}
+
+.lark-nav-icon {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lark-content {
+  min-height: 420px;
+}
+
+/* ============ IM 消息 ============ */
+.lark-im {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--spacing-md);
+  height: 560px;
+}
+
+.lark-im-list {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  overflow-y: auto;
+}
+
+.lark-chat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background 0.12s;
+  text-align: left;
+}
+
+.lark-chat-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.lark-chat-item.active {
+  background: var(--color-bg-tertiary);
+  border-left: 3px solid var(--color-accent-primary);
+}
+
+.lark-chat-avatar {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+}
+
+.lark-chat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lark-chat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.lark-chat-name {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lark-chat-time {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.lark-chat-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.lark-chat-last {
+  font-size: 0.76rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.lark-chat-unread {
+  background: var(--color-accent-tertiary);
+  color: var(--color-bg-primary);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lark-im-stream {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.lark-stream-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.lark-stream-name {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.lark-stream-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lark-bubble-wrap {
+  display: flex;
+  width: 100%;
+}
+
+.lark-bubble-wrap.mine {
+  justify-content: flex-end;
+}
+
+.lark-bubble-wrap.theirs {
+  justify-content: flex-start;
+}
+
+.lark-bubble {
+  max-width: 70%;
+  padding: 8px 12px;
+  border: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lark-bubble-wrap.mine .lark-bubble {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  color: var(--color-bg-primary);
+}
+
+.lark-bubble-wrap.theirs .lark-bubble {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.lark-bubble-text {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.lark-bubble-time {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  opacity: 0.7;
+  align-self: flex-end;
+}
+
+/* ============ 云文档 ============ */
+.lark-doc {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--spacing-md);
+}
+
+.lark-doc-list {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  overflow-y: auto;
+  max-height: 560px;
+}
+
+.lark-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background 0.12s;
+  text-align: left;
+}
+
+.lark-doc-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.lark-doc-item.active {
+  background: var(--color-bg-tertiary);
+  border-left: 3px solid var(--color-accent-secondary);
+}
+
+.lark-doc-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.lark-doc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.lark-doc-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lark-doc-meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.lark-doc-preview {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-lg);
+  min-height: 400px;
+}
+
+.lark-doc-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.lark-doc-preview-icon {
+  font-size: 2rem;
+}
+
+.lark-doc-preview-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-accent-primary);
+  margin-bottom: 4px;
+}
+
+.lark-doc-preview-meta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+.lark-doc-preview-body {
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  color: var(--color-text-primary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============ 电子表格 ============ */
+.lark-sheet {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+}
+
+.lark-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.lark-sheet-table th,
+.lark-sheet-table td {
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  text-align: left;
+}
+
+.lark-sheet-table th {
+  background: var(--color-bg-tertiary);
+  color: var(--color-accent-primary);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.lark-sheet-table tr:nth-child(even) td {
+  background: var(--color-bg-secondary);
+}
+
+.lark-sheet-table td:first-child {
+  color: var(--color-accent-secondary);
+  font-weight: 700;
+}
+
+/* ============ 多维表格 ============ */
+.lark-base {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.lark-base-card {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lark-base-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.lark-base-name {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.lark-base-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.lark-base-label {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lark-base-value {
+  color: var(--color-text-secondary);
+}
+
+.lark-base-progress {
+  position: relative;
+  height: 14px;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  margin-top: 4px;
+}
+
+.lark-base-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-primary), var(--color-accent-secondary));
+}
+
+.lark-base-progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  z-index: 1;
+}
+
+/* 优先级徽标（通用） */
+.lark-priority {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.priority-高 {
+  background: rgba(255, 46, 99, 0.15);
+  border-color: var(--color-accent-tertiary);
+  color: var(--color-accent-tertiary);
+}
+
+.priority-中 {
+  background: rgba(255, 184, 0, 0.15);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.priority-低 {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--color-accent-secondary);
+  color: var(--color-accent-secondary);
+}
+
+/* ============ 日历 ============ */
+.lark-calendar {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-lg);
+}
+
+.lark-calendar-today {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--color-accent-primary);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-border);
+  letter-spacing: 0.05em;
+}
+
+.lark-calendar-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.lark-cal-event {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-left: 4px solid var(--color-accent-primary);
+}
+
+.lark-cal-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 60px;
+  padding-right: var(--spacing-sm);
+  border-right: 1px solid var(--color-border);
+}
+
+.lark-cal-start {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-accent-primary);
+}
+
+.lark-cal-end {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.lark-cal-content {
+  flex: 1;
+}
+
+.lark-cal-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.lark-cal-loc {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.lark-cal-attendees {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.lark-cal-chip {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* ============ 任务看板 ============ */
+.lark-task {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.lark-task-col {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.lark-task-col-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--color-bg-secondary);
+  border-bottom: 2px solid var(--color-border);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-accent-primary);
+  letter-spacing: 0.05em;
+}
+
+.lark-task-count {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  font-size: 0.72rem;
+  padding: 1px 8px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.lark-task-cards {
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-height: 120px;
+}
+
+.lark-task-card {
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  padding: 10px 12px;
+}
+
+.lark-task-card-title {
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.lark-task-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lark-task-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  padding: 1px 6px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.lark-task-assignee {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* ============ 视频会议 ============ */
+.lark-vc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.lark-vc-item {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+}
+
+.lark-vc-status {
+  flex-shrink: 0;
+}
+
+.lark-vc-badge {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 2px solid var(--color-border);
+  letter-spacing: 0.05em;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.vc-live {
+  background: rgba(255, 46, 99, 0.15);
+  border-color: var(--color-accent-tertiary);
+  color: var(--color-accent-tertiary);
+  animation: lark-pulse 1.5s ease-in-out infinite;
+}
+
+.vc-upcoming {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--color-accent-secondary);
+  color: var(--color-accent-secondary);
+}
+
+.vc-ended {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+@keyframes lark-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.lark-vc-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.lark-vc-topic {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.lark-vc-time {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.lark-vc-attendees {
+  display: flex;
+}
+
+.lark-vc-avatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  font-size: 1rem;
+  margin-right: -8px;
+}
+
+.lark-vc-avatar:last-child {
+  margin-right: 0;
+}
+
+/* ============ 审批 ============ */
+.lark-approval {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.lark-approval-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+}
+
+.lark-approval-type {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  color: var(--color-accent-primary);
+  font-weight: 700;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.lark-approval-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lark-approval-applicant {
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+}
+
+.lark-approval-extra {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--color-accent-secondary);
+}
+
+.lark-approval-time {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.lark-approval-status {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 2px solid var(--color-border);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.ap-pending {
+  background: rgba(255, 184, 0, 0.15);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.ap-approved {
+  background: rgba(196, 255, 0, 0.12);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.ap-rejected {
+  background: rgba(255, 46, 99, 0.15);
+  border-color: var(--color-accent-tertiary);
+  color: var(--color-accent-tertiary);
+}
+
+/* ============ 响应式 ============ */
+@media (max-width: 900px) {
+  .lark-layout {
+    grid-template-columns: 1fr;
+  }
+  .lark-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+  }
+  .lark-nav-item {
+    flex: 1;
+    min-width: 90px;
+    justify-content: center;
+  }
+  .lark-im,
+  .lark-doc {
+    grid-template-columns: 1fr;
+  }
+  .lark-im {
+    height: auto;
+  }
+  .lark-im-list,
+  .lark-doc-list {
+    max-height: 240px;
+  }
+  .lark-task {
+    grid-template-columns: 1fr;
+  }
+}
+`;export{n as default};

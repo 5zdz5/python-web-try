@@ -1,0 +1,225 @@
+const n=`/**
+ * 版本管理系统
+ * - 每次迭代发布新版本时，旧版本进度数据被冻结（只读）
+ * - 用户可通过版本号入口查看历史版本的进度快照
+ * - 登录状态不随版本变化
+ */
+
+export interface VersionInfo {
+  version: string       // 版本号 e.g. 'v1.0'
+  label: string          // 版本名称 e.g. '初始版本'
+  date: string           // 发布日期 ISO
+  storageKey: string     // 该版本的进度存储key
+  frozen: boolean        // 是否已冻结（旧版本为true）
+  description?: string   // 版本描述
+}
+
+export interface VersionSnapshot {
+  version: string
+  totalXP: number
+  completedLevels: number
+  completedLessons: number
+  completedChallenges: number
+  studyDays: string[]
+  activityLogLength: number
+  snapshotDate: string
+}
+
+// 当前活跃版本（每次迭代更新此值）
+export const CURRENT_VERSION = 'v1.4'
+export const CURRENT_VERSION_LABEL = '游戏中心·3款小游戏 + 插件中心补全版'
+export const CURRENT_VERSION_DESC = 'pack33 超级进化（8类资源调配总线+14条元逻辑规则引擎+本地离线LLM内核TF-IDF兜底+自编码器3模式参数自适应）· pack34 Kimi超级升级（代码级自优化补丁闭环prepare→generate→dryRun→apply→validate→revert + 22条编码经验注入system prompt + Kimi Context Caching引用消息节省60%token + Vite glob前端安全读源码）· 10插件中心（PluginShell统一外壳+PluginsHub 10卡7分类+Seedream图生/Seedance视频/VizLab10图表/ProductDocs文档 + 6占位页 + code-typing 代码打字插件）· pack36 游戏中心3款小游戏（代码打字竞技场/代码输出猜谜8题/算法闪卡12张3D翻转卡）+ Navbar游戏中心入口· 60关完整内容 + 10大教程全目录对齐 + 8大分类地图 + 76张主题卡片'
+
+// 版本注册表 key（全局唯一，不随版本变化）
+const REGISTRY_KEY = 'python-quest-version-registry'
+// 旧版进度 key（用于迁移）
+const LEGACY_PROGRESS_KEY = 'python-quest-progress'
+const LEGACY_VERSION_KEY = 'python-quest-progress-version'
+
+// 安全的 localStorage 操作
+function safeGet(key: string): string | null {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+function safeSet(key: string, value: string): boolean {
+  try { localStorage.setItem(key, value); return true }
+  catch { console.warn('localStorage 写入失败:', key); return false }
+}
+
+/** 获取版本的进度存储 key */
+export function getVersionStorageKey(version: string): string {
+  return \`python-quest-progress@\${version}\`
+}
+
+/** 读取版本注册表 */
+export function getVersionRegistry(): VersionInfo[] {
+  const raw = safeGet(REGISTRY_KEY)
+  if (!raw) return []
+  try {
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) ? arr : []
+  } catch { return [] }
+}
+
+/** 写入版本注册表 */
+function saveVersionRegistry(versions: VersionInfo[]): void {
+  safeSet(REGISTRY_KEY, JSON.stringify(versions))
+}
+
+/**
+ * 初始化版本系统：
+ * 1. 如果注册表为空，创建当前版本记录
+ * 2. 如果检测到旧版数据（python-quest-progress），冻结并迁移
+ * 3. 如果当前版本不在注册表中，将上一版本冻结并添加新版本
+ */
+export function initVersionSystem(): VersionInfo[] {
+  let registry = getVersionRegistry()
+
+  // 首次使用：注册表为空
+  if (registry.length === 0) {
+    // 检查是否有旧版数据需要迁移
+    const legacyData = safeGet(LEGACY_PROGRESS_KEY)
+    const legacyVersion = safeGet(LEGACY_VERSION_KEY)
+
+    const newVersion: VersionInfo = {
+      version: CURRENT_VERSION,
+      label: CURRENT_VERSION_LABEL,
+      date: new Date().toISOString(),
+      storageKey: getVersionStorageKey(CURRENT_VERSION),
+      frozen: false,
+      description: CURRENT_VERSION_DESC
+    }
+
+    if (legacyData) {
+      // 有旧版数据：先创建一个 v1.0 冻结版本
+      const frozenVersion: VersionInfo = {
+        version: legacyVersion || 'v1.0',
+        label: '历史版本',
+        date: new Date().toISOString(),
+        storageKey: getVersionStorageKey(legacyVersion || 'v1.0'),
+        frozen: true,
+        description: '从旧版迁移的数据'
+      }
+      // 把旧数据复制到冻结 key
+      safeSet(frozenVersion.storageKey, legacyData)
+      registry = [frozenVersion, newVersion]
+    } else {
+      registry = [newVersion]
+    }
+
+    saveVersionRegistry(registry)
+    return registry
+  }
+
+  // 检查当前版本是否已在注册表中
+  const existing = registry.find(v => v.version === CURRENT_VERSION)
+  if (existing) {
+    // 更新描述等信息
+    existing.label = CURRENT_VERSION_LABEL
+    existing.description = CURRENT_VERSION_DESC
+    saveVersionRegistry(registry)
+    return registry
+  }
+
+  // 新版本：先找到当前活跃版本，再冻结所有旧版本
+  const lastActive = registry.find(v => !v.frozen)
+  if (lastActive) {
+    // 把活跃版本的数据复制到其冻结 key（确保快照保留）
+    const currentData = safeGet(lastActive.storageKey) || safeGet(LEGACY_PROGRESS_KEY)
+    if (currentData) {
+      safeSet(lastActive.storageKey, currentData)
+    }
+    lastActive.frozen = true
+  }
+
+  // 冻结所有版本（确保新版本是唯一未冻结的）
+  registry.forEach(v => { v.frozen = true })
+
+  // 添加新版本
+  const newVersion: VersionInfo = {
+    version: CURRENT_VERSION,
+    label: CURRENT_VERSION_LABEL,
+    date: new Date().toISOString(),
+    storageKey: getVersionStorageKey(CURRENT_VERSION),
+    frozen: false,
+    description: CURRENT_VERSION_DESC
+  }
+  registry.push(newVersion)
+  saveVersionRegistry(registry)
+  return registry
+}
+
+/** 获取当前活跃版本信息 */
+export function getCurrentVersionInfo(): VersionInfo | null {
+  const registry = getVersionRegistry()
+  return registry.find(v => v.version === CURRENT_VERSION && !v.frozen) || null
+}
+
+/** 获取上一版本的存储 key（用于版本迁移时读取旧进度） */
+export function getPreviousVersionStorageKey(): string | null {
+  const registry = getVersionRegistry()
+  // 找到最后一个冻结版本（即上一版本）
+  const frozen = registry.filter(v => v.frozen)
+  if (frozen.length === 0) return null
+  // 按日期排序取最近的冻结版本
+  const sorted = frozen.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  return sorted[0].storageKey
+}
+
+/** 获取指定版本的进度数据（只读） */
+/** 版本进度数据结构 */
+export interface VersionProgressData {
+  totalXP?: number
+  studyDays?: string[]
+  levels?: Record<string, { completed?: boolean; unlocked?: boolean; lessons?: Record<string, { completed?: boolean }>; challenges?: Record<string, { completed?: boolean }> }>
+  activityLog?: { id: string; icon: string; title: string; timestamp: string }[]
+  [key: string]: unknown
+}
+
+export function getVersionProgress(version: string): VersionProgressData | null {
+  const registry = getVersionRegistry()
+  const info = registry.find(v => v.version === version)
+  if (!info) return null
+
+  const data = safeGet(info.storageKey)
+  if (!data) return null
+  try { return JSON.parse(data) } catch { return null }
+}
+
+/** 获取所有版本的快照摘要 */
+export function getAllVersionSnapshots(): VersionSnapshot[] {
+  const registry = getVersionRegistry()
+  return registry.map(info => {
+    const data = getVersionProgress(info.version)
+    if (!data) {
+      return {
+        version: info.version,
+        totalXP: 0,
+        completedLevels: 0,
+        completedLessons: 0,
+        completedChallenges: 0,
+        studyDays: [],
+        activityLogLength: 0,
+        snapshotDate: info.date
+      }
+    }
+    const levels = (data.levels as Record<string, { completed?: boolean; lessons?: Record<string, { completed?: boolean }>; challenges?: Record<string, { completed?: boolean }> }>) || {}
+    const completedLevels = Object.values(levels).filter(l => l?.completed).length
+    const completedLessons = Object.values(levels).reduce(
+      (sum, l) => sum + Object.values(l?.lessons || {}).filter(x => x?.completed).length, 0
+    )
+    const completedChallenges = Object.values(levels).reduce(
+      (sum, l) => sum + Object.values(l?.challenges || {}).filter(x => x?.completed).length, 0
+    )
+    return {
+      version: info.version,
+      totalXP: data.totalXP || 0,
+      completedLevels,
+      completedLessons,
+      completedChallenges,
+      studyDays: data.studyDays || [],
+      activityLogLength: data.activityLog?.length || 0,
+      snapshotDate: info.date
+    }
+  })
+}
+`;export{n as default};

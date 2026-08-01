@@ -1,0 +1,103 @@
+const n=`/**
+ * SkillLab 页面样式
+ * 应用 taste-skill + impeccable 规则
+ */
+
+.skill-lab-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.skill-lab-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--color-border, #3a3a5a);
+}
+
+.skill-lab-title {
+  margin: 0 0 12px 0;
+  font-size: 2.5rem;
+  color: var(--color-accent-primary, #00ff88);
+  font-family: var(--font-display, 'JetBrains Mono', monospace);
+  letter-spacing: 2px;
+}
+
+.skill-lab-subtitle {
+  margin: 0;
+  color: var(--color-text-secondary, #8a8a9a);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.skill-lab-content {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.skill-lab-footer {
+  text-align: center;
+  padding: 24px;
+  background: var(--color-bg-tertiary, #1a1a2e);
+  border: 1px dashed var(--color-border, #3a3a5a);
+  border-radius: var(--radius-md, 4px);
+  color: var(--color-text-secondary, #8a8a9a);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.skill-lab-footer p {
+  margin: 0;
+}
+
+/* ===== 主题适配 ===== */
+[data-theme="pixel-spectrum"] .skill-lab-title {
+  background: linear-gradient(90deg, #ff0080, #ff8c00, #ffed00, #00ff88, #00c8ff, #8000ff, #ff0080);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: skill-lab-rainbow 3s linear infinite;
+}
+
+@keyframes skill-lab-rainbow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+[data-theme="pixel-crow"] .skill-lab-title {
+  color: var(--color-accent-primary, #9d4edd);
+  text-shadow: 
+    0 0 12px rgba(157, 78, 221, 0.5),
+    0 0 24px rgba(233, 69, 96, 0.3);
+}
+
+[data-theme="pixel-crow"] .skill-lab-footer {
+  background: linear-gradient(135deg,
+    rgba(15, 15, 30, 0.6),
+    rgba(26, 26, 62, 0.6)
+  );
+  border-color: var(--color-accent-primary, #9d4edd);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .skill-lab-page {
+    padding: 16px;
+  }
+  
+  .skill-lab-title {
+    font-size: 1.75rem;
+  }
+  
+  .skill-lab-subtitle {
+    font-size: 0.9rem;
+  }
+}
+`;export{n as default};

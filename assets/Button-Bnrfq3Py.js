@@ -1,0 +1,336 @@
+const n=`.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition:
+    transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+  outline: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  font-display: swap;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px var(--color-bg-primary),
+    0 0 0 5px var(--color-accent-primary),
+    0 4px 16px var(--color-accent-glow);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  background: var(--color-accent-primary);
+  color: var(--color-bg-primary);
+  border-color: var(--color-accent-primary);
+  box-shadow:
+    0 2px 0 0 color-mix(in srgb, var(--color-accent-primary) 70%, black),
+    0 4px 12px var(--color-accent-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--color-accent-primary) 92%, white);
+  border-color: color-mix(in srgb, var(--color-accent-primary) 92%, white);
+  box-shadow:
+    0 4px 0 0 color-mix(in srgb, var(--color-accent-primary) 70%, black),
+    0 8px 20px var(--color-accent-glow),
+    0 12px 32px color-mix(in srgb, var(--color-accent-glow) 60%, transparent);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 0 0 color-mix(in srgb, var(--color-accent-primary) 70%, black),
+    0 2px 8px var(--color-accent-glow);
+}
+
+.btn-secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border);
+  box-shadow:
+    0 1px 0 0 var(--color-border-light),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+  color: var(--color-accent-primary);
+  box-shadow:
+    0 3px 0 0 color-mix(in srgb, var(--color-accent-primary) 40%, var(--color-border)),
+    0 6px 16px rgba(0, 0, 0, 0.35),
+    0 0 0 1px var(--color-border-accent);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 0 0 var(--color-border-light),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-accent-primary);
+  border: 2px solid var(--color-accent-primary);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent-glow) 30%, transparent);
+}
+
+.btn-outline:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent);
+  box-shadow:
+    0 4px 0 0 color-mix(in srgb, var(--color-accent-primary) 30%, transparent),
+    0 8px 20px color-mix(in srgb, var(--color-accent-glow) 50%, transparent),
+    inset 0 0 0 1px var(--color-border-accent);
+}
+
+.btn-outline:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-accent-glow) 30%, transparent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--color-bg-secondary);
+  color: var(--color-accent-primary);
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-ghost:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-sm { padding: 8px 18px; font-size: 12px; letter-spacing: 0.06em; }
+.btn-md { padding: 12px 26px; font-size: 14px; }
+.btn-lg { padding: 16px 36px; font-size: 15px; letter-spacing: 0.1em; }
+
+/* ========================================
+   像素风主题 - 3D 立体按钮效果
+   ======================================== */
+
+/* Pixel Spectrum 主题 - 像素彩虹风格 */
+[data-theme="pixel-spectrum"] .btn {
+  font-family: var(--font-family, 'Press Start 2P', monospace);
+  border-radius: 0;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  image-rendering: pixelated;
+}
+
+[data-theme="pixel-spectrum"] .btn-primary {
+  background: var(--color-accent-primary);
+  color: var(--color-bg-primary);
+  border: 3px solid var(--color-accent-secondary);
+  /* 3D 立体效果 - 多层 box-shadow 模拟三视图 */
+  box-shadow:
+    /* 右侧面 */
+    4px 0 0 var(--color-accent-secondary),
+    /* 底部面 */
+    0 4px 0 var(--color-accent-tertiary),
+    /* 深度层 */
+    8px 8px 0 rgba(0, 0, 0, 0.4);
+  transform: translate(0, 0);
+}
+
+[data-theme="pixel-spectrum"] .btn-primary:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    6px 0 0 var(--color-accent-secondary),
+    0 6px 0 var(--color-accent-tertiary),
+    10px 10px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .btn-primary:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow:
+    2px 0 0 var(--color-accent-secondary),
+    0 2px 0 var(--color-accent-tertiary),
+    4px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .btn-secondary {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border: 3px solid var(--color-border-light);
+  box-shadow:
+    4px 0 0 var(--color-border),
+    0 4px 0 var(--color-border-light),
+    8px 8px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .btn-secondary:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    6px 0 0 var(--color-border),
+    0 6px 0 var(--color-border-light),
+    10px 10px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .btn-secondary:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow:
+    2px 0 0 var(--color-border),
+    0 2px 0 var(--color-border-light),
+    4px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-spectrum"] .btn-outline {
+  background: transparent;
+  color: var(--color-accent-primary);
+  border: 3px solid var(--color-accent-primary);
+  box-shadow:
+    4px 0 0 var(--color-accent-secondary),
+    0 4px 0 var(--color-accent-tertiary),
+    8px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="pixel-spectrum"] .btn-outline:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    6px 0 0 var(--color-accent-secondary),
+    0 6px 0 var(--color-accent-tertiary),
+    10px 10px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="pixel-spectrum"] .btn-outline:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow:
+    2px 0 0 var(--color-accent-secondary),
+    0 2px 0 var(--color-accent-tertiary),
+    4px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Pixel Crow 主题 - 乌鸦虹彩风格 */
+[data-theme="pixel-crow"] .btn {
+  font-family: var(--font-family, 'Press Start 2P', monospace);
+  border-radius: 0;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+  image-rendering: pixelated;
+}
+
+[data-theme="pixel-crow"] .btn-primary {
+  background: linear-gradient(135deg, var(--color-accent-primary), #533483);
+  background-size: 200% 200%;
+  animation: iridescent-shine 4s linear infinite;
+  color: #fff;
+  border: 3px solid var(--color-accent-secondary);
+  box-shadow:
+    4px 0 0 rgba(157, 78, 221, 0.8),
+    0 4px 0 rgba(233, 69, 96, 0.6),
+    8px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .btn-primary:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    6px 0 0 rgba(157, 78, 221, 0.8),
+    0 6px 0 rgba(233, 69, 96, 0.6),
+    10px 10px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .btn-primary:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow:
+    2px 0 0 rgba(157, 78, 221, 0.8),
+    0 2px 0 rgba(233, 69, 96, 0.6),
+    4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .btn-secondary {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border: 3px solid var(--color-accent-tertiary);
+  box-shadow:
+    4px 0 0 rgba(0, 212, 255, 0.6),
+    0 4px 0 rgba(157, 78, 221, 0.4),
+    8px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .btn-secondary:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    6px 0 0 rgba(0, 212, 255, 0.6),
+    0 6px 0 rgba(157, 78, 221, 0.4),
+    10px 10px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .btn-secondary:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow:
+    2px 0 0 rgba(0, 212, 255, 0.6),
+    0 2px 0 rgba(157, 78, 221, 0.4),
+    4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="pixel-crow"] .btn-outline {
+  background: transparent;
+  color: var(--color-accent-primary);
+  border: 3px solid var(--color-accent-primary);
+  box-shadow:
+    4px 0 0 rgba(157, 78, 221, 0.7),
+    0 4px 0 rgba(233, 69, 96, 0.5),
+    8px 8px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-crow"] .btn-outline:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    6px 0 0 rgba(157, 78, 221, 0.7),
+    0 6px 0 rgba(233, 69, 96, 0.5),
+    10px 10px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="pixel-crow"] .btn-outline:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow:
+    2px 0 0 rgba(157, 78, 221, 0.7),
+    0 2px 0 rgba(233, 69, 96, 0.5),
+    4px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* 像素风主题 - 通用按钮按压反馈 */
+[data-theme="pixel-spectrum"] .btn-primary:active,
+[data-theme="pixel-spectrum"] .btn-secondary:active,
+[data-theme="pixel-spectrum"] .btn-outline,
+[data-theme="pixel-crow"] .btn-primary:active,
+[data-theme="pixel-crow"] .btn-secondary:active,
+[data-theme="pixel-crow"] .btn-outline:active {
+  transition: transform 0.06s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.06s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+`;export{n as default};

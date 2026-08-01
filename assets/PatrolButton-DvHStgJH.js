@@ -1,0 +1,110 @@
+const n=`.patrol-fab-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.patrol-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, var(--color-accent-secondary), var(--color-accent-secondary));
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patrol-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-accent-secondary) 50%, transparent);
+}
+
+.patrol-fab.active {
+  background: linear-gradient(135deg, var(--color-error), var(--color-warning));
+  animation: patrol-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes patrol-pulse {
+  0%, 100% { box-shadow: 0 4px 12px color-mix(in srgb, var(--color-error) 50%, transparent); }
+  50% { box-shadow: 0 4px 20px color-mix(in srgb, var(--color-error) 80%, transparent); }
+}
+
+.patrol-progress-ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+
+.patrol-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-accent-secondary);
+}
+
+.patrol-health {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.health-dot.healthy { background: var(--color-success); box-shadow: 0 0 6px var(--color-success); }
+.health-dot.warning { background: var(--color-warning); box-shadow: 0 0 6px var(--color-warning); }
+.health-dot.danger { background: var(--color-error); box-shadow: 0 0 6px var(--color-error); animation: pulse-dot 1s infinite; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.health-text {
+  font-size: 12px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.patrol-dashboard-link {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.patrol-dashboard-link:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.9);
+}
+`;export{n as default};

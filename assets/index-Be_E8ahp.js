@@ -1,0 +1,271 @@
+const n=`/* ============================================================
+ *  Python Quest — ZZZ (绝区零) Design System
+ *  赛博朋克 / 扁平大色块 / 霓虹荧光 / 几何斜切 / 扫描线
+ * ============================================================ */
+/* 字体：Google Fonts — 载入简体中文 / Orbitron / Noto Serif SC / ZCOOL XiaoWei，
+   保证所有主题都能用到对应 display / serif 字体，所有字体启用 font-display=swap。 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Orbitron:wght@500;700;900&family=ZCOOL+XiaoWei&display=swap');
+
+/* 像素字体 — 用于像素风主题 */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+/* 像素风核心样式 */
+@import './styles/pixel-art.css';
+
+/* ============================================================
+ *  :root 默认值 — 作为"无 ThemeProvider 时"的回退（保持 ZZZ）
+ *  在有 ThemeProvider 运行时，这些值会被 documentElement
+ *  上的内联 style 动态覆盖，从而实现主题即时切换。
+ * ============================================================ */
+:root {
+  /* ===== 可被主题系统覆盖的变量 ===== */
+  /* 背景 */
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #12121a;
+  --color-bg-tertiary: #1a1a25;
+  --color-bg-card: #14141e;
+
+  /* 主题主色 1/2/3 */
+  --color-accent-primary: #c4ff00;
+  --color-accent-secondary: #00e5ff;
+  --color-accent-tertiary: #ff2e63;
+  --color-accent-glow: rgba(196, 255, 0, 0.35);
+  --color-accent-glow-cyan: rgba(0, 229, 255, 0.30);
+
+  /* 文字 */
+  --color-text-primary: #f0f0f5;
+  --color-text-secondary: #8a8a9a;
+  --color-text-muted: #555565;
+
+  /* 边框 */
+  --color-border: #2a2a35;
+  --color-border-light: #3a3a4a;
+  --color-border-accent: rgba(196, 255, 0, 0.30);
+
+  /* 功能色 */
+  --color-warning: #ffb800;
+  --color-error: #ff2e63;
+  --color-success: #c4ff00;
+  --color-locked: #3a3a45;
+
+  /* 字体 */
+  --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Rajdhani', 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Courier New', 'Consolas', monospace;
+
+  /* 圆角 */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-full: 9999px;
+
+  /* 斜切角（none 表示不切） */
+  --zzz-clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  --zzz-clip-path-sm: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+
+  /* ===== 全局不变变量 ===== */
+  --color-bg-card-hover: var(--color-bg-tertiary);
+  --color-warning-bg: rgba(255, 184, 0, 0.12);
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px var(--color-accent-glow);
+  --shadow-glow-cyan: 0 0 20px var(--color-accent-glow-cyan);
+
+  --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 450ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 可选：主题背景图案（由 ThemeContext 注入） */
+  --theme-bg-pattern: initial;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 组合背景：主题图案 + 可选扫描线叠加 */
+  background-image: var(--theme-bg-pattern);
+  background-attachment: fixed;
+  /* 平滑过渡主题切换 */
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* 开启扫描线时的叠加层（仅开启扫描线主题生效） */
+body.theme-scanline::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 2px,
+    color-mix(in srgb, var(--color-accent-primary) 15%, transparent) 2px,
+    color-mix(in srgb, var(--color-accent-primary) 15%, transparent) 4px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+/* 霓虹模式：给 text-shadow 等全局修饰（留给具体组件自行使用 text-shadow） */
+body.theme-neon :where(h1, h2, h3, h4, h5, h6, .neon-title) {
+  /* 仅给 display 字体使用的文字发光（具体组件还会二次覆盖） */
+  text-shadow: 0 0 6px var(--color-accent-glow);
+}
+
+/* data-theme 属性兜底（供 CSS 调试或将来扩展） */
+html[data-theme='light-tech'] {
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.10);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-display);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+  letter-spacing: 0.05em;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* ============================================================
+ *  ZZZ 动画系统
+ * ============================================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--color-accent-glow); }
+  50% { box-shadow: 0 0 24px var(--color-accent-glow), 0 0 48px var(--color-accent-glow); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ZZZ 专属：霓虹闪烁 */
+@keyframes zzz-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.4; }
+  94% { opacity: 1; }
+  96% { opacity: 0.7; }
+  97% { opacity: 1; }
+}
+
+/* ZZZ 专属：扫描线扫过 */
+@keyframes zzz-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ZZZ 专属：故障跳动 */
+@keyframes zzz-glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+}
+
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.animate-slide-left { animation: slideInLeft 0.5s ease-out forwards; }
+.animate-slide-right { animation: slideInRight 0.5s ease-out forwards; }
+
+/* ZZZ 工具类 */
+.zzz-flicker { animation: zzz-flicker 4s linear infinite; }
+.zzz-glitch:hover { animation: zzz-glitch 0.3s ease-in-out; }
+
+/* ZZZ 斜切角 */
+.zzz-clip { clip-path: var(--zzz-clip-path); }
+.zzz-clip-sm { clip-path: var(--zzz-clip-path-sm); }
+
+/* ZZZ 霓虹文字 */
+.zzz-neon {
+  color: var(--color-accent-primary);
+  text-shadow: 0 0 4px var(--color-accent-glow), 0 0 8px var(--color-accent-glow);
+}
+.zzz-neon-cyan {
+  color: var(--color-accent-secondary);
+  text-shadow: 0 0 4px var(--color-accent-glow-cyan), 0 0 8px var(--color-accent-glow-cyan);
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+`;export{n as default};
