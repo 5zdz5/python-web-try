@@ -1,0 +1,16 @@
+const n=`/* App 容器 — 纯色底，无全屏光晕 */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+`;export{n as default};

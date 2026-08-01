@@ -1,4 +1,5 @@
 const o=`import { Link } from 'react-router-dom'
+import VisitsCounter from '../VisitsCounter'
 import './Footer.css'
 
 function Footer() {
@@ -49,6 +50,7 @@ function Footer() {
       <div className="footer-bottom">
         <div className="container">
           <p>&copy; 2024 Python Quest. All rights reserved.</p>
+          <VisitsCounter />
         </div>
       </div>
     </footer>

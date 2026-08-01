@@ -12,8 +12,8 @@ export const THEME_ZZZ: ThemePreset = {
     id: 'zzz',
     name: '绝区零 ZZZ',
     author: 'Python Quest',
-    description: '绝区零官方风格：荧光黄绿主色 + 霓虹青辅色 + 赛博扫描线，适合夜间沉浸。',
-    tags: ['赛博朋克', '深色', '荧光', '霓虹', '高对比'],
+    description: '绝区零配色 + 简易方块 UI：直角大色块、实线边框，无斜切与扫描线。',
+    tags: ['方块', '深色', '荧光', '简洁', '高对比'],
     palette: ['#c4ff00', '#00e5ff', '#ff2e63', '#0a0a0f', '#12121a'],
     version: '1.0.0',
   },
@@ -40,25 +40,22 @@ export const THEME_ZZZ: ThemePreset = {
   },
   fonts: {
     family: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
-    display: '"Orbitron", "Rajdhani", "Noto Sans SC", sans-serif',
+    display: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
     mono: '"Courier New", "JetBrains Mono", "Consolas", monospace',
   },
   radii: {
-    sm: '2px',
-    md: '4px',
-    lg: '6px',
-    xl: '8px',
+    sm: '0px',
+    md: '0px',
+    lg: '0px',
+    xl: '0px',
   },
   decoration: {
-    clipPath:
-      'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-    clipPathSm:
-      'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-    scanline: true,
-    glitchEffect: true,
-    neonGlow: true,
-    bgPattern:
-      'radial-gradient(circle at 20% 20%, rgba(196, 255, 0, 0.06), transparent 40%), radial-gradient(circle at 80% 0%, rgba(0, 229, 255, 0.06), transparent 40%)',
+    clipPath: 'none',
+    clipPathSm: 'none',
+    scanline: false,
+    glitchEffect: false,
+    neonGlow: false,
+    bgPattern: 'none',
   },
 }
 
@@ -296,8 +293,8 @@ export const THEME_PIXEL_SPECTRUM: ThemePreset = {
     id: 'pixel-spectrum',
     name: '像素彩虹 Pixel Spectrum',
     author: 'Python Quest',
-    description: '像素方块风格 + 泰拉瑞亚式微光液体彩虹流动，立体3D按钮，柱子升起动画。',
-    tags: ['像素风', '立体', '彩虹', '动态', '3D'],
+    description: '简易方块 UI：直角面板 + 实线边框 + 硬边阴影，无 3D/彩虹动画。',
+    tags: ['方块', '简洁', '扁平', '深色'],
     palette: ['#ff0080', '#ff8c00', '#ffed00', '#00ff88', '#00c8ff', '#8000ff', '#ff00ff'],
     version: '2.0.0',
   },
@@ -323,9 +320,9 @@ export const THEME_PIXEL_SPECTRUM: ThemePreset = {
     locked: '#3a3a4a',
   },
   fonts: {
-    family: '"Press Start 2P", "VT323", "Courier New", monospace',
-    display: '"Press Start 2P", "VT323", monospace',
-    mono: '"VT323", "Press Start 2P", monospace',
+    family: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    display: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    mono: '"JetBrains Mono", "Courier New", "Consolas", monospace',
   },
   radii: {
     sm: '0px',
@@ -336,24 +333,23 @@ export const THEME_PIXEL_SPECTRUM: ThemePreset = {
   decoration: {
     clipPath: 'none',
     clipPathSm: 'none',
-    scanline: true,
+    scanline: false,
     glitchEffect: false,
-    neonGlow: true,
-    bgPattern:
-      'linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 20, 40, 0.95)), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 136, 0.02) 2px, rgba(0, 255, 136, 0.02) 4px)',
+    neonGlow: false,
+    bgPattern: 'none',
   },
 }
 
 // ============================================================
-// 7. 像素乌鸦 Pixel Crow — 五彩斑斓的黑 / 乌鸦虹彩
+// 7. 像素乌鸦 Pixel Crow — 简易方块（深色）
 // ============================================================
 export const THEME_PIXEL_CROW: ThemePreset = {
   meta: {
     id: 'pixel-crow',
     name: '像素乌鸦 Pixel Crow',
     author: 'Python Quest',
-    description: '像素方块风格 + 乌鸦五彩斑斓的黑，深邃背景中流动着虹彩光泽，神秘高贵。',
-    tags: ['像素风', '立体', '乌鸦', '虹彩', '神秘'],
+    description: '简易方块 UI：深色底 + 直角块，无虹彩/3D 特效。',
+    tags: ['方块', '简洁', '深色', '扁平'],
     palette: ['#1a1a2e', '#16213e', '#0f3460', '#533483', '#e94560'],
     version: '2.0.0',
   },
@@ -379,9 +375,9 @@ export const THEME_PIXEL_CROW: ThemePreset = {
     locked: '#2a2a38',
   },
   fonts: {
-    family: '"Press Start 2P", "VT323", "Courier New", monospace',
-    display: '"Press Start 2P", "VT323", monospace',
-    mono: '"VT323", "Press Start 2P", monospace',
+    family: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    display: '"Noto Sans SC", "PingFang SC", system-ui, sans-serif',
+    mono: '"JetBrains Mono", "Courier New", "Consolas", monospace',
   },
   radii: {
     sm: '0px',
@@ -392,11 +388,10 @@ export const THEME_PIXEL_CROW: ThemePreset = {
   decoration: {
     clipPath: 'none',
     clipPathSm: 'none',
-    scanline: true,
+    scanline: false,
     glitchEffect: false,
-    neonGlow: true,
-    bgPattern:
-      'linear-gradient(180deg, rgba(8, 8, 15, 0.98), rgba(15, 15, 30, 0.98)), repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(157, 78, 221, 0.03) 3px, rgba(157, 78, 221, 0.03) 6px)',
+    neonGlow: false,
+    bgPattern: 'none',
   },
 }
 
@@ -413,7 +408,7 @@ export const ALL_THEMES: ThemePreset[] = [
   THEME_PIXEL_CROW,
 ]
 
-export const DEFAULT_THEME_ID = 'pixel-spectrum'
+export const DEFAULT_THEME_ID = 'zzz'
 
 export const STORAGE_KEY = 'python-quest-theme@v2.0'
 `;export{e as default};

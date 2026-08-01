@@ -1,6 +1,5 @@
 const n=`/* ============================================================
- *  Python Quest — ZZZ (绝区零) Design System
- *  赛博朋克 / 扁平大色块 / 霓虹荧光 / 几何斜切 / 扫描线
+ *  Python Quest — 绝区零配色 + 简易方块 UI
  * ============================================================ */
 /* 字体：Google Fonts — 载入简体中文 / Orbitron / Noto Serif SC / ZCOOL XiaoWei，
    保证所有主题都能用到对应 display / serif 字体，所有字体启用 font-display=swap。 */
@@ -9,8 +8,9 @@ const n=`/* ============================================================
 /* 像素字体 — 用于像素风主题 */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
-/* 像素风核心样式 */
+/* 像素风可选组件（3D/彩虹等为 opt-in，默认由 block-ui 压平） */
 @import './styles/pixel-art.css';
+@import './styles/block-ui.css';
 
 /* ============================================================
  *  :root 默认值 — 作为"无 ThemeProvider 时"的回退（保持 ZZZ）
@@ -50,19 +50,19 @@ const n=`/* ============================================================
 
   /* 字体 */
   --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-display: 'Orbitron', 'Rajdhani', 'Noto Sans SC', sans-serif;
+  --font-display: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Courier New', 'Consolas', monospace;
 
-  /* 圆角 */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  /* 圆角 — 方块 UI */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
   --radius-full: 9999px;
 
-  /* 斜切角（none 表示不切） */
-  --zzz-clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-  --zzz-clip-path-sm: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  /* 斜切角 — 方块 UI 不使用 */
+  --zzz-clip-path: none;
+  --zzz-clip-path-sm: none;
 
   /* ===== 全局不变变量 ===== */
   --color-bg-card-hover: var(--color-bg-tertiary);
