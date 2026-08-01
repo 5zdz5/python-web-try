@@ -106,12 +106,20 @@
   padding: var(--spacing-lg) 0;
 }
 
+.footer-bottom .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .footer-bottom p {
   color: var(--color-text-muted);
   font-family: var(--font-mono);
   font-size: 12px;
-  text-align: center;
   letter-spacing: 0.05em;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
