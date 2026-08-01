@@ -19,7 +19,7 @@ function VisitsCounter() {
     fetch('https://abacus.jasoncameron.dev/hit/python-web-try/visits')
       .then((res) => res.json())
       .then((data) => {
-        if (data.status === 'ok' && typeof data.value === 'number') {
+        if (typeof data.value === 'number') {
           setVisits(data.value)
           setStatus('ok')
         } else {
