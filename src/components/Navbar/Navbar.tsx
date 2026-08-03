@@ -4,6 +4,8 @@ import './Navbar.css'
 import { useProgress } from '../../context/ProgressContext'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
+import { useMonitor } from '../../context/MonitorContext'
+import { useEffect } from 'react'
 import LoginModal from '../LoginModal'
 import ThemePanel from '../ThemePanel/ThemePanel'
 
@@ -21,6 +23,12 @@ function Navbar({ showUserInfo }: NavbarProps) {
   const isHome = location.pathname === '/'
   const displayUserInfo = showUserInfo !== undefined ? showUserInfo : !isHome
   const [showErrorTip, setShowErrorTip] = useState(false)
+
+  // 监测主动注册：Navbar组件
+  const { registerGroup } = useMonitor()
+  useEffect(() => {
+    registerGroup('Navbar', '顶部导航', 'src/components/Navbar/Navbar.tsx')
+  }, [registerGroup])
 
   const initials = auth?.user?.login?.slice(0, 2).toUpperCase() || 'LY'
 
@@ -97,6 +105,9 @@ function Navbar({ showUserInfo }: NavbarProps) {
             </Link>
             <Link to="/plugins" className={`nav-link ${location.pathname.startsWith('/plugins') ? 'active' : ''}`}>
               插件中心
+            </Link>
+            <Link to="/source" className={`nav-link ${location.pathname === '/source' ? 'active' : ''}`}>
+              经验包
             </Link>
           </div>
 

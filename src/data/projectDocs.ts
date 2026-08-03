@@ -33,9 +33,10 @@ export interface MigrationStep {
 }
 
 // ===== 当前版本信息 =====
-export const DOC_VERSION = 'v4.4'
-export const DOC_LAST_UPDATE = '2026-08-01'
+export const DOC_VERSION = 'v4.5'
+export const DOC_LAST_UPDATE = '2026-08-03'
 export const DOC_CHANGES = [
+  'v4.5 在Navbar中添加经验包快捷入口并添加监测注册 - 在导航栏中直接添加指向/source路径的经验包访问链接，并在Navbar组件中添加useEffect调用registerGroup以确保组件状态被监测系统追踪',
   'v4.4 pack36：游戏中心 + 插件中心补全（2个新小游戏+代码打字插件）— 游戏中心聚合页 GAMES[] 3 款游戏卡片（代码打字竞技场/代码输出猜谜/算法闪卡训练营），Navbar 新增「游戏中心」入口（替换原「打字大战」单入口），3 条新 /games/* Route + 老 /typing 兼容保留；新建 CodeOutputQuiz 8 题 4 选 1 题库（Python/TS/React 三分类+实时正确率+每题详解）；新建 AlgorithmFlashcards 12 张算法闪卡 5 大分类（3D 翻转卡 + TC/SC 复杂度 + 核心思路 + 识别模式标签 + 掌握进度追踪）；插件中心 PluginsHub 扩 category 新增 game 类（9 分类），新增 code-typing 插件卡片；新建 PluginsHub/CodeTyping 插件页用 PluginShell 统一外壳（icon/subtitle/vendor/version 6 合法 props）+ 内部 embed <CodeTypingArena embedMode /> 复用业务组件避免双重标题；App.tsx 注册 /plugins/code-typing Route；经验包 PACK_BUILD 35→36（MODULES 3 新 + LESSONS 2 新 + CONVERSATION_LOG conv-20260801-40 rhythm-roll）；蚕食漏洞二次排查确认 nibbleLevels 源码中无伪 ParentNode 残留；tsc 0 错误 build 2.30s 成功。',
   'v4.3 pack34：Kimi超级升级 + 代码级自优化 + 22条编码经验注入 + 10插件中心 — llmClient.ts升级为Kimi三Provider版（detectProvider自动识别+kimiCreateCache Context Caching+kimiMakeCacheReferenceMessage引用消息+kimiUploadAndExtract超长安抽取+KIMI_CODE_SELF_OPTIMIZE_TOOLS Function Calling+sanitizeLLMJSON三重清洗）；codeSelfOptimizer.ts补丁闭环（准备→生成补丁→Dry Run唯一匹配检查→自动备份→按风险升序应用→语法验证→失败逆序回溯）；codebaseIndexer.ts Vite import.meta.glob前端安全索引（rawGlob懒加载+normalizePath去前导/）；codingExperienceInjector.ts 22条编码经验（system prompt+3个few-shot正例+token估算）；AIAgentPanel新增代码级自优化板块（配置/索引/经验/优化结果4个可折叠面板）；插件中心PlugginsHub 10插件卡+7分类筛选+PluginShell统一外壳+Seedream图生/Seedance视频/VizLab10图表/ProductDocs6文档4个独立插件页；TSC 19项错误全修复，0错误。PACK_BUILD 32→33',
   'v4.3 pack33：超级进化（资源调配总线+元逻辑引擎+本地离线LLM内核+自编码器参数自适应）— resourceBus.ts 8类资源统一调度（allocate/lock/release/schedule四操作+优先级加权+冲突检测+死锁超时释放）；metaLogic.ts 14条META_RULES覆盖6类经验（evaluate()无副作用只给confidence+action建议，供AIAgentContext统一决策）；localLLMCore.ts离线兜底（TF-IDF倒排+规则生成+决策树打分，严格限低风险补丁）；selfCoder.ts四因素量化理解度→3模式切换→selfTuneParameters自动覆盖TunableParams；PACK_BUILD 31→32',
